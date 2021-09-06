@@ -13,18 +13,14 @@
 import json
 
 from copy import deepcopy
-from datetime import datetime, date, time
-from geojson import Point, LineString, Polygon
+from datetime import datetime
 from typing import Any, Union
-from collections.abc import Sequence
-from dataclasses import dataclass
-from enum import Enum
 
+from orionldclient.utils.urn import prefix
 from .exceptions import *
 from .constants import *
 from .attribute import *
 from .ngsidict import NgsiDict
-from ..utils import urn_prefix
 
 
 class Context:
@@ -60,7 +56,7 @@ class Entity:
         type: str,
         ctx: Context = Context(),
     ):
-        self.id = id = urn_prefix(DEFAULT_NID) + id
+        self.id = id = prefix(DEFAULT_NID, id)
         self.type = type
         self.ctx = ctx
         self._entity: NgsiDict = NgsiDict({"id": id, "type": type})
@@ -99,7 +95,7 @@ class Entity:
         observed_at: Union[str, datetime] = None,
         userdata: NgsiDict = NgsiDict(),
     ):
-        v = urn_prefix(DEFAULT_NID) + value
+        v = prefix(DEFAULT_NID, value)
         self._entity.rel(name, value, observed_at, userdata)
         return self._entity[name]
 
