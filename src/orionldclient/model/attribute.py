@@ -14,10 +14,7 @@
 from datetime import datetime, date, time
 from geojson import Point, LineString, Polygon
 from typing import Any, Union
-from collections.abc import Sequence
-from enum import Enum
-from orionldclient.utils.date import datetime_to_iso8601
-from orionldclient.utils.urn import prefix
+from orionldclient.utils import *
 from .exceptions import *
 from .constants import *
 from .ngsidict import NgsiDict
@@ -94,7 +91,7 @@ def build_relationship(
 ) -> NgsiDict:
     property: NgsiDict = NgsiDict()
     property["type"] = AttrType.REL.value  # set type
-    v = prefix(DEFAULT_NID, value)
+    v = urnprefix(DEFAULT_NID, value)
     property["object"] = v  # set value
     if observed_at is not None:
         if isinstance(observed_at, datetime):
