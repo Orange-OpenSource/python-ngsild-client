@@ -1,0 +1,25 @@
+{
+    "id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+    "type": "AirQualityObserved",
+    "dateObserved": {
+      "type": "Property",
+      "value": {
+        "@type": "DateTime",
+        "@value": "2018-08-07T12:00:00Z"
+      }
+    },
+    "NO2": {
+      "type": "Property",
+      "value": 22,
+      "unitCode": "GP"
+    },
+    "refPointOfInterest": {
+      "type": "Relationship",
+      "object": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare"
+    },
+    "@context": [
+      "https://schema.lab.fiware.org/ld/context",
+      "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+    ]
+  }
+  

@@ -105,7 +105,7 @@ class Entity:
     def __repr__(self):
         return self._entity.__repr__()
 
-    def json(self, indent=None):
+    def to_json(self, indent=None):
         """Returns the datamodel in json format"""
         entity_with_context = deepcopy(self._entity)
         entity_with_context[META_ATTR_CONTEXT] = self.ctx.data
@@ -115,4 +115,4 @@ class Entity:
 
     def pprint(self):
         """Returns the datamodel pretty-json-formatted"""
-        print(self.json(indent=2))
+        print(self.to_json(indent=2))

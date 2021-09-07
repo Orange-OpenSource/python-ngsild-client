@@ -15,7 +15,11 @@ from typing import Protocol
 
 import json
 
+
 class NgsiFormatter(Protocol):
+
+    # helper methods to build attributes
+
     def prop(self, *args, **kwargs) -> NgsiFormatter:
         ...
 
@@ -28,14 +32,48 @@ class NgsiFormatter(Protocol):
     def rel(self, *args, **kwargs) -> NgsiFormatter:
         ...
 
-    def json(self, *args, **kwargs) -> str:
+    # helper methods to read and write
+
+    def _from_json(self, payload: str) -> NgsiFormatter:
+        ...
+
+    def _load(self, payload: str) -> NgsiFormatter:
+        ...
+
+    def to_json(self, *args, **kwargs) -> str:
         ...
 
     def pprint(self) -> None:
-        ...         
+        ...
+
+    def _save(self, filename: str) -> None:
+        ...
 
 
 class NgsiDict(dict, NgsiFormatter):
+    @classmethod
+    def _from_json(cls, payload: str):
+        d = json.loads(payload)
+        return cls(d)
+
+    @classmethod
+    def _load(cls, filename: str):
+        with open(filename, "r") as fp:
+            d = json.load(fp)
+            return cls(d)
+
+    def to_json(self, indent=None) -> str:
+        """Returns the dict in json format"""
+        return json.dumps(self, default=str, ensure_ascii=False, indent=indent)
+
+    def pprint(self) -> None:
+        """Returns the dict pretty-json-formatted"""
+        print(self.to_json(indent=2))
+
+    def _save(self, filename: str, indent=2):
+        with open(filename, "w") as fp:
+            json.dump(self, fp, default=str, ensure_ascii=False, indent=indent)
+
     def prop(self, name, *args, **kwargs):
         from .attribute import build_property
 
@@ -59,13 +97,3 @@ class NgsiDict(dict, NgsiFormatter):
 
         self[name] = build_relationship(*args, **kwargs)
         return self[name]
-
-    def json(self, indent=None):
-        """Returns the dict in json format"""
-        return json.dumps(
-            self, default=str, ensure_ascii=False, indent=indent
-        )
-
-    def pprint(self) -> None:
-        """Returns the dict pretty-json-formatted"""
-        print(self.json(indent=2))        
