@@ -17,5 +17,5 @@ from orionldclient.utils import (
     utcnow_to_iso8601,
     escape,
     unescape,
-    urnprefix,
+    Urn,
 )

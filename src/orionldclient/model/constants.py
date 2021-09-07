@@ -12,9 +12,6 @@
 
 from enum import Enum
 
-
-DEFAULT_NID = "ngsi-ld"
-
 META_ATTR_CONTEXT = "@context"
 META_ATTR_UNITCODE = "unitCode"
 META_ATTR_OBSERVED_AT = "observedAt"

@@ -16,7 +16,6 @@ from copy import deepcopy
 from datetime import datetime
 from typing import Any, Union
 
-from orionldclient.utils import urnprefix
 from .exceptions import *
 from .constants import *
 from .attribute import *
@@ -56,7 +55,7 @@ class Entity:
         type: str,
         ctx: Context = Context(),
     ):
-        self.id = id = urnprefix(DEFAULT_NID, id)
+        self.id = id = Urn(id).fq
         self.type = type
         self.ctx = ctx
         self._entity: NgsiDict = NgsiDict({"id": id, "type": type})
@@ -95,7 +94,6 @@ class Entity:
         observed_at: Union[str, datetime] = None,
         userdata: NgsiDict = NgsiDict(),
     ):
-        v = urnprefix(DEFAULT_NID, value)
         self._entity.rel(name, value, observed_at, userdata)
         return self._entity[name]
 
