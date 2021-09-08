@@ -10,7 +10,7 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
-from orionldclient.model.serialization import NgsiSerializationProtocol
+from orionldclient.onm.serialization import NgsiSerializationProtocol
 from orionldclient.model.entity import Entity
 from orionldclient.model.ngsidict import NgsiDict
 from orionldclient.utils.urn import Urn

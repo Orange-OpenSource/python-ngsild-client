@@ -12,7 +12,7 @@
 
 from typing import Protocol
 
-from .ngsidict import NgsiDict
+from orionldclient.model.ngsidict import NgsiDict
 
 
 class NgsiSerializationProtocol(Protocol):

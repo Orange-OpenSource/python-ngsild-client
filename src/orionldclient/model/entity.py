@@ -22,30 +22,33 @@ from .attribute import *
 from .ngsidict import NgsiDict
 
 
-class Context:
+class ContextBuilder:
 
     DEFAULT = [
         "https://schema.lab.fiware.org/ld/context",
         "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
     ]
 
-    _data: list[str] = None
+    EMPTY = []
 
-    @property
-    def data(self):
-        return self._data
+    _ctx: list[str] = None
 
-    def __init__(self, ctx: list[str] = DEFAULT):
-        self._data = ctx
+    def __init__(self, ctx: list[str] = None):
+        self._ctx = ContextBuilder.DEFAULT if ctx is None else ctx
 
     def add(self, uri: str):
-        self._data.append(uri)
+        self._ctx.append(uri)
+        return self
 
     def remove(self, uri: str):
-        self._data.remove(uri)
+        self._ctx.remove(uri)
+        return self
 
     def __repr__(self):
-        return self._data.__repr__()
+        return self._ctx.__repr__()
+
+    def build(self):
+        return self._ctx
 
 
 class Entity:
@@ -53,18 +56,47 @@ class Entity:
         self,
         id: str,
         type: str,
-        ctx: Context = Context(),
+        context: list = ContextBuilder().build(),
+        contextfirst: bool = False,
     ):
-        self.id = id = Urn.prefix(id)
-        self.type = type
-        self.ctx = ctx
-        self._entity: NgsiDict = NgsiDict({"id": id, "type": type})
+        self.contextfirst = contextfirst  # TODO : move at api level
+        self._payload: NgsiDict = NgsiDict(
+            {"@context": context, "id": Urn.prefix(id), "type": type}
+        )
+
+    @classmethod
+    def from_dict(cls, entity: dict):
+        if not entity.get("id", None):
+            raise NgsiMissingIdError()
+        if not entity.get("type", None):
+            raise NgsiMissingTypeError()
+        if not entity.get("@context", None):
+            raise NgsiMissingContextError()
+        instance = cls(None, None)  # id and type will be overwritten next line
+        instance._payload |= entity
+        return instance
+
+    @classmethod
+    def load(cls, filename: str):
+        pass
+
+    @property
+    def id(self):
+        return self._payload["id"]
+
+    @property
+    def type(self):
+        return self._payload["type"]
+
+    @property
+    def context(self):
+        return self._payload["@context"]
 
     def getattr(self, attr: str):
-        return self._entity.get(attr)
+        return self._payload.get(attr)
 
     def setattr(self, attr: str, value: Any):
-        self._entity[attr] = value
+        self._payload[attr] = value
 
     def prop(
         self,
@@ -75,17 +107,17 @@ class Entity:
         dataset_id: str = None,
         userdata: NgsiDict = NgsiDict(),
     ):
-        self._entity.prop(name, value, unitcode, observed_at, dataset_id, userdata)
-        return self._entity[name]
+        self._payload.prop(name, value, unitcode, observed_at, dataset_id, userdata)
+        return self._payload[name]
 
     def gprop(self, name: str, value: Any):
-        self._entity.gprop(name, value)
-        return self._entity[name]
+        self._payload.gprop(name, value)
+        return self._payload[name]
 
     def tprop(self, name: str, value: Any):
         # TODO : handle Date and Time
-        self._entity.tprop(name, value)
-        return self._entity[name]
+        self._payload.tprop(name, value)
+        return self._payload[name]
 
     def rel(
         self,
@@ -94,8 +126,8 @@ class Entity:
         observed_at: Union[str, datetime] = None,
         userdata: NgsiDict = NgsiDict(),
     ):
-        self._entity.rel(name, value, observed_at, userdata)
-        return self._entity[name]
+        self._payload.rel(name, value, observed_at, userdata)
+        return self._payload[name]
 
     def __eq__(self, other):
         if other.__class__ is not self.__class__:
@@ -103,16 +135,22 @@ class Entity:
         return self.type == other.type and self.id == other.id
 
     def __repr__(self):
-        return self._entity.__repr__()
+        return self._payload.__repr__()
 
-    def to_json(self, indent=None):
+    def to_json(self, *args, **kwargs):
         """Returns the datamodel in json format"""
-        entity_with_context = deepcopy(self._entity)
-        entity_with_context[META_ATTR_CONTEXT] = self.ctx.data
-        return json.dumps(
-            entity_with_context, default=str, ensure_ascii=False, indent=indent
-        )
+        if self.contextfirst:
+            payload = self._payload
+        else:
+            ctx = self._payload[META_ATTR_CONTEXT]
+            payload = deepcopy(self._payload)
+            del payload[META_ATTR_CONTEXT]
+            payload[META_ATTR_CONTEXT] = ctx
+        return payload.to_json(*args, **kwargs)
 
     def pprint(self):
         """Returns the datamodel pretty-json-formatted"""
         print(self.to_json(indent=2))
+
+    def save(self, filename: str):
+        pass

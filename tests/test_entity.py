@@ -36,6 +36,35 @@ def test_air_quality():
     )
 
 
+def test_air_quality_from_dict():
+    payload = {
+        "@context": [
+            "https://schema.lab.fiware.org/ld/context",
+            "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        ],
+        "id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+        "type": "AirQualityObserved",
+        "dateObserved": {
+            "type": "Property",
+            "value": {"@type": "DateTime", "@value": "2018-08-07T12:00:00Z"},
+        },
+        "NO2": {"type": "Property", "value": 22, "unitCode": "GP"},
+        "refPointOfInterest": {
+            "type": "Relationship",
+            "object": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare",
+        },
+    }
+    e = Entity.from_dict(payload)
+    assert (
+        e.to_json() == r'{"id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567", '
+        r'"type": "AirQualityObserved", '
+        r'"dateObserved": {"type": "Property", "value": {"@type": "DateTime", "@value": "2018-08-07T12:00:00Z"}}, '
+        r'"NO2": {"type": "Property", "value": 22, "unitCode": "GP"}, '
+        r'"refPointOfInterest": {"type": "Relationship", "object": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare"}, '
+        r'"@context": ["https://schema.lab.fiware.org/ld/context", "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"]}'
+    )
+
+
 def test_air_quality_with_userdata():
     """Build a sample AirQualityObserved Entity
 
@@ -81,7 +110,6 @@ def test_air_quality_with_nested_prop_2_lvl():
     e.prop("NO2", 22, unitcode="GP").prop("accuracy", 0.95)
     e.prop("NO2", 22, unitcode="GP").prop("qc", "checked").prop("status", "discarded")
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
-    print(e.to_json())
     assert (
         e.to_json()
         == r'{"id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567", "type": "AirQualityObserved", "dateObserved": {"type": "Property", "value": {"@type": "DateTime", "@value": "2018-08-07T12:00:00Z"}}, "NO2": {"type": "Property", "value": 22, "unitCode": "GP", "qc": {"type": "Property", "value": "checked", "status": {"type": "Property", "value": "discarded"}}}, "refPointOfInterest": {"type": "Relationship", "object": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare"}, "@context": ["https://schema.lab.fiware.org/ld/context", "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"]}'
@@ -131,17 +159,20 @@ def test_store():
     Context Information Management (CIM) ; NGSI-LD Primer [ETSI GR CIM 008 V1.1.1 (2020-03)]
 
     """
-    ctx = Context()
-    ctx.add(
-        {
-            "Store": "https://uri.etsi.org/ngsi-ld/primer/Store",
-            "address": "https://uri.etsi.org/ngsi-ld/primer/address",
-            "storeName": "https://uri.etsi.org/ngsi-ld/primer/storeName",
-            "streetAddress": "https://uri.etsi.org/ngsi-ld/primer/streetAddress",
-            "addressRegion": "https://uri.etsi.org/ngsi-ld/primer/addressRegion",
-            "addressLocality": "https://uri.etsi.org/ngsi-ld/primer/addressLocality",
-            "postalCode": "https://uri.etsi.org/ngsi-ld/primer/postalCode",
-        }
+    ctx = (
+        ContextBuilder()
+        .add(
+            {
+                "Store": "https://uri.etsi.org/ngsi-ld/primer/Store",
+                "address": "https://uri.etsi.org/ngsi-ld/primer/address",
+                "storeName": "https://uri.etsi.org/ngsi-ld/primer/storeName",
+                "streetAddress": "https://uri.etsi.org/ngsi-ld/primer/streetAddress",
+                "addressRegion": "https://uri.etsi.org/ngsi-ld/primer/addressRegion",
+                "addressLocality": "https://uri.etsi.org/ngsi-ld/primer/addressLocality",
+                "postalCode": "https://uri.etsi.org/ngsi-ld/primer/postalCode",
+            }
+        )
+        .build()
     )
     e = Entity("Store:001", "Store", ctx)
     e.prop(
@@ -176,13 +207,17 @@ def test_vehicle():
     Context Information Management (CIM) ; NGSI-LD API []ETSI GS CIM 009 V1.1.1 (2019-01)]
 
     """
-    ctx = Context()
-    ctx.add(
-        [
-            "http://example.org/ngsi-ld/commonTerms.jsonld",
-            "http://example.org/ngsi-ld/vehicle.jsonld",
-            "http://example.org/ngsi-ld/parking.jsonld",
-        ]
+
+    ctx = (
+        ContextBuilder()
+        .add(
+            [
+                "http://example.org/ngsi-ld/commonTerms.jsonld",
+                "http://example.org/ngsi-ld/vehicle.jsonld",
+                "http://example.org/ngsi-ld/parking.jsonld",
+            ]
+        )
+        .build()
     )
 
     e = Entity("Vehicle:A4567", "Vehicle", ctx)
