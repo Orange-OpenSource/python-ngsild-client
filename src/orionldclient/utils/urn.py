@@ -45,23 +45,30 @@ class Urn:
         return self.fq
 
     @classmethod
-    def from_fully_qualified_string(cls, resource: str):
-        m = URN_PATTERN.match(resource)
+    def from_name_fully_qualified(cls, name: str):
+        m = URN_PATTERN.match(name)
         if m is None:
-            raise UrnError(f"Bad urn format : {resource}")
+            raise UrnError(f"Bad urn format : {name}")
         d = m.groupdict()
         return cls(d["nss"], d["nid"])
 
     @classmethod
-    def from_string(cls, resource: str):
+    def from_name(cls, resource: str):
         try:
-            cls = Urn.from_fully_qualified_string(resource)
+            cls = Urn.from_name_fully_qualified(resource)
         except UrnError:
             cls = Urn(resource)
         return cls
-
 
     @staticmethod
     def is_valid_nid(nid: str) -> str:
         m = NID_PATTERN.match(nid)
         return m is not None
+
+    @staticmethod
+    def prefix(nss: str, nid: str = DEFAULT_NID) -> str:
+        return Urn(nss, nid).fq
+
+    @staticmethod
+    def unprefix(resource: str) -> str:
+        return Urn.from_name(resource).nss

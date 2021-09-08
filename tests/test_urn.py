@@ -38,7 +38,7 @@ def test_constructor_with_nid():
 
 
 def test_valid_urn():
-    urn = Urn.from_fully_qualified_string("urn:ngsi-ld:test")
+    urn = Urn.from_name_fully_qualified("urn:ngsi-ld:test")
     assert urn.scheme == "urn"
     assert urn.nid == "ngsi-ld"
     assert urn.nss == "test"
@@ -46,15 +46,15 @@ def test_valid_urn():
 
 def test_invalid_urn_bad_nid():
     with pytest.raises(UrnError):
-        urn = Urn.from_fully_qualified_string("urn:ngsi*ld:test")
+        urn = Urn.from_name_fully_qualified("urn:ngsi*ld:test")
 
 
 def test_invalid_urn_missing_nss():
     with pytest.raises(UrnError):
-        urn = Urn.from_fully_qualified_string("urn:ngsi-ld:")
+        urn = Urn.from_name_fully_qualified("urn:ngsi-ld:")
 
 
 def test_guess_from_string():
-    urn1 = Urn.from_string("test")  # built from nss only
-    urn2 = Urn.from_string("urn:ngsi-ld:test")  # built from fully qualified string
+    urn1 = Urn.from_name("test")  # built from nss only
+    urn2 = Urn.from_name("urn:ngsi-ld:test")  # built from fully qualified name
     assert urn1 == urn2

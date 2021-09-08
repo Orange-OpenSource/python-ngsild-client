@@ -55,7 +55,7 @@ class Entity:
         type: str,
         ctx: Context = Context(),
     ):
-        self.id = id = Urn(id).fq
+        self.id = id = Urn.prefix(id)
         self.type = type
         self.ctx = ctx
         self._entity: NgsiDict = NgsiDict({"id": id, "type": type})

@@ -13,6 +13,7 @@
 from orionldclient.model.serialization import NgsiSerializationProtocol
 from orionldclient.model.entity import Entity
 from orionldclient.model.ngsidict import NgsiDict
+from orionldclient.utils.urn import Urn
 
 
 class Room(NgsiSerializationProtocol):
@@ -31,16 +32,16 @@ class Room(NgsiSerializationProtocol):
 
     @classmethod
     def __ngsild__from__(cls, payload: NgsiDict):
-        id_str = payload["id"]
-        id = int(id_str[16:]) # TODO : unprefix()
+        id_str = Urn.unprefix(payload["id"])
+        id = int(id_str[4:])
         temp_str = payload["temperature"]["value"]
         temp = float(temp_str)
         return cls(id, temp)
 
 
 def test_to_ngsi():
-    o = Room(1, 22.5)
-    print(o.__ngsild__to__())
+    room = Room(1, 22.5)
+    print(room.__ngsild__to__())
 
 
 def test_from_ngsi():
@@ -49,5 +50,5 @@ def test_from_ngsi():
         "type": "Room",
         "temperature": {"type": "Property", "value": 22.5},
     }
-    o = Room.__ngsild__from__(payload)
-    print(o)
+    room = Room.__ngsild__from__(payload)
+    print(room)

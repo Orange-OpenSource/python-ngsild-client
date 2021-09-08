@@ -91,7 +91,7 @@ def build_relationship(
 ) -> NgsiDict:
     property: NgsiDict = NgsiDict()
     property["type"] = AttrType.REL.value  # set type
-    property["object"] = Urn(value).fq  # set value
+    property["object"] = Urn.prefix(value)  # set value
     if observed_at is not None:
         if isinstance(observed_at, datetime):
             observed_at = datetime_to_iso8601(observed_at)
