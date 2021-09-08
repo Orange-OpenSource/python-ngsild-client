@@ -10,6 +10,8 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
+import pkg_resources
+
 from datetime import datetime
 from orionldclient.model.entity import *
 from orionldclient.model.attribute import *
@@ -64,6 +66,17 @@ def test_air_quality_from_dict():
         r'"@context": ["https://schema.lab.fiware.org/ld/context", "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"]}'
     )
 
+def test_air_quality_from_json_file():
+    filename = pkg_resources.resource_filename(__name__, "data/air_quality.json")
+    e = Entity.load(filename)
+    assert (
+        e.to_json() == r'{"id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567", '
+        r'"type": "AirQualityObserved", '
+        r'"dateObserved": {"type": "Property", "value": {"@type": "DateTime", "@value": "2018-08-07T12:00:00Z"}}, '
+        r'"NO2": {"type": "Property", "value": 22, "unitCode": "GP"}, '
+        r'"refPointOfInterest": {"type": "Relationship", "object": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare"}, '
+        r'"@context": ["https://schema.lab.fiware.org/ld/context", "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"]}'
+    )
 
 def test_air_quality_with_userdata():
     """Build a sample AirQualityObserved Entity

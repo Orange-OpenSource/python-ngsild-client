@@ -78,7 +78,9 @@ class Entity:
 
     @classmethod
     def load(cls, filename: str):
-        pass
+        with open(filename, "r") as fp:
+            d = json.load(fp)
+            return cls.from_dict(d)
 
     @property
     def id(self):
@@ -137,20 +139,25 @@ class Entity:
     def __repr__(self):
         return self._payload.__repr__()
 
+    def to_dict(self, contextfirst=False) -> NgsiDict:
+        if contextfirst:
+            return self._payload
+        ctx = self._payload[META_ATTR_CONTEXT]
+        payload = deepcopy(self._payload)
+        del payload[META_ATTR_CONTEXT]
+        payload[META_ATTR_CONTEXT] = ctx
+        return payload
+
     def to_json(self, *args, **kwargs):
         """Returns the datamodel in json format"""
-        if self.contextfirst:
-            payload = self._payload
-        else:
-            ctx = self._payload[META_ATTR_CONTEXT]
-            payload = deepcopy(self._payload)
-            del payload[META_ATTR_CONTEXT]
-            payload[META_ATTR_CONTEXT] = ctx
+        payload = self.to_dict(self.contextfirst)
         return payload.to_json(*args, **kwargs)
 
     def pprint(self):
         """Returns the datamodel pretty-json-formatted"""
         print(self.to_json(indent=2))
 
-    def save(self, filename: str):
-        pass
+    def save(self, filename: str, indent=2):
+        payload = self.to_dict(self.contextfirst)
+        with open(filename, "w") as fp:
+            json.dump(payload, fp, default=str, ensure_ascii=False, indent=indent)
