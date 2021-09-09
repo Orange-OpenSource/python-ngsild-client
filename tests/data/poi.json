@@ -1,0 +1,28 @@
+{
+    "id": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare",
+    "type": "PointOfInterest",
+    "category": {
+        "type": "Property",
+        "value": [
+            113
+        ]
+    },
+    "description": {
+        "type": "Property",
+        "value": "Beach of RZ"
+    },
+    "location": {
+        "type": "GeoProperty",
+        "value": {
+            "type": "Point",
+            "coordinates": [
+                -8,
+                44
+            ]
+        }
+    },
+    "@context": [
+        "https://schema.lab.fiware.org/ld/context",
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+    ]
+}

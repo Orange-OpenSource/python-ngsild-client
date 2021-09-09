@@ -66,9 +66,9 @@ class NgsiDict(dict, NgsiFormatter):
         """Returns the dict in json format"""
         return json.dumps(self, default=str, ensure_ascii=False, indent=indent)
 
-    def pprint(self) -> None:
+    def pprint(self, *args, **kwargs) -> None:
         """Returns the dict pretty-json-formatted"""
-        print(self.to_json(indent=2))
+        print(self.to_json(indent=2, *args, **kwargs))
 
     def _save(self, filename: str, indent=2):
         with open(filename, "w") as fp:

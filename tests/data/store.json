@@ -1,0 +1,40 @@
+{
+    "id": "urn:ngsi-ld:Store:001",
+    "type": "Store",
+    "address": {
+        "type": "Property",
+        "value": {
+            "streetAddress": "Main Street 65",
+            "addressRegion": "Metropolis",
+            "addressLocality": "Duckburg",
+            "postalCode": "42000"
+        }
+    },
+    "location": {
+        "type": "GeoProperty",
+        "value": {
+            "type": "Point",
+            "coordinates": [
+                57.487412,
+                -20.284561
+            ]
+        }
+    },
+    "storeName": {
+        "type": "Property",
+        "value": "Checker Market"
+    },
+    "@context": [
+        "https://schema.lab.fiware.org/ld/context",
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        {
+            "Store": "https://uri.etsi.org/ngsi-ld/primer/Store",
+            "address": "https://uri.etsi.org/ngsi-ld/primer/address",
+            "storeName": "https://uri.etsi.org/ngsi-ld/primer/storeName",
+            "streetAddress": "https://uri.etsi.org/ngsi-ld/primer/streetAddress",
+            "addressRegion": "https://uri.etsi.org/ngsi-ld/primer/addressRegion",
+            "addressLocality": "https://uri.etsi.org/ngsi-ld/primer/addressLocality",
+            "postalCode": "https://uri.etsi.org/ngsi-ld/primer/postalCode"
+        }
+    ]
+}

@@ -153,9 +153,9 @@ class Entity:
         payload = self.to_dict(self.contextfirst)
         return payload.to_json(*args, **kwargs)
 
-    def pprint(self):
+    def pprint(self, *args, **kwargs):
         """Returns the datamodel pretty-json-formatted"""
-        print(self.to_json(indent=2))
+        print(self.to_json(indent=2, *args, **kwargs))
 
     def save(self, filename: str, indent=2):
         payload = self.to_dict(self.contextfirst)
