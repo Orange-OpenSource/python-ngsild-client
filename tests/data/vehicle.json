@@ -17,15 +17,6 @@
     "@context": [
         "https://schema.lab.fiware.org/ld/context",
         "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-        {
-            "Store": "https://uri.etsi.org/ngsi-ld/primer/Store",
-            "address": "https://uri.etsi.org/ngsi-ld/primer/address",
-            "storeName": "https://uri.etsi.org/ngsi-ld/primer/storeName",
-            "streetAddress": "https://uri.etsi.org/ngsi-ld/primer/streetAddress",
-            "addressRegion": "https://uri.etsi.org/ngsi-ld/primer/addressRegion",
-            "addressLocality": "https://uri.etsi.org/ngsi-ld/primer/addressLocality",
-            "postalCode": "https://uri.etsi.org/ngsi-ld/primer/postalCode"
-        },
         [
             "http://example.org/ngsi-ld/commonTerms.jsonld",
             "http://example.org/ngsi-ld/vehicle.jsonld",

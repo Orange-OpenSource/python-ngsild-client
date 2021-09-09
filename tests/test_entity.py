@@ -12,13 +12,26 @@
 
 import pkg_resources
 import json
+from pytest import fixture
 
 from datetime import datetime
 from orionldclient.model.entity import *
 from orionldclient.model.attribute import *
 
 
-def test_air_quality():
+def expected_dict(basename: str) -> dict:
+    filename: str = pkg_resources.resource_filename(__name__, f"data/{basename}.json")
+    with open(filename, "r") as fp:
+        expected = json.load(fp)
+    return expected
+
+
+@fixture(scope="class")
+def expected_air_quality():
+    return expected_dict("air_quality")
+
+
+def test_air_quality(expected_air_quality):
     """Build a sample AirQualityObserved Entity
 
     .. _NGSI-LD HOWTO:
@@ -29,17 +42,10 @@ def test_air_quality():
     e.tprop("dateObserved", datetime(2018, 8, 7, 12))
     e.prop("NO2", 22, unitcode="GP")
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
-    assert (
-        e.to_json() == r'{"id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567", '
-        r'"type": "AirQualityObserved", '
-        r'"dateObserved": {"type": "Property", "value": {"@type": "DateTime", "@value": "2018-08-07T12:00:00Z"}}, '
-        r'"NO2": {"type": "Property", "value": 22, "unitCode": "GP"}, '
-        r'"refPointOfInterest": {"type": "Relationship", "object": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare"}, '
-        r'"@context": ["https://schema.lab.fiware.org/ld/context", "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"]}'
-    )
+    assert e.to_dict() == expected_air_quality
 
 
-def test_air_quality_from_dict():
+def test_air_quality_from_dict(expected_air_quality):
     payload = {
         "@context": [
             "https://schema.lab.fiware.org/ld/context",
@@ -58,59 +64,13 @@ def test_air_quality_from_dict():
         },
     }
     e = Entity.from_dict(payload)
-    assert (
-        e.to_json() == r'{"id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567", '
-        r'"type": "AirQualityObserved", '
-        r'"dateObserved": {"type": "Property", "value": {"@type": "DateTime", "@value": "2018-08-07T12:00:00Z"}}, '
-        r'"NO2": {"type": "Property", "value": 22, "unitCode": "GP"}, '
-        r'"refPointOfInterest": {"type": "Relationship", "object": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare"}, '
-        r'"@context": ["https://schema.lab.fiware.org/ld/context", "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"]}'
-    )
+    assert e.to_dict() == expected_air_quality
 
 
-def test_air_quality_from_json_file():
+def test_air_quality_from_json_file(expected_air_quality):
     filename = pkg_resources.resource_filename(__name__, "data/air_quality.json")
     e = Entity.load(filename)
-    assert (
-        e.to_json() == r'{"id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567", '
-        r'"type": "AirQualityObserved", '
-        r'"dateObserved": {"type": "Property", "value": {"@type": "DateTime", "@value": "2018-08-07T12:00:00Z"}}, '
-        r'"NO2": {"type": "Property", "value": 22, "unitCode": "GP"}, '
-        r'"refPointOfInterest": {"type": "Relationship", "object": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare"}, '
-        r'"@context": ["https://schema.lab.fiware.org/ld/context", "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"]}'
-    )
-
-
-def test_air_quality_context_first():
-    e = Entity(
-        "AirQualityObserved:RZ:Obsv4567", "AirQualityObserved", contextfirst=True
-    )
-    e.tprop("dateObserved", datetime(2018, 8, 7, 12))
-    e.prop("NO2", 22, unitcode="GP")
-    e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
-
-    filename: str = pkg_resources.resource_filename(
-        __name__, "data/air_quality_context_first.json"
-    )
-    with open(filename, "r") as fp:
-        expected = json.load(fp)
-    assert e.to_dict() == expected
-
-
-def test_air_quality_context_last():
-    e = Entity(
-        "AirQualityObserved:RZ:Obsv4567", "AirQualityObserved", contextfirst=False
-    )
-    e.tprop("dateObserved", datetime(2018, 8, 7, 12))
-    e.prop("NO2", 22, unitcode="GP")
-    e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
-
-    filename: str = pkg_resources.resource_filename(
-        __name__, "data/air_quality_context_last.json"
-    )
-    with open(filename, "r") as fp:
-        expected = json.load(fp)
-    assert e.to_dict() == expected
+    assert e.to_dict() == expected_air_quality
 
 
 def test_air_quality_with_userdata():
@@ -118,13 +78,7 @@ def test_air_quality_with_userdata():
     e.tprop("dateObserved", datetime(2018, 8, 7, 12))
     e.prop("NO2", 22, unitcode="GP", userdata={"reliability": 0.95})
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
-
-    filename: str = pkg_resources.resource_filename(
-        __name__, "data/air_quality_with_userdata.json"
-    )
-    with open(filename, "r") as fp:
-        expected = json.load(fp)
-    assert e.to_dict() == expected
+    assert e.to_dict() == expected_dict("air_quality_with_userdata")
 
 
 def test_air_quality_with_nested_prop_1_lvl():
@@ -138,47 +92,23 @@ def test_air_quality_with_nested_prop_1_lvl():
     e.tprop("dateObserved", datetime(2018, 8, 7, 12))
     e.prop("NO2", 22, unitcode="GP").prop("accuracy", 0.95)
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
-
-    filename: str = pkg_resources.resource_filename(
-        __name__, "data/air_quality_with_nested_prop_1_lvl.json"
-    )
-    with open(filename, "r") as fp:
-        expected = json.load(fp)
-    assert e.to_dict() == expected
+    assert e.to_dict() == expected_dict("air_quality_with_nested_prop_1_lvl")
 
 
 def test_air_quality_with_nested_prop_2_lvl():
-    """Build a sample AirQualityObserved Entity"""
     e = Entity("AirQualityObserved:RZ:Obsv4567", "AirQualityObserved")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12))
-    e.prop("NO2", 22, unitcode="GP").prop("accuracy", 0.95)
     e.prop("NO2", 22, unitcode="GP").prop("qc", "checked").prop("status", "discarded")
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
-
-    filename: str = pkg_resources.resource_filename(
-        __name__, "data/air_quality_with_nested_prop_2_lvl.json"
-    )
-    with open(filename, "r") as fp:
-        expected = json.load(fp)
-    assert e.to_dict() == expected
+    assert e.to_dict() == expected_dict("air_quality_with_nested_prop_2_lvl")
 
 
 def test_air_quality_with_nested_prop_3_lvl():
-    """Build a sample AirQualityObserved Entity"""
     e = Entity("AirQualityObserved:RZ:Obsv4567", "AirQualityObserved")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12))
-    e.prop("NO2", 22, unitcode="GP").prop("accuracy", 0.95)
-    e.prop("NO2", 22, unitcode="GP").prop("qc", "checked").prop(
-        "status", "passed"
-    ).prop("reliability", 0.95)
+    e.prop("NO2", 22, unitcode="GP").prop("qc", "checked").prop("status", "passed").prop("reliability", 0.95)
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
-
-    filename: str = pkg_resources.resource_filename(
-        __name__, "data/air_quality_with_nested_prop_3_lvl.json"
-    )
-    with open(filename, "r") as fp:
-        expected = json.load(fp)
-    assert e.to_dict() == expected
+    assert e.to_dict() == expected_dict("air_quality_with_nested_prop_3_lvl")
 
 
 def test_poi():
@@ -192,11 +122,7 @@ def test_poi():
     e.prop("category", [113])
     e.prop("description", "Beach of RZ")
     e.gprop("location", (44, -8))
-
-    filename: str = pkg_resources.resource_filename(__name__, "data/poi.json")
-    with open(filename, "r") as fp:
-        expected = json.load(fp)
-    assert e.to_dict() == expected
+    assert e.to_dict() == expected_dict("poi")
 
 
 def test_store():
@@ -233,11 +159,7 @@ def test_store():
     )
     e.gprop("location", (-20.2845607, 57.4874121))
     e.prop("storeName", "Checker Market")
-
-    filename: str = pkg_resources.resource_filename(__name__, "data/store.json")
-    with open(filename, "r") as fp:
-        expected = json.load(fp)
-    assert e.to_dict() == expected
+    assert e.to_dict() == expected_dict("store")
 
 
 def test_vehicle():
@@ -267,11 +189,7 @@ def test_vehicle():
         "OffStreetParking:Downtown1",
         observed_at=datetime(2017, 7, 29, 12, 0, 4),
     ).rel("providedBy", "Person:Bob")
-
-    filename: str = pkg_resources.resource_filename(__name__, "data/vehicle.json")
-    with open(filename, "r") as fp:
-        expected = json.load(fp)
-    assert e.to_dict() == expected
+    assert e.to_dict() == expected_dict("vehicle")
 
 
 def test_vehicle_multiple_attribute():
@@ -295,16 +213,10 @@ def test_vehicle_multiple_attribute():
     )
 
     e = Entity("Vehicle:A4567", "Vehicle", ctx)
-    e.prop("#speed1", 55, dataset_id=Urn("Property:speedometerA4567-speed")).prop(
-        "source", "Speedometer"
-    )
-    e.prop("#speed2", 54.5, dataset_id=Urn("Property:gpsBxyz123-speed")).prop(
+    e.prop(
+        "#speed1", 55, dataset_id=Urn.prefix("Property:speedometerA4567-speed")
+    ).prop("source", "Speedometer")
+    e.prop("#speed2", 54.5, dataset_id=Urn.prefix("Property:gpsBxyz123-speed")).prop(
         "source", "GPS"
     )
-
-    filename: str = pkg_resources.resource_filename(
-        __name__, "data/vehicle_multiple_attribute.json"
-    )
-    with open(filename, "r") as fp:
-        expected = json.load(fp)
-    assert e.to_dict() == expected
+    assert e.to_dict() == expected_dict("vehicle_multiple_attribute")

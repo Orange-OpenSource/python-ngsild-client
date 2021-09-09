@@ -21,20 +21,16 @@ from .constants import *
 from .attribute import *
 from .ngsidict import NgsiDict
 
+DEFAULT_CONTEXT = [
+    "https://schema.lab.fiware.org/ld/context",
+    "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+]
 
+EMPTY_CONTEXT = []
 class ContextBuilder:
 
-    DEFAULT = [
-        "https://schema.lab.fiware.org/ld/context",
-        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-    ]
-
-    EMPTY = []
-
-    _ctx: list[str] = None
-
     def __init__(self, ctx: list[str] = None):
-        self._ctx = ContextBuilder.DEFAULT if ctx is None else ctx
+        self._ctx = deepcopy(DEFAULT_CONTEXT) if ctx is None else ctx
 
     def add(self, uri: str):
         self._ctx.append(uri)
@@ -94,11 +90,8 @@ class Entity:
     def context(self):
         return self._payload["@context"]
 
-    def getattr(self, attr: str):
-        return self._payload.get(attr)
-
-    def setattr(self, attr: str, value: Any):
-        self._payload[attr] = value
+    def attr(self, name: str) -> NgsiDict:
+        return self._payload.get(name)
 
     def prop(
         self,
