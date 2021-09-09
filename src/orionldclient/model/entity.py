@@ -21,10 +21,7 @@ from .constants import *
 from .attribute import *
 from .ngsidict import NgsiDict
 
-DEFAULT_CONTEXT = [
-    "https://schema.lab.fiware.org/ld/context",
-    "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-]
+DEFAULT_CONTEXT = ["https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"]
 
 EMPTY_CONTEXT = []
 class ContextBuilder:

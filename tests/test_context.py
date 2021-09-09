@@ -12,10 +12,10 @@
 
 from orionldclient.model.entity import ContextBuilder
 
-def test_build_cootext():
+def test_build_context():
     ctx = ContextBuilder()
-    ctx.add("nimp")
+    ctx.add("https://example.org/dummy-context.jsonld")
     print(ctx._ctx)
-    assert ctx._ctx == ['https://schema.lab.fiware.org/ld/context', 'https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld', 'nimp']
+    assert ctx._ctx == ["https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld", "https://example.org/dummy-context.jsonld"]
     ctx = ContextBuilder()
-    assert ctx._ctx == ['https://schema.lab.fiware.org/ld/context', 'https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld']
+    assert ctx._ctx == ["https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"]

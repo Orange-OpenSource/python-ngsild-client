@@ -25,7 +25,6 @@
         "value": "Checker Market"
     },
     "@context": [
-        "https://schema.lab.fiware.org/ld/context",
         "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
         {
             "Store": "https://uri.etsi.org/ngsi-ld/primer/Store",

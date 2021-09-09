@@ -17,6 +17,7 @@ from pytest import fixture
 from datetime import datetime
 from orionldclient.model.entity import *
 from orionldclient.model.attribute import *
+from orionldclient.utils import urnprefix
 
 
 def expected_dict(basename: str) -> dict:
@@ -48,7 +49,6 @@ def test_air_quality(expected_air_quality):
 def test_air_quality_from_dict(expected_air_quality):
     payload = {
         "@context": [
-            "https://schema.lab.fiware.org/ld/context",
             "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
         ],
         "id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
@@ -183,7 +183,6 @@ def test_vehicle():
         )
         .build()
     )
-    print(ctx)
     e = Entity("Vehicle:A4567", "Vehicle", ctx)
     e.prop("brandName", "Mercedes")
     e.rel(
@@ -235,7 +234,7 @@ def test_parking():
     ctx = ContextBuilder().add("http://example.org/ngsi-ld/parking.jsonld").build()
 
     e = Entity("OffStreetParking:Downtown1", "OffStreetParking", ctx)
-    spot = e.prop(
+    spot: NgsiDict = e.prop(
         "availableSpotNumber", 121, observed_at=datetime(2017, 7, 29, 12, 5, 2)
     )
     spot.prop("reliability", 0.7)
