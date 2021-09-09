@@ -43,7 +43,7 @@ def build_property(
             observed_at = datetime_to_iso8601(observed_at)
         property[META_ATTR_OBSERVED_AT] = observed_at
     if dataset_id is not None:
-        property[META_ATTR_DATASET_ID] = dataset_id
+        property[META_ATTR_DATASET_ID] = Urn.prefix(dataset_id)
     if userdata:
         property |= userdata
     return property

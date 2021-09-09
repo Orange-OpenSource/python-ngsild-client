@@ -106,7 +106,9 @@ def test_air_quality_with_nested_prop_2_lvl():
 def test_air_quality_with_nested_prop_3_lvl():
     e = Entity("AirQualityObserved:RZ:Obsv4567", "AirQualityObserved")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12))
-    e.prop("NO2", 22, unitcode="GP").prop("qc", "checked").prop("status", "passed").prop("reliability", 0.95)
+    e.prop("NO2", 22, unitcode="GP").prop("qc", "checked").prop(
+        "status", "passed"
+    ).prop("reliability", 0.95)
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
     assert e.to_dict() == expected_dict("air_quality_with_nested_prop_3_lvl")
 
@@ -213,10 +215,31 @@ def test_vehicle_multiple_attribute():
     )
 
     e = Entity("Vehicle:A4567", "Vehicle", ctx)
-    e.prop(
-        "#speed1", 55, dataset_id=Urn.prefix("Property:speedometerA4567-speed")
-    ).prop("source", "Speedometer")
-    e.prop("#speed2", 54.5, dataset_id=Urn.prefix("Property:gpsBxyz123-speed")).prop(
+    e.prop("#speed1", 55, dataset_id="Property:speedometerA4567-speed").prop(
+        "source", "Speedometer"
+    )
+    e.prop("#speed2", 54.5, dataset_id="Property:gpsBxyz123-speed").prop(
         "source", "GPS"
     )
     assert e.to_dict() == expected_dict("vehicle_multiple_attribute")
+
+
+def test_parking():
+    """Build a sample Parking Entity
+
+    .. _NGSI-LD Specification
+    Context Information Management (CIM) ; NGSI-LD API []ETSI GS CIM 009 V1.1.1 (2019-01)]
+
+    """
+
+    ctx = ContextBuilder().add("http://example.org/ngsi-ld/parking.jsonld").build()
+
+    e = Entity("OffStreetParking:Downtown1", "OffStreetParking", ctx)
+    spot = e.prop(
+        "availableSpotNumber", 121, observed_at=datetime(2017, 7, 29, 12, 5, 2)
+    )
+    spot.prop("reliability", 0.7)
+    spot.rel("providedBy", "Camera:C1")
+    e.prop("totalSpotNumber", 200)
+    e.gprop("location", (41.2, -8.5))
+    assert e.to_dict() == expected_dict("parking")
