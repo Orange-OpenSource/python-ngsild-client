@@ -12,7 +12,6 @@
 
 import pkg_resources
 import json
-from pytest import fixture
 
 from datetime import datetime
 from orionldclient.model.entity import *
@@ -33,11 +32,10 @@ def test_smartcities_urbanmobility_transportstop():
     https://smart-data-models.github.io/dataModel.UrbanMobility/PublicTransportStop/examples/example-normalized.jsonld
     """
 
-    ctx = (
-        ContextBuilder()
-        .add("https://smart-data-models.github.io/data-models/context.jsonld")
-        .build()
-    )
+    ctx = [
+        "https://smart-data-models.github.io/data-models/context.jsonld",
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+    ]
     e = Entity("PublicTransportStop:santander:busStop:463", "PublicTransportStop", ctx)
 
     e.tprop("dateModified", datetime(2018, 9, 25, 8, 32, 26))
@@ -63,15 +61,14 @@ def test_smartcities_urbanmobility_transportstop():
     e.prop("transportationType", [3])
     e.prop(
         "refPublicTransportRoute",
-        urnprefix(
-            [
-                "PublicTransportRoute:santander:transport:busLine:N3",
-                "PublicTransportRoute:santander:transport:busLine:N4",
-            ]
-        ),
+        [
+            "urn:ngsi-ld:PublicTransportRoute:santander:transport:busLine:N3",
+            "urn:ngsi-ld:PublicTransportRoute:santander:transport:busLine:N4",
+        ],
     )
+
     e.prop("peopleCount", 0)
-    e.prop("refPeopleCountDevice", "urn:ngsi-ld:PorpleCountDecice:santander:463")
+    e.prop("refPeopleCountDevice", urnprefix("PorpleCountDecice:santander:463"))
 
     builder = OpeningHoursSpecificationBuilder()
     openinghours = builder.set_working_days("00:01", "23:59").build()
