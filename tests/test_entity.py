@@ -134,21 +134,19 @@ def test_store():
     Context Information Management (CIM) ; NGSI-LD Primer [ETSI GR CIM 008 V1.1.1 (2020-03)]
 
     """
-    ctx = (
-        ContextBuilder()
-        .add(
-            {
-                "Store": "https://uri.etsi.org/ngsi-ld/primer/Store",
-                "address": "https://uri.etsi.org/ngsi-ld/primer/address",
-                "storeName": "https://uri.etsi.org/ngsi-ld/primer/storeName",
-                "streetAddress": "https://uri.etsi.org/ngsi-ld/primer/streetAddress",
-                "addressRegion": "https://uri.etsi.org/ngsi-ld/primer/addressRegion",
-                "addressLocality": "https://uri.etsi.org/ngsi-ld/primer/addressLocality",
-                "postalCode": "https://uri.etsi.org/ngsi-ld/primer/postalCode",
-            }
-        )
-        .build()
-    )
+    builder = ContextBuilder()
+    ctx = builder.add(
+        {
+            "Store": "https://uri.etsi.org/ngsi-ld/primer/Store",
+            "address": "https://uri.etsi.org/ngsi-ld/primer/address",
+            "storeName": "https://uri.etsi.org/ngsi-ld/primer/storeName",
+            "streetAddress": "https://uri.etsi.org/ngsi-ld/primer/streetAddress",
+            "addressRegion": "https://uri.etsi.org/ngsi-ld/primer/addressRegion",
+            "addressLocality": "https://uri.etsi.org/ngsi-ld/primer/addressLocality",
+            "postalCode": "https://uri.etsi.org/ngsi-ld/primer/postalCode",
+        }
+    ).build()
+
     e = Entity("Store:001", "Store", ctx)
     e.prop(
         "address",
@@ -172,17 +170,14 @@ def test_vehicle():
 
     """
 
-    ctx = (
-        ContextBuilder()
-        .add(
-            [
-                "http://example.org/ngsi-ld/commonTerms.jsonld",
-                "http://example.org/ngsi-ld/vehicle.jsonld",
-                "http://example.org/ngsi-ld/parking.jsonld",
-            ]
-        )
-        .build()
-    )
+    builder = ContextBuilder()
+    ctx = builder.add(
+        [
+            "http://example.org/ngsi-ld/commonTerms.jsonld",
+            "http://example.org/ngsi-ld/vehicle.jsonld",
+            "http://example.org/ngsi-ld/parking.jsonld",
+        ]
+    ).build()
     e = Entity("Vehicle:A4567", "Vehicle", ctx)
     e.prop("brandName", "Mercedes")
     e.rel(
@@ -201,17 +196,14 @@ def test_vehicle_multiple_attribute():
 
     """
 
-    ctx = (
-        ContextBuilder()
-        .add(
-            {
-                "speed#1": "http://example.org/speed",
-                "speed#2": "http://example.org/speed",
-                "source": "http://example.org/hasSource",
-            }
-        )
-        .build()
-    )
+    builder = ContextBuilder()
+    ctx = builder.add(
+        {
+            "speed#1": "http://example.org/speed",
+            "speed#2": "http://example.org/speed",
+            "source": "http://example.org/hasSource",
+        }
+    ).build()
 
     e = Entity("Vehicle:A4567", "Vehicle", ctx)
     e.prop("#speed1", 55, dataset_id="Property:speedometerA4567-speed").prop(

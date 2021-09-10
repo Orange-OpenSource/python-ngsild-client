@@ -20,29 +20,7 @@ from .exceptions import *
 from .constants import *
 from .attribute import *
 from .ngsidict import NgsiDict
-
-DEFAULT_CONTEXT = ["https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"]
-
-EMPTY_CONTEXT = []
-class ContextBuilder:
-
-    def __init__(self, ctx: list[str] = None):
-        self._ctx = deepcopy(DEFAULT_CONTEXT) if ctx is None else ctx
-
-    def add(self, uri: str):
-        self._ctx.append(uri)
-        return self
-
-    def remove(self, uri: str):
-        self._ctx.remove(uri)
-        return self
-
-    def __repr__(self):
-        return self._ctx.__repr__()
-
-    def build(self):
-        return self._ctx
-
+from .builder import ContextBuilder
 
 class Entity:
     def __init__(
