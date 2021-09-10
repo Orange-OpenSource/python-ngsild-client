@@ -23,8 +23,8 @@ from .ngsidict import NgsiDict
 def build_property(
     value: Any,
     unitcode: str = None,
-    observed_at: Union[str, datetime] = None,
-    dataset_id: str = None,
+    observedat: Union[str, datetime] = None,
+    datasetid: str = None,
     userdata: NgsiDict = NgsiDict(),
 ) -> NgsiDict:
     property: NgsiDict = NgsiDict()
@@ -38,12 +38,12 @@ def build_property(
     property["value"] = value  # set value
     if unitcode is not None:
         property[META_ATTR_UNITCODE] = unitcode
-    if observed_at is not None:
-        if isinstance(observed_at, datetime):
-            observed_at = datetime_to_iso8601(observed_at)
-        property[META_ATTR_OBSERVED_AT] = observed_at
-    if dataset_id is not None:
-        property[META_ATTR_DATASET_ID] = Urn.prefix(dataset_id)
+    if observedat is not None:
+        if isinstance(observedat, datetime):
+            observedat = datetime_to_iso8601(observedat)
+        property[META_ATTR_OBSERVED_AT] = observedat
+    if datasetid is not None:
+        property[META_ATTR_DATASET_ID] = Urn.prefix(datasetid)
     if userdata:
         property |= userdata
     return property

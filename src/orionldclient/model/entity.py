@@ -18,7 +18,7 @@ from typing import Any, Union
 
 from .exceptions import *
 from .constants import *
-from .attribute import *
+from ._attribute import *
 from .ngsidict import NgsiDict
 from .builder import ContextBuilder
 

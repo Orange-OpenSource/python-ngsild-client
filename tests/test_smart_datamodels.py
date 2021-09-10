@@ -16,7 +16,7 @@ from pytest import fixture
 
 from datetime import datetime
 from orionldclient.model.entity import *
-from orionldclient.model.attribute import *
+from orionldclient.model._attribute import *
 from orionldclient.utils import urnprefix
 
 def test_agrifood__animal():

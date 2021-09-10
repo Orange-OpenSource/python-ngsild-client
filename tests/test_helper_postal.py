@@ -10,19 +10,7 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
-from orionldclient.model.entity import ContextBuilder
-from orionldclient.model.builder import PostalAddressBuilder
-
-
-def test_build_context():
-    builder = ContextBuilder()
-    builder.add("https://example.org/dummy-context.jsonld")
-    assert builder._ctx == [
-        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-        "https://example.org/dummy-context.jsonld",
-    ]
-    builder = ContextBuilder()
-    assert builder._ctx == ["https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"]
+from orionldclient.model.helper.postal import PostalAddressBuilder
 
 
 def test_build_postal_address():

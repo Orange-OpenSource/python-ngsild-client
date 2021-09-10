@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from datetime import datetime
-from orionldclient.model.attribute import *
+from orionldclient.model._attribute import *
 
 
 def test_prop():
@@ -25,7 +25,7 @@ def test_prop_with_meta_unitcode():
 
 
 def test_prop_with_meta_timestamp():
-    p = build_property(22, observed_at=datetime(2021, 8, 31, 12))
+    p = build_property(22, observedat=datetime(2021, 8, 31, 12))
     assert p == {"observedAt": "2021-08-31T12:00:00Z", "type": "Property", "value": 22}
 
 
