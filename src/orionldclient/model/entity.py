@@ -20,7 +20,7 @@ from .exceptions import *
 from .constants import *
 from ._attribute import *
 from .ngsidict import NgsiDict
-from .builder import ContextBuilder
+from .helper.context import ContextBuilder
 
 class Entity:
     def __init__(
@@ -107,18 +107,18 @@ class Entity:
     def __repr__(self):
         return self._payload.__repr__()
 
-    def to_dict(self, contextfirst=False) -> NgsiDict:
-        if contextfirst:
-            return self._payload
-        ctx = self._payload[META_ATTR_CONTEXT]
-        payload = deepcopy(self._payload)
-        del payload[META_ATTR_CONTEXT]
-        payload[META_ATTR_CONTEXT] = ctx
-        return payload
+    def to_dict(self) -> NgsiDict:
+        return self._payload
 
-    def to_json(self, *args, **kwargs):
+    def to_json(self, contextfirst=False, *args, **kwargs):
         """Returns the datamodel in json format"""
-        payload = self.to_dict(self.contextfirst)
+        if contextfirst:
+            payload: NgsiDict = self._payload
+        else:
+            ctx = self._payload[META_ATTR_CONTEXT]
+            payload: NgsiDict = deepcopy(self._payload)
+            del payload[META_ATTR_CONTEXT]
+            payload[META_ATTR_CONTEXT] = ctx
         return payload.to_json(*args, **kwargs)
 
     def pprint(self, *args, **kwargs):
