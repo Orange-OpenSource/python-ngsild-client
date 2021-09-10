@@ -16,17 +16,65 @@ from pytest import fixture
 
 from datetime import datetime
 from orionldclient.model.entity import *
-from orionldclient.model._attribute import *
+from orionldclient.model.helper.postal import PostalAddressBuilder
+from orionldclient.model.helper.openinghours import OpeningHoursSpecificationBuilder
 from orionldclient.utils import urnprefix
 
-def test_agrifood__animal():
-    ctx = ContextBuilder().add("https://smartdatamodels.org/context.jsonld").build()
-    e = Entity("Animal:ca3f1295-500c-4aa3-b745-d143097d5c01", "Animal", ctx)
-    e.prop("legalId", "ES142589652140")
-    e.prop("locatedAt", urnprefix("AgriParcel:1ea0f120-4474-11e8-9919-672036642081"))
-    e.tprop("birthdate", datetime(2017, 1, 1, 1, 20))
-    e.prop("breed", "Merina")
-    e.prop("calvedBy", urnprefix("Animal:aa9f1295-425c-8ba3-b745-b653097d5a87"))
-    e.prop("feedWith", urnprefix("FEED:1ea0f120-4474-11e8-9919-0000000081"))
-    e.prop("healthCondition", "healthy")
-    e.pprint()
+
+def expected_dict(basename: str) -> dict:
+    filename: str = pkg_resources.resource_filename(__name__, f"data/{basename}.json")
+    with open(filename, "r") as fp:
+        expected = json.load(fp)
+    return expected
+
+
+def test_smartcities_urbanmobility_transportstop():
+    """
+    https://smart-data-models.github.io/dataModel.UrbanMobility/PublicTransportStop/examples/example-normalized.jsonld
+    """
+
+    ctx = (
+        ContextBuilder()
+        .add("https://smart-data-models.github.io/data-models/context.jsonld")
+        .build()
+    )
+    e = Entity("PublicTransportStop:santander:busStop:463", "PublicTransportStop", ctx)
+
+    e.tprop("dateModified", datetime(2018, 9, 25, 8, 32, 26))
+    e.prop("source", "https://api.smartsantander.eu/")
+    e.prop("dataProvider", "http://www.smartsantander.eu/")
+    e.prop("entityVersion", "2.0")
+
+    builder = PostalAddressBuilder()
+    address = (
+        builder.street("C/ La Pereda 14")
+        .locality("Santander")
+        .region("Cantabria")
+        .country("Spain")
+        .build()
+    )
+    e.prop("address", address)
+
+    e.gprop("location", (43.478053126, -3.804648385))
+    e.prop("stopCode", "la_pereda_463")
+    e.prop("shortStopCode", "463")
+    e.prop("name", "La Pereda 14")
+    e.prop("wheelchairAccessible", 0)
+    e.prop("transportationType", [3])
+    e.prop(
+        "refPublicTransportRoute",
+        urnprefix(
+            [
+                "PublicTransportRoute:santander:transport:busLine:N3",
+                "PublicTransportRoute:santander:transport:busLine:N4",
+            ]
+        ),
+    )
+    e.prop("peopleCount", 0)
+    e.prop("refPeopleCountDevice", "urn:ngsi-ld:PorpleCountDecice:santander:463")
+
+    builder = OpeningHoursSpecificationBuilder()
+    openinghours = builder.set_working_days("00:01", "23:59").build()
+    e.prop("openingHoursSpecification", openinghours)
+
+    assert e.to_dict() == expected_dict("transport_stop")

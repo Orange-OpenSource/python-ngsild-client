@@ -17,7 +17,6 @@ from pytest import fixture
 from datetime import datetime
 from orionldclient.model.entity import *
 from orionldclient.model._attribute import *
-from orionldclient.utils import urnprefix
 
 
 def expected_dict(basename: str) -> dict:

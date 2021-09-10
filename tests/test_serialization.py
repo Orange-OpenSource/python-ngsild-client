@@ -41,7 +41,7 @@ class Room(NgsiSerializationProtocol):
 
 def test_to_ngsi():
     room = Room(1, 22.5)
-    print(room.__ngsild__to__())
+    #print(room.__ngsild__to__())
 
 
 def test_from_ngsi():
@@ -51,4 +51,4 @@ def test_from_ngsi():
         "temperature": {"type": "Property", "value": 22.5},
     }
     room = Room.__ngsild__from__(payload)
-    print(room)
+    #print(room)

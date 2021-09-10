@@ -12,6 +12,8 @@
 
 import re
 
+from typing import Union, List
+
 NID_PATTERN = re.compile(r"^[0-9a-zA-Z\-]+$")
 URN_PATTERN = re.compile(r"^urn:(?P<nid>[0-9a-zA-Z\-]+):(?P<nss>.+)$")
 
@@ -66,8 +68,12 @@ class Urn:
         return m is not None
 
     @staticmethod
-    def prefix(nss: str, nid: str = DEFAULT_NID) -> str:
-        return Urn(nss, nid).fq
+    def prefix(nss: Union[str,List], nid: str = DEFAULT_NID) -> Union[str,List]:
+        if nss is None:
+            return None
+        if isinstance(nss, str):
+            return Urn(nss, nid).fq
+        return [Urn(x, nid).fq for x in nss]
 
     @staticmethod
     def unprefix(resource: str) -> str:

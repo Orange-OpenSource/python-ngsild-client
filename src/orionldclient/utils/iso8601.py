@@ -19,3 +19,4 @@ def datetime_to_iso8601(date: datetime) -> str:
 
 def utcnow_to_iso8601() -> str:
     return datetime_to_iso8601(datetime.utcnow())
+

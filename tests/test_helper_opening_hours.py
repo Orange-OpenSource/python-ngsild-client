@@ -13,12 +13,12 @@
 from datetime import time
 
 from orionldclient.model.helper.openinghours import (
+    WEEK,
     OpeningHoursSpecificationBuilder,
-    WeekDay,
 )
 
 
-def test_build_opening_hours_specification():
+def test_build_opening_hours_set_days():
     builder = OpeningHoursSpecificationBuilder()
     openinghours = builder.monday(time(9), time(17)).tuesday("09:00", "18:00").build()
     assert openinghours == [
@@ -27,13 +27,29 @@ def test_build_opening_hours_specification():
     ]
 
 
-def test_build_opening_hours_specification_batch():
+def test_build_opening_hours_set_all_week_1():
     builder = OpeningHoursSpecificationBuilder()
-    openinghours = builder.set_days(
-        "08:00", "12:00", WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.THURSDAY
-    ).build()
+    openinghours = builder.set_all_week("08:00", "12:00").build()
     assert openinghours == [
         {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Monday"},
         {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Tuesday"},
+        {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Wednesday"},
         {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Thursday"},
+        {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Friday"},
+        {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Saturday"},
+        {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Sunday"},
+    ]
+
+
+def test_build_opening_hours_set_all_week_2():
+    builder = OpeningHoursSpecificationBuilder()
+    openinghours = builder.set_days("08:00", "12:00", *WEEK).build()
+    assert openinghours == [
+        {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Monday"},
+        {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Tuesday"},
+        {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Wednesday"},
+        {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Thursday"},
+        {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Friday"},
+        {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Saturday"},
+        {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Sunday"},
     ]

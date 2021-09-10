@@ -11,9 +11,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
+from typing import Union
 from dataclasses import dataclass
 from datetime import time
 from enum import Enum
+
+TimeOrStr = Union[time,str] # type alias
 
 
 class WeekDay(Enum):
@@ -24,6 +27,11 @@ class WeekDay(Enum):
     FRIDAY = "Friday"
     SATURDAY = "Saturday"
     SUNDAY = "Sunday"
+
+
+WEEK = [day for day in WeekDay]
+WEEK_END = [WeekDay.SATURDAY, WeekDay.SUNDAY]
+WORKING_DAYS = [day for day in WEEK if day not in WEEK_END]
 
 
 @dataclass
@@ -48,60 +56,71 @@ class OpeningHoursSpecificationBuilder:
         closes = closes if isinstance(closes, str) else closes.strftime("%H:%M")
         return opens, closes
 
-    def monday(self, opens: time | str, closes: time | str):
+    def monday(self, opens: TimeOrStr, closes: TimeOrStr):
         opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
         self._oh[WeekDay.MONDAY] = OpeningHoursSpecification(
             opens, closes, WeekDay.MONDAY.value
         )
         return self
 
-    def tuesday(self, opens: time | str, closes: time | str):
+    def tuesday(self, opens: TimeOrStr, closes: TimeOrStr):
         opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
         self._oh[WeekDay.TUESDAY] = OpeningHoursSpecification(
             opens, closes, WeekDay.TUESDAY.value
         )
         return self
 
-    def wednesday(self, opens: time, closes: time):
+    def wednesday(self, opens: TimeOrStr, closes: TimeOrStr):
         opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
         self._oh[WeekDay.WEDNESDAY] = OpeningHoursSpecification(
             opens, closes, WeekDay.WEDNESDAY.value
         )
         return self
 
-    def thursday(self, opens: time, closes: time):
+    def thursday(self, opens: TimeOrStr, closes: TimeOrStr):
         opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
         self._oh[WeekDay.THURSDAY] = OpeningHoursSpecification(
             opens, closes, WeekDay.THURSDAY.value
         )
         return self
 
-    def friday(self, opens: time, closes: time):
+    def friday(self, opens: TimeOrStr, closes: TimeOrStr):
         opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
         self._oh[WeekDay.FRIDAY] = OpeningHoursSpecification(
             opens, closes, WeekDay.FRIDAY.value
         )
         return self
 
-    def saturday(self, opens: time, closes: time):
+    def saturday(self, opens: TimeOrStr, closes: TimeOrStr):
         opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
         self._oh[WeekDay.SATURDAY] = OpeningHoursSpecification(
             opens, closes, WeekDay.SATURDAY.value
         )
         return self
 
-    def sunday(self, opens: time, closes: time):
+    def sunday(self, opens: TimeOrStr, closes: TimeOrStr):
         opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
         self._oh[WeekDay.SUNDAY] = OpeningHoursSpecification(
             opens, closes, WeekDay.SUNDAY.value
         )
         return self
 
-    def set_days(self, opens: time, closes: time, *days):
+    def set_days(self, opens: TimeOrStr, closes: TimeOrStr, *days):
         opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
         for day in days:
             self._oh[day] = OpeningHoursSpecification(opens, closes, day.value)
         return self
+
+    def set_weekend(self, opens: TimeOrStr, closes: TimeOrStr):
+        return self.set_days(opens, closes, *WEEK_END)
+
+    def set_working_days(self, opens: TimeOrStr, closes: TimeOrStr, *exceptdays):
+        openingdays = [day for day in WORKING_DAYS if day not in exceptdays]
+        return self.set_days(opens, closes, *openingdays)
+
+    def set_all_week(self, opens: TimeOrStr, closes: TimeOrStr, *exceptdays):
+        openingdays = [day for day in WEEK if day not in exceptdays]
+        return self.set_days(opens, closes, *WEEK)
 
     def build(self) -> dict:
         openingdays = []
