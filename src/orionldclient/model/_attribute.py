@@ -86,16 +86,16 @@ def build_temporal_property(value: Any) -> NgsiDict:
 
 def build_relationship(
     value: str,
-    observed_at: Union[str, datetime] = None,
+    observedat: Union[str, datetime] = None,
     userdata: NgsiDict = NgsiDict(),
 ) -> NgsiDict:
     property: NgsiDict = NgsiDict()
     property["type"] = AttrType.REL.value  # set type
     property["object"] = Urn.prefix(value)  # set value
-    if observed_at is not None:
-        if isinstance(observed_at, datetime):
-            observed_at = datetime_to_iso8601(observed_at)
-        property[META_ATTR_OBSERVED_AT] = observed_at
+    if observedat is not None:
+        if isinstance(observedat, datetime):
+            observedat = datetime_to_iso8601(observedat)
+        property[META_ATTR_OBSERVED_AT] = observedat
     if userdata:
         property |= userdata
     return property

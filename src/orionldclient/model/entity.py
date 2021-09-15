@@ -20,14 +20,17 @@ from .exceptions import *
 from .constants import *
 from ._attribute import *
 from .ngsidict import NgsiDict
-from .helper.context import ContextBuilder
+
 
 class Entity:
+
+    DEFAULT_CONTEXT = "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+
     def __init__(
         self,
         id: str,
         type: str,
-        context: list = ContextBuilder().build(),
+        context: list = [DEFAULT_CONTEXT],
         contextfirst: bool = False,
     ):
         self.contextfirst = contextfirst  # TODO : move at api level
@@ -73,11 +76,11 @@ class Entity:
         name: str,
         value: Any,
         unitcode: str = None,
-        observed_at: Union[str, datetime] = None,
-        dataset_id: str = None,
+        observedat: Union[str, datetime] = None,
+        datasetid: str = None,
         userdata: NgsiDict = NgsiDict(),
     ):
-        self._payload.prop(name, value, unitcode, observed_at, dataset_id, userdata)
+        self._payload.prop(name, value, unitcode, observedat, datasetid, userdata)
         return self._payload[name]
 
     def gprop(self, name: str, value: Any):
@@ -93,10 +96,10 @@ class Entity:
         self,
         name: str,
         value: str,
-        observed_at: Union[str, datetime] = None,
+        observedat: Union[str, datetime] = None,
         userdata: NgsiDict = NgsiDict(),
     ):
-        self._payload.rel(name, value, observed_at, userdata)
+        self._payload.rel(name, value, observedat, userdata)
         return self._payload[name]
 
     def __eq__(self, other):

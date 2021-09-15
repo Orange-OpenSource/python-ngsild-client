@@ -25,7 +25,6 @@
         "value": "Checker Market"
     },
     "@context": [
-        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
         {
             "Store": "https://uri.etsi.org/ngsi-ld/primer/Store",
             "address": "https://uri.etsi.org/ngsi-ld/primer/address",
@@ -34,6 +33,7 @@
             "addressRegion": "https://uri.etsi.org/ngsi-ld/primer/addressRegion",
             "addressLocality": "https://uri.etsi.org/ngsi-ld/primer/addressLocality",
             "postalCode": "https://uri.etsi.org/ngsi-ld/primer/postalCode"
-        }
+        },
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
     ]
 }

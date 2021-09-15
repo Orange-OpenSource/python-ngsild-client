@@ -133,8 +133,8 @@ def test_store():
     Context Information Management (CIM) ; NGSI-LD Primer [ETSI GR CIM 008 V1.1.1 (2020-03)]
 
     """
-    builder = ContextBuilder()
-    ctx = builder.add(
+
+    ctx = [
         {
             "Store": "https://uri.etsi.org/ngsi-ld/primer/Store",
             "address": "https://uri.etsi.org/ngsi-ld/primer/address",
@@ -143,8 +143,9 @@ def test_store():
             "addressRegion": "https://uri.etsi.org/ngsi-ld/primer/addressRegion",
             "addressLocality": "https://uri.etsi.org/ngsi-ld/primer/addressLocality",
             "postalCode": "https://uri.etsi.org/ngsi-ld/primer/postalCode",
-        }
-    ).build()
+        },
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+    ]
 
     e = Entity("Store:001", "Store", ctx)
     e.prop(
@@ -169,20 +170,19 @@ def test_vehicle():
 
     """
 
-    builder = ContextBuilder()
-    ctx = builder.add(
-        [
-            "http://example.org/ngsi-ld/commonTerms.jsonld",
-            "http://example.org/ngsi-ld/vehicle.jsonld",
-            "http://example.org/ngsi-ld/parking.jsonld",
-        ]
-    ).build()
+    ctx = [
+        "http://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        "http://example.org/ngsi-ld/commonTerms.jsonld",
+        "http://example.org/ngsi-ld/vehicle.jsonld",
+        "http://example.org/ngsi-ld/parking.jsonld",
+    ]
+
     e = Entity("Vehicle:A4567", "Vehicle", ctx)
     e.prop("brandName", "Mercedes")
     e.rel(
         "isParked",
         "OffStreetParking:Downtown1",
-        observed_at=datetime(2017, 7, 29, 12, 0, 4),
+        observedat=datetime(2017, 7, 29, 12, 0, 4),
     ).rel("providedBy", "Person:Bob")
     assert e.to_dict() == expected_dict("vehicle")
 
@@ -195,22 +195,20 @@ def test_vehicle_multiple_attribute():
 
     """
 
-    builder = ContextBuilder()
-    ctx = builder.add(
+    ctx = [
+        "http://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
         {
             "speed#1": "http://example.org/speed",
             "speed#2": "http://example.org/speed",
             "source": "http://example.org/hasSource",
-        }
-    ).build()
+        },
+    ]
 
     e = Entity("Vehicle:A4567", "Vehicle", ctx)
-    e.prop("#speed1", 55, dataset_id="Property:speedometerA4567-speed").prop(
+    e.prop("#speed1", 55, datasetid="Property:speedometerA4567-speed").prop(
         "source", "Speedometer"
     )
-    e.prop("#speed2", 54.5, dataset_id="Property:gpsBxyz123-speed").prop(
-        "source", "GPS"
-    )
+    e.prop("#speed2", 54.5, datasetid="Property:gpsBxyz123-speed").prop("source", "GPS")
     assert e.to_dict() == expected_dict("vehicle_multiple_attribute")
 
 
@@ -222,11 +220,13 @@ def test_parking():
 
     """
 
-    ctx = ContextBuilder().add("http://example.org/ngsi-ld/parking.jsonld").build()
-
+    ctx = [
+        "http://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        "http://example.org/ngsi-ld/parking.jsonld",
+    ]
     e = Entity("OffStreetParking:Downtown1", "OffStreetParking", ctx)
     spot: NgsiDict = e.prop(
-        "availableSpotNumber", 121, observed_at=datetime(2017, 7, 29, 12, 5, 2)
+        "availableSpotNumber", 121, observedat=datetime(2017, 7, 29, 12, 5, 2)
     )
     spot.prop("reliability", 0.7)
     spot.rel("providedBy", "Camera:C1")
