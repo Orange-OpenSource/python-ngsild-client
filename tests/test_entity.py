@@ -233,3 +233,29 @@ def test_parking():
     e.prop("totalSpotNumber", 200)
     e.gprop("location", (41.2, -8.5))
     assert e.to_dict() == expected_dict("parking")
+
+def test_vehicle_keyvalues():
+    """Build a sample Vehicle Entity
+
+    .. _NGSI-LD Specification
+    Context Information Management (CIM) ; NGSI-LD API []ETSI GS CIM 009 V1.1.1 (2019-01)]
+
+    """
+
+    ctx = [
+        "http://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        "http://example.org/ngsi-ld/commonTerms.jsonld",
+        "http://example.org/ngsi-ld/vehicle.jsonld",
+        "http://example.org/ngsi-ld/parking.jsonld",
+    ]
+
+    e = Entity("Vehicle:A4567", "Vehicle", ctx)
+    e.prop("brandName", "Mercedes")
+    e.rel(
+        "isParked",
+        "OffStreetParking:Downtown1",
+        observedat=datetime(2017, 7, 29, 12, 0, 4),
+    ).rel("providedBy", "Person:Bob")
+    
+    s = e.to_json(contextfirst=True, kv=True)
+    print(s)

@@ -120,11 +120,29 @@ class Entity:
     def to_dict(self) -> NgsiDict:
         return self._payload
 
-    def to_json(self, contextfirst=False, *args, **kwargs):
+    def _to_keyvalues(self) -> NgsiDict:
+        d = NgsiDict()
+        for k, v in self._payload.items():
+            if isinstance(v, NgsiDict):
+                if v["type"] == AttrType.PROP.value: # apply to Property and TemporalProperty
+                    value = v["value"]
+                    value = v.get("@value", value) # for Temporal Property only
+                    d[k] = value
+                elif v["type"] == AttrType.GEO.value:
+                    d[k] = v["value"]                    
+                elif v["type"] == AttrType.REL.value:
+                    d[k] = v["object"]
+            else:
+                d[k] = v
+        return d
+
+
+    def to_json(self, contextfirst=False, kv=False, *args, **kwargs):
         """Returns the datamodel in json format"""
         if contextfirst:
-            payload: NgsiDict = self._payload
+            payload: NgsiDict = self._to_keyvalues() if kv else self._payload
         else:
+            # need to build a brand new dict (different ordering)
             ctx = self._payload[META_ATTR_CONTEXT]
             payload: NgsiDict = deepcopy(self._payload)
             del payload[META_ATTR_CONTEXT]
