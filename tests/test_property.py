@@ -111,5 +111,5 @@ def test_temporal_prop_time_str():
     }
 
 def test_temporal_prop_str_bad_format():
-    with pytest.raises(NgsiDateFormatError):
+    with pytest.raises(ValueError):
         p = build_temporal_property("25:00:00Z")

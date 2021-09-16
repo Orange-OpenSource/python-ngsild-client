@@ -39,9 +39,10 @@ def build_property(
     if unitcode is not None:
         property[META_ATTR_UNITCODE] = unitcode
     if observedat is not None:
-        if isinstance(observedat, datetime):
-            observedat = iso8601.from_datetime(observedat)
-        property[META_ATTR_OBSERVED_AT] = observedat
+        date_str, temporaltype = iso8601.parse(observedat)
+        if temporaltype != TemporalType.DATETIME:
+            raise NgsiDateFormatError(f"observedAt must be a DateTime : {date_str}")
+        property[META_ATTR_OBSERVED_AT] = date_str
     if datasetid is not None:
         property[META_ATTR_DATASET_ID] = urnprefix(datasetid)
     if userdata:
@@ -68,37 +69,13 @@ def build_geoproperty(value: Any) -> NgsiDict:
 
 
 def build_temporal_property(value: Any) -> NgsiDict:
-    # TODO : handle Date and Time
     property: NgsiDict = NgsiDict()
     property["type"] = AttrType.TEMPORAL.value  # set type
-    if isinstance(value, datetime):
-        v = {
-            "@type": TemporalType.DATETIME.value,
-            "@value": iso8601.from_datetime(value),
-        }
-    elif isinstance(value, date):
-        v = {
-            "@type": TemporalType.DATE.value,
-            "@value": iso8601.from_date(value),
-        }
-    elif isinstance(value, time):
-        v = {
-            "@type": TemporalType.TIME.value,
-            "@value": iso8601.from_time(value),
-        }
-    elif isinstance(value, str):
-        try:
-            temporaltype = iso8601.parse(value)
-        except ValueError as e:
-            raise NgsiDateFormatError from e
-        v = {
-            "@type": temporaltype.value,
-            "@value": value,
-        }
-    else:
-        raise NgsiUnmatchedAttributeTypeError(
-            f"Cannot map {type(value)} to NGSI type. {value=}"
-        )
+    date_str, temporaltype = iso8601.parse(value)
+    v = {
+        "@type": temporaltype.value,
+        "@value": date_str,
+    }
     property["value"] = v  # set value
     return property
 
@@ -112,9 +89,10 @@ def build_relationship(
     property["type"] = AttrType.REL.value  # set type
     property["object"] = urnprefix(value)  # set value
     if observedat is not None:
-        if isinstance(observedat, datetime):
-            observedat = iso8601.from_datetime(observedat)
-        property[META_ATTR_OBSERVED_AT] = observedat
+        date_str, temporaltype = iso8601.parse(observedat)
+        if temporaltype != TemporalType.DATETIME:
+            raise NgsiDateFormatError(f"observedAt must be a DateTime : {date_str}")
+        property[META_ATTR_OBSERVED_AT] = date_str
     if userdata:
         property |= userdata
     return property

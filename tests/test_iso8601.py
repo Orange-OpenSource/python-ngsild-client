@@ -34,17 +34,17 @@ def test_from_time():
 
 def test_parse_datetime():
     d = "2021-09-17T09:25:00Z"
-    assert iso8601.parse(d) == TemporalType.DATETIME
+    assert iso8601.parse(d) == (d, TemporalType.DATETIME)
 
 
 def test_parse_date():
     d = "2021-09-17"
-    assert iso8601.parse(d) == TemporalType.DATE
+    assert iso8601.parse(d) == (d, TemporalType.DATE)
 
 
 def test_parse_time():
     d = "09:25:00Z"
-    assert iso8601.parse(d) == TemporalType.TIME
+    assert iso8601.parse(d) == (d, TemporalType.TIME)
 
 
 def test_parse_bad_format_bad_length():
