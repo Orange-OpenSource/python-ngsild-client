@@ -12,9 +12,10 @@
 
 from __future__ import annotations
 from typing import Protocol
+from functools import reduce
 
 import json
-
+import operator
 
 class NgsiFormatter(Protocol):
 
@@ -55,6 +56,9 @@ class NgsiDict(dict, NgsiFormatter):
     def _from_json(cls, payload: str):
         d = json.loads(payload)
         return cls(d)
+
+    def _attr(self, element):
+        return reduce(operator.getitem, element.split("."), self)
 
     @classmethod
     def _load(cls, filename: str):

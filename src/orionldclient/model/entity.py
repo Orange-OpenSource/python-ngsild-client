@@ -11,10 +11,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+import operator
 
 from copy import deepcopy
 from datetime import datetime
 from typing import Any, Union
+from functools import reduce
 
 from .exceptions import *
 from .constants import *
@@ -68,8 +70,14 @@ class Entity:
     def context(self):
         return self._payload["@context"]
 
-    def attr(self, name: str) -> NgsiDict:
-        return self._payload.get(name)
+    def attr(self, element):
+        return self._payload._attr(element)
+
+    def __getitem__(self, item):
+        return self._payload._attr(item)
+
+    def __setitem__(self, key, item):
+        self._payload[key] = item
 
     def prop(
         self,
@@ -88,7 +96,6 @@ class Entity:
         return self._payload[name]
 
     def tprop(self, name: str, value: Any):
-        # TODO : handle Date and Time
         self._payload.tprop(name, value)
         return self._payload[name]
 
