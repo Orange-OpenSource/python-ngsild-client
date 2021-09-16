@@ -13,8 +13,7 @@
 __version__ = "0.1.0"
 
 from orionldclient.utils import (
-    datetime_to_iso8601,
-    utcnow_to_iso8601,
+    iso8601,
     escape,
     unescape,
     Urn,

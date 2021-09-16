@@ -20,10 +20,16 @@ class NgsiMissingIdError(NgsiError):
 class NgsiMissingTypeError(NgsiError):
     pass
 
+
 class NgsiMissingContextError(NgsiError):
     pass
 
+
 class NgsiUnmatchedAttributeTypeError(NgsiError):
+    pass
+
+
+class NgsiDateFormatError(NgsiError):
     pass
 
 

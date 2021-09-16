@@ -10,10 +10,10 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
-from .iso8601 import datetime_to_iso8601, utcnow_to_iso8601
+from .iso8601 import from_datetime, utcnow
 from .url import escape, unescape
 from .urn import Urn
 
 urnprefix = Urn.prefix
 
-__all__ = ['datetime_to_iso8601', 'utcnow_to_iso8601', 'escape', 'unescape', 'Urn', 'urnprefix']
+__all__ = ['iso8601', 'escape', 'unescape', 'Urn', 'urnprefix']

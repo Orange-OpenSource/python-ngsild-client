@@ -10,6 +10,8 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
+import pytest
+
 from datetime import datetime
 from orionldclient.model._attribute import *
 
@@ -61,9 +63,53 @@ def test_geoprop_point_as_tuple():
     }
 
 
-def test_temporal_prop():
+def test_temporal_prop_datetime():
     p = build_temporal_property(datetime(2021, 8, 31, 12))
     assert p == {
         "type": "Property",
         "value": {"@type": "DateTime", "@value": "2021-08-31T12:00:00Z"},
     }
+
+
+def test_temporal_prop_datetime_str():
+    p = build_temporal_property("2021-08-31T12:00:00Z")
+    assert p == {
+        "type": "Property",
+        "value": {"@type": "DateTime", "@value": "2021-08-31T12:00:00Z"},
+    }
+
+
+def test_temporal_prop_date():
+    p = build_temporal_property(date(2021, 8, 31))
+    assert p == {
+        "type": "Property",
+        "value": {"@type": "Date", "@value": "2021-08-31"},
+    }
+
+
+def test_temporal_prop_date_str():
+    p = build_temporal_property("2021-08-31")
+    assert p == {
+        "type": "Property",
+        "value": {"@type": "Date", "@value": "2021-08-31"},
+    }
+
+
+def test_temporal_prop_time():
+    p = build_temporal_property(time(12, 0, 0))
+    assert p == {
+        "type": "Property",
+        "value": {"@type": "Time", "@value": "12:00:00Z"},
+    }
+
+
+def test_temporal_prop_time_str():
+    p = build_temporal_property("12:00:00Z")
+    assert p == {
+        "type": "Property",
+        "value": {"@type": "Time", "@value": "12:00:00Z"},
+    }
+
+def test_temporal_prop_str_bad_format():
+    with pytest.raises(NgsiDateFormatError):
+        p = build_temporal_property("25:00:00Z")

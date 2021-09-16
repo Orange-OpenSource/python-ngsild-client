@@ -35,7 +35,7 @@ class Entity:
     ):
         self.contextfirst = contextfirst  # TODO : move at api level
         self._payload: NgsiDict = NgsiDict(
-            {"@context": context, "id": Urn.prefix(id), "type": type}
+            {"@context": context, "id": urnprefix(id), "type": type}
         )
 
     @classmethod

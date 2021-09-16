@@ -10,13 +10,40 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime
+from typing import Optional
+from datetime import datetime, date, time
+from contextlib import suppress
+
+from orionldclient.model.constants import TemporalType
 
 
-def datetime_to_iso8601(date: datetime) -> str:
+def from_datetime(date: datetime) -> str:
     return date.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def utcnow_to_iso8601() -> str:
-    return datetime_to_iso8601(datetime.utcnow())
+def utcnow() -> str:
+    return from_datetime(datetime.utcnow())
 
+
+def from_date(date: date):
+    return date.strftime("%Y-%m-%d")
+
+
+def from_time(time: time):
+    return time.strftime("%H:%M:%SZ")
+
+
+def parse(date: str) -> TemporalType:
+    if len(date) == 20:
+        with suppress(ValueError):
+            datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ")
+            return TemporalType.DATETIME
+    elif len(date) == 10:
+        with suppress(ValueError):
+            datetime.strptime(date, "%Y-%m-%d")
+            return TemporalType.DATE
+    elif len(date) == 9:
+        with suppress(ValueError):
+            datetime.strptime(date, "%H:%M:%SZ")
+            return TemporalType.TIME
+    raise ValueError(f"Bad date format : {date}")
