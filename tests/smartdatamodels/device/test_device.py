@@ -17,9 +17,7 @@ from orionldclient.model.entity import *
 
 
 def expected_dict(basename: str) -> dict:
-    filename: str = pkg_resources.resource_filename(
-        __name__, f"data/{basename}.json"
-    )
+    filename: str = pkg_resources.resource_filename(__name__, f"data/{basename}.json")
     with open(filename, "r") as fp:
         expected = json.load(fp)
     return expected
@@ -53,3 +51,26 @@ def test_device():
 
     assert e.to_dict() == expected_dict("device")
     assert e.to_dict(kv=True) == expected_dict("device.kv")
+
+
+def test_device():
+    """
+    https://smart-data-models.github.io/dataModel.Device/DeviceModel/examples/example.jsonld
+    """
+
+    ctx = [
+        "https://smartdatamodels.org/context.jsonld",
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+    ]
+
+    e = Entity("DeviceModel:myDevice-wastecontainer-sensor-345", "DeviceModel", ctx)
+    e.prop("category", ["sensor"])
+    e.prop("function", ["sensing"])
+    e.prop("modelName", "S4Container 345")
+    e.prop("name", "myDevice Sensor for Containers 345")
+    e.prop("brandName", "myDevice")
+    e.prop("manufacturerName", "myDevice Inc.")
+    e.prop("controlledProperty", ["fillingLevel", "temperature"])
+
+    assert e.to_dict() == expected_dict("device_model")
+    assert e.to_dict(kv=True) == expected_dict("device_model.kv")
