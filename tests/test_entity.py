@@ -43,6 +43,7 @@ def test_air_quality(expected_air_quality):
     e.prop("NO2", 22, unitcode="GP")
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
     assert e.to_dict() == expected_air_quality
+    assert e.to_dict(kv=True) == expected_dict("air_quality.kv")
 
 
 def test_air_quality_from_dict(expected_air_quality):
@@ -160,7 +161,7 @@ def test_store():
     e.gprop("location", (-20.2845607, 57.4874121))
     e.prop("storeName", "Checker Market")
     assert e.to_dict() == expected_dict("store")
-    assert json.loads(e.to_json(simplified=True)) == expected_dict("store.kv")
+    assert e.to_dict(kv=True) == expected_dict("store.kv")
 
 def test_vehicle():
     """Build a sample Vehicle Entity
@@ -234,4 +235,4 @@ def test_parking():
     e.prop("totalSpotNumber", 200)
     e.gprop("location", (41.2, -8.5))
     assert e.to_dict() == expected_dict("parking")
-    assert json.loads(e.to_json(simplified=True)) == expected_dict("parking.kv")
+    assert e.to_dict(kv=True) == expected_dict("parking.kv")

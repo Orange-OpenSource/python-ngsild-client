@@ -21,13 +21,13 @@ from orionldclient.utils import urnprefix
 
 
 def expected_dict(basename: str) -> dict:
-    filename: str = pkg_resources.resource_filename(__name__, f"data/{basename}.json")
+    filename: str = pkg_resources.resource_filename(__name__, f"data/urbanmobility/{basename}.json")
     with open(filename, "r") as fp:
         expected = json.load(fp)
     return expected
 
 
-def test_smartcities_urbanmobility_transportstop():
+def test_transportstop():
     """
     https://smart-data-models.github.io/dataModel.UrbanMobility/PublicTransportStop/examples/example-normalized.jsonld
     """
@@ -75,3 +75,4 @@ def test_smartcities_urbanmobility_transportstop():
     e.prop("openingHoursSpecification", openinghours)
 
     assert e.to_dict() == expected_dict("transport_stop")
+    assert e.to_dict(kv=True) == expected_dict("transport_stop.kv")

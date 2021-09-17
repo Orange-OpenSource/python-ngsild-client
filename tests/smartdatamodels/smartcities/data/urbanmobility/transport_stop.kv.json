@@ -1,0 +1,65 @@
+{
+    "@context": [
+        "https://smart-data-models.github.io/data-models/context.jsonld",
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+    ],
+    "id": "urn:ngsi-ld:PublicTransportStop:santander:busStop:463",
+    "type": "PublicTransportStop",
+    "dateModified": "2018-09-25T08:32:26Z",
+    "source": "https://api.smartsantander.eu/",
+    "dataProvider": "http://www.smartsantander.eu/",
+    "entityVersion": "2.0",
+    "address": {
+        "streetAddress": "C/ La Pereda 14",
+        "addressLocality": "Santander",
+        "addressRegion": "Cantabria",
+        "addressCountry": "Spain"
+    },
+    "location": {
+        "type": "Point",
+        "coordinates": [
+            -3.804648,
+            43.478053
+        ]
+    },
+    "stopCode": "la_pereda_463",
+    "shortStopCode": "463",
+    "name": "La Pereda 14",
+    "wheelchairAccessible": 0,
+    "transportationType": [
+        3
+    ],
+    "refPublicTransportRoute": [
+        "urn:ngsi-ld:PublicTransportRoute:santander:transport:busLine:N3",
+        "urn:ngsi-ld:PublicTransportRoute:santander:transport:busLine:N4"
+    ],
+    "peopleCount": 0,
+    "refPeopleCountDevice": "urn:ngsi-ld:PorpleCountDecice:santander:463",
+    "openingHoursSpecification": [
+        {
+            "opens": "00:01",
+            "closes": "23:59",
+            "dayOfWeek": "Monday"
+        },
+        {
+            "opens": "00:01",
+            "closes": "23:59",
+            "dayOfWeek": "Tuesday"
+        },
+        {
+            "opens": "00:01",
+            "closes": "23:59",
+            "dayOfWeek": "Wednesday"
+        },
+        {
+            "opens": "00:01",
+            "closes": "23:59",
+            "dayOfWeek": "Thursday"
+        },
+        {
+            "opens": "00:01",
+            "closes": "23:59",
+            "dayOfWeek": "Friday"
+        }
+    ]
+}

@@ -115,18 +115,20 @@ class Entity:
     def __repr__(self):
         return self._payload.__repr__()
 
-    def to_dict(self) -> NgsiDict:
-        return self._payload
+    def to_dict(self, kv=False) -> NgsiDict:
+        return self._to_keyvalues() if kv else self._payload
+        
 
     def _to_keyvalues(self) -> NgsiDict:
         d = NgsiDict()
         for k, v in self._payload.items():
-            if isinstance(v, NgsiDict):
+            if isinstance(v, dict):
                 if (
                     v["type"] == AttrType.PROP.value
                 ):  # apply to Property and TemporalProperty
                     value = v["value"]
-                    value = v.get("@value", value)  # for Temporal Property only
+                    if isinstance(value, dict):
+                        value = value.get("@value", value)  # for Temporal Property only
                     d[k] = value
                 elif v["type"] == AttrType.GEO.value:
                     d[k] = v["value"]
@@ -138,7 +140,7 @@ class Entity:
 
     def to_json(self, simplified=False, *args, **kwargs):
         """Returns the datamodel in json format"""
-        payload: NgsiDict = self._to_keyvalues() if simplified else self._payload
+        payload: NgsiDict = self.to_dict(simplified)
         return payload.to_json(*args, **kwargs)
 
     def pprint(self, simplified=False, *args, **kwargs):
