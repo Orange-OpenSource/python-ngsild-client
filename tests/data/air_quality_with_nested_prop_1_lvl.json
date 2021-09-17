@@ -1,4 +1,7 @@
 {
+    "@context": [
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+    ],
     "id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
     "type": "AirQualityObserved",
     "dateObserved": {
@@ -20,8 +23,5 @@
     "refPointOfInterest": {
         "type": "Relationship",
         "object": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare"
-    },
-    "@context": [
-        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
-    ]
+    }
 }

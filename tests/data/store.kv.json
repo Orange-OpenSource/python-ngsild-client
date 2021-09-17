@@ -14,26 +14,17 @@
     "id": "urn:ngsi-ld:Store:001",
     "type": "Store",
     "address": {
-        "type": "Property",
-        "value": {
-            "streetAddress": "Main Street 65",
-            "addressRegion": "Metropolis",
-            "addressLocality": "Duckburg",
-            "postalCode": "42000"
-        }
+        "streetAddress": "Main Street 65",
+        "addressRegion": "Metropolis",
+        "addressLocality": "Duckburg",
+        "postalCode": "42000"
     },
     "location": {
-        "type": "GeoProperty",
-        "value": {
-            "type": "Point",
-            "coordinates": [
-                57.487412,
-                -20.284561
-            ]
-        }
+        "type": "Point",
+        "coordinates": [
+            57.487412,
+            -20.284561
+        ]
     },
-    "storeName": {
-        "type": "Property",
-        "value": "Checker Market"
-    }
+    "storeName": "Checker Market"
 }

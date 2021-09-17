@@ -32,10 +32,8 @@ class Entity:
         self,
         id: str,
         type: str,
-        context: list = [DEFAULT_CONTEXT],
-        contextfirst: bool = False,
+        context: list = [DEFAULT_CONTEXT]
     ):
-        self.contextfirst = contextfirst  # TODO : move at api level
         self._payload: NgsiDict = NgsiDict(
             {"@context": context, "id": urnprefix(id), "type": type}
         )
@@ -124,36 +122,29 @@ class Entity:
         d = NgsiDict()
         for k, v in self._payload.items():
             if isinstance(v, NgsiDict):
-                if v["type"] == AttrType.PROP.value: # apply to Property and TemporalProperty
+                if (
+                    v["type"] == AttrType.PROP.value
+                ):  # apply to Property and TemporalProperty
                     value = v["value"]
-                    value = v.get("@value", value) # for Temporal Property only
+                    value = v.get("@value", value)  # for Temporal Property only
                     d[k] = value
                 elif v["type"] == AttrType.GEO.value:
-                    d[k] = v["value"]                    
+                    d[k] = v["value"]
                 elif v["type"] == AttrType.REL.value:
                     d[k] = v["object"]
             else:
                 d[k] = v
         return d
 
-
-    def to_json(self, contextfirst=False, kv=False, *args, **kwargs):
+    def to_json(self, simplified=False, *args, **kwargs):
         """Returns the datamodel in json format"""
-        if contextfirst:
-            payload: NgsiDict = self._to_keyvalues() if kv else self._payload
-        else:
-            # need to build a brand new dict (different ordering)
-            ctx = self._payload[META_ATTR_CONTEXT]
-            payload: NgsiDict = deepcopy(self._payload)
-            del payload[META_ATTR_CONTEXT]
-            payload[META_ATTR_CONTEXT] = ctx
+        payload: NgsiDict = self._to_keyvalues() if simplified else self._payload
         return payload.to_json(*args, **kwargs)
 
-    def pprint(self, *args, **kwargs):
+    def pprint(self, simplified=False, *args, **kwargs):
         """Returns the datamodel pretty-json-formatted"""
-        print(self.to_json(indent=2, *args, **kwargs))
+        print(self.to_json(simplified, indent=2, *args, **kwargs))
 
     def save(self, filename: str, indent=2):
-        payload = self.to_dict(self.contextfirst)
         with open(filename, "w") as fp:
-            json.dump(payload, fp, default=str, ensure_ascii=False, indent=indent)
+            json.dump(self._payload, fp, default=str, ensure_ascii=False, indent=indent)

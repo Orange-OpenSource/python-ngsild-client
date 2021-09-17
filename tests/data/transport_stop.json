@@ -1,4 +1,8 @@
 {
+    "@context": [
+        "https://smart-data-models.github.io/data-models/context.jsonld",
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+    ],
     "id": "urn:ngsi-ld:PublicTransportStop:santander:busStop:463",
     "type": "PublicTransportStop",
     "dateModified": {
@@ -105,9 +109,5 @@
                 "dayOfWeek": "Friday"
             }
         ]
-    },
-    "@context": [
-        "https://smart-data-models.github.io/data-models/context.jsonld",
-        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
-    ]
+    }
 }

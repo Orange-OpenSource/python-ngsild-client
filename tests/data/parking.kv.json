@@ -1,0 +1,17 @@
+{
+    "@context": [
+        "http://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        "http://example.org/ngsi-ld/parking.jsonld"
+    ],
+    "id": "urn:ngsi-ld:OffStreetParking:Downtown1",
+    "type": "OffStreetParking",
+    "availableSpotNumber": 121,
+    "totalSpotNumber": 200,
+    "location": {
+        "type": "Point",
+        "coordinates": [
+            -8.5,
+            41.2
+        ]
+    }
+}
