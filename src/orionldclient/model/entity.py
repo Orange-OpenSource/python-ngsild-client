@@ -73,9 +73,6 @@ class Entity:
     def context(self):
         return self._payload["@context"]
 
-    def attr(self, element):
-        return self._payload._attr(element)
-
     def __getitem__(self, item):
         return self._payload._attr(item)
 

@@ -10,45 +10,37 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
-from orionldclient.onm.serialization import NgsiSerializationProtocol
+from orionldclient.onm.serialization import NgsiLdInterface, NgsiLdSerializer
 from orionldclient.model.entity import Entity
-from orionldclient.model.ngsidict import NgsiDict
-from orionldclient.utils.urn import Urn
+from orionldclient.utils import urnprefix
 
 
-class Room(NgsiSerializationProtocol):
+class Room(NgsiLdInterface):
     def __init__(self, id: int, temperature: float):
-        self.id = f"Room{id}"
-        self.type = "Room"
+        self.id = id
         self.temperature = temperature
 
     def __repr__(self):
-        return f"{self.id} {self.type} {self.temperature}"
+        return f"Room{self.id} : {self.temperature}"
 
-    def __ngsild__to__(self) -> str:
-        e = Entity(self.id, self.type)
-        e.prop("temperature", self.temperature)
+    def __ngsi_ld__interface__(self) -> tuple[str, str, list]:
+        return urnprefix(f"Room{self.id}"), "Room", None
+
+
+class RoomSerializer(NgsiLdSerializer):
+    def dump(self, room: Room) -> Entity:
+        e = super().dump(room)
+        e.prop("temperature", room.temperature)
         return e
 
-    @classmethod
-    def __ngsild__from__(cls, payload: NgsiDict):
-        id_str = Urn.unprefix(payload["id"])
-        id = int(id_str[4:])
-        temp_str = payload["temperature"]["value"]
-        temp = float(temp_str)
-        return cls(id, temp)
 
-
-def test_to_ngsi():
+def test_serialize_room():
     room = Room(1, 22.5)
-    #print(room.__ngsild__to__())
-
-
-def test_from_ngsi():
-    payload = {
-        "id": "urn:ngsi-ld:Room1",
+    serializer = RoomSerializer()
+    e = serializer.dump(room)
+    assert e.to_dict() == {
+        "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        "id": "urn:ngsi-ld:urn:ngsi-ld:Room1",
         "type": "Room",
         "temperature": {"type": "Property", "value": 22.5},
     }
-    room = Room.__ngsild__from__(payload)
-    #print(room)

@@ -11,14 +11,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Protocol
+from abc import ABCMeta, abstractmethod
+from orionldclient.model.entity import Entity
 
-from orionldclient.model.ngsidict import NgsiDict
 
-
-class NgsiSerializationProtocol(Protocol):
-    def __ngsild__to__(self) -> str:
+class NgsiLdInterface(Protocol):
+    def __ngsi_ld__interface__(self) -> tuple[str, str, list]:
         ...
 
-    @classmethod
-    def __ngsild__from__(payload: NgsiDict):
-        ...
+
+class NgsiLdSerializer(metaclass=ABCMeta):
+
+    @abstractmethod
+    def dump(self, obj: NgsiLdInterface) -> Entity:
+        _id, _type, _ctx = obj.__ngsi_ld__interface__()
+        if _ctx is None:
+            _ctx = Entity.DEFAULT_CONTEXT
+        e = Entity(_id, _type, _ctx)
+        return e
