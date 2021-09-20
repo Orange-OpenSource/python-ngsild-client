@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-import operator
+import requests
 
 from copy import deepcopy
 from datetime import datetime
@@ -22,6 +22,7 @@ from .exceptions import *
 from .constants import *
 from ._attribute import *
 from .ngsidict import NgsiDict
+from orionldclient.utils.url import isurl
 
 
 class Entity:
@@ -52,9 +53,13 @@ class Entity:
 
     @classmethod
     def load(cls, filename: str):
-        with open(filename, "r") as fp:
-            d = json.load(fp)
-            return cls.from_dict(d)
+        if isurl(filename):
+            resp = requests.get(filename)
+            d = resp.json()
+        else:
+            with open(filename, "r") as fp:
+                d = json.load(fp)
+        return cls.from_dict(d)
 
     @property
     def id(self):
