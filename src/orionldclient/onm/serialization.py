@@ -10,22 +10,39 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 from abc import ABCMeta, abstractmethod
 from orionldclient.model.entity import Entity
 
 
-class NgsiLdInterface(Protocol):
-    def __ngsi_ld__interface__(self) -> tuple[str, str, list]:
-        ...
+@runtime_checkable
+class NgsiProtocol(Protocol):
+    _ngsi_id: str = None
+    _ngsi_type: str = None
+    _ngsi_ctx = [Entity.DEFAULT_CONTEXT]
+
+    @property
+    def _ngsi_interface(self):
+        return self._ngsi_id, self._ngsi_type, self._ngsi_ctx
 
 
-class NgsiLdSerializer(metaclass=ABCMeta):
+class NgsiSerializer(metaclass=ABCMeta):
+    def __init__(self, type: str, ctx: list = [Entity.DEFAULT_CONTEXT]):
+        self.type = type
+        self.ctx = ctx
 
     @abstractmethod
-    def dump(self, obj: NgsiLdInterface) -> Entity:
-        _id, _type, _ctx = obj.__ngsi_ld__interface__()
+    def dump(self, obj: NgsiProtocol) -> Entity:
+        if not isinstance(obj, NgsiProtocol):
+            raise ValueError(f"Object {obj} must implement the NgsiLdProtocol")
+        _id, _type, _ctx = obj._ngsi_interface
+        if _type != self.type:
+            raise ValueError(f"Serializer cannot handle type {_type}")
         if _ctx is None:
-            _ctx = Entity.DEFAULT_CONTEXT
+            _ctx = self.ctx
         e = Entity(_id, _type, _ctx)
         return e
+
+    @abstractmethod
+    def load(self, e: Entity) -> NgsiProtocol:
+        raise NotImplementedError
