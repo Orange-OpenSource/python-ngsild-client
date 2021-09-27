@@ -10,12 +10,16 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
-import logging
+from ..exceptions import NgsiError
 
-from orionldclient.utils import iso8601, escape, unescape, Urn, urnprefix
 
-__version__ = "0.1.0"
+class NgsiContextBrokerError(NgsiError):
+    pass
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG
-)
+
+class NgsiHttpError(NgsiContextBrokerError):
+    pass
+
+
+class NgsiNotConnectedError(NgsiContextBrokerError):
+    pass

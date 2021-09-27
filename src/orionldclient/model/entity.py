@@ -83,6 +83,8 @@ class Entity:
         self,
         name: str,
         value: Any,
+        /, # positional-only arguments before this        
+        *, # keyword-only arguments after this
         unitcode: str = None,
         observedat: Union[str, datetime] = None,
         datasetid: str = None,
@@ -91,11 +93,13 @@ class Entity:
         self._payload.prop(name, value, unitcode, observedat, datasetid, userdata)
         return self._payload[name]
 
-    def gprop(self, name: str, value: Any):
+    def gprop(self, name: str = "location", value: Any = None, /):
+        if value is None:
+            raise AttributeError("mssing value")
         self._payload.gprop(name, value)
         return self._payload[name]
 
-    def tprop(self, name: str, value: Any):
+    def tprop(self, name: str, value: Any, /):
         self._payload.tprop(name, value)
         return self._payload[name]
 
@@ -103,6 +107,8 @@ class Entity:
         self,
         name: str,
         value: str,
+        /,
+        *,
         observedat: Union[str, datetime] = None,
         userdata: NgsiDict = NgsiDict(),
     ):
@@ -149,6 +155,6 @@ class Entity:
         """Returns the datamodel pretty-json-formatted"""
         print(self.to_json(simplified, indent=2, *args, **kwargs))
 
-    def save(self, filename: str, indent=2):
+    def save(self, filename: str, *, indent=2):
         with open(filename, "w") as fp:
             json.dump(self._payload, fp, default=str, ensure_ascii=False, indent=indent)
