@@ -4,6 +4,8 @@ from orionldclient import __version__
 
 from enum import Enum, unique
 
+Version = str
+
 
 @unique
 class Vendor(Enum):
@@ -34,15 +36,20 @@ UA = f"python-orion-client v{__version__}"
 
 NGSILD_PATH = "ngsi-ld"
 NGSILD_VERSION = "v1"
-NGGSILD_BASEPATH = f"{NGSILD_PATH}/{NGSILD_VERSION}"
+NGSILD_BASEPATH = f"{NGSILD_PATH}/{NGSILD_VERSION}"
+
+NGSILD_DEFAULT_PORT_ORIONLD = 1026
+NGSILD_DEFAULT_PORT_SCORPIO = 9090
+NGSILD_DEFAULT_PORT_STELLIO = 8080
+NGSILD_DEFAULT_PORT = NGSILD_DEFAULT_PORT_ORIONLD
 
 # endpoints MUST begin with a slash
 # endpoints MUST NOT end with a slash
-ENDPOINT_STATUS = "/version"
-ENDPOINT_ADMIN = "/admin"
+ENDPOINT_STATUS = "version"
+ENDPOINT_ADMIN = "admin"
 ENDPOINT_LOG = f"{ENDPOINT_ADMIN}/log"
-ENDPOINT_ENTITIES = f"/{NGSILD_PATH}/entities"
-ENDPOINT_SUBSCRIPTIONS = f"/{NGSILD_PATH}/subscriptions"
+ENDPOINT_ENTITIES = f"{NGSILD_BASEPATH}/entities"
+ENDPOINT_SUBSCRIPTIONS = f"{NGSILD_BASEPATH}/subscriptions"
 
 
 PAGINATION_LIMIT_MAX = 1000  # pagination (max. allowed by Orion-LD)

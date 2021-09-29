@@ -8,7 +8,6 @@ from requests.sessions import Session
 from dataclasses import dataclass
 
 from typing import Optional
-from datetime import datetime, timedelta
 
 from .constants import *
 from .exceptions import *
@@ -20,17 +19,15 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class Broker:
-    type: Vendor
-    version: str
-    starttime: datetime
-    _laststatus: dict = {}
+    vendor: Vendor = Vendor.UNKNOWN
+    version: str = "N/A"
 
 
 class Client:
     def __init__(
         self,
-        hostname="127.0.0.1",
-        port="1026",
+        hostname="localhost",
+        port=NGSILD_DEFAULT_PORT,
         secure=False,
         useragent=UA,
         tenant=None,
@@ -47,15 +44,6 @@ class Client:
         self.tenant = tenant
         self.upsert = upsert
         self.proxy = proxy
-        # self.headers = {"User-Agent": self.useragent, "Accept": "application/json"}
-        # self.headers_ngsi_get = {
-        #     "User-Agent": self.useragent,
-        #     "Accept": "application/ld+json",
-        # }
-        # self.headers_ngsi_post = {
-        #     "User-Agent": self.useragent,
-        #     "Content-Type": "application/ld+json",
-        # }
 
         self.session = Session()
         self.session.headers = {
@@ -68,20 +56,13 @@ class Client:
         if proxy:
             self.session.proxies = {proxy}
 
-        self.broker: Broker = None
-
         logger.info("Connecting client ...")
         # self._entities = Entities(self, f"{self.url}{ENDPOINT_ENTITIES}", version)
 
-        self.starttime = datetime.now()
-        self._broker_version = "N/A"
-        self._broker_starttime: datetime = None
-
-        # get status and check connection
-        status = self.status(raise_for_disconnected=True)
+        # get status and retrieve Context Broker information
+        status = self.is_connected(raise_for_disconnected=True)
         if status:
-            self._broker_starttime = datetime.now() - self.uptime(status)
-            self._broker_version = status["orionld version"]
+            self.broker = Broker(*self.guess_vendor())
             print(self._welcome_message())
         else:
             print(self._fail_message())
@@ -90,20 +71,80 @@ class Client:
         return self
 
     def __exit__(self, type, value, traceback):
-        logger.info("close session 1")
         self.close()
+
+    def is_connected(self, raise_for_disconnected=False) -> bool:
+        url = f"{self.url}/{ENDPOINT_ENTITIES}"
+        params = {"type": "None", "limit": 0, "count": "true"}
+        try:
+            r = self.session.get(
+                url,
+                headers={
+                    "Accept": "application/json",
+                    "Content-Type": None,
+                },  # overrides session headers
+                params=params,
+            )
+            r.raise_for_status()
+        except Exception as e:
+            if raise_for_disconnected:
+                raise NgsiNotConnectedError("Cannot connect to Context Broker") from e
+            else:
+                logger.error(e)
+                return False
+        return True
+
+    def broker_version_orionld(self) -> Optional[str]:
+        url = f"{self.url}/version"
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": None,
+        }  # overrides session headers
+        try:
+            r = self.session.get(url, headers=headers)
+            r.raise_for_status()
+            return r.json()["orionld version"]
+        except Exception:
+            return None
+
+    def broker_version_scorpio(self) -> Optional[str]:
+        url = f"{self.url}/scorpio/v1/info/health"
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": None,
+        }  # overrides session headers
+        try:
+            r = self.session.get(url, headers=headers)
+            r.raise_for_status()
+            return "N/A"
+        except Exception:
+            return None
+
+    def broker_version_stellio(self) -> Optional[str]:
+        url = f"{self.url}/actuator/health"
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": None,
+        }  # overrides session headers
+        try:
+            r = self.session.get(url, headers=headers)
+            r.raise_for_status()
+            return "N/A"
+        except Exception:
+            return None
+
+    def guess_vendor(self) -> tuple[Vendor, Version]:
+        if version := self.broker_version_orionld():
+            return Vendor.ORIONLD, version
+        if version := self.broker_version_scorpio():
+            return Vendor.SCORPIO, version
+        if version := self.broker_version_stellio():
+            return Vendor.STELLIO, version
+        return Vendor.UNKNOWN, "N/A"
 
     @property
     def version(self) -> str:
         return __version__
-
-    @property
-    def broker_version(self) -> str:
-        return self._broker_version
-
-    @property
-    def broker_starttime(self) -> Optional[datetime]:
-        return self._broker_starttime
 
     @property
     def entities(self):
@@ -113,68 +154,11 @@ class Client:
     def subscriptions(self):
         return self._subscriptions
 
-    def status_OLD(self, raise_for_disconnected=False) -> Optional[dict]:
-        logger.info(f"{self.url=}")
-        url = f"{self.url}{ENDPOINT_STATUS}"
-        logger.info(url)
-        _status = None
-        try:
-            _status = http.get(
-                self.session,
-                url,
-                headers={"Accept": "application/json", "Content-Type": None}, # overrides session headers
-                proxy=self.proxy,
-            )
-            print(_status)
-        except Exception as e:
-            logger.error(e)
-            if raise_for_disconnected:
-                raise NgsiNotConnectedError("Cannot connect to Context Broker") from e
-        if isinstance(_status, dict) and "orionld version" in _status:
-            return _status
-        return None
-
-    def status(self, raise_for_disconnected=False) -> Optional[Broker]:
-        logger.info(f"{self.url=}")
-        url = f"{self.url}{ENDPOINT_STATUS}"
-        logger.info(url)
-        _status = None
-        try:
-            _status = http.get(
-                self.session,
-                url,
-                headers={"Accept": "application/json", "Content-Type": None}, # overrides session headers
-                proxy=self.proxy,
-            )
-            print(_status)
-        except Exception as e:
-            logger.error(e)
-            if raise_for_disconnected:
-                raise NgsiNotConnectedError("Cannot connect to Context Broker") from e
-        if isinstance(_status, dict):
-            if "orionld version" in _status:
-                broker = Broker(Vendor.ORIONLD, _status["uptime"], _status["orionld version"], _status)
-            else:
-                broker = Broker(Vendor.UNKNOWN, None, None)
-            return broker
-        return None
-
-    def is_connected(self) -> bool:
-        return self.status() is not None
-
-    def uptime(self, status: dict = None) -> timedelta:
-        if status is None:
-            status = self.status()
-        uptime = status["uptime"]
-        d, h, m, s = [int(x.split(" ")[0]) for x in uptime.split(", ")]
-        return timedelta(days=d, hours=h, minutes=m, seconds=s)
-
     def _welcome_message(self) -> str:
-        return f"Connected to Context Broker at {self.hostname}:{self.port} [{self.broker_version}]"
+        return f"Connected to Context Broker at {self.hostname}:{self.port} | vendor={self.broker.vendor.value} version={self.broker.version}"
 
     def _fail_message(self) -> str:
         return f"Failed to connect to Context Broker at {self.hostname}:{self.port}"
 
     def close(self):
-        logger.info("close session 2")
         self.session.close()

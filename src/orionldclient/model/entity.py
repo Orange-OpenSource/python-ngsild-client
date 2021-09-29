@@ -14,6 +14,8 @@ import json
 import requests
 
 from copy import deepcopy
+from functools import partialmethod
+
 from datetime import datetime
 from typing import Any, Union
 from functools import reduce
@@ -29,12 +31,7 @@ class Entity:
 
     DEFAULT_CONTEXT = "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
 
-    def __init__(
-        self,
-        id: str,
-        type: str,
-        context: list = [DEFAULT_CONTEXT]
-    ):
+    def __init__(self, id: str, type: str, context: list = [DEFAULT_CONTEXT]):
         self._payload: NgsiDict = NgsiDict(
             {"@context": context, "id": urnprefix(id), "type": type}
         )
@@ -83,8 +80,8 @@ class Entity:
         self,
         name: str,
         value: Any,
-        /, # positional-only arguments before this        
-        *, # keyword-only arguments after this
+        /,  # positional-only arguments before this
+        *,  # keyword-only arguments after this
         unitcode: str = None,
         observedat: Union[str, datetime] = None,
         datasetid: str = None,
@@ -93,11 +90,13 @@ class Entity:
         self._payload.prop(name, value, unitcode, observedat, datasetid, userdata)
         return self._payload[name]
 
-    def gprop(self, name: str = "location", value: Any = None, /):
+    def gprop(self, name: str, value: Any):
         if value is None:
-            raise AttributeError("mssing value")
+            raise AttributeError("missing value")
         self._payload.gprop(name, value)
         return self._payload[name]
+
+    loc = partialmethod(gprop, "location")
 
     def tprop(self, name: str, value: Any, /):
         self._payload.tprop(name, value)
@@ -125,7 +124,6 @@ class Entity:
 
     def to_dict(self, kv=False) -> NgsiDict:
         return self._to_keyvalues() if kv else self._payload
-        
 
     def _to_keyvalues(self) -> NgsiDict:
         d = NgsiDict()
