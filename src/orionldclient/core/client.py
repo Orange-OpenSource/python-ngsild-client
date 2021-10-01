@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
+# Software Name: python-orion-client
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache 2.0
+#
+# This software is distributed under the Apache 2.0;
+# see the NOTICE file for more details.
+#
+# Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
@@ -10,6 +18,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from .constants import *
+from .entities import Entities
 from .exceptions import *
 from . import http
 
@@ -48,7 +57,7 @@ class Client:
         self.session = Session()
         self.session.headers = {
             "User-Agent": self.useragent,
-            "Accept": "application/ld+json",
+            #"Accept": "application/ld+json",
             "Content-Type": "application/ld+json",
         }
         if tenant is not None:
@@ -57,7 +66,8 @@ class Client:
             self.session.proxies = {proxy}
 
         logger.info("Connecting client ...")
-        # self._entities = Entities(self, f"{self.url}{ENDPOINT_ENTITIES}", version)
+        
+        self._entities = Entities(self, f"{self.url}/{ENDPOINT_ENTITIES}")
 
         # get status and retrieve Context Broker information
         status = self.is_connected(raise_for_disconnected=True)
@@ -66,12 +76,6 @@ class Client:
             print(self._welcome_message())
         else:
             print(self._fail_message())
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self.close()
 
     def is_connected(self, raise_for_disconnected=False) -> bool:
         url = f"{self.url}/{ENDPOINT_ENTITIES}"
@@ -94,51 +98,12 @@ class Client:
                 return False
         return True
 
-    def broker_version_orionld(self) -> Optional[str]:
-        url = f"{self.url}/version"
-        headers = {
-            "Accept": "application/json",
-            "Content-Type": None,
-        }  # overrides session headers
-        try:
-            r = self.session.get(url, headers=headers)
-            r.raise_for_status()
-            return r.json()["orionld version"]
-        except Exception:
-            return None
-
-    def broker_version_scorpio(self) -> Optional[str]:
-        url = f"{self.url}/scorpio/v1/info/health"
-        headers = {
-            "Accept": "application/json",
-            "Content-Type": None,
-        }  # overrides session headers
-        try:
-            r = self.session.get(url, headers=headers)
-            r.raise_for_status()
-            return "N/A"
-        except Exception:
-            return None
-
-    def broker_version_stellio(self) -> Optional[str]:
-        url = f"{self.url}/actuator/health"
-        headers = {
-            "Accept": "application/json",
-            "Content-Type": None,
-        }  # overrides session headers
-        try:
-            r = self.session.get(url, headers=headers)
-            r.raise_for_status()
-            return "N/A"
-        except Exception:
-            return None
-
     def guess_vendor(self) -> tuple[Vendor, Version]:
-        if version := self.broker_version_orionld():
+        if version := self._broker_version_orionld():
             return Vendor.ORIONLD, version
-        if version := self.broker_version_scorpio():
+        if version := self._broker_version_scorpio():
             return Vendor.SCORPIO, version
-        if version := self.broker_version_stellio():
+        if version := self._broker_version_stellio():
             return Vendor.STELLIO, version
         return Vendor.UNKNOWN, "N/A"
 
@@ -154,11 +119,62 @@ class Client:
     def subscriptions(self):
         return self._subscriptions
 
+    def close(self):
+        self.session.close()
+
+    # proxy method to Entities
+    def create(self, entity: Entity) -> EntityId:
+        return self.entities.create(entity)
+
+    def _broker_version_orionld(self) -> Optional[str]:
+        url = f"{self.url}/version"
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": None,
+        }  # overrides session headers
+        try:
+            r = self.session.get(url, headers=headers)
+            r.raise_for_status()
+            return r.json()["orionld version"]
+        except Exception:
+            return None
+
+    def _broker_version_scorpio(self) -> Optional[str]:
+        url = f"{self.url}/scorpio/v1/info/health"
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": None,
+        }  # overrides session headers
+        try:
+            r = self.session.get(url, headers=headers)
+            r.raise_for_status()
+            return "N/A"
+        except Exception:
+            return None
+
+    def _broker_version_stellio(self) -> Optional[str]:
+        url = f"{self.url}/actuator/health"
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": None,
+        }  # overrides session headers
+        try:
+            r = self.session.get(url, headers=headers)
+            r.raise_for_status()
+            return "N/A"
+        except Exception:
+            return None
+
     def _welcome_message(self) -> str:
         return f"Connected to Context Broker at {self.hostname}:{self.port} | vendor={self.broker.vendor.value} version={self.broker.version}"
 
     def _fail_message(self) -> str:
         return f"Failed to connect to Context Broker at {self.hostname}:{self.port}"
 
-    def close(self):
-        self.session.close()
+    # below the context manager methods
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()

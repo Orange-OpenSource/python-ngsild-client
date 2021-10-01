@@ -1,10 +1,24 @@
-from datetime import timedelta
+#!/usr/bin/env python3
+
+# Software Name: python-orion-client
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache 2.0
+#
+# This software is distributed under the Apache 2.0;
+# see the NOTICE file for more details.
+#
+# Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
+# SPDX-License-Identifier: Apache-2.0
 
 from orionldclient import __version__
 
+from typing import Union, List
 from enum import Enum, unique
+from .entities import Entity
 
 Version = str
+OneOrManyEntities = Union[Entity, List[Entity]]
+EntityId = str
 
 
 @unique
@@ -43,7 +57,6 @@ NGSILD_DEFAULT_PORT_SCORPIO = 9090
 NGSILD_DEFAULT_PORT_STELLIO = 8080
 NGSILD_DEFAULT_PORT = NGSILD_DEFAULT_PORT_ORIONLD
 
-# endpoints MUST begin with a slash
 # endpoints MUST NOT end with a slash
 ENDPOINT_STATUS = "version"
 ENDPOINT_ADMIN = "admin"

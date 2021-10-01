@@ -25,16 +25,19 @@ def _request(session: Session, method: str, url: str, **kwargs) -> requests.Resp
     logger.info("entering requests !!")
     response = EMPTY_JSON
 
-    data = kwargs.pop("data", None)
+    data = kwargs.get("data")
     is_post = data is not None
+    logger.info(f"{data=}")
+    logger.info(f"{kwargs['data']=}")
     is_delete = not is_post and method == "DELETE"
     proxy = kwargs.pop("proxy", None)
     proxies = {proxy} if proxy else None
     logger.info(f"{proxies=}")
 
     try:
-
-        r = requests.request(method, url, **kwargs, proxies=proxies)
+        logger.info(f"{session.headers=}")
+        
+        r = session.request(method, url, **kwargs, proxies=proxies)
 
     except requests.exceptions.HTTPError as e:
         if is_post:
