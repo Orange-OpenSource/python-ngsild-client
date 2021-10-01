@@ -17,6 +17,16 @@ META_ATTR_UNITCODE = "unitCode"
 META_ATTR_OBSERVED_AT = "observedAt"
 META_ATTR_DATASET_ID = "datasetId"
 
+PREDEFINED_REL_HASPART = "hasPart"
+PREDEFINED_REL_HASDIRECTPART = "hasDirectPart"
+PREDEFINED_REL_ISCONTAINEDIN = "isContainedIn"
+
+
+class PredefinedRelationship(Enum):
+    HAS_PART = "hasPart"
+    HAS_DIRECT_PART = "hasDirectPart"
+    IS_CONTAINED_IN = "isContainedIn"
+
 
 class GeometryMetaAttr(Enum):
     LOCATION = "location"

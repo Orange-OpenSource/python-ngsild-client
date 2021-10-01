@@ -111,8 +111,14 @@ class Entity:
         observedat: Union[str, datetime] = None,
         userdata: NgsiDict = NgsiDict(),
     ):
+        if isinstance(name, Enum):
+            name = name.value
         self._payload.rel(name, value, observedat, userdata)
         return self._payload[name]
+
+    haspart = partialmethod(rel, PREDEFINED_REL_HASPART)
+    hasdirectpart = partialmethod(rel, PREDEFINED_REL_HASDIRECTPART)
+    iscontainedin = partialmethod(rel, PREDEFINED_REL_ISCONTAINEDIN)
 
     def __eq__(self, other):
         if other.__class__ is not self.__class__:
