@@ -186,7 +186,7 @@ def test_vehicle():
         observedat=datetime(2017, 7, 29, 12, 0, 4),
     ).rel("providedBy", "Person:Bob")
     assert e.to_dict() == expected_dict("vehicle")
-    assert json.loads(e.to_json(simplified=True)) == expected_dict("vehicle.kv")
+    assert json.loads(e.to_json(kv=True)) == expected_dict("vehicle.kv")
 
 
 def test_vehicle_multiple_attribute():

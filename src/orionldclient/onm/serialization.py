@@ -12,6 +12,7 @@
 
 from typing import Protocol, runtime_checkable
 from abc import ABCMeta, abstractmethod
+from orionldclient.model.constants import CORE_CONTEXT
 from orionldclient.model.entity import Entity
 
 
@@ -19,7 +20,7 @@ from orionldclient.model.entity import Entity
 class NgsiProtocol(Protocol):
     _ngsi_id: str = None
     _ngsi_type: str = None
-    _ngsi_ctx = [Entity.DEFAULT_CONTEXT]
+    _ngsi_ctx = [CORE_CONTEXT]
 
     @property
     def _ngsi_interface(self):
@@ -27,7 +28,7 @@ class NgsiProtocol(Protocol):
 
 
 class NgsiSerializer(metaclass=ABCMeta):
-    def __init__(self, type: str, ctx: list = [Entity.DEFAULT_CONTEXT]):
+    def __init__(self, type: str, ctx: list = [CORE_CONTEXT]):
         self.type = type
         self.ctx = ctx
 

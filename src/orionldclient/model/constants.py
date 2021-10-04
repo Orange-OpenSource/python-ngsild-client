@@ -12,14 +12,12 @@
 
 from enum import Enum
 
+CORE_CONTEXT = "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+
 META_ATTR_CONTEXT = "@context"
 META_ATTR_UNITCODE = "unitCode"
 META_ATTR_OBSERVED_AT = "observedAt"
 META_ATTR_DATASET_ID = "datasetId"
-
-PREDEFINED_REL_HASPART = "hasPart"
-PREDEFINED_REL_HASDIRECTPART = "hasDirectPart"
-PREDEFINED_REL_ISCONTAINEDIN = "isContainedIn"
 
 
 class PredefinedRelationship(Enum):

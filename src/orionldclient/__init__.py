@@ -17,5 +17,5 @@ from orionldclient.utils import iso8601, escape, unescape, Urn, urnprefix
 __version__ = "0.1.0"
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )

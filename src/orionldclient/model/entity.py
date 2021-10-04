@@ -28,10 +28,7 @@ from orionldclient.utils.url import isurl
 
 
 class Entity:
-
-    DEFAULT_CONTEXT = "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
-
-    def __init__(self, id: str, type: str, context: list = [DEFAULT_CONTEXT]):
+    def __init__(self, id: str, type: str, context: list = [CORE_CONTEXT]):
         self._payload: NgsiDict = NgsiDict(
             {"@context": context, "id": urnprefix(id), "type": type}
         )
@@ -104,7 +101,7 @@ class Entity:
 
     def rel(
         self,
-        name: str,
+        name: Union[str, PredefinedRelationship],
         value: str,
         /,
         *,
@@ -116,9 +113,9 @@ class Entity:
         self._payload.rel(name, value, observedat, userdata)
         return self._payload[name]
 
-    haspart = partialmethod(rel, PREDEFINED_REL_HASPART)
-    hasdirectpart = partialmethod(rel, PREDEFINED_REL_HASDIRECTPART)
-    iscontainedin = partialmethod(rel, PREDEFINED_REL_ISCONTAINEDIN)
+    rel_haspart = partialmethod(rel, PredefinedRelationship.HAS_PART)
+    rel_hasdirectpart = partialmethod(rel, PredefinedRelationship.HAS_DIRECT_PART)
+    rel_iscontainedin = partialmethod(rel, PredefinedRelationship.IS_CONTAINED_IN)
 
     def __eq__(self, other):
         if other.__class__ is not self.__class__:
@@ -150,14 +147,14 @@ class Entity:
                 d[k] = v
         return d
 
-    def to_json(self, simplified=False, *args, **kwargs):
+    def to_json(self, kv=False, *args, **kwargs):
         """Returns the datamodel in json format"""
-        payload: NgsiDict = self.to_dict(simplified)
+        payload: NgsiDict = self.to_dict(kv)
         return payload.to_json(*args, **kwargs)
 
-    def pprint(self, simplified=False, *args, **kwargs):
+    def pprint(self, kv=False, *args, **kwargs):
         """Returns the datamodel pretty-json-formatted"""
-        print(self.to_json(simplified, indent=2, *args, **kwargs))
+        print(self.to_json(kv, indent=2, *args, **kwargs))
 
     def save(self, filename: str, *, indent=2):
         with open(filename, "w") as fp:
