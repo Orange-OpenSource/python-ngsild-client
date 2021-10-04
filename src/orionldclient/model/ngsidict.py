@@ -17,6 +17,7 @@ from functools import reduce
 import json
 import operator
 
+
 class NgsiFormatter(Protocol):
 
     # helper methods to build attributes
@@ -59,6 +60,13 @@ class NgsiDict(dict, NgsiFormatter):
 
     def _attr(self, element):
         return reduce(operator.getitem, element.split("."), self)
+
+    def _rmattr(self, element):
+        try:
+            nested, k = element.rsplit(".", 1)
+            del self._attr(nested)[k]
+        except ValueError:
+            del self[element]
 
     @classmethod
     def _load(cls, filename: str):

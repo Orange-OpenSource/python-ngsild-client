@@ -73,6 +73,9 @@ class Entity:
     def __setitem__(self, key, item):
         self._payload[key] = item
 
+    def remove(self, item):
+        self._payload._rmattr(item)
+
     def prop(
         self,
         name: str,
