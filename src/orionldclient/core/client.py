@@ -19,6 +19,7 @@ from typing import Optional
 
 from .constants import *
 from .entities import Entities
+from ..model.entity import Entity
 from .exceptions import *
 from . import http
 
@@ -57,7 +58,7 @@ class Client:
         self.session = Session()
         self.session.headers = {
             "User-Agent": self.useragent,
-            #"Accept": "application/ld+json",
+            "Accept": "application/ld+json",
             "Content-Type": "application/ld+json",
         }
         if tenant is not None:
@@ -66,7 +67,7 @@ class Client:
             self.session.proxies = {proxy}
 
         logger.info("Connecting client ...")
-        
+
         self._entities = Entities(self, f"{self.url}/{ENDPOINT_ENTITIES}")
 
         # get status and retrieve Context Broker information
@@ -164,6 +165,9 @@ class Client:
             return "N/A"
         except Exception:
             return None
+
+    def _broker_version_cassiopeia(self) -> Optional[str]:
+        raise NotImplemented
 
     def _welcome_message(self) -> str:
         return f"Connected to Context Broker at {self.hostname}:{self.port} | vendor={self.broker.vendor.value} version={self.broker.version}"

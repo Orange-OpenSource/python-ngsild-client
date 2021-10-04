@@ -28,7 +28,6 @@ def _request(session: Session, method: str, url: str, **kwargs) -> requests.Resp
     data = kwargs.get("data")
     is_post = data is not None
     logger.info(f"{data=}")
-    logger.info(f"{kwargs['data']=}")
     is_delete = not is_post and method == "DELETE"
     proxy = kwargs.pop("proxy", None)
     proxies = {proxy} if proxy else None

@@ -12,12 +12,15 @@
 
 from orionldclient import __version__
 
-from typing import Union, List
+from typing import TYPE_CHECKING, Union, List
 from enum import Enum, unique
-from .entities import Entity
+
+if TYPE_CHECKING:
+    from .entities import Entity
+    OneOrManyEntities = Union[Entity, List[Entity]]
 
 Version = str
-OneOrManyEntities = Union[Entity, List[Entity]]
+#OneOrManyEntities = Union[Entity, List[Entity]]
 EntityId = str
 
 
@@ -26,6 +29,7 @@ class Vendor(Enum):
     ORIONLD = "Orion-LD"
     SCORPIO = "Scorpio"
     STELLIO = "Stellio"
+    CASSIOPEIA = "Cassiopeia"
     UNKNOWN = None
 
 
