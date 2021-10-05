@@ -17,10 +17,11 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .client import Client
 
+#from. import api
+import requests
+
 from .constants import *
-from .http import *
 from ..model.entity import Entity
-from ..model.ngsidict import NgsiDict
 
 
 logger = logging.getLogger(__name__)
@@ -33,24 +34,36 @@ class Entities:
         self.url = url
 
     def create(self, entity: Entity) -> EntityId:
-        payload = entity.to_json()
         logger.info(f"{self._session.headers}")
-        location = post(
-            self._session,
+        r = self._session.post(
             f"{self.url}/",
-            payload,
-            # headers={"Content-Type": "application/ld+json", "Accept": None},
+            entity.to_json(),
         )
-        logger.debug(f"{location=}")
+        r.raise_for_status()
+        location = r.headers.get("Location")
+        logger.info(f"{r.status_code=}")
+        logger.info(f"{location=}")
         return location.rsplit("/", 1)[-1]
 
-    def retrieve(self, id: EntityId) -> Entity:
-        payload = get(self._session, f"{self.url}/{id}")
-        return Entity.from_dict(payload)
+    def retrieve(self, eid: EntityId, **kwargs) -> Entity:
+        r = self._session.get(f"{self.url}/{eid}", **kwargs)
+        r.raise_for_status()
+        return Entity.from_dict(r.json())
 
-    def exists(self, id: EntityId) -> bool:
+    # def exists(self, eid: EntityId) -> bool:
+    #     params = {"id": eid, "limit": 0, "count": "true"}
+    #     linkheader = f'<https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+    #     return api.get(self._session, f"{self.url}", headers={"Link": linkheader}, params=params)
+
+    def exists(self, eid: EntityId) -> bool:
+        r = self._session.get(f"{self.url}/{eid}")
+        if r:
+            payload = r.json()
+            return "@context" in payload
         return False
 
-    def delete(self, id: Union[EntityId, Entity]):
-        id = id.id if isinstance(id, Entity) else id
-        pass
+    def delete(self, eid: Union[EntityId, Entity]) -> bool:
+        eid = eid.id if isinstance(id, Entity) else eid
+        r = self._session.delete(f"{self.url}/{eid}")
+        return bool(r)
+

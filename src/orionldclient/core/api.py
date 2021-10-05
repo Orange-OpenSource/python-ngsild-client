@@ -27,6 +27,7 @@ def _request(session: Session, method: str, url: str, **kwargs) -> requests.Resp
 
     data = kwargs.get("data")
     is_post = data is not None
+
     logger.info(f"{data=}")
     is_delete = not is_post and method == "DELETE"
     proxy = kwargs.pop("proxy", None)
@@ -77,18 +78,27 @@ def _request(session: Session, method: str, url: str, **kwargs) -> requests.Resp
 
 
 def get(session: Session, url, **kwargs) -> requests.Response:
+    headers = kwargs.get("headers", {})
+    headers |= {"Content-Type": None}
     return _request(session, "GET", url, **kwargs)
 
 
 def post(session: Session, url: str, payload: str, **kwargs) -> requests.Response:
+    headers = kwargs.get("headers", {})
+    headers |= {"Accept": None}
     return _request(session, "POST", url, data=payload, **kwargs)
 
 
 def put(session: Session, url: str, payload: str, **kwargs) -> requests.Response:
+    headers = kwargs.get("headers", {})
+    headers |= {"Accept": None}
+
     return _request(session, "PUT", url, data=payload, **kwargs)
 
 
 def patch(session: Session, url: str, payload: str, **kwargs) -> requests.Response:
+    headers = kwargs.get("headers")
+    headers |= {"Accept": None}
     return _request(session, "PATCH", url, data=payload, **kwargs)
 
 

@@ -21,7 +21,7 @@ from .constants import *
 from .entities import Entities
 from ..model.entity import Entity
 from .exceptions import *
-from . import http
+from . import api
 
 
 logger = logging.getLogger(__name__)
