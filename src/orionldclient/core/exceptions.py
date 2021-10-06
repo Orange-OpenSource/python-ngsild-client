@@ -18,10 +18,10 @@ from ..exceptions import NgsiError
 
 @dataclass
 class ProblemDetails:  # rfc7807
-    type: str = ""
-    title: str = ""
-    detail: str = ""
-    status: int = 400
+    type: str
+    title: str
+    detail: str
+    status: int = 0
     instance: str = None
     extension: dict = None
 
@@ -33,8 +33,7 @@ class NgsiApiError(NgsiError):
 class NgsiContextBrokerError(NgsiApiError):
     def __init__(self, pd: ProblemDetails):
         self.pd = pd
-        self.message = f"{pd.title} : {pd.detail}"
-        super().__init__(self.message)
+        super().__init__(self.pd)
 
 
 class NgsiHttpError(NgsiApiError):
@@ -61,8 +60,8 @@ def rfc7807_error_handle(func):
                 raise NgsiHttpError(r.status_code) from e
             pd = ProblemDetails(
                 err.pop("type", "about:blank"),
-                err.pop("title", ""),
-                err.pop("detail", ""),
+                err.pop("title", None),
+                err.pop("detail", None),
                 r.status_code,
                 err.pop("instance", None),
             )
