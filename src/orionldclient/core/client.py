@@ -21,7 +21,6 @@ from .constants import *
 from .entities import Entities
 from ..model.entity import Entity
 from .exceptions import *
-from . import api
 
 
 logger = logging.getLogger(__name__)
@@ -93,7 +92,7 @@ class Client:
             r.raise_for_status()
         except Exception as e:
             if raise_for_disconnected:
-                raise NgsiNotConnectedError("Cannot connect to Context Broker") from e
+                raise NgsiNotConnectedError(f"Cannot connect to Context Broker at {self.hostname}:{self.port}") from e
             else:
                 logger.error(e)
                 return False

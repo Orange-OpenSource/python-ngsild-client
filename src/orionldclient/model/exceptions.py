@@ -13,29 +13,33 @@
 from ..exceptions import NgsiError
 
 
-class NgsiMissingIdError(NgsiError):
+class NgsiEntityError(NgsiError):
     pass
 
 
-class NgsiMissingTypeError(NgsiError):
+class NgsiMissingIdError(NgsiEntityError):
     pass
 
 
-class NgsiMissingContextError(NgsiError):
+class NgsiMissingTypeError(NgsiEntityError):
     pass
 
 
-class NgsiUnmatchedAttributeTypeError(NgsiError):
+class NgsiMissingContextError(NgsiEntityError):
     pass
 
 
-class NgsiDateFormatError(NgsiError):
+class NgsiUnmatchedAttributeTypeError(NgsiEntityError):
     pass
 
 
-class NgsiJsonError(NgsiError):
+class NgsiDateFormatError(NgsiEntityError):
     pass
 
 
-class NgsiUnsupportedFormatError(NgsiError):
+class NgsiJsonError(NgsiEntityError):
+    pass
+
+
+class NgsiUnsupportedFormatError(NgsiEntityError):
     pass
