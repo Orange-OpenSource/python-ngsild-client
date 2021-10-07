@@ -73,8 +73,12 @@ class Entity:
     def __setitem__(self, key, item):
         self._payload[key] = item
 
-    def remove(self, item):
+    def rm(self, item):
         self._payload._rmattr(item)
+
+    def duplicate(self):
+        new = deepcopy(self)
+        return new
 
     def prop(
         self,

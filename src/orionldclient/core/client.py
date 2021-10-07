@@ -41,6 +41,7 @@ class Client:
         useragent=UA,
         tenant=None,
         upsert=False,
+        ignore_errors=False,
         proxy=None,
     ):
         self.hostname = hostname
@@ -52,6 +53,7 @@ class Client:
         self.useragent = useragent
         self.tenant = tenant
         self.upsert = upsert
+        self.ignore_errors = ignore_errors
         self.proxy = proxy
 
         self.session = Session()
@@ -77,6 +79,10 @@ class Client:
         else:
             print(self._fail_message())
 
+    def raise_for_status(self, r: Response):
+        if not self.ignore_errors:
+            r.raise_for_status()
+
     def is_connected(self, raise_for_disconnected=False) -> bool:
         url = f"{self.url}/{ENDPOINT_ENTITIES}"
         params = {"type": "None", "limit": 0, "count": "true"}
@@ -92,7 +98,9 @@ class Client:
             r.raise_for_status()
         except Exception as e:
             if raise_for_disconnected:
-                raise NgsiNotConnectedError(f"Cannot connect to Context Broker at {self.hostname}:{self.port}") from e
+                raise NgsiNotConnectedError(
+                    f"Cannot connect to Context Broker at {self.hostname}:{self.port}"
+                ) from e
             else:
                 logger.error(e)
                 return False

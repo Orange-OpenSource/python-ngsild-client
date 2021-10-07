@@ -16,11 +16,13 @@ import logging
 
 from typing import TYPE_CHECKING
 
+from requests import Response
+
 if TYPE_CHECKING:
     from .client import Client
 
 from .constants import *
-from .exceptions import rfc7807_error_handle
+from .exceptions import NgsiApiError, rfc7807_error_handle
 from ..model.entity import Entity
 
 
@@ -40,16 +42,21 @@ class Entities:
             f"{self.url}/",
             entity.to_json(),
         )
-        r.raise_for_status()
+        self._client.raise_for_status(r)
         location = r.headers.get("Location")
         logger.info(f"{r.status_code=}")
         logger.info(f"{location=}")
-        return location.rsplit("/", 1)[-1]
+        id_returned_from_broker = location.rsplit("/", 1)[-1]
+        if entity.id != id_returned_from_broker:
+            raise NgsiApiError(
+                f"Broker returned wrong id. Expected={entity.id} Returned={id_returned_from_broker}"
+            )
+        return entity
 
     @rfc7807_error_handle
     def retrieve(self, eid: EntityId, asdict: bool = False, **kwargs) -> Entity:
         r = self._session.get(f"{self.url}/{eid}", **kwargs)
-        r.raise_for_status()
+        self._client.raise_for_status(r)
         return r.json() if asdict else Entity.from_dict(r.json())
 
     # def exists(self, eid: EntityId) -> bool:
@@ -69,5 +76,5 @@ class Entities:
     def delete(self, eid: Union[EntityId, Entity]) -> bool:
         eid = eid.id if isinstance(id, Entity) else eid
         r = self._session.delete(f"{self.url}/{eid}")
-        r.raise_for_status()
+        self._client.raise_for_status(r)
         return bool(r)

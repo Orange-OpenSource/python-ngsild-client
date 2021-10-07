@@ -39,7 +39,7 @@ class NgsiContextBrokerError(NgsiApiError):
 class NgsiHttpError(NgsiApiError):
     def __init__(self, statuscode: int):
         self.statuscode = statuscode
-        self.message = f"HTTP {statuscode} error"
+        self.message = f"HTTP {statuscode} error. No Problem Detail provided."
         super().__init__(self.message)
 
 
