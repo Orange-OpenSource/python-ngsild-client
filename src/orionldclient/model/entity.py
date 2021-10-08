@@ -10,6 +10,8 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import json
 import requests
 
@@ -55,17 +57,34 @@ class Entity:
                 d = json.load(fp)
         return cls.from_dict(d)
 
+    @staticmethod
+    def duplicate(other) -> Entity:
+        new = deepcopy(other)
+        return new
+
     @property
     def id(self):
         return self._payload["id"]
+
+    @id.setter
+    def id(self, eid: str):
+        self._payload["id"] = eid
 
     @property
     def type(self):
         return self._payload["type"]
 
+    @type.setter
+    def type(self, etype: str):
+        self._payload["type"] = etype
+
     @property
     def context(self):
         return self._payload["@context"]
+
+    @context.setter
+    def context(self, ctx: list):
+        self._payload["@context"] = ctx
 
     def __getitem__(self, item):
         return self._payload._attr(item)
@@ -75,10 +94,7 @@ class Entity:
 
     def rm(self, item):
         self._payload._rmattr(item)
-
-    def duplicate(self):
-        new = deepcopy(self)
-        return new
+        return self
 
     def prop(
         self,

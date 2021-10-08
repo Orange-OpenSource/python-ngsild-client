@@ -9,12 +9,3 @@
 #
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
-
-from random import random
-
-from .url import escape, unescape
-from .urn import Urn
-
-urnprefix = Urn.prefix
-
-__all__ = ["iso8601", "escape", "unescape", "Urn", "urnprefix"]
