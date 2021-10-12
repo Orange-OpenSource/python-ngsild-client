@@ -35,9 +35,9 @@ class Entities:
         self._session = client.session
         self.url = url
 
-    @rfc7807_error_handle
+    #@rfc7807_error_handle
     def create(self, entity: Entity) -> Entity:
-        logger.info(f"{self._session.headers}")
+        #logger.info(f"{self._session.headers}")
         r = self._session.post(
             f"{self.url}/",
             entity.to_json(),

@@ -11,8 +11,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import requests
 
-from requests.sessions import Session
 from dataclasses import dataclass
 
 from typing import Optional
@@ -56,7 +56,7 @@ class Client:
         self.ignore_errors = ignore_errors
         self.proxy = proxy
 
-        self.session = Session()
+        self.session = requests.Session()
         self.session.headers = {
             "User-Agent": self.useragent,
             "Accept": "application/ld+json",

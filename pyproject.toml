@@ -12,6 +12,8 @@ requests = "^2.26.0"
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 black = {version = "^21.8b0", allow-prereleases = true}
+pytest-mock = "^3.6.1"
+requests-mock = "^1.9.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

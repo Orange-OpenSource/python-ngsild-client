@@ -10,7 +10,9 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
+import uuid
 from random import random
+from base64 import urlsafe_b64encode
 
 
 class RandomWalker:
@@ -34,3 +36,12 @@ class RandomWalker:
         if not self.allow_negative:
             self.value = max(0, self.value)
         return self.value
+
+
+def uuidshortener(uuid: uuid.UUID) -> str:
+    return urlsafe_b64encode(uuid.bytes).decode().rstrip("=")
+
+
+def shortuuid(random: bool = False) -> str:
+    uid = uuid.uuid1() if random else uuid.uuid4()
+    return uuidshortener(uid)
