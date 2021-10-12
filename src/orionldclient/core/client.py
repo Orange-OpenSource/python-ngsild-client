@@ -130,7 +130,7 @@ class Client:
     def close(self):
         self.session.close()
 
-    # proxy method to Entities
+    # facade method for Entities.create()
     def create(self, entity: Entity) -> EntityId:
         return self.entities.create(entity)
 

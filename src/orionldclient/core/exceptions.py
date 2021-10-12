@@ -10,30 +10,29 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
+
 from dataclasses import dataclass
+
 from requests.exceptions import HTTPError, ContentDecodingError, RequestException
 from requests import Response
 from ..exceptions import NgsiError
 
+logger = logging.getLogger(__name__)
+
 
 @dataclass
-class ProblemDetails:  # rfc7807
+class ProblemDetails:
     type: str
     title: str
+    status: int
     detail: str
-    status: int = 0
     instance: str = None
     extension: dict = None
 
 
 class NgsiApiError(NgsiError):
     pass
-
-
-class NgsiContextBrokerError(NgsiApiError):
-    def __init__(self, pd: ProblemDetails):
-        self.pd = pd
-        super().__init__(self.pd)
 
 
 class NgsiHttpError(NgsiApiError):
@@ -43,30 +42,106 @@ class NgsiHttpError(NgsiApiError):
         super().__init__(self.message)
 
 
-class NgsiNotConnectedError(NgsiError):
+class NgsiContextBrokerError(NgsiApiError):
+    def __init__(self, problemdetails: ProblemDetails):
+        self.problemdetails = problemdetails
+        super().__init__(f"{problemdetails.title} : {problemdetails.detail}")
+
+
+class NgsiInvalidRequestError(NgsiContextBrokerError):
     pass
+
+
+class NgsiBadRequestDataError(NgsiContextBrokerError):
+    pass
+
+
+class NgsiAlreadyExistsError(NgsiContextBrokerError):
+    pass
+
+
+class NgsiOperationNotSupportedError(NgsiContextBrokerError):
+    pass
+
+
+class NgsiResourceNotFoundError(NgsiContextBrokerError):
+    pass
+
+
+class NgsiInternalError(NgsiContextBrokerError):
+    pass
+
+
+class NgsiLdContextNotAvailableError(NgsiContextBrokerError):
+    pass
+
+
+class NgsiTooComplexQueryError(NgsiContextBrokerError):
+    pass
+
+
+class NgsiTooManyResultsError(NgsiContextBrokerError):
+    pass
+
+
+class NgsiNoMultiTenantSupportError(NgsiContextBrokerError):
+    pass
+
+
+class NgsiNonexistentTenantError(NgsiContextBrokerError):
+    pass
+
+
+# class NgsiNotConnectedError(NgsiError):
+#     pass
+
+
+ERRORTYPES = {
+    "https://uri.etsi.org/ngsi-ld/errors/InvalidRequest": NgsiInvalidRequestError,
+    "https://uri.etsi.org/ngsi-ld/errors/BadRequestData": NgsiBadRequestDataError,
+    "https://uri.etsi.org/ngsi-ld/errors/AlreadyExists": NgsiAlreadyExistsError,
+    "https://uri.etsi.org/ngsi-ld/errors/OperationNotSupported": NgsiOperationNotSupportedError,
+    "https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound": NgsiResourceNotFoundError,
+    "https://uri.etsi.org/ngsi-ld/errors/InternalError": NgsiInternalError,
+    "https://uri.etsi.org/ngsi-ld/errors/TooComplexQuery": NgsiTooComplexQueryError,
+    "https://uri.etsi.org/ngsi-ld/errors/TooManyResults": NgsiTooManyResultsError,
+    "https://uri.etsi.org/ngsi-ld/errors/LdContextNotAvailable": NgsiLdContextNotAvailableError,
+    "https://uri.etsi.org/ngsi-ld/errors/NoMultiTenantSupport": NgsiNoMultiTenantSupportError,
+    "https://uri.etsi.org/ngsi-ld/errors/NonexistentTenant": NgsiNonexistentTenantError,
+}
 
 
 def rfc7807_error_handle(func):
     def inner_function(*args, **kwargs):
-        err = {}
+        problemdetails: dict = {}
         try:
             return func(*args, **kwargs)
         except HTTPError as e:
+            logger.info("ERROR DETECTED IN DECORATOR !!!!")
             r: Response = e.response
             try:
-                err: dict = r.json()
+                problemdetails = r.json()
+                logger.info(f"{problemdetails=}")
             except ContentDecodingError:
                 raise NgsiHttpError(r.status_code) from e
-            pd = ProblemDetails(
-                err.pop("type", "about:blank"),
-                err.pop("title", None),
-                err.pop("detail", None),
-                r.status_code,
-                err.pop("instance", None),
-            )
-            pd.extension = err | {"internal_client_funcname": func.__qualname__}
-            raise NgsiContextBrokerError(pd) from e
+            try:
+                pd_type = problemdetails.pop("type").rstrip()
+                logger.info(f"{pd_type=}")
+                exception: NgsiContextBrokerError = ERRORTYPES.get(pd_type)
+                logger.info(f"{exception=}")
+                pd = ProblemDetails(
+                    pd_type,
+                    problemdetails.pop("title", None),
+                    r.status_code,
+                    problemdetails.pop("detail", None),
+                    problemdetails.pop("instance", None),
+                    problemdetails,  # extension
+                )
+                raise exception(pd)
+            except HTTPError as e:
+                raise NgsiApiError(
+                    f"Error while requesting the broker API. Status code = {r.status_code}"
+                ) from e
         except RequestException as e:
             raise NgsiApiError("Error while requesting the broker API") from e
 

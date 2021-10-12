@@ -11,10 +11,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import pytest
 
-from datetime import datetime
-from orionldclient.model.entity import Entity
 from orionldclient.core.client import Client
+from orionldclient.core.exceptions import (
+    NgsiAlreadyExistsError,
+    NgsiResourceNotFoundError,
+)
 from .common import mock_connected, sample_entity
 
 logger = logging.getLogger(__name__)
@@ -32,6 +35,35 @@ def test_api_create(mock_connected, requests_mock):
     assert res == sample_entity
 
 
+def test_api_create_error_already_exists(mock_connected, requests_mock):
+    requests_mock.post(
+        "http://localhost:1026/ngsi-ld/v1/entities/",
+        request_headers={"Content-Type": "application/ld+json"},
+        status_code=409,
+        json={
+            "type": "https://uri.etsi.org/ngsi-ld/errors/AlreadyExists",
+            "title": "Entity already exists",
+            "detail": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+        },
+    )
+    client = Client()
+    with pytest.raises(NgsiAlreadyExistsError) as excinfo:
+        client._entities.create(sample_entity)
+    logger.info(f"{type(excinfo.value)=}")
+    assert (
+        excinfo.value.problemdetails.type
+        == "https://uri.etsi.org/ngsi-ld/errors/AlreadyExists"
+    )
+    assert excinfo.value.problemdetails.title == "Entity already exists"
+    assert excinfo.value.problemdetails.status == 409
+    assert (
+        excinfo.value.problemdetails.detail
+        == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"
+    )
+    assert excinfo.value.problemdetails.instance is None
+    assert excinfo.value.problemdetails.extension == {}
+
+
 def test_api_retrieve(mock_connected, requests_mock):
     requests_mock.get(
         "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
@@ -42,6 +74,34 @@ def test_api_retrieve(mock_connected, requests_mock):
     client = Client()
     res = client._entities.retrieve("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
     assert res == sample_entity
+
+
+def test_api_retrieve_error_not_found(mock_connected, requests_mock):
+    requests_mock.get(
+        "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
+        request_headers={"Accept": "application/ld+json"},
+        status_code=404,
+        json={
+            "type": "https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound",
+            "title": "Entity Not Found",
+            "detail": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
+        },
+    )
+    client = Client()
+    with pytest.raises(NgsiResourceNotFoundError) as excinfo:
+        client._entities.retrieve("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568")
+    assert (
+        excinfo.value.problemdetails.type
+        == "https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound"
+    )
+    assert excinfo.value.problemdetails.title == "Entity Not Found"
+    assert excinfo.value.problemdetails.status == 404
+    assert (
+        excinfo.value.problemdetails.detail
+        == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
+    )
+    assert excinfo.value.problemdetails.instance is None
+    assert excinfo.value.problemdetails.extension == {}
 
 
 def test_api_exists(mock_connected, requests_mock):
@@ -64,3 +124,30 @@ def test_api_delete(mock_connected, requests_mock):
     client = Client()
     res = client._entities.delete("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
     assert res
+
+
+def test_api_delete_error_not_found(mock_connected, requests_mock):
+    requests_mock.delete(
+        "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
+        status_code=404,
+        json={
+            "type": "https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound",
+            "title": "Entity Not Found",
+            "detail": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
+        },
+    )
+    client = Client()
+    with pytest.raises(NgsiResourceNotFoundError) as excinfo:
+        client._entities.delete("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568")
+    assert (
+        excinfo.value.problemdetails.type
+        == "https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound"
+    )
+    assert excinfo.value.problemdetails.title == "Entity Not Found"
+    assert excinfo.value.problemdetails.status == 404
+    assert (
+        excinfo.value.problemdetails.detail
+        == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
+    )
+    assert excinfo.value.problemdetails.instance is None
+    assert excinfo.value.problemdetails.extension == {}
