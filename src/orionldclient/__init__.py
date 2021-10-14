@@ -13,7 +13,7 @@
 import http
 import logging
 
-from orionldclient.utils import iso8601, escape, unescape, Urn, urnprefix
+from orionldclient.utils import iso8601, escape, unescape, Urn
 
 __version__ = "0.1.0"
 

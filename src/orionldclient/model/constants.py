@@ -52,6 +52,8 @@ class TemporalType(Enum):
 
 
 class SmartDatamodels:
+
+    GITHUB_PAGES_URL = "https://smart-data-models.github.io"
     class SmartAgrifood:
         class Agrifood:
             AgriApp = "https://smart-data-models.github.io/dataModel.Agrifood/AgriApp/examples/example-normalized.jsonld"

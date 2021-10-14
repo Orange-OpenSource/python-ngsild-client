@@ -17,7 +17,7 @@ from datetime import datetime
 from orionldclient.model.entity import *
 from orionldclient.model.helper.postal import PostalAddressBuilder
 from orionldclient.model.helper.openinghours import OpeningHoursSpecificationBuilder
-from orionldclient.utils import urnprefix
+from orionldclient.utils import Urn
 
 
 def expected_dict(basename: str) -> dict:
@@ -68,7 +68,7 @@ def test_transportstop():
     )
 
     e.prop("peopleCount", 0)
-    e.prop("refPeopleCountDevice", urnprefix("PorpleCountDecice:santander:463"))
+    e.prop("refPeopleCountDevice", Urn.prefix("PorpleCountDecice:santander:463"))
 
     builder = OpeningHoursSpecificationBuilder()
     openinghours = builder.set_working_days("00:01", "23:59").build()

@@ -10,5 +10,11 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
+"""
+This module defines the NgsiError Exception that will be used as a base for other exceptions related to NGSI.
+"""
+
 class NgsiError(Exception):
+    """The NgsiError base exception.
+    """    
     pass

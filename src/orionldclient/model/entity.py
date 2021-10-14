@@ -20,19 +20,30 @@ from functools import partialmethod
 
 from datetime import datetime
 from typing import Any, Union
-from functools import reduce
 
 from .exceptions import *
 from .constants import *
 from ._attribute import *
 from .ngsidict import NgsiDict
 from orionldclient.utils.url import isurl
+from orionldclient.utils.urn import Urn
 
 
 class Entity:
     def __init__(self, id: str, type: str, context: list = [CORE_CONTEXT]):
+        """Create a NGSI-LD compliant entity
+
+        Parameters
+        ----------
+        id : str
+            entity identifier
+        type : str
+            entity type
+        context : list, optional
+            the NGSI-LD context, by default the NGSI-LD Core Context
+        """        
         self._payload: NgsiDict = NgsiDict(
-            {"@context": context, "id": urnprefix(id), "type": type}
+            {"@context": context, "id": Urn.prefix(id), "type": type}
         )
 
     @classmethod

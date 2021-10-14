@@ -14,7 +14,7 @@
 from datetime import datetime, date, time
 from geojson import Point, LineString, Polygon
 from typing import Any, Union
-from orionldclient.utils import iso8601, urnprefix
+from orionldclient.utils import iso8601, Urn
 from .exceptions import *
 from .constants import *
 from .ngsidict import NgsiDict
@@ -44,7 +44,7 @@ def build_property(
             raise NgsiDateFormatError(f"observedAt must be a DateTime : {date_str}")
         property[META_ATTR_OBSERVED_AT] = date_str
     if datasetid is not None:
-        property[META_ATTR_DATASET_ID] = urnprefix(datasetid)
+        property[META_ATTR_DATASET_ID] = Urn.prefix(datasetid)
     if userdata:
         property |= userdata
     return property
@@ -87,7 +87,7 @@ def build_relationship(
 ) -> NgsiDict:
     property: NgsiDict = NgsiDict()
     property["type"] = AttrType.REL.value  # set type
-    property["object"] = urnprefix(value)  # set value
+    property["object"] = Urn.prefix(value)  # set value
     if observedat is not None:
         date_str, temporaltype = iso8601.parse(observedat)
         if temporaltype != TemporalType.DATETIME:

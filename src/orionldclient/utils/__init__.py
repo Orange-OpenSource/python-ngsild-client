@@ -10,11 +10,10 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
-from random import random
+"""Contains helper modules to handle iso8601 dates, URLs, and NGSI-LD URNs.
+"""
 
 from .url import escape, unescape
 from .urn import Urn
 
-urnprefix = Urn.prefix
-
-__all__ = ["iso8601", "escape", "unescape", "Urn", "urnprefix"]
+__all__ = ["iso8601", "escape", "unescape", "Urn"]

@@ -10,19 +10,90 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
+"""
+This module contains a few helper functions to deal with URLs.
+"""
+
 import urllib.parse
 import re
 
-URL_PATTERN = re.compile("^http[s]{0,1}:")
+
+URL_PATTERN = re.compile("^http[s]{0,1}://")
+"""Simple regex pattern that matches on strings starting with URL scheme (`regex.Pattern`).
+"""
 
 
 def escape(value: str) -> str:
+    """URLEncode an URL.
+
+    Parameters
+    ----------
+    value : str
+        String representation of the URL
+
+    Returns
+    -------
+    str
+        The encoded URL as a string
+
+    Examples
+    --------
+    >>> from orionldclient.utils import url
+    >>> print(url.escape("https://example.com?query=dummy&limit=5"))
+    https%3A//example.com%3Fquery%3Ddummy%26limit%3D5
+
+    See Also
+    --------
+    orionldclient.utils.url.unescape
+    """
     return urllib.parse.quote(value)
 
 
 def unescape(value: str) -> str:
+    """URLDecode an URL.
+
+    Parameters
+    ----------
+    value : str
+        String representation of the encoded URL
+
+    Returns
+    -------
+    str
+        The encoded URL as a string
+
+    Examples
+    --------
+    >>> from orionldclient.utils import url
+    >>> print(url.escape("https%3A//example.com%3Fquery%3Ddummy%26limit%3D5"))
+    https://example.com?query=dummy&limit=5
+
+    See Also
+    --------
+    orionldclient.utils.url.escape
+    """
     return urllib.parse.unquote(value)
 
 
 def isurl(value: str) -> bool:
-    return URL_PATTERN.match(value)
+    """Check if the given string represents an URL.
+
+    Just test whether it starts with "http://" or "https://"
+
+    Parameters
+    ----------
+    value : str
+        The given string to be checked
+
+    Returns
+    -------
+    bool
+        True if the string looks like an URL
+
+    Examples
+    --------
+    >>> from orionldclient.utils import url
+    >>> print(url.isurl("https://example.com?query=dummy&limit=5"))
+    True
+    """
+    return URL_PATTERN.match(value) is not None
