@@ -63,7 +63,7 @@ def test_air_quality_from_dict(expected_air_quality):
             "object": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare",
         },
     }
-    e = Entity.from_dict(payload)
+    e = Entity(payload)
     assert e.to_dict() == expected_air_quality
 
 

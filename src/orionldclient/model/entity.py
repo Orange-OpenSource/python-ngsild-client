@@ -19,7 +19,7 @@ from copy import deepcopy
 from functools import partialmethod
 
 from datetime import datetime
-from typing import Any, Union
+from typing import overload, Any, Union
 
 from .exceptions import *
 from .constants import *
@@ -30,7 +30,25 @@ from orionldclient.utils.urn import Urn
 
 
 class Entity:
-    def __init__(self, id: str, type: str, context: list = [CORE_CONTEXT]):
+    @overload
+    def __init__(
+        self,
+        id: str,
+        type: str = None,
+        context: list = [CORE_CONTEXT],
+    ):
+        ...
+
+    @overload
+    def __init__(self, payload: dict = None):
+        ...
+
+    def __init__(
+        self,
+        id: Union[str, dict],
+        type: str = None,
+        context: list = [CORE_CONTEXT],
+    ):
         """Create a NGSI-LD compliant entity
 
         Parameters
@@ -41,22 +59,31 @@ class Entity:
             entity type
         context : list, optional
             the NGSI-LD context, by default the NGSI-LD Core Context
-        """        
-        self._payload: NgsiDict = NgsiDict(
-            {"@context": context, "id": Urn.prefix(id), "type": type}
-        )
+        """
+        if isinstance(id, dict):
+            payload = id
+            if payload:  # create a new Entity from a dict
+                if not payload.get("id"):
+                    raise NgsiMissingIdError()
+                if not payload.get("type"):
+                    raise NgsiMissingTypeError()
+                if not payload.get("@context"):
+                    raise NgsiMissingContextError()
+                self._payload: NgsiDict = NgsiDict(payload)
+                return
 
-    @classmethod
-    def from_dict(cls, entity: dict):
-        if not entity.get("id", None):
-            raise NgsiMissingIdError()
-        if not entity.get("type", None):
-            raise NgsiMissingTypeError()
-        if not entity.get("@context", None):
-            raise NgsiMissingContextError()
-        instance = cls(None, None)  # id and type will be overwritten next line
-        instance._payload |= entity
-        return instance
+        # create a new Entity using its id and type
+
+        id = Urn.prefix(id)  # prefix if not already done
+        urn = Urn(id)
+
+        if type is None:
+            if (type := urn.infertype()) is None:
+                raise NgsiMissingTypeError(f"{urn.fqn=}")
+
+        self._payload: NgsiDict = NgsiDict(
+            {"@context": context, "id": urn.fqn, "type": type}
+        )
 
     @classmethod
     def load(cls, filename: str):
@@ -66,7 +93,7 @@ class Entity:
         else:
             with open(filename, "r") as fp:
                 d = json.load(fp)
-        return cls.from_dict(d)
+        return cls(d)
 
     @staticmethod
     def duplicate(other) -> Entity:

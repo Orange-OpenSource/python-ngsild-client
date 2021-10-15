@@ -22,7 +22,7 @@ References
 import re
 import logging
 
-from typing import overload
+from typing import overload, Optional
 
 NID_PATTERN = re.compile(r"^[0-9a-zA-Z\-]+$")
 """Regex pattern that matches a valid namespace identifier (`regex.Pattern`).
@@ -30,6 +30,10 @@ NID_PATTERN = re.compile(r"^[0-9a-zA-Z\-]+$")
 
 URN_PATTERN = re.compile(r"^urn:(?P<nid>[0-9a-zA-Z\-]+):(?P<nss>.+)$")
 """Regex pattern that extracts NID and NSS from a full valid urn string(`regex.Pattern`).
+"""
+
+ENTITY_TYPE_PATTERN = re.compile(r"^([^:]+):.*")
+"""Regex pattern that extracts type from a NGSI-LD NSS following naming convention.(`regex.Pattern`).
 """
 
 logger = logging.getLogger(__name__)
@@ -114,6 +118,19 @@ class Urn:
 
     def __repr__(self) -> str:
         return self.fqn
+
+    def infertype(self) -> Optional[str]:
+        """Infer type.
+
+        Work only when following the naming convention `urn:ngsi-ld:<type>:...`
+
+        Returns
+        -------
+        Optional[str]
+            the inferred NGSI LD type if found
+        """
+        m = ENTITY_TYPE_PATTERN.match(self.nss)
+        return m.group(1) if m else None
 
     @staticmethod
     def is_valid_nid(nid: str) -> bool:
