@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from orionldclient.core.client import Client, Vendor
+from orionldclient.api.client import Client, Vendor
 from .common import mock_connected
 
 logger = logging.getLogger(__name__)

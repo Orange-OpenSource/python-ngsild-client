@@ -14,7 +14,7 @@ from pytest import fixture
 from pytest_mock import MockerFixture
 from datetime import datetime
 from orionldclient.model.entity import Entity
-from orionldclient.core.client import Client
+from orionldclient.api.client import Client
 
 sample_entity = Entity("AirQualityObserved:RZ:Obsv4567", "AirQualityObserved")
 sample_entity.tprop("dateObserved", datetime(2018, 8, 7, 12))

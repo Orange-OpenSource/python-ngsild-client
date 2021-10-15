@@ -13,8 +13,8 @@
 import logging
 import pytest
 
-from orionldclient.core.client import Client
-from orionldclient.core.exceptions import (
+from orionldclient.api.client import Client
+from orionldclient.api.exceptions import (
     NgsiAlreadyExistsError,
     NgsiResourceNotFoundError,
 )
