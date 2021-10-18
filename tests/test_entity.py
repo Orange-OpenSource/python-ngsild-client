@@ -31,6 +31,36 @@ def expected_air_quality():
     return expected_dict("air_quality")
 
 
+def test_constructor_type_and_id_fully_qualified():
+    e = Entity("AirQualityObserved", "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
+    assert e.type == "AirQualityObserved"
+    assert e.id == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"
+
+
+def test_constructor_type_and_id_without_scheme():
+    e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
+    assert e.type == "AirQualityObserved"
+    assert e.id == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"
+
+
+def test_constructor_autoprefix_type_and_id_without_type_included():
+    e = Entity("AirQualityObserved", "RZ:Obsv4567", autoprefix=True)
+    assert e.type == "AirQualityObserved"
+    assert e.id == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"
+
+
+def test_constructor_autoprefix_type_and_id_with_type_included():
+    e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567", autoprefix=True)
+    assert e.type == "AirQualityObserved"
+    assert e.id == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"
+
+
+def test_constructor_id_only():
+    e = Entity("AirQualityObserved:RZ:Obsv4567")
+    assert e.type == "AirQualityObserved"  # infered from id
+    assert e.id == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"
+
+
 def test_air_quality(expected_air_quality):
     """Build a sample AirQualityObserved Entity
 
@@ -38,7 +68,7 @@ def test_air_quality(expected_air_quality):
     http://google.github.io/styleguide/pyguide.html
 
     """
-    e = Entity("AirQualityObserved:RZ:Obsv4567", "AirQualityObserved")
+    e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12))
     e.prop("NO2", 22, unitcode="GP")
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
@@ -63,7 +93,7 @@ def test_air_quality_from_dict(expected_air_quality):
             "object": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare",
         },
     }
-    e = Entity(payload)
+    e = Entity.from_dict(payload=payload)
     assert e.to_dict() == expected_air_quality
 
 
@@ -74,7 +104,7 @@ def test_air_quality_from_json_file(expected_air_quality):
 
 
 def test_air_quality_with_userdata():
-    e = Entity("AirQualityObserved:RZ:Obsv4567", "AirQualityObserved")
+    e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12))
     e.prop("NO2", 22, unitcode="GP", userdata={"reliability": 0.95})
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
@@ -88,7 +118,7 @@ def test_air_quality_with_nested_prop_1_lvl():
     https://fiware.github.io/data-models/specs/ngsi-ld_faq.html
 
     """
-    e = Entity("AirQualityObserved:RZ:Obsv4567", "AirQualityObserved")
+    e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12))
     e.prop("NO2", 22, unitcode="GP").prop("accuracy", 0.95)
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
@@ -96,7 +126,7 @@ def test_air_quality_with_nested_prop_1_lvl():
 
 
 def test_air_quality_with_nested_prop_2_lvl():
-    e = Entity("AirQualityObserved:RZ:Obsv4567", "AirQualityObserved")
+    e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12))
     e.prop("NO2", 22, unitcode="GP").prop("qc", "checked").prop("status", "discarded")
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
@@ -104,7 +134,7 @@ def test_air_quality_with_nested_prop_2_lvl():
 
 
 def test_air_quality_with_nested_prop_3_lvl():
-    e = Entity("AirQualityObserved:RZ:Obsv4567", "AirQualityObserved")
+    e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12))
     e.prop("NO2", 22, unitcode="GP").prop("qc", "checked").prop(
         "status", "passed"
@@ -120,7 +150,7 @@ def test_poi():
     http://google.github.io/styleguide/pyguide.html
 
     """
-    e = Entity("PointOfInterest:RZ:MainSquare", "PointOfInterest")
+    e = Entity("PointOfInterest", "PointOfInterest:RZ:MainSquare")
     e.prop("category", [113])
     e.prop("description", "Beach of RZ")
     e.gprop("location", (44, -8))
@@ -134,21 +164,22 @@ def test_store():
     Context Information Management (CIM) ; NGSI-LD Primer [ETSI GR CIM 008 V1.1.1 (2020-03)]
 
     """
-
-    ctx = [
-        {
-            "Store": "https://uri.etsi.org/ngsi-ld/primer/Store",
-            "address": "https://uri.etsi.org/ngsi-ld/primer/address",
-            "storeName": "https://uri.etsi.org/ngsi-ld/primer/storeName",
-            "streetAddress": "https://uri.etsi.org/ngsi-ld/primer/streetAddress",
-            "addressRegion": "https://uri.etsi.org/ngsi-ld/primer/addressRegion",
-            "addressLocality": "https://uri.etsi.org/ngsi-ld/primer/addressLocality",
-            "postalCode": "https://uri.etsi.org/ngsi-ld/primer/postalCode",
-        },
-        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-    ]
-
-    e = Entity("Store:001", "Store", ctx)
+    e = Entity(
+        "Store",
+        "Store:001",
+        ctx=[
+            {
+                "Store": "https://uri.etsi.org/ngsi-ld/primer/Store",
+                "address": "https://uri.etsi.org/ngsi-ld/primer/address",
+                "storeName": "https://uri.etsi.org/ngsi-ld/primer/storeName",
+                "streetAddress": "https://uri.etsi.org/ngsi-ld/primer/streetAddress",
+                "addressRegion": "https://uri.etsi.org/ngsi-ld/primer/addressRegion",
+                "addressLocality": "https://uri.etsi.org/ngsi-ld/primer/addressLocality",
+                "postalCode": "https://uri.etsi.org/ngsi-ld/primer/postalCode",
+            },
+            "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        ],
+    )
     e.prop(
         "address",
         {
@@ -163,6 +194,7 @@ def test_store():
     assert e.to_dict() == expected_dict("store")
     assert e.to_dict(kv=True) == expected_dict("store.kv")
 
+
 def test_vehicle():
     """Build a sample Vehicle Entity
 
@@ -170,15 +202,16 @@ def test_vehicle():
     Context Information Management (CIM) ; NGSI-LD API []ETSI GS CIM 009 V1.1.1 (2019-01)]
 
     """
-
-    ctx = [
-        "http://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-        "http://example.org/ngsi-ld/commonTerms.jsonld",
-        "http://example.org/ngsi-ld/vehicle.jsonld",
-        "http://example.org/ngsi-ld/parking.jsonld",
-    ]
-
-    e = Entity("Vehicle:A4567", "Vehicle", ctx)
+    e = Entity(
+        "Vehicle",
+        "Vehicle:A4567",
+        ctx=[
+            "http://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+            "http://example.org/ngsi-ld/commonTerms.jsonld",
+            "http://example.org/ngsi-ld/vehicle.jsonld",
+            "http://example.org/ngsi-ld/parking.jsonld",
+        ],
+    )
     e.prop("brandName", "Mercedes")
     e.rel(
         "isParked",
@@ -196,17 +229,18 @@ def test_vehicle_multiple_attribute():
     Context Information Management (CIM) ; NGSI-LD API []ETSI GS CIM 009 V1.1.1 (2019-01)]
 
     """
-
-    ctx = [
-        "http://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-        {
-            "speed#1": "http://example.org/speed",
-            "speed#2": "http://example.org/speed",
-            "source": "http://example.org/hasSource",
-        },
-    ]
-
-    e = Entity("Vehicle:A4567", "Vehicle", ctx)
+    e = Entity(
+        "Vehicle",
+        "Vehicle:A4567",
+        ctx=[
+            "http://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+            {
+                "speed#1": "http://example.org/speed",
+                "speed#2": "http://example.org/speed",
+                "source": "http://example.org/hasSource",
+            },
+        ],
+    )
     e.prop("#speed1", 55, datasetid="Property:speedometerA4567-speed").prop(
         "source", "Speedometer"
     )
@@ -221,12 +255,14 @@ def test_parking():
     Context Information Management (CIM) ; NGSI-LD API []ETSI GS CIM 009 V1.1.1 (2019-01)]
 
     """
-
-    ctx = [
-        "http://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-        "http://example.org/ngsi-ld/parking.jsonld",
-    ]
-    e = Entity("OffStreetParking:Downtown1", "OffStreetParking", ctx)
+    e = Entity(
+        "OffStreetParking",
+        "OffStreetParking:Downtown1",
+        ctx=[
+            "http://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+            "http://example.org/ngsi-ld/parking.jsonld",
+        ],
+    )
     spot: NgsiDict = e.prop(
         "availableSpotNumber", 121, observedat=datetime(2017, 7, 29, 12, 5, 2)
     )

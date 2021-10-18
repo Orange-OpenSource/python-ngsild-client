@@ -30,13 +30,14 @@ def test_agricrop():
     """
     https://smart-data-models.github.io/dataModel.Agrifood/AgriCrop/examples/example-normalized.jsonld
     """
-
-    ctx = [
-        "https://smartdatamodels.org/context.jsonld",
-        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-    ]
-
-    e = Entity("AgriCrop:df72dc57-1eb9-42a3-88a9-8647ecc954b4", "AgriCrop", ctx)
+    e = Entity(
+        "AgriCrop",
+        "AgriCrop:df72dc57-1eb9-42a3-88a9-8647ecc954b4",
+        ctx=[
+            "https://smartdatamodels.org/context.jsonld",
+            "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        ],
+    )
     e.prop("name", "Wheat")
     e.prop("alternateName", "Triticum aestivum")
     e.prop("description", "Spring wheat")
@@ -99,12 +100,14 @@ def test_agrisoil():
     """
     https://smart-data-models.github.io/dataModel.Agrifood/AgriSoil/examples/example-normalized.jsonld
     """
-
-    ctx = [
-        "https://smartdatamodels.org/context.jsonld",
-        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-    ]
-    e = Entity("AgriSoil:00411b56-bd1b-4551-96e0-a6e7fde9c840", "AgriSoil", ctx)
+    e = Entity(
+        "AgriSoil",
+        "AgriSoil:00411b56-bd1b-4551-96e0-a6e7fde9c840",
+        ctx=[
+            "https://smartdatamodels.org/context.jsonld",
+            "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        ],
+    )
     e.prop("name", "Clay")
     e.prop("alternateName", "Heavy soil")
     e.prop(

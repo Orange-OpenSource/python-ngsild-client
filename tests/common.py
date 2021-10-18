@@ -16,7 +16,7 @@ from datetime import datetime
 from orionldclient.model.entity import Entity
 from orionldclient.api.client import Client
 
-sample_entity = Entity("AirQualityObserved:RZ:Obsv4567", "AirQualityObserved")
+sample_entity = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
 sample_entity.tprop("dateObserved", datetime(2018, 8, 7, 12))
 sample_entity.prop("NO2", 22, unitcode="GP")
 sample_entity.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")

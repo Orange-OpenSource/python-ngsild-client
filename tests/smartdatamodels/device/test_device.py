@@ -28,9 +28,11 @@ def test_device():
     https://smart-data-models.github.io/dataModel.Device/Device/examples/example.jsonld
     """
 
-    ctx = ["https://smartdatamodels.org/context.jsonld"]
-
-    e = Entity("Device:device-9845A", "Device", ctx)
+    e = Entity(
+        "Device",
+        "Device:device-9845A",
+        ctx=["https://smartdatamodels.org/context.jsonld"],
+    )
     e.prop("category", ["sensor"])
     e.prop("batteryLevel", 0.75)
     e.tprop("dateFirstUsed", "2014-09-11T11:00:00Z")
@@ -53,17 +55,18 @@ def test_device():
     assert e.to_dict(kv=True) == expected_dict("device.kv")
 
 
-def test_device():
+def test_devicemodel():
     """
     https://smart-data-models.github.io/dataModel.Device/DeviceModel/examples/example.jsonld
     """
-
-    ctx = [
-        "https://smartdatamodels.org/context.jsonld",
-        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-    ]
-
-    e = Entity("DeviceModel:myDevice-wastecontainer-sensor-345", "DeviceModel", ctx)
+    e = Entity(
+        "DeviceModel",
+        "DeviceModel:myDevice-wastecontainer-sensor-345",
+        ctx=[
+            "https://smartdatamodels.org/context.jsonld",
+            "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        ],
+    )
     e.prop("category", ["sensor"])
     e.prop("function", ["sensing"])
     e.prop("modelName", "S4Container 345")

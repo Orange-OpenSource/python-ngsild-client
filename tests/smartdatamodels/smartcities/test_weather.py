@@ -18,7 +18,9 @@ from orionldclient.model.helper.postal import PostalAddressBuilder
 
 
 def expected_dict(basename: str) -> dict:
-    filename: str = pkg_resources.resource_filename(__name__, f"data/weather/{basename}.json")
+    filename: str = pkg_resources.resource_filename(
+        __name__, f"data/weather/{basename}.json"
+    )
     with open(filename, "r") as fp:
         expected = json.load(fp)
     return expected
@@ -28,15 +30,13 @@ def test_weatherobserved():
     """
     https://smart-data-models.github.io/dataModel.Weather/WeatherObserved/examples/example-normalized.jsonld
     """
-
-    ctx = [
-        "https://smartdatamodels.org/context.jsonld",
-        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-    ]
     e = Entity(
-        "WeatherObserved:Spain-WeatherObserved-Valladolid-2016-11-30T07:00:00.00Z",
         "WeatherObserved",
-        ctx,
+        "WeatherObserved:Spain-WeatherObserved-Valladolid-2016-11-30T07:00:00.00Z",
+        ctx=[
+            "https://smartdatamodels.org/context.jsonld",
+            "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        ],
     )
     e.tprop("dateObserved", "2016-11-30T07:00:00Z")
     e.prop("illuminance", 1000)
@@ -75,4 +75,3 @@ def test_weatherobserved():
 
     assert e.to_dict() == expected_dict("weather_observed")
     assert e.to_dict(kv=True) == expected_dict("weather_observed.kv")
-

@@ -63,7 +63,7 @@ class Entities:
         eid = eid.id if isinstance(eid, Entity) else eid
         r = self._session.get(f"{self.url}/{eid}", **kwargs)
         self._client.raise_for_status(r)
-        return r.json() if asdict else Entity(r.json())
+        return r.json() if asdict else Entity.from_dict(r.json())
 
     # def exists(self, eid: EntityId) -> bool:
     #     params = {"id": eid, "limit": 0, "count": "true"}

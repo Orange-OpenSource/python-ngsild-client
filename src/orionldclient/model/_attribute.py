@@ -14,7 +14,7 @@
 from datetime import datetime, date, time
 from geojson import Point, LineString, Polygon
 from typing import Any, Union
-from orionldclient.utils import iso8601, Urn
+from orionldclient.utils import iso8601, Urn, url
 from .exceptions import *
 from .constants import *
 from .ngsidict import NgsiDict
@@ -26,11 +26,14 @@ def build_property(
     observedat: Union[str, datetime] = None,
     datasetid: str = None,
     userdata: NgsiDict = NgsiDict(),
+    escape: bool = False,
 ) -> NgsiDict:
     property: NgsiDict = NgsiDict()
     property["type"] = AttrType.PROP.value  # set type
-    if isinstance(value, (int, float, bool, str, list, dict)):
+    if isinstance(value, (int, float, bool, list, dict)):
         v = value
+    elif isinstance(value, str):
+        v = url.escape(value) if escape else value
     else:
         raise NgsiUnmatchedAttributeTypeError(
             f"Cannot map {type(value)} to NGSI type. {value=}"

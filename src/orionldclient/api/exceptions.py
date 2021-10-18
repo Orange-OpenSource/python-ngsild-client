@@ -35,6 +35,10 @@ class NgsiApiError(NgsiError):
     pass
 
 
+class NgsiNotConnectedError(NgsiApiError):
+    pass
+
+
 class NgsiHttpError(NgsiApiError):
     def __init__(self, statuscode: int):
         self.statuscode = statuscode

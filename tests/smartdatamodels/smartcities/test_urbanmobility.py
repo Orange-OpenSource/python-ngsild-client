@@ -21,7 +21,9 @@ from orionldclient.utils import Urn
 
 
 def expected_dict(basename: str) -> dict:
-    filename: str = pkg_resources.resource_filename(__name__, f"data/urbanmobility/{basename}.json")
+    filename: str = pkg_resources.resource_filename(
+        __name__, f"data/urbanmobility/{basename}.json"
+    )
     with open(filename, "r") as fp:
         expected = json.load(fp)
     return expected
@@ -31,12 +33,14 @@ def test_transportstop():
     """
     https://smart-data-models.github.io/dataModel.UrbanMobility/PublicTransportStop/examples/example-normalized.jsonld
     """
-
-    ctx = [
-        "https://smart-data-models.github.io/data-models/context.jsonld",
-        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-    ]
-    e = Entity("PublicTransportStop:santander:busStop:463", "PublicTransportStop", ctx)
+    e = Entity(
+        "PublicTransportStop",
+        "PublicTransportStop:santander:busStop:463",
+        ctx=[
+            "https://smart-data-models.github.io/data-models/context.jsonld",
+            "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        ],
+    )
 
     e.tprop("dateModified", datetime(2018, 9, 25, 8, 32, 26))
     e.prop("source", "https://api.smartsantander.eu/")

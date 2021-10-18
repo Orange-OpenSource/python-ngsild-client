@@ -13,7 +13,6 @@
 from __future__ import annotations
 
 import json
-import typing
 import requests
 import logging
 
@@ -22,7 +21,7 @@ from functools import partialmethod
 from dataclasses import dataclass
 
 from datetime import datetime
-from typing import overload, Any, Union, Optional
+from typing import overload, Any, Union
 
 from .exceptions import *
 from .constants import *
@@ -81,14 +80,10 @@ class Entity:
         *,
         ctx: list = [CORE_CONTEXT],
         payload: dict = None,
-        autoprefix: Optional[bool] = None
     ):
 
         logger.debug(f"{arg1=} {arg2=}")
 
-        if autoprefix is None:
-            autoprefix = Entity.settings.autoprefix
-        
         if payload is not None:  # create Entity from a dictionary
             if not payload.get("id", None):
                 raise NgsiMissingIdError()
@@ -106,20 +101,16 @@ class Entity:
         else:
             type, id = None, arg1
 
-        if type is None: # try to infer type from the fully qualified identifier
-            id = Urn.prefix(id)
-            urn = Urn(id)
+        id = Urn.prefix(id)  # prefix if not already done
+        urn = Urn(id)
+
+        if type:
+            if Entity.settings.autoprefix:
+                pass
+        else:
             if (type := urn.infertype()) is None:
                 raise NgsiMissingTypeError(f"{urn.fqn=}")
-        else: # type is not None
-            if autoprefix:
-                bareid = Urn.unprefix(id)
-                prefix = f"{type}:"
-                if not bareid.startswith(prefix):
-                    id = prefix+bareid
-            id = Urn.prefix(id)  # set the prefix "urn:ngsi-ld:" if not already done
-            urn = Urn(id)
-            
+
         self._payload: NgsiDict = NgsiDict(
             {"@context": ctx, "id": urn.fqn, "type": type}
         )
