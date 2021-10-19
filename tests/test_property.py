@@ -21,6 +21,16 @@ def test_prop():
     assert p == {"type": "Property", "value": 22}
 
 
+def test_prop_string():
+    p = build_property(r"A<>\"'=;()Z")
+    assert p == {"type": "Property", "value": r"A<>\"'=;()Z"}
+
+
+def test_prop_string_escaped():
+    p = build_property(r"A<>\"'=;()Z", escape=True)
+    assert p == {"type": "Property", "value": r"A%3C%3E%5C%22%27%3D%3B%28%29Z"}
+
+
 def test_prop_with_meta_unitcode():
     p = build_property(22, unitcode="GP")
     assert p == {"type": "Property", "unitCode": "GP", "value": 22}

@@ -39,7 +39,7 @@ def build_property(
         raise NgsiUnmatchedAttributeTypeError(
             f"Cannot map {type(value)} to NGSI type. {value=}"
         )
-    property["value"] = value  # set value
+    property["value"] = v  # set value
     if unitcode is not None:
         property[META_ATTR_UNITCODE] = unitcode
     if observedat is not None:
