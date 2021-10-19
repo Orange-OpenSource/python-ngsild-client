@@ -37,7 +37,7 @@ class Entities:
 
     @rfc7807_error_handle
     def create(self, entity: Entity) -> Entity:
-        #logger.info(f"{self._session.headers}")
+        # logger.info(f"{self._session.headers}")
         r = self._session.post(
             f"{self.url}/",
             entity.to_json(),
@@ -59,7 +59,9 @@ class Entities:
         return entity
 
     @rfc7807_error_handle
-    def retrieve(self, eid: Union[EntityId, Entity], asdict: bool = False, **kwargs) -> Entity:
+    def retrieve(
+        self, eid: Union[EntityId, Entity], asdict: bool = False, **kwargs
+    ) -> Entity:
         eid = eid.id if isinstance(eid, Entity) else eid
         r = self._session.get(f"{self.url}/{eid}", **kwargs)
         self._client.raise_for_status(r)

@@ -26,7 +26,7 @@ from typing import overload, Any, Union, Optional
 
 from .exceptions import *
 from .constants import *
-from ._attribute import *
+from .attribute import *
 from .ngsidict import NgsiDict
 from orionldclient.utils import url
 from orionldclient.utils.urn import Urn
@@ -81,14 +81,14 @@ class Entity:
         *,
         ctx: list = [CORE_CONTEXT],
         payload: dict = None,
-        autoprefix: Optional[bool] = None
+        autoprefix: Optional[bool] = None,
     ):
 
         logger.debug(f"{arg1=} {arg2=}")
 
         if autoprefix is None:
             autoprefix = Entity.settings.autoprefix
-        
+
         if payload is not None:  # create Entity from a dictionary
             if not payload.get("id", None):
                 raise NgsiMissingIdError()
@@ -106,20 +106,20 @@ class Entity:
         else:
             type, id = None, arg1
 
-        if type is None: # try to infer type from the fully qualified identifier
+        if type is None:  # try to infer type from the fully qualified identifier
             id = Urn.prefix(id)
             urn = Urn(id)
             if (type := urn.infertype()) is None:
                 raise NgsiMissingTypeError(f"{urn.fqn=}")
-        else: # type is not None
+        else:  # type is not None
             if autoprefix:
                 bareid = Urn.unprefix(id)
                 prefix = f"{type}:"
                 if not bareid.startswith(prefix):
-                    id = prefix+bareid
+                    id = prefix + bareid
             id = Urn.prefix(id)  # set the prefix "urn:ngsi-ld:" if not already done
             urn = Urn(id)
-            
+
         self._payload: NgsiDict = NgsiDict(
             {"@context": ctx, "id": urn.fqn, "type": type}
         )

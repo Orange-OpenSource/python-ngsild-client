@@ -96,10 +96,6 @@ class NgsiNonexistentTenantError(NgsiContextBrokerError):
     pass
 
 
-# class NgsiNotConnectedError(NgsiError):
-#     pass
-
-
 ERRORTYPES = {
     "https://uri.etsi.org/ngsi-ld/errors/InvalidRequest": NgsiInvalidRequestError,
     "https://uri.etsi.org/ngsi-ld/errors/BadRequestData": NgsiBadRequestDataError,

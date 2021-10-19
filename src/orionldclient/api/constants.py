@@ -17,10 +17,11 @@ from enum import Enum, unique
 
 if TYPE_CHECKING:
     from .entities import Entity
+
     OneOrManyEntities = Union[Entity, List[Entity]]
 
 Version = str
-#OneOrManyEntities = Union[Entity, List[Entity]]
+# OneOrManyEntities = Union[Entity, List[Entity]]
 EntityId = str
 
 

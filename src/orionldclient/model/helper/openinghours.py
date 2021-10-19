@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from datetime import time
 from enum import Enum
 
-TimeOrStr = Union[time,str] # type alias
+TimeOrStr = Union[time, str]  # type alias
 
 
 class WeekDay(Enum):

@@ -25,4 +25,3 @@ sample_entity.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
 @fixture()
 def mock_connected(mocker: MockerFixture):
     mocker.patch.object(Client, "is_connected", return_value=True)
-

@@ -12,8 +12,8 @@
 
 import pytest
 
-from datetime import datetime
-from orionldclient.model._attribute import *
+from datetime import datetime, date, time
+from orionldclient.model.attribute import *
 
 
 def test_prop():
@@ -109,6 +109,7 @@ def test_temporal_prop_time_str():
         "type": "Property",
         "value": {"@type": "Time", "@value": "12:00:00Z"},
     }
+
 
 def test_temporal_prop_str_bad_format():
     with pytest.raises(ValueError):

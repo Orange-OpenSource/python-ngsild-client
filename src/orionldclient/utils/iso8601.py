@@ -176,7 +176,7 @@ def parse(value: Union[datetime, date, time, str]) -> tuple[str, TemporalType]:
 
     See Also
     --------
-    orionldclient._attribute
+    orionldclient.attribute
 
     Examples
     --------

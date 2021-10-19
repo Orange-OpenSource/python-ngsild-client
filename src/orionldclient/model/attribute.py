@@ -11,10 +11,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from datetime import datetime, date, time
+from datetime import datetime
 from geojson import Point, LineString, Polygon
 from typing import Any, Union
-from orionldclient.utils import iso8601, Urn, url
+from orionldclient.utils import iso8601, url
+from orionldclient.utils.urn import Urn
 from .exceptions import *
 from .constants import *
 from .ngsidict import NgsiDict

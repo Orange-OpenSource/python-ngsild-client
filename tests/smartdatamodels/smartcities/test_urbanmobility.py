@@ -17,7 +17,7 @@ from datetime import datetime
 from orionldclient.model.entity import *
 from orionldclient.model.helper.postal import PostalAddressBuilder
 from orionldclient.model.helper.openinghours import OpeningHoursSpecificationBuilder
-from orionldclient.utils import Urn
+from orionldclient.utils.urn import Urn
 
 
 def expected_dict(basename: str) -> dict:

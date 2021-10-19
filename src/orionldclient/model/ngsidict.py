@@ -87,25 +87,25 @@ class NgsiDict(dict, NgsiFormatter):
             json.dump(self, fp, default=str, ensure_ascii=False, indent=indent)
 
     def prop(self, name, *args, **kwargs):
-        from ._attribute import build_property
+        from .attribute import build_property
 
         self[name] = build_property(*args, **kwargs)
         return self[name]
 
     def gprop(self, name, *args, **kwargs):
-        from ._attribute import build_geoproperty
+        from .attribute import build_geoproperty
 
         self[name] = build_geoproperty(*args, **kwargs)
         return self[name]
 
     def tprop(self, name, *args, **kwargs):
-        from ._attribute import build_temporal_property
+        from .attribute import build_temporal_property
 
         self[name] = build_temporal_property(*args, **kwargs)
         return self[name]
 
     def rel(self, name, *args, **kwargs):
-        from ._attribute import build_relationship
+        from .attribute import build_relationship
 
         self[name] = build_relationship(*args, **kwargs)
         return self[name]
