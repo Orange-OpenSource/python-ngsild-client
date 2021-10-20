@@ -12,18 +12,21 @@
 
 import logging
 import pytest
+from pytest_mock.plugin import MockerFixture
 
 from orionldclient.api.client import Client
+from orionldclient.api.entities import Entities
 from orionldclient.api.exceptions import (
     NgsiAlreadyExistsError,
     NgsiResourceNotFoundError,
+    ProblemDetails,
 )
-from .common import mock_connected, sample_entity
+from .common import sample_entity, mocked_connected
 
 logger = logging.getLogger(__name__)
 
 
-def test_api_create(mock_connected, requests_mock):
+def test_api_create(mocked_connected, requests_mock):
     requests_mock.post(
         "http://localhost:1026/ngsi-ld/v1/entities/",
         request_headers={"Content-Type": "application/ld+json"},
@@ -35,7 +38,7 @@ def test_api_create(mock_connected, requests_mock):
     assert res == sample_entity
 
 
-def test_api_create_error_already_exists(mock_connected, requests_mock):
+def test_api_create_error_already_exists(mocked_connected, requests_mock):
     requests_mock.post(
         "http://localhost:1026/ngsi-ld/v1/entities/",
         request_headers={"Content-Type": "application/ld+json"},
@@ -64,7 +67,7 @@ def test_api_create_error_already_exists(mock_connected, requests_mock):
     assert excinfo.value.problemdetails.extension == {}
 
 
-def test_api_retrieve(mock_connected, requests_mock):
+def test_api_retrieve(mocked_connected, requests_mock):
     requests_mock.get(
         "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
         request_headers={"Accept": "application/ld+json"},
@@ -76,7 +79,7 @@ def test_api_retrieve(mock_connected, requests_mock):
     assert res == sample_entity
 
 
-def test_api_retrieve_error_not_found(mock_connected, requests_mock):
+def test_api_retrieve_error_not_found(mocked_connected, requests_mock):
     requests_mock.get(
         "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
         request_headers={"Accept": "application/ld+json"},
@@ -104,7 +107,7 @@ def test_api_retrieve_error_not_found(mock_connected, requests_mock):
     assert excinfo.value.problemdetails.extension == {}
 
 
-def test_api_exists(mock_connected, requests_mock):
+def test_api_exists(mocked_connected, requests_mock):
     requests_mock.get(
         "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
         request_headers={"Accept": "application/ld+json"},
@@ -116,7 +119,7 @@ def test_api_exists(mock_connected, requests_mock):
     assert res
 
 
-def test_api_delete(mock_connected, requests_mock):
+def test_api_delete(mocked_connected, requests_mock):
     requests_mock.delete(
         "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
         status_code=200,
@@ -126,7 +129,7 @@ def test_api_delete(mock_connected, requests_mock):
     assert res
 
 
-def test_api_delete_error_not_found(mock_connected, requests_mock):
+def test_api_delete_error_not_found(mocked_connected, requests_mock):
     requests_mock.delete(
         "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
         status_code=404,
@@ -151,3 +154,51 @@ def test_api_delete_error_not_found(mock_connected, requests_mock):
     )
     assert excinfo.value.problemdetails.instance is None
     assert excinfo.value.problemdetails.extension == {}
+
+
+def test_api_upsert_existent_entity(mocked_connected, mocker: MockerFixture):
+    client = Client()
+    pd = ProblemDetails(
+        "AlreadyExists",
+        "Entity already exists",
+        409,
+        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+    )
+    mocked_create = mocker.patch.object(
+        client._entities,
+        "create",
+        side_effect=[NgsiAlreadyExistsError(pd), sample_entity],
+    )
+    mocked_delete = mocker.patch.object(client._entities, "delete", return_value=True)
+    res = client._entities.upsert(sample_entity)
+    assert mocked_create.call_count == 2
+    assert mocked_delete.call_count == 1
+    assert res == sample_entity
+
+
+def test_api_upsert_nonexistent_entity(mocked_connected, mocker: MockerFixture):
+    client = Client()
+    mocked_create = mocker.patch.object(
+        client._entities, "create", return_value=sample_entity
+    )
+    mocked_delete = mocker.patch.object(client._entities, "delete", return_value=True)
+    res = client._entities.upsert(sample_entity)
+    assert mocked_create.call_count == 1
+    assert mocked_delete.call_count == 0
+    assert res == sample_entity
+
+
+def test_api_update_existent_entity(mocked_connected, mocker: MockerFixture):
+    client = Client()
+    mocker.patch.object(client._entities, "exists", return_value=True)
+    mocker.patch.object(client._entities, "delete", return_value=True)
+    mocker.patch.object(client._entities, "create", return_value=sample_entity)
+    res = client._entities.update(sample_entity)
+    assert res == sample_entity
+
+
+def test_api_update_nonexistent_entity(mocked_connected, mocker: MockerFixture):
+    client = Client()
+    mocker.patch.object(client._entities, "exists", return_value=False)
+    res = client._entities.update(sample_entity)
+    assert res is None

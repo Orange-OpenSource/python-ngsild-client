@@ -12,7 +12,7 @@
 
 import logging
 from orionldclient.api.client import Client, Vendor
-from .common import mock_connected
+from .common import mocked_connected
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ def test_api_is_connected(requests_mock):
     assert client.is_connected()
 
 
-def test_api_guess_broker(mock_connected, requests_mock):
+def test_api_guess_broker(mocked_connected, requests_mock):
     requests_mock.get(
         "http://localhost:1026/version",
         status_code=200,

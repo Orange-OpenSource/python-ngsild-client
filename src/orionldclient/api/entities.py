@@ -11,18 +11,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
+from functools import partialmethod
 
 import logging
-
-from typing import TYPE_CHECKING
-
-from requests import Response
 
 if TYPE_CHECKING:
     from .client import Client
 
 from .constants import *
-from .exceptions import NgsiApiError, rfc7807_error_handle
+from .exceptions import (
+    NgsiAlreadyExistsError,
+    NgsiApiError,
+    NgsiContextBrokerError,
+    rfc7807_error_handle,
+)
 from ..model.entity import Entity
 
 
@@ -37,7 +40,6 @@ class Entities:
 
     @rfc7807_error_handle
     def create(self, entity: Entity) -> Entity:
-        # logger.info(f"{self._session.headers}")
         r = self._session.post(
             f"{self.url}/",
             entity.to_json(),
@@ -67,10 +69,15 @@ class Entities:
         self._client.raise_for_status(r)
         return r.json() if asdict else Entity.from_dict(r.json())
 
-    # def exists(self, eid: EntityId) -> bool:
-    #     params = {"id": eid, "limit": 0, "count": "true"}
-    #     linkheader = f'<https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
-    #     return api.get(self._session, f"{self.url}", headers={"Link": linkheader}, params=params)
+    @rfc7807_error_handle
+    def delete(self, eid: Union[EntityId, Entity]) -> bool:
+        eid = eid.id if isinstance(eid, Entity) else eid
+        logger.info(f"{eid=}")
+        logger.info(f"url={self.url}/{eid}")
+        r = self._session.delete(f"{self.url}/{eid}")
+        logger.info(f"requests: {r.request.url}")
+        self._client.raise_for_status(r)
+        return bool(r)
 
     @rfc7807_error_handle
     def exists(self, eid: Union[EntityId, Entity]) -> bool:
@@ -82,11 +89,16 @@ class Entities:
         return False
 
     @rfc7807_error_handle
-    def delete(self, eid: Union[EntityId, Entity]) -> bool:
-        eid = eid.id if isinstance(eid, Entity) else eid
-        logger.info(f"{eid=}")
-        logger.info(f"url={self.url}/{eid}")
-        r = self._session.delete(f"{self.url}/{eid}")
-        logger.info(f"requests: {r.request.url}")
-        self._client.raise_for_status(r)
-        return bool(r)
+    def upsert(self, entity: Entity) -> Entity:
+        try:
+            return self.create(entity)
+        except NgsiAlreadyExistsError:
+            self.delete(entity)
+            return self.create(entity)
+
+    @rfc7807_error_handle
+    def update(self, entity: Entity) -> Optional[Entity]:
+        if self.exists(entity):
+            self.delete(entity)
+            return self.create(entity)
+        return None

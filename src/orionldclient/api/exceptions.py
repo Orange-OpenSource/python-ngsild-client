@@ -117,7 +117,6 @@ def rfc7807_error_handle(func):
         try:
             return func(*args, **kwargs)
         except HTTPError as e:
-            logger.info("ERROR DETECTED IN DECORATOR !!!!")
             r: Response = e.response
             try:
                 problemdetails = r.json()
