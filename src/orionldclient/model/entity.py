@@ -112,6 +112,7 @@ class Entity:
             if (type := urn.infertype()) is None:
                 raise NgsiMissingTypeError(f"{urn.fqn=}")
         else:  # type is not None
+            autoprefix &= not Urn.is_prefixed(id)
             if autoprefix:
                 bareid = Urn.unprefix(id)
                 prefix = f"{type}:"
@@ -171,7 +172,7 @@ class Entity:
         return self._payload._attr(item)
 
     def __setitem__(self, key, item):
-        self._payload[key] = item
+        self._payload._setattr(key, item)
 
     def rm(self, item):
         self._payload._rmattr(item)

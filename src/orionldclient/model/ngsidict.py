@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
-from typing import Protocol
+from typing import Protocol, Any
 from functools import reduce
 
 import json
@@ -58,15 +58,24 @@ class NgsiDict(dict, NgsiFormatter):
         d = json.loads(payload)
         return cls(d)
 
-    def _attr(self, element):
+    def _attr(self, element: str):
         return reduce(operator.getitem, element.split("."), self)
 
-    def _rmattr(self, element):
+    def _rmattr(self, element: str):
         try:
             nested, k = element.rsplit(".", 1)
-            del self._attr(nested)[k]
         except ValueError:
             del self[element]
+        else:
+            del self._attr(nested)[k]
+
+    def _setattr(self, element: str, value: Any):
+        try:
+            nested, k = element.rsplit(".", 1)
+        except ValueError:
+            self[element] = value
+        else:
+            self._attr(nested)[k] = value
 
     @classmethod
     def _load(cls, filename: str):
