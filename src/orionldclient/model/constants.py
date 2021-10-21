@@ -10,9 +10,15 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
+"""This module contains constants used in the model package.
+"""
+
 from enum import Enum
 
+
 CORE_CONTEXT = "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+"""The default NGSI-LD Core Context. Automatically set at entity creation time if no context is provided.
+"""
 
 META_ATTR_CONTEXT = "@context"
 META_ATTR_UNITCODE = "unitCode"

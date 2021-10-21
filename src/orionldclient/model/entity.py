@@ -33,6 +33,9 @@ from orionldclient.utils.urn import Urn
 
 logger = logging.getLogger(__name__)
 
+"""This module contains the definition of the Entity class.
+"""
+
 
 class Entity:
     @dataclass
