@@ -38,17 +38,146 @@ logger = logging.getLogger(__name__)
 
 
 class Entity:
+    """The main goal of this class is to build, manipulate and represent a NGSI-LD compliant entity.
+
+    The preferred constructor allows to create an entity from its NGSI-LD type and identifier (and optionally context),
+    If no context is provided, it defaults to the NGSI-LD Core Context.
+    The identifier can be written using the "long form" : the fully qualified urn string.
+    It can also be shorten :
+    - omit the urn prefix (scheme+nss)
+    - omit the type inside the identifier, assuming the naming convention "urn:ngsi-ld:<type>:<remainder>"
+
+    An alternate constructor allows to create an entity by just providing its id (and optionally context).
+    In this case the type is inferred from the fully qualified urn string,
+    assuming the naming convention "urn:ngsi-ld:<type>:<remainder>".
+
+    The load() classmethod allows to load a NGSI-LD entity from a file or remotely through HTTP.
+    For convenience some `SmartDataModels <https://smartdatamodels.org/>`_ examples are made available.
+
+    Once initiated, we can build a complete NGSI-LD entity by adding attributes to the NGSI-LD entity.
+    An attribute can be a Property, TemporalProperty, GeoProperty or RelationShip.
+    Methods prop(), tprop(), gprop() and rel() are used to respectively build a Property, TemporalProperty,
+    GeoProperty, and Relationship.
+    Attributes can carry metadatas, such as "observedAt".
+    Attributes can carry user data.
+
+    Nested attributes are supported.
+    Methods prop(), tprop(), gprop() are chainable, allowing to build nested properties.
+
+    Dates and Datetimes are ISO8601.
+    Helper functions are provided in the module utils.iso8601.
+
+    Given a NGSI-LD entity, many actions are possible :
+    - access/add/remove/update attributes
+    - access/update/remove values
+    - print the content in the normalized or simplified (aka KeyValues) flavor
+    - save the entity to a file
+    - send it to the NGSI-LD Context Broker for creation/update (use the orionldclient.api package)
+
+    A NGSI-LD entity is backed by a NgsiDict object (a custom dictionary that inherits from the native Python dict).
+    So if for any reasons you're stuck with the library and cannot achieve to build a NGSI-LD entity
+    that fully matches your target datamodel, it's always possible to manipulate directly the underlying dictionary.
+
+    Raises
+    ------
+    NgsiMissingIdError
+        The identifier is missing
+    NgsiMissingTypeError
+        The type is missing
+    NgsiMissingContextError
+        The context is missing
+    AttributeError
+        A problem occured when building an attribute (either Property, Temporal Property, Geo Property, Relationship)
+
+    See Also
+    --------
+    model.NgsiDict : a custom dictionary that inherits from the native dict and provides primitives to build attributes
+    api.client.Client : the NGSI-LD Context Broker client to interact with a Context Broker
+
+    Example:
+    --------
+    >>> from datetime import datetime
+    >>> from orionldclient import *
+
+    >>> # Create the entity
+    >>> e = Entity("AirQualityObserved", "RZ:Obsv4567")
+
+    >>> # Add a temporal property named dateObserved
+    >>> # We could provide a string if preferred (rather than a datetime)
+    >>> e.tprop("dateObserved", datetime(2018, 8, 7, 12))
+
+    >>> # Add a property named NO2 with a pollutant concentration value and a metadata to indicate the unit (mg/m3)
+    >>> # The accuracy property is nested
+    >>> e.prop("NO2", 22, unitcode="GP").prop("accuracy", 0.95)
+
+    >>> # Add a relationship towards a POI NGSI-LD Entity
+    >>> e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
+
+    >>> # Pretty-print to standard output
+    >>> e.pprint()
+    {
+        "@context": [
+            "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+        ],
+        "id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+        "type": "AirQualityObserved",
+        "dateObserved": {
+            "type": "Property",
+            "value": {
+                "@type": "DateTime",
+                "@value": "2018-08-07T12:00:00Z"
+            }
+        },
+        "NO2": {
+            "type": "Property",
+            "value": 22,
+            "unitCode": "GP",
+            "accuracy": {
+                "type": "Property",
+                "value": 0.95
+            }
+        },
+        "refPointOfInterest": {
+            "type": "Relationship",
+            "object": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare"
+        }
+    }
+
+    >>> # Update a property by overriding it
+    >>> e.prop("dateObserved", iso8601.utcnow())
+
+    >>> # Update a value using the dot notation
+    >>> e["NO2.accuracy.value"] = 0.96
+
+    >>> # Remove a property
+    >>> e.rm("NO2.accuracy")
+    """
+
     @dataclass
     class Settings:
+        """The default settings used to build an Entity"""
+
         autoprefix: bool = True
+        """A boolean to enable/disable the automatic insertion of the type into the identifier.
+        Default is enabled.
+        """
+
         strict: bool = False  # for future use
         autoescape: bool = True  # for future use
 
-    settings: Settings = Settings()
+    globalsettings: Settings = Settings()
 
     @overload
     def __init__(self, type: str, id: str, *, ctx: list = [CORE_CONTEXT]):
         """Create a NGSI-LD compliant entity
+
+        One can omit the urn and namespace, "urn:ngsi-ld:" will be added automatically.
+        One can omit the type inside the identifier.
+
+        By default, the constructor assumes the identifier naming convention "urn:ngsi-ld:<type>:<remainder>" and automatically
+        insert the type into the identifier.
+        The default behaviour can be disabled : Entity.globalsettings.autoprefix = False.
+
 
         Parameters
         ----------
@@ -56,8 +185,25 @@ class Entity:
             entity type
         id : str
             entity identifier
-        context : list, optional
+        ctx : list, optional
             the NGSI-LD context, by default the NGSI-LD Core Context
+
+        Example:
+        --------
+        >>> from orionldclient.model.entity import Entity
+        >>> e1 = Entity("AirQualityObserved", "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567") # long form
+        >>> e2 = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567") # omit scheme + nss
+        >>> e3 = Entity("AirQualityObserved", "RZ:Obsv4567") # omit scheme + nss + type
+        >>> print(e1 == e2 == e3)
+        True
+        >>> e1.pprint()
+        {
+            "@context": [
+                "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+            ],
+            "id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+            "type": "AirQualityObserved"
+        }
         """
         ...
 
@@ -66,14 +212,27 @@ class Entity:
         """Create a NGSI-LD compliant entity.
 
         Type is infered from the fully qualified identifier.
-        Works only if your identifiers follow the naming convention "urn:ngsi-ld:<type>:xxx"
+        Works only if your identifiers follow the naming convention "urn:ngsi-ld:<type>:<remainder>"
 
         Parameters
         ----------
         id : str
-            entity identifier (fully qualified uen)
+            entity identifier (fully qualified urn)
         context : list, optional
             the NGSI-LD context, by default the NGSI-LD Core Context
+
+        Example:
+        --------
+        >>> from orionldclient.model.entity import Entity
+        >>> e = Entity("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
+        >>> e.pprint()
+        {
+            "@context": [
+                "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+            ],
+            "id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+            "type": "AirQualityObserved"
+        }
         """
         ...
 
@@ -90,7 +249,7 @@ class Entity:
         logger.debug(f"{arg1=} {arg2=}")
 
         if autoprefix is None:
-            autoprefix = Entity.settings.autoprefix
+            autoprefix = Entity.globalsettings.autoprefix
 
         if payload is not None:  # create Entity from a dictionary
             if not payload.get("id", None):
@@ -130,10 +289,50 @@ class Entity:
 
     @classmethod
     def from_dict(cls, payload: dict):
+        """Create a NGSI-LD entity from a dictionary.
+
+        The input dictionary must at least contain the 'id', 'type' and '@context'.
+        This method assumes that the input dictionary matches a valid NGSI-LD structure.
+
+        Parameters
+        ----------
+        payload : dict
+            The given dictionary.
+
+        Returns
+        -------
+        Entity
+            The result Entity instance
+        """
         return cls(payload=payload)
 
     @classmethod
     def load(cls, filename: str):
+        """Load an Entity from a JSON file, locally from the filesystem or remotely through HTTP.
+
+        For convenience some `SmartDataModels <https://smartdatamodels.org/>`_ examples are made available thanks to the Smart Data Models initiative.
+        You can benefit from autocompletion to navigate inside the available datamodels.
+
+        Parameters
+        ----------
+        filename : str
+            If filename corresponds to an URL, the JSON file is downloaded from HTTP.
+            Else it is retrieved locally from the filesystem.
+
+        Returns
+        -------
+        [Entity]
+            The Entity instance
+
+        See Also
+        --------
+        constants.SmartDataModels
+
+        Example:
+        --------
+        >>> from orionldclient import *
+        >>> e = Entity.load(SmartDatamodels.SmartCities.Weather.WeatherObserved)
+        """
         if url.isurl(filename):
             resp = requests.get(filename)
             d = resp.json()
@@ -143,8 +342,20 @@ class Entity:
         return cls.from_dict(d)
 
     @staticmethod
-    def duplicate(other) -> Entity:
-        new = deepcopy(other)
+    def duplicate(entity: Entity) -> Entity:
+        """Duplicate a given entity.
+
+        Parameters
+        ----------
+        entity : Entity
+            The input Entity
+
+        Returns
+        -------
+        Entity
+            The output entity
+        """
+        new = deepcopy(entity)
         return new
 
     @property
@@ -185,20 +396,96 @@ class Entity:
         self,
         name: str,
         value: Any,
-        /,  # positional-only arguments before this
         *,  # keyword-only arguments after this
         unitcode: str = None,
         observedat: Union[str, datetime] = None,
         datasetid: str = None,
         userdata: NgsiDict = NgsiDict(),
         escape: bool = False,
-    ):
+    ) -> NgsiDict:
+        """Build a Property.
+
+        Build a property and attach it to the current entity.
+        Returns the newly created property without its name, allowing to chain methods hence build nested properties.
+
+        Parameters
+        ----------
+        name : str
+            the property name
+        value : Any
+            the property value
+        observedat : Union[str, datetime], optional
+            observetAt metadata, timestamp, ISO8601, UTC, by default None
+        datasetid : str, optional
+            it allows identifying a set or group of property values, by default None
+        userdata : NgsiDict, optional
+            a dict or NgsiDict containing user data, i.e. userdata={"reliability": 0.95}, by default NgsiDict()
+        escape : bool, optional
+            if set escape the string value (useful if contains forbidden characters), by default False
+
+        Returns
+        -------
+        NgsiDict
+            A dictionary containing the property (without the property name)
+
+        Example:
+        --------
+        >>> from orionldclient.model.entity import Entity
+        >>> e = Entity("AirQualityObserved", "RZ:Obsv4567")
+        >>> e.prop("NO2", 22, unitcode="GP") # basic property
+        {'type': 'Property', 'value': 22, 'unitCode': 'GP'}
+        >>> e.prop("PM10", 18, unitcode="GP").prop("reliability", 0.95) # chain methods to obtain a nested property
+        {'type': 'Property', 'value': 0.95}
+        >>> e.pprint()
+        {
+        "@context": [
+            "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+        ],
+        "id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+        "type": "AirQualityObserved",
+        "NO2": {
+            "type": "Property",
+            "value": 22,
+            "unitCode": "GP"
+        },
+        "PM10": {
+            "type": "Property",
+            "value": 18,
+            "unitCode": "GP",
+            "reliability": {
+                "type": "Property",
+                "value": 0.95
+            }
+        }
+        """
         self._payload.prop(
             name, value, unitcode, observedat, datasetid, userdata, escape
         )
         return self._payload[name]
 
     def gprop(self, name: str, value: Any):
+        """Build a GeoProperty.
+
+        Build a GeoProperty and attach it to the current entity.
+        Returns the newly created property without its name, allowing to chain methods hence build nested properties.
+
+        Parameters
+        ----------
+        name : str
+            the property name
+        value : Any
+            the property value
+
+        Returns
+        -------
+        NgsiDict
+            A dictionary containing the property (without the property name)
+
+        Raises
+        ------
+        AttributeError
+            [description]
+        """        
         if value is None:
             raise AttributeError("missing value")
         self._payload.gprop(name, value)
@@ -206,7 +493,7 @@ class Entity:
 
     loc = partialmethod(gprop, "location")
 
-    def tprop(self, name: str, value: Any, /):
+    def tprop(self, name: str, value: Any):
         self._payload.tprop(name, value)
         return self._payload[name]
 
@@ -214,7 +501,6 @@ class Entity:
         self,
         name: Union[str, PredefinedRelationship],
         value: str,
-        /,
         *,
         observedat: Union[str, datetime] = None,
         userdata: NgsiDict = NgsiDict(),
@@ -237,9 +523,30 @@ class Entity:
         return self._payload.__repr__()
 
     def to_dict(self, kv=False) -> NgsiDict:
+        """Returns the entity as a dictionary.
+
+        The returned type is NgsiDict, fully compatible with a native dict.
+
+        Parameters
+        ----------
+        kv : bool, optional
+            KeyValues format (aka simplified representation), by default False
+
+        Returns
+        -------
+        NgsiDict
+            The underlying native Python dictionary
+        """
         return self._to_keyvalues() if kv else self._payload
 
     def _to_keyvalues(self) -> NgsiDict:
+        """Compute a NgsiDict that contains only the highest-level of information.
+
+        Returns
+        -------
+        NgsiDict
+            The simplified representation
+        """
         d = NgsiDict()
         for k, v in self._payload.items():
             if isinstance(v, dict):
@@ -258,15 +565,41 @@ class Entity:
                 d[k] = v
         return d
 
-    def to_json(self, kv=False, *args, **kwargs):
-        """Returns the datamodel in json format"""
+    def to_json(self, kv=False, *args, **kwargs) -> str:
+        """Returns the entity as JSON.
+
+        Parameters
+        ----------
+        kv : bool, optional
+            KeyValues format (aka simplified representation), by default False
+
+        Returns
+        -------
+        str
+            The JSON content
+        """
         payload: NgsiDict = self.to_dict(kv)
         return payload.to_json(*args, **kwargs)
 
     def pprint(self, kv=False, *args, **kwargs):
-        """Returns the datamodel pretty-json-formatted"""
+        """Pretty-print the entity to the standard ouput.
+
+        Parameters
+        ----------
+        kv : bool, optional
+            KeyValues format (aka simplified representation), by default False
+        """
         print(self.to_json(kv, indent=2, *args, **kwargs))
 
-    def save(self, filename: str, *, indent=2):
+    def save(self, filename: str, *, indent: int = 2):
+        """Save the entity to a file.
+
+        Parameters
+        ----------
+        filename : str
+            Name of the output file
+        indent : int, optional
+            identation size (number of spaces), by default 2
+        """
         with open(filename, "w") as fp:
             json.dump(self._payload, fp, default=str, ensure_ascii=False, indent=indent)

@@ -31,7 +31,7 @@ __all__ = [
     "shortuuid",
     "Entity",
     "NgsiDict",
-    "CORE_CONTEXT"
+    "CORE_CONTEXT",
     "Client",
     "SmartDatamodels",
     "NgsiError",
