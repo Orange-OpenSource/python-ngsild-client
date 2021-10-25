@@ -120,7 +120,7 @@ def test_air_quality_with_nested_prop_1_lvl():
     """
     e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12))
-    e.prop("NO2", 22, unitcode="GP").prop("accuracy", 0.95)
+    e.prop("NO2", 22, unitcode="GP").prop("accuracy", 0.95, nested=True)
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
     assert e.to_dict() == expected_dict("air_quality_with_nested_prop_1_lvl")
 
@@ -128,7 +128,9 @@ def test_air_quality_with_nested_prop_1_lvl():
 def test_air_quality_with_nested_prop_2_lvl():
     e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12))
-    e.prop("NO2", 22, unitcode="GP").prop("qc", "checked").prop("status", "discarded")
+    e.prop("NO2", 22, unitcode="GP").prop("qc", "checked", nested=True).prop(
+        "status", "discarded", nested=True
+    )
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
     assert e.to_dict() == expected_dict("air_quality_with_nested_prop_2_lvl")
 
@@ -136,9 +138,9 @@ def test_air_quality_with_nested_prop_2_lvl():
 def test_air_quality_with_nested_prop_3_lvl():
     e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12))
-    e.prop("NO2", 22, unitcode="GP").prop("qc", "checked").prop(
-        "status", "passed"
-    ).prop("reliability", 0.95)
+    e.prop("NO2", 22, unitcode="GP").prop("qc", "checked", nested=True).prop(
+        "status", "passed", nested=True
+    ).prop("reliability", 0.95, nested=True)
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
     assert e.to_dict() == expected_dict("air_quality_with_nested_prop_3_lvl")
 
@@ -217,7 +219,7 @@ def test_vehicle():
         "isParked",
         "OffStreetParking:Downtown1",
         observedat=datetime(2017, 7, 29, 12, 0, 4),
-    ).rel("providedBy", "Person:Bob")
+    ).rel("providedBy", "Person:Bob", nested=True)
     assert e.to_dict() == expected_dict("vehicle")
     assert json.loads(e.to_json(kv=True)) == expected_dict("vehicle.kv")
 
@@ -242,9 +244,11 @@ def test_vehicle_multiple_attribute():
         ],
     )
     e.prop("#speed1", 55, datasetid="Property:speedometerA4567-speed").prop(
-        "source", "Speedometer"
+        "source", "Speedometer", nested=True
     )
-    e.prop("#speed2", 54.5, datasetid="Property:gpsBxyz123-speed").prop("source", "GPS")
+    e.prop("#speed2", 54.5, datasetid="Property:gpsBxyz123-speed").prop(
+        "source", "GPS", nested=True
+    )
     assert e.to_dict() == expected_dict("vehicle_multiple_attribute")
 
 
@@ -263,11 +267,8 @@ def test_parking():
             "http://example.org/ngsi-ld/parking.jsonld",
         ],
     )
-    spot: NgsiDict = e.prop(
-        "availableSpotNumber", 121, observedat=datetime(2017, 7, 29, 12, 5, 2)
-    )
-    spot.prop("reliability", 0.7)
-    spot.rel("providedBy", "Camera:C1")
+    e.prop("availableSpotNumber", 121, observedat=datetime(2017, 7, 29, 12, 5, 2))
+    e.anchor().prop("reliability", 0.7).rel("providedBy", "Camera:C1").unanchor()
     e.prop("totalSpotNumber", 200)
     e.gprop("location", (41.2, -8.5))
     assert e.to_dict() == expected_dict("parking")

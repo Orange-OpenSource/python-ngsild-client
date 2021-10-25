@@ -286,6 +286,8 @@ class Entity:
         self._payload: NgsiDict = NgsiDict(
             {"@context": ctx, "id": urn.fqn, "type": type}
         )
+        self._lastprop: NgsiDict = None
+        self._anchored: bool = False
 
     @classmethod
     def from_dict(cls, payload: dict):
@@ -392,17 +394,26 @@ class Entity:
         self._payload._rmattr(key)
         return self
 
+    def anchor(self):
+        self._anchored = True
+        return self
+
+    def unanchor(self):
+        self._anchored = False
+        return self
+
     def prop(
         self,
         name: str,
         value: Any,
         *,  # keyword-only arguments after this
+        nested: bool = False,
         unitcode: str = None,
         observedat: Union[str, datetime] = None,
         datasetid: str = None,
         userdata: NgsiDict = NgsiDict(),
         escape: bool = False,
-    ) -> NgsiDict:
+    ) -> Entity:
         """Build a Property.
 
         Build a property and attach it to the current entity.
@@ -458,12 +469,24 @@ class Entity:
             }
         }
         """
-        self._payload.prop(
-            name, value, unitcode, observedat, datasetid, userdata, escape
-        )
-        return self._payload[name]
 
-    def gprop(self, name: str, value: Any):  # TODO : restrict value type
+        nested |= self._anchored
+
+        if nested and self._lastprop is not None:
+            # update _lastprop only if not anchored
+            p = self._lastprop.prop(
+                name, value, unitcode, observedat, datasetid, userdata, escape
+            )
+            if not self._anchored:
+                self._lastprop = p
+        else:
+            self._lastprop = self._payload.prop(
+                name, value, unitcode, observedat, datasetid, userdata, escape
+            )
+
+        return self
+
+    def gprop(self, name: str, value: Any, *, nested: bool = False) -> Entity:  # TODO : restrict value type
         """Build a GeoProperty.
 
         Build a GeoProperty and attach it to the current entity.
@@ -488,14 +511,36 @@ class Entity:
         """
         if value is None:
             raise AttributeError("missing value")
-        self._payload.gprop(name, value)
-        return self._payload[name]
+
+        nested |= self._anchored
+
+        if nested and self._lastprop is not None:
+            # update _lastprop only if not anchored
+            p = self._lastprop.gprop(name, value)
+            if not self._anchored:
+                self._lastprop = p
+        else:
+            self._lastprop = self._payload.gprop(name, value)
+
+        return self
 
     loc = partialmethod(gprop, "location")
 
-    def tprop(self, name: str, value: Any = iso8601.utcnow()):  # TODO : restrict types
-        self._payload.tprop(name, value)
-        return self._payload[name]
+    def tprop(
+        self, name: str, value: Any = iso8601.utcnow(), *, nested: bool = False
+    ) -> Entity:  # TODO : restrict types
+
+        nested |= self._anchored
+
+        if nested and self._lastprop is not None:
+            # update _lastprop only if not anchored
+            p = self._lastprop.tprop(name, value)
+            if not self._anchored:
+                self._lastprop = p
+        else:
+            self._lastprop = self._payload.tprop(name, value)
+
+        return self
 
     obs = partialmethod(tprop, "dateObserved")
 
@@ -504,13 +549,24 @@ class Entity:
         name: Union[str, PredefinedRelationship],
         value: str,
         *,
+        nested: bool = False,
         observedat: Union[str, datetime] = None,
         userdata: NgsiDict = NgsiDict(),
-    ):
+    ) -> Entity:
         if isinstance(name, Enum):
             name = name.value
-        self._payload.rel(name, value, observedat, userdata)
-        return self._payload[name]
+
+        nested |= self._anchored
+
+        if nested and self._lastprop is not None:
+            # update _lastprop only if not anchored
+            p = self._lastprop.rel(name, value, observedat, userdata)
+            if not self._anchored:
+                self._lastprop = p
+        else:
+            self._lastprop = self._payload.rel(name, value, observedat, userdata)
+
+        return self
 
     rel_haspart = partialmethod(rel, PredefinedRelationship.HAS_PART)
     rel_hasdirectpart = partialmethod(rel, PredefinedRelationship.HAS_DIRECT_PART)
