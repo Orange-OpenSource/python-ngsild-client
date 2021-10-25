@@ -341,8 +341,8 @@ class Entity:
                 d = json.load(fp)
         return cls.from_dict(d)
 
-    @staticmethod
-    def duplicate(entity: Entity) -> Entity:
+    @classmethod
+    def duplicate(cls, entity: Entity) -> Entity:
         """Duplicate a given entity.
 
         Parameters
