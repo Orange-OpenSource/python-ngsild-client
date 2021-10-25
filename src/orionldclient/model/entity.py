@@ -26,9 +26,8 @@ from typing import overload, Any, Union, Optional
 
 from .exceptions import *
 from .constants import *
-from .attribute import *
 from .ngsidict import NgsiDict
-from orionldclient.utils import url
+from orionldclient.utils import iso8601, url
 from orionldclient.utils.urn import Urn
 
 logger = logging.getLogger(__name__)
@@ -86,8 +85,6 @@ class Entity:
         The type is missing
     NgsiMissingContextError
         The context is missing
-    AttributeError
-        A problem occured when building an attribute (either Property, Temporal Property, Geo Property, Relationship)
 
     See Also
     --------
@@ -288,6 +285,7 @@ class Entity:
         )
         self._lastprop: NgsiDict = None
         self._anchored: bool = False
+        self._cached_datetime: datetime = None
 
     @classmethod
     def from_dict(cls, payload: dict):
@@ -503,15 +501,7 @@ class Entity:
         -------
         NgsiDict
             A dictionary containing the property (without the property name)
-
-        Raises
-        ------
-        AttributeError
-            [description]
         """
-        if value is None:
-            raise AttributeError("missing value")
-
         nested |= self._anchored
 
         if nested and self._lastprop is not None:

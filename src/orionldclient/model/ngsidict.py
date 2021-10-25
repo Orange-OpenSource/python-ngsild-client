@@ -11,8 +11,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
-from typing import Protocol, Any
+
+from typing import Protocol, Any, Union
 from functools import reduce
+from datetime import datetime
+from geojson import Point, LineString, Polygon
+
+from ..utils import iso8601, url
+from ..utils.urn import Urn
+from .constants import *
+from .exceptions import *
 
 import json
 import operator
@@ -96,25 +104,98 @@ class NgsiDict(dict, NgsiFormatter):
             json.dump(self, fp, default=str, ensure_ascii=False, indent=indent)
 
     def prop(self, name, *args, **kwargs):
-        from .attribute import build_property
-
-        self[name] = build_property(*args, **kwargs)
+        self[name] = self._build_property(*args, **kwargs)
         return self[name]
 
     def gprop(self, name, *args, **kwargs):
-        from .attribute import build_geoproperty
-
-        self[name] = build_geoproperty(*args, **kwargs)
+        self[name] = self._build_geoproperty(*args, **kwargs)
         return self[name]
 
     def tprop(self, name, *args, **kwargs):
-        from .attribute import build_temporal_property
-
-        self[name] = build_temporal_property(*args, **kwargs)
+        self[name] = self._build_temporal_property(*args, **kwargs)
         return self[name]
 
     def rel(self, name, *args, **kwargs):
-        from .attribute import build_relationship
-
-        self[name] = build_relationship(*args, **kwargs)
+        self[name] = self._build_relationship(*args, **kwargs)
         return self[name]
+
+    def _build_property(
+        self,
+        value: Any,
+        unitcode: str = None,
+        observedat: Union[str, datetime] = None,
+        datasetid: str = None,
+        userdata: NgsiDict = None,
+        escape: bool = False,
+    ) -> NgsiDict:
+        property: NgsiDict = NgsiDict()
+        property["type"] = AttrType.PROP.value  # set type
+        if isinstance(value, (int, float, bool, list, dict)):
+            v = value
+        elif isinstance(value, str):
+            v = url.escape(value) if escape else value
+        else:
+            raise NgsiUnmatchedAttributeTypeError(
+                f"Cannot map {type(value)} to NGSI type. {value=}"
+            )
+        property["value"] = v  # set value
+        if unitcode is not None:
+            property[META_ATTR_UNITCODE] = unitcode
+        if observedat is not None:
+            date_str, temporaltype = iso8601.parse(observedat)
+            if temporaltype != TemporalType.DATETIME:
+                raise NgsiDateFormatError(f"observedAt must be a DateTime : {date_str}")
+            property[META_ATTR_OBSERVED_AT] = date_str
+        if datasetid is not None:
+            property[META_ATTR_DATASET_ID] = Urn.prefix(datasetid)
+        if userdata:
+            property |= userdata
+        return property
+
+    def _build_geoproperty(self, value: Any) -> NgsiDict:  # TODO => restrict value type
+        property: NgsiDict = NgsiDict()
+        property["type"] = AttrType.GEO.value  # set type
+        if isinstance(value, (Point, LineString, Polygon)):
+            geometry = value
+        elif (
+            isinstance(value, tuple) and len(value) == 2
+        ):  # simple way for a location Point
+            lat, lon = value
+            geometry = Point((lon, lat))
+        else:
+            raise NgsiUnmatchedAttributeTypeError(
+                f"Cannot map {type(value)} to NGSI type. {value=}"
+            )
+        property["value"] = geometry  # set value
+        return property
+
+    def _build_temporal_property(
+        self, value: Any
+    ) -> NgsiDict:  # TODO => restrict value type
+        property: NgsiDict = NgsiDict()
+        property["type"] = AttrType.TEMPORAL.value  # set type
+        date_str, temporaltype = iso8601.parse(value)
+        v = {
+            "@type": temporaltype.value,
+            "@value": date_str,
+        }
+        property["value"] = v  # set value
+        return property
+
+    def _build_relationship(
+        self,
+        value: str,
+        observedat: Union[str, datetime] = None,
+        userdata: NgsiDict = None,
+    ) -> NgsiDict:
+        property: NgsiDict = NgsiDict()
+        property["type"] = AttrType.REL.value  # set type
+        property["object"] = Urn.prefix(value)  # set value
+        if observedat is not None:
+            date_str, temporaltype = iso8601.parse(observedat)
+            if temporaltype != TemporalType.DATETIME:
+                raise NgsiDateFormatError(f"observedAt must be a DateTime : {date_str}")
+            property[META_ATTR_OBSERVED_AT] = date_str
+        if userdata:
+            property |= userdata
+        return property
