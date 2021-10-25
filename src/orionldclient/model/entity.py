@@ -519,7 +519,7 @@ class Entity:
     def __eq__(self, other):
         if other.__class__ is not self.__class__:
             return NotImplemented
-        return self.type == other.type and self.id == other.id
+        return self._payload == other._payload
 
     def __repr__(self):
         return self._payload.__repr__()
