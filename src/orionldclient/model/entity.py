@@ -388,8 +388,8 @@ class Entity:
     def __setitem__(self, key, item):
         self._payload._setattr(key, item)
 
-    def rm(self, item):
-        self._payload._rmattr(item)
+    def __delitem__(self, key):
+        self._payload._rmattr(key)
         return self
 
     def prop(
@@ -463,7 +463,7 @@ class Entity:
         )
         return self._payload[name]
 
-    def gprop(self, name: str, value: Any):
+    def gprop(self, name: str, value: Any):  # TODO : restrict value type
         """Build a GeoProperty.
 
         Build a GeoProperty and attach it to the current entity.
@@ -485,7 +485,7 @@ class Entity:
         ------
         AttributeError
             [description]
-        """        
+        """
         if value is None:
             raise AttributeError("missing value")
         self._payload.gprop(name, value)
@@ -493,9 +493,11 @@ class Entity:
 
     loc = partialmethod(gprop, "location")
 
-    def tprop(self, name: str, value: Any):
+    def tprop(self, name: str, value: Any = iso8601.utcnow()):  # TODO : restrict types
         self._payload.tprop(name, value)
         return self._payload[name]
+
+    obs = partialmethod(tprop, "dateObserved")
 
     def rel(
         self,

@@ -54,7 +54,7 @@ def build_property(
     return property
 
 
-def build_geoproperty(value: Any) -> NgsiDict:
+def build_geoproperty(value: Any) -> NgsiDict: # TODO => restrict value type
     property: NgsiDict = NgsiDict()
     property["type"] = AttrType.GEO.value  # set type
     if isinstance(value, (Point, LineString, Polygon)):
@@ -72,7 +72,7 @@ def build_geoproperty(value: Any) -> NgsiDict:
     return property
 
 
-def build_temporal_property(value: Any) -> NgsiDict:
+def build_temporal_property(value: Any) -> NgsiDict: # TODO => restrict value type
     property: NgsiDict = NgsiDict()
     property["type"] = AttrType.TEMPORAL.value  # set type
     date_str, temporaltype = iso8601.parse(value)
