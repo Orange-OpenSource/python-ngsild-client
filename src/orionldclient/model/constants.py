@@ -18,6 +18,8 @@ from typing import Union
 from datetime import datetime, date, time
 from geojson import Point, LineString, Polygon
 
+from ..utils.sentinel import Sentinel
+
 NgsiLocation = Union[tuple[int, int], Point]
 """A user type : either a tuple of two ints (lat, lon) or a GeoJson Point.
 """
@@ -38,6 +40,10 @@ META_ATTR_CONTEXT = "@context"
 META_ATTR_UNITCODE = "unitCode"
 META_ATTR_OBSERVED_AT = "observedAt"
 META_ATTR_DATASET_ID = "datasetId"
+
+
+class Auto(Sentinel):
+    pass
 
 
 class PredefinedRelationship(Enum):

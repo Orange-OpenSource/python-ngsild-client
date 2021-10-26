@@ -241,7 +241,6 @@ class Entity:
         payload: dict = None,
         autoprefix: Optional[bool] = None,
     ):
-
         logger.debug(f"{arg1=} {arg2=}")
 
         if autoprefix is None:
@@ -482,7 +481,7 @@ class Entity:
         self._update_entity(name, property, nested)
         return self
 
-    def gprop(self, name: str, value: Any, *, nested: bool = False) -> Entity:  # TODO : restrict value type
+    def gprop(self, name: str, value: NgsiGeometry, *, nested: bool = False) -> Entity:
         """Build a GeoProperty.
 
         Build a GeoProperty and attach it to the current entity.

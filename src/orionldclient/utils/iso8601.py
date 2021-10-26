@@ -114,7 +114,7 @@ def from_time(value: time) -> str:
     return value.strftime("%H:%M:%SZ")
 
 
-def _from_string(value: str) -> tuple[str, TemporalType]:
+def _from_string(value: str) -> tuple[str, TemporalType, datetime]:
     """Guess the temporal date type from a given string.
 
     This function should not be called by the end user. It is used internally by the `parse()` function.
@@ -142,18 +142,18 @@ def _from_string(value: str) -> tuple[str, TemporalType]:
     """
     with suppress(ValueError):
         if len(value) == 20:
-            datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
-            return value, TemporalType.DATETIME
+            dt = datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+            return value, TemporalType.DATETIME, dt
         elif len(value) == 10:
             datetime.strptime(value, "%Y-%m-%d")
-            return value, TemporalType.DATE
+            return value, TemporalType.DATE, None
         elif len(value) == 9:
             datetime.strptime(value, "%H:%M:%SZ")
-            return value, TemporalType.TIME
+            return value, TemporalType.TIME, None
     raise ValueError(f"Bad date format : {value}")
 
 
-def parse(value: Union[datetime, date, time, str]) -> tuple[str, TemporalType]:
+def parse(value: Union[datetime, date, time, str]) -> tuple[str, TemporalType, datetime]:
     """Guess the temporal date type from a given argument carrying a temporal information.
 
     This function is typically used to build a NGSI-LD Temporal Property or temporal metadata such as `observedAt`.
@@ -185,11 +185,11 @@ def parse(value: Union[datetime, date, time, str]) -> tuple[str, TemporalType]:
     ('2021-10-13', <TemporalType.DATE: 'Date'>)
     """
     if isinstance(value, datetime):
-        return from_datetime(value), TemporalType.DATETIME
+        return from_datetime(value), TemporalType.DATETIME, value
     if isinstance(value, date):
-        return from_date(value), TemporalType.DATE
+        return from_date(value), TemporalType.DATE, None
     if isinstance(value, time):
-        return from_time(value), TemporalType.TIME
+        return from_time(value), TemporalType.TIME, None
     if isinstance(value, str):
         return _from_string(value)
     raise ValueError(f"Bad date format : {value}")

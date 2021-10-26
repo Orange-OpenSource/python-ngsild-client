@@ -27,10 +27,22 @@ import operator
 
 
 class NgsiDict(dict):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._dtcached: datetime = None
+
     @classmethod
     def _from_json(cls, payload: str):
         d = json.loads(payload)
         return cls(d)
+
+    def cachedate(self, dt: datetime):
+        self._dtcached = dt
+
+    def dateauto(self):
+        if self._dtcached is None:
+            self._dtcached = iso8601.utcnow()
+        return self._dtcached
 
     def _attr(self, element: str):
         return reduce(operator.getitem, element.split("."), self)
@@ -69,11 +81,20 @@ class NgsiDict(dict):
         with open(filename, "w") as fp:
             json.dump(self, fp, default=str, ensure_ascii=False, indent=indent)
 
+    def _process_observedat(self, observedat):
+        if observedat is Auto:
+            observedat = self.dateauto()
+        date_str, temporaltype, dt = iso8601.parse(observedat)
+        if temporaltype != TemporalType.DATETIME:
+            raise NgsiDateFormatError(f"observedAt must be a DateTime : {date_str}")
+        self.cachedate(dt)
+        return date_str
+
     def build_property(
         self,
         value: Any,
         unitcode: str = None,
-        observedat: Union[str, datetime] = None,
+        observedat: Union[str, datetime, type[Auto]] = None,
         datasetid: str = None,
         userdata: NgsiDict = None,
         escape: bool = False,
@@ -92,17 +113,16 @@ class NgsiDict(dict):
         if unitcode is not None:
             property[META_ATTR_UNITCODE] = unitcode
         if observedat is not None:
-            date_str, temporaltype = iso8601.parse(observedat)
-            if temporaltype != TemporalType.DATETIME:
-                raise NgsiDateFormatError(f"observedAt must be a DateTime : {date_str}")
-            property[META_ATTR_OBSERVED_AT] = date_str
+            property[META_ATTR_OBSERVED_AT] = self._process_observedat(observedat)
         if datasetid is not None:
             property[META_ATTR_DATASET_ID] = Urn.prefix(datasetid)
         if userdata:
             property |= userdata
         return property
 
-    def build_geoproperty(self, value: NgsiGeometry) -> NgsiDict:
+    def build_geoproperty(
+        self, value: NgsiGeometry, observedat: Union[str, datetime, type[Auto]] = None
+    ) -> NgsiDict:
         property: NgsiDict = NgsiDict()
         property["type"] = AttrType.GEO.value  # set type
         if isinstance(value, (Point, LineString, Polygon)):
@@ -117,35 +137,33 @@ class NgsiDict(dict):
                 f"Cannot map {type(value)} to NGSI type. {value=}"
             )
         property["value"] = geometry  # set value
+        if observedat is not None:
+            property[META_ATTR_OBSERVED_AT] = self._process_observedat(observedat)
         return property
 
-    def build_temporal_property(
-        self, value: NgsiDateType
-    ) -> NgsiDict:  # TODO => restrict value type
+    def build_temporal_property(self, value: NgsiDate) -> NgsiDict:
         property: NgsiDict = NgsiDict()
         property["type"] = AttrType.TEMPORAL.value  # set type
-        date_str, temporaltype = iso8601.parse(value)
+        date_str, temporaltype, dt = iso8601.parse(value)
         v = {
             "@type": temporaltype.value,
             "@value": date_str,
         }
         property["value"] = v  # set value
+        self.cachedate(dt)
         return property
 
     def build_relationship(
         self,
         value: str,
-        observedat: Union[str, datetime] = None,
+        observedat: Union[str, datetime, type[Auto]] = None,
         userdata: NgsiDict = None,
     ) -> NgsiDict:
         property: NgsiDict = NgsiDict()
         property["type"] = AttrType.REL.value  # set type
         property["object"] = Urn.prefix(value)  # set value
         if observedat is not None:
-            date_str, temporaltype = iso8601.parse(observedat)
-            if temporaltype != TemporalType.DATETIME:
-                raise NgsiDateFormatError(f"observedAt must be a DateTime : {date_str}")
-            property[META_ATTR_OBSERVED_AT] = date_str
+            property[META_ATTR_OBSERVED_AT] = self._process_observedat(observedat)
         if userdata:
             property |= userdata
         return property
