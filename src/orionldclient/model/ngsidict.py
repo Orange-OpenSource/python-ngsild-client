@@ -141,9 +141,13 @@ class NgsiDict(dict):
             property[META_ATTR_OBSERVED_AT] = self._process_observedat(observedat)
         return property
 
-    def build_temporal_property(self, value: NgsiDate) -> NgsiDict:
+    def build_temporal_property(self, value: Union[NgsiDate, type[Auto]]) -> NgsiDict:
         property: NgsiDict = NgsiDict()
         property["type"] = AttrType.TEMPORAL.value  # set type
+
+        if value is Auto:
+            value = self.dateauto()
+
         date_str, temporaltype, dt = iso8601.parse(value)
         v = {
             "@type": temporaltype.value,
