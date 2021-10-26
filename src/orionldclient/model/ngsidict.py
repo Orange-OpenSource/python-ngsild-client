@@ -26,41 +26,7 @@ import json
 import operator
 
 
-class NgsiFormatter(Protocol):
-
-    # helper methods to build attributes
-
-    def prop(self, *args, **kwargs) -> NgsiFormatter:
-        ...
-
-    def gprop(self, *args, **kwargs) -> NgsiFormatter:
-        ...
-
-    def tprop(self, *args, **kwargs) -> NgsiFormatter:
-        ...
-
-    def rel(self, *args, **kwargs) -> NgsiFormatter:
-        ...
-
-    # helper methods to read and write
-
-    def _from_json(self, payload: str) -> NgsiFormatter:
-        ...
-
-    def _load(self, payload: str) -> NgsiFormatter:
-        ...
-
-    def to_json(self, *args, **kwargs) -> str:
-        ...
-
-    def pprint(self) -> None:
-        ...
-
-    def _save(self, filename: str) -> None:
-        ...
-
-
-class NgsiDict(dict, NgsiFormatter):
+class NgsiDict(dict):
     @classmethod
     def _from_json(cls, payload: str):
         d = json.loads(payload)
@@ -118,11 +84,11 @@ class NgsiDict(dict, NgsiFormatter):
         )
         return self[name]
 
-    def gprop(self, name: str, value: NgsiGeoType):
+    def gprop(self, name: str, value: NgsiGeometry):
         self[name] = self._build_geoproperty(value)
         return self[name]
 
-    def tprop(self, name: str, value: NgsiDateType):
+    def tprop(self, name: str, value: NgsiDate):
         self[name] = self._build_temporal_property(value)
         return self[name]
 
