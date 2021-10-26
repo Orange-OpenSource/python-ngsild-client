@@ -12,7 +12,7 @@
 
 from __future__ import annotations
 
-from typing import Protocol, Any, Union
+from typing import Any, Union
 from functools import reduce
 from datetime import datetime
 from geojson import Point, LineString, Polygon
@@ -69,40 +69,7 @@ class NgsiDict(dict):
         with open(filename, "w") as fp:
             json.dump(self, fp, default=str, ensure_ascii=False, indent=indent)
 
-    def prop(
-        self,
-        name: str,
-        value: Any,
-        unitcode: str = None,
-        observedat: Union[str, datetime] = None,
-        datasetid: str = None,
-        userdata: NgsiDict = None,
-        escape: bool = False,
-    ):
-        self[name] = self._build_property(
-            value, unitcode, observedat, datasetid, userdata, escape
-        )
-        return self[name]
-
-    def gprop(self, name: str, value: NgsiGeometry):
-        self[name] = self._build_geoproperty(value)
-        return self[name]
-
-    def tprop(self, name: str, value: NgsiDate):
-        self[name] = self._build_temporal_property(value)
-        return self[name]
-
-    def rel(
-        self,
-        name: str,
-        value: str,
-        observedat: Union[str, datetime] = None,
-        userdata: NgsiDict = None,
-    ):
-        self[name] = self._build_relationship(value, observedat, userdata)
-        return self[name]
-
-    def _build_property(
+    def build_property(
         self,
         value: Any,
         unitcode: str = None,
@@ -135,7 +102,7 @@ class NgsiDict(dict):
             property |= userdata
         return property
 
-    def _build_geoproperty(self, value: NgsiGeoType) -> NgsiDict:
+    def build_geoproperty(self, value: NgsiGeometry) -> NgsiDict:
         property: NgsiDict = NgsiDict()
         property["type"] = AttrType.GEO.value  # set type
         if isinstance(value, (Point, LineString, Polygon)):
@@ -152,7 +119,7 @@ class NgsiDict(dict):
         property["value"] = geometry  # set value
         return property
 
-    def _build_temporal_property(
+    def build_temporal_property(
         self, value: NgsiDateType
     ) -> NgsiDict:  # TODO => restrict value type
         property: NgsiDict = NgsiDict()
@@ -165,7 +132,7 @@ class NgsiDict(dict):
         property["value"] = v  # set value
         return property
 
-    def _build_relationship(
+    def build_relationship(
         self,
         value: str,
         observedat: Union[str, datetime] = None,

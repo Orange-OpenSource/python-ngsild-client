@@ -13,7 +13,6 @@
 from __future__ import annotations
 
 import json
-import typing
 import requests
 import logging
 
@@ -400,6 +399,16 @@ class Entity:
         self._anchored = False
         return self
 
+    def _update_entity(self, attrname: str, property: NgsiDict, nested: bool = False):
+        nested |= self._anchored
+        if nested and self._lastprop is not None:
+            # update _lastprop only if not anchored
+            self._lastprop[attrname] = property
+            if not self._anchored:
+                self._lastprop = property
+        else:
+            self._lastprop = self._payload[attrname] = property
+
     def prop(
         self,
         name: str,
@@ -467,21 +476,10 @@ class Entity:
             }
         }
         """
-
-        nested |= self._anchored
-
-        if nested and self._lastprop is not None:
-            # update _lastprop only if not anchored
-            p = self._lastprop.prop(
-                name, value, unitcode, observedat, datasetid, userdata, escape
-            )
-            if not self._anchored:
-                self._lastprop = p
-        else:
-            self._lastprop = self._payload.prop(
-                name, value, unitcode, observedat, datasetid, userdata, escape
-            )
-
+        property = self._payload.build_property(
+            value, unitcode, observedat, datasetid, userdata, escape
+        )
+        self._update_entity(name, property, nested)
         return self
 
     def gprop(self, name: str, value: Any, *, nested: bool = False) -> Entity:  # TODO : restrict value type
@@ -502,34 +500,17 @@ class Entity:
         NgsiDict
             A dictionary containing the property (without the property name)
         """
-        nested |= self._anchored
-
-        if nested and self._lastprop is not None:
-            # update _lastprop only if not anchored
-            p = self._lastprop.gprop(name, value)
-            if not self._anchored:
-                self._lastprop = p
-        else:
-            self._lastprop = self._payload.gprop(name, value)
-
+        property = self._payload.build_geoproperty(value)
+        self._update_entity(name, property, nested)
         return self
 
     loc = partialmethod(gprop, "location")
 
     def tprop(
-        self, name: str, value: Any = iso8601.utcnow(), *, nested: bool = False
-    ) -> Entity:  # TODO : restrict types
-
-        nested |= self._anchored
-
-        if nested and self._lastprop is not None:
-            # update _lastprop only if not anchored
-            p = self._lastprop.tprop(name, value)
-            if not self._anchored:
-                self._lastprop = p
-        else:
-            self._lastprop = self._payload.tprop(name, value)
-
+        self, name: str, value: NgsiGeometry = iso8601.utcnow(), *, nested: bool = False
+    ) -> Entity:
+        property = self._payload.build_temporal_property(value)
+        self._update_entity(name, property, nested)
         return self
 
     obs = partialmethod(tprop, "dateObserved")
@@ -546,16 +527,8 @@ class Entity:
         if isinstance(name, Enum):
             name = name.value
 
-        nested |= self._anchored
-
-        if nested and self._lastprop is not None:
-            # update _lastprop only if not anchored
-            p = self._lastprop.rel(name, value, observedat, userdata)
-            if not self._anchored:
-                self._lastprop = p
-        else:
-            self._lastprop = self._payload.rel(name, value, observedat, userdata)
-
+        property = self._payload.build_relationship(value, observedat, userdata)
+        self._update_entity(name, property, nested)
         return self
 
     rel_haspart = partialmethod(rel, PredefinedRelationship.HAS_PART)
