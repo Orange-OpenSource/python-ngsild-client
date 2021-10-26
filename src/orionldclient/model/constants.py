@@ -14,7 +14,21 @@
 """
 
 from enum import Enum
+from typing import Union
+from datetime import datetime, date, time
+from geojson import Point, LineString, Polygon
 
+NgsiLocation = Union[tuple[int, int], Point]
+"""A user type : either a tuple of two ints (lat, lon) or a GeoJson Point.
+"""
+
+NgsiGeometry = Union[NgsiLocation, LineString, Polygon]
+"""A user type : Valid Geometries types for a NGSI-LD GeoProperty.
+"""
+
+NgsiDate = Union[str, datetime, date, time]
+"""A user type : Valid Date types for a NGSI-LD TemporalProperty.
+"""
 
 CORE_CONTEXT = "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
 """The default NGSI-LD Core Context. Automatically set at entity creation time if no context is provided.

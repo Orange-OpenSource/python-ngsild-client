@@ -131,7 +131,7 @@ class Client:
         self.session.close()
 
     # facade method for Entities.create()
-    def create(self, entity: Entity) -> EntityId:
+    def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> Entity:
         return self.entities.create(entity)
 
     def _broker_version_orionld(self) -> Optional[str]:

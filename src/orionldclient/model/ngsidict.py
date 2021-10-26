@@ -103,20 +103,37 @@ class NgsiDict(dict, NgsiFormatter):
         with open(filename, "w") as fp:
             json.dump(self, fp, default=str, ensure_ascii=False, indent=indent)
 
-    def prop(self, name, *args, **kwargs):
-        self[name] = self._build_property(*args, **kwargs)
+    def prop(
+        self,
+        name: str,
+        value: Any,
+        unitcode: str = None,
+        observedat: Union[str, datetime] = None,
+        datasetid: str = None,
+        userdata: NgsiDict = None,
+        escape: bool = False,
+    ):
+        self[name] = self._build_property(
+            value, unitcode, observedat, datasetid, userdata, escape
+        )
         return self[name]
 
-    def gprop(self, name, *args, **kwargs):
-        self[name] = self._build_geoproperty(*args, **kwargs)
+    def gprop(self, name: str, value: NgsiGeoType):
+        self[name] = self._build_geoproperty(value)
         return self[name]
 
-    def tprop(self, name, *args, **kwargs):
-        self[name] = self._build_temporal_property(*args, **kwargs)
+    def tprop(self, name: str, value: NgsiDateType):
+        self[name] = self._build_temporal_property(value)
         return self[name]
 
-    def rel(self, name, *args, **kwargs):
-        self[name] = self._build_relationship(*args, **kwargs)
+    def rel(
+        self,
+        name: str,
+        value: str,
+        observedat: Union[str, datetime] = None,
+        userdata: NgsiDict = None,
+    ):
+        self[name] = self._build_relationship(value, observedat, userdata)
         return self[name]
 
     def _build_property(
@@ -152,7 +169,7 @@ class NgsiDict(dict, NgsiFormatter):
             property |= userdata
         return property
 
-    def _build_geoproperty(self, value: Any) -> NgsiDict:  # TODO => restrict value type
+    def _build_geoproperty(self, value: NgsiGeoType) -> NgsiDict:
         property: NgsiDict = NgsiDict()
         property["type"] = AttrType.GEO.value  # set type
         if isinstance(value, (Point, LineString, Polygon)):
@@ -170,7 +187,7 @@ class NgsiDict(dict, NgsiFormatter):
         return property
 
     def _build_temporal_property(
-        self, value: Any
+        self, value: NgsiDateType
     ) -> NgsiDict:  # TODO => restrict value type
         property: NgsiDict = NgsiDict()
         property["type"] = AttrType.TEMPORAL.value  # set type
