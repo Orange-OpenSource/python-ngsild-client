@@ -131,8 +131,32 @@ class Client:
         self.session.close()
 
     # facade method for Entities.create()
-    def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> Entity:
+    def create(
+        self, entity: Entity, skip: bool = False, overwrite: bool = False
+    ) -> Entity:
         return self.entities.create(entity)
+
+    # facade method for Entities.retrieve()
+    def retrieve(
+        self, eid: Union[EntityId, Entity], asdict: bool = False, **kwargs
+    ) -> Entity:
+        return self.entities.retrieve(eid)
+
+    # facade method for Entities.delete()
+    def delete(self, eid: Union[EntityId, Entity]) -> bool:
+        return self.entities.delete(eid)
+
+    # facade method for Entities.exists()
+    def exists(self, eid: Union[EntityId, Entity]) -> bool:
+        return self.entities.exists(eid)
+
+    # facade method for Entities.upsert()
+    def upsert(self, entity: Entity) -> Entity:
+        return self.entities.upsert(entity)
+
+    # facade method for Entities.update()
+    def update(self, entity: Entity) -> Optional[Entity]:
+        return self.entities.update(entity)
 
     def _broker_version_orionld(self) -> Optional[str]:
         url = f"{self.url}/version"

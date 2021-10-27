@@ -39,11 +39,19 @@ class Entities:
         self.url = url
 
     @rfc7807_error_handle
-    def create(self, entity: Entity) -> Entity:
+    def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> Optional[Entity]:
+
+        if overwrite:
+            return self.upsert(entity)
+
         r = self._session.post(
             f"{self.url}/",
             entity.to_json(),
         )
+
+        if skip and r.status_code == 409: # Skip if already exisys
+            return None
+
         self._client.raise_for_status(r)
         location = r.headers.get("Location")
         if location is None:
