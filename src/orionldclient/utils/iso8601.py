@@ -24,11 +24,15 @@ References
     ETSI GS CIM 009 V1.4.2, pp. 41-42, 2021-04.
 """
 
-from typing import Union
+import re
+
+from typing import Union, Optional
 from datetime import datetime, date, time
 from contextlib import suppress
 
 from orionldclient.model.constants import TemporalType
+
+ISO8601_PATTERN = re.compile("\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
 
 
 def from_datetime(value: datetime) -> str:
@@ -153,7 +157,9 @@ def _from_string(value: str) -> tuple[str, TemporalType, datetime]:
     raise ValueError(f"Bad date format : {value}")
 
 
-def parse(value: Union[datetime, date, time, str]) -> tuple[str, TemporalType, datetime]:
+def parse(
+    value: Union[datetime, date, time, str]
+) -> tuple[str, TemporalType, datetime]:
     """Guess the temporal date type from a given argument carrying a temporal information.
 
     This function is typically used to build a NGSI-LD Temporal Property or temporal metadata such as `observedAt`.
@@ -193,3 +199,31 @@ def parse(value: Union[datetime, date, time, str]) -> tuple[str, TemporalType, d
     if isinstance(value, str):
         return _from_string(value)
     raise ValueError(f"Bad date format : {value}")
+
+
+def extract(value: str) -> Optional[datetime]:
+    """Extract an ISO8601 datetime string from the input string.
+
+    Parameters
+    ----------
+    value : str
+        the input string
+
+    Returns
+    -------
+    datetime
+        the extracted datetime if found, else None
+
+    Examples
+    --------
+    >>> from orionldclient.utils import iso8601
+    >>> iso8601.extract("urn:ngsi-ld:WeatherObserved:Spain-WeatherObserved-Valladolid-2016-11-30T07:00:00Z")
+    datetime.datetime(2016, 11, 30, 7, 0)
+    """
+    dates = ISO8601_PATTERN.findall(value)
+    if len(dates) < 1:
+        return None
+    try:
+        return datetime.strptime(dates[-1], "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        return None

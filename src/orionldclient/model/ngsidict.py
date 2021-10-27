@@ -27,9 +27,9 @@ import operator
 
 
 class NgsiDict(dict):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, dtcached: datetime = None, **kwargs):
         super().__init__(*args, **kwargs)
-        self._dtcached: datetime = None
+        self._dtcached: datetime = dtcached if dtcached else iso8601.utcnow()
 
     @classmethod
     def _from_json(cls, payload: str):

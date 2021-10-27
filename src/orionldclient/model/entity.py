@@ -263,6 +263,8 @@ class Entity:
         else:
             type, id = None, arg1
 
+        dt = iso8601.extract(id)
+
         if type is None:  # try to infer type from the fully qualified identifier
             id = Urn.prefix(id)
             urn = Urn(id)
@@ -279,11 +281,11 @@ class Entity:
             urn = Urn(id)
 
         self._payload: NgsiDict = NgsiDict(
-            {"@context": ctx, "id": urn.fqn, "type": type}
+            {"@context": ctx, "id": urn.fqn, "type": type},
+            dtcached=dt if dt else iso8601.utcnow(),
         )
         self._lastprop: NgsiDict = None
         self._anchored: bool = False
-        self._cached_datetime: datetime = None
 
     @classmethod
     def from_dict(cls, payload: dict):
@@ -506,8 +508,10 @@ class Entity:
     loc = partialmethod(gprop, "location")
 
     def tprop(
-        self, name: str, value: NgsiGeometry = iso8601.utcnow(), *, nested: bool = False
+        self, name: str, value: NgsiDate = None, *, nested: bool = False
     ) -> Entity:
+        if value is None:
+            value = self._payload._dtcached
         property = self._payload.build_temporal_property(value)
         self._update_entity(name, property, nested)
         return self

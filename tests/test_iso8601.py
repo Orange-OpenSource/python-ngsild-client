@@ -34,7 +34,7 @@ def test_from_time():
 
 def test_parse_datetime():
     d = "2021-09-17T09:25:00Z"
-    assert iso8601.parse(d) == (d, TemporalType.DATETIME, datetime(2021,9,17,9,25))
+    assert iso8601.parse(d) == (d, TemporalType.DATETIME, datetime(2021, 9, 17, 9, 25))
 
 
 def test_parse_date():
@@ -57,3 +57,17 @@ def test_parse_bad_format_wrong_date():
     d = "2021-13-17T09:25:00Z"
     with pytest.raises(ValueError):
         iso8601.parse(d)
+
+
+def test_extract_datetime():
+    dt = iso8601.extract(
+        "urn:ngsi-ld:WeatherObserved:Spain-WeatherObserved-Valladolid-2016-11-30T07:00:00Z"
+    )
+    assert dt == datetime(2016, 11, 30, 7, 0)
+
+
+def test_extract_datetime_not_found():
+    dt = iso8601.extract(
+        "urn:ngsi-ld:WeatherObserved:Spain-WeatherObserved-Valladolid-2016-13-30T07:00:00Z"
+    )
+    assert dt is None

@@ -19,6 +19,8 @@ from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 from random import triangular, gauss
 
+from orionldclient.model.constants import Auto
+
 from .walker import RandomWalker, shortuuid
 from ..model.entity import Entity
 
@@ -34,13 +36,13 @@ class RoomSensorObserved:
     humidity: float
 
     def _to_ngsild(self) -> Entity:
-        room: Entity = Entity(
-            f"urn:ngsi-ld:Building:{self.building}:RoomSensorObserved:Room{self.number}",
+        room = Entity(
             "Room",
+            f"{self.building}:RoomSensorObserved:Room{self.number}"
         )
         room.tprop("dateObserved", self.ts)
-        room.prop("temperature", self.temperature, observedat=self.ts)
-        room.prop("relativeHumidity", self.humidity, observedat=self.ts)
+        room.prop("temperature", self.temperature, observedat=Auto)
+        room.prop("relativeHumidity", self.humidity, observedat=Auto)
         room.rel("isLocatedIn", self.building)
         return room
 

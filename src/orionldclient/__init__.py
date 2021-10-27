@@ -10,7 +10,7 @@
 # Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
-import http
+import http.client
 import logging
 
 __version__ = "0.1.0"
