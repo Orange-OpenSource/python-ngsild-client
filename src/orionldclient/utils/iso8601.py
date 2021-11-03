@@ -32,7 +32,7 @@ from contextlib import suppress
 
 from orionldclient.model.constants import TemporalType
 
-ISO8601_PATTERN = re.compile("\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
+ISO8601_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
 
 
 def from_datetime(value: datetime) -> str:

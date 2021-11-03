@@ -18,7 +18,7 @@ import urllib.parse
 import re
 
 
-URL_PATTERN = re.compile("^http[s]{0,1}://")
+URL_PATTERN = re.compile(r"^http[s]{0,1}://")
 """Simple regex pattern that matches on strings starting with URL scheme (`regex.Pattern`).
 """
 
