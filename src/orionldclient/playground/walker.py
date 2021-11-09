@@ -7,7 +7,7 @@
 # This software is distributed under the Apache 2.0;
 # see the NOTICE file for more details.
 #
-# Author: Fabien BATTELLO <fabien.battelo@orange.com> et al.
+# Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
 from random import random
