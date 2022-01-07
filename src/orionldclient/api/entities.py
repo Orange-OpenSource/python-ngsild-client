@@ -41,7 +41,7 @@ class Entities:
     @rfc7807_error_handle
     def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> Optional[Entity]:
 
-        if overwrite:
+        if overwrite or self._client.overwrite:
             return self.upsert(entity)
 
         r = self._session.post(
@@ -49,7 +49,7 @@ class Entities:
             entity.to_json(),
         )
 
-        if skip and r.status_code == 409: # Skip if already exisys
+        if skip and r.status_code == 409: # Skip if already exists
             return None
 
         self._client.raise_for_status(r)

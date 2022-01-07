@@ -40,7 +40,7 @@ class Client:
         secure=False,
         useragent=UA,
         tenant=None,
-        upsert=False,
+        overwrite=False,
         ignore_errors=False,
         proxy=None,
     ):
@@ -52,7 +52,7 @@ class Client:
         self.basepath = f"{self.url}/{NGSILD_PATH}"
         self.useragent = useragent
         self.tenant = tenant
-        self.upsert = upsert
+        self.overwrite = overwrite
         self.ignore_errors = ignore_errors
         self.proxy = proxy
 
@@ -99,8 +99,8 @@ class Client:
         except Exception as e:
             if raise_for_disconnected:
                 raise NgsiNotConnectedError(
-                    f"Cannot connect to Context Broker at {self.hostname}:{self.port}"
-                ) from e
+                    f"Cannot connect to Context Broker at {self.hostname}:{self.port}: {e}"
+                )
             else:
                 logger.error(e)
                 return False
