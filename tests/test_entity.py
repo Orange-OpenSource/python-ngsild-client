@@ -266,8 +266,8 @@ def test_parking():
             "http://example.org/ngsi-ld/parking.jsonld",
         ],
     )
-    e.prop("availableSpotNumber", 121, observedat=datetime(2017, 7, 29, 12, 5, 2))
-    e.anchor().prop("reliability", 0.7).rel("providedBy", "Camera:C1").unanchor()
+    e.prop("availableSpotNumber", 121, observedat=datetime(2017, 7, 29, 12, 5, 2)).anchor()
+    e.prop("reliability", 0.7).rel("providedBy", "Camera:C1").unanchor()
     e.prop("totalSpotNumber", 200)
     e.gprop("location", (41.2, -8.5))
     assert e.to_dict() == expected_dict("parking")

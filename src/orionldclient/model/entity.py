@@ -207,7 +207,7 @@ class Entity:
     def __init__(self, id: str, *, ctx: list = [CORE_CONTEXT]):
         """Create a NGSI-LD compliant entity.
 
-        Type is infered from the fully qualified identifier.
+        Type is inferred from the fully qualified identifier.
         Works only if your identifiers follow the naming convention "urn:ngsi-ld:<type>:<remainder>"
 
         Parameters
@@ -393,10 +393,65 @@ class Entity:
         return self
 
     def anchor(self):
+        """Set an anchor.
+
+        Allow to specify that the last property is used as an anchor.
+        Once the anchor property is specified, new properties are attached to the anchor property.
+
+        Parameters
+        ----------
+        entity : Entity
+            The input Entity
+
+        Returns
+        -------
+        Entity
+            The output entity
+
+        Example:
+        --------
+        Here an anchor is set at the "availableSpotNumber" property.
+        Hence the "reliability" and "providedBy" properties are attached to (nested in) the "availableSpotNumber" property.
+        Without anchoring, the "reliability" and "providedBy" properties would apply to the entity's root.
+
+        >>> from orionldclient.model.entity import Entity
+        >>> e = Entity("OffStreetParking", "Downtown1")
+        >>> e.prop("availableSpotNumber", 121, observedat=datetime(2017, 7, 29, 12, 5, 2)).anchor()
+        >>> e.prop("reliability", 0.7).rel("providedBy", "Camera:C1").unanchor()
+        >>> e.pprint()
+        {
+            "@context": [
+                "http://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+                "http://example.org/ngsi-ld/parking.jsonld"
+            ],
+            "id": "urn:ngsi-ld:OffStreetParking:Downtown1",
+            "type": "OffStreetParking",
+            "availableSpotNumber": {
+                "type": "Property",
+                "value": 121,
+                "observedAt": "2017-07-29T12:05:02Z",
+                "reliability": {
+                    "type": "Property",
+                    "value": 0.7
+                },
+                "providedBy": {
+                    "type": "Relationship",
+                    "object": "urn:ngsi-ld:Camera:C1"
+                }
+            }
+        }
+        """
         self._anchored = True
         return self
 
     def unanchor(self):
+        """Remove the anchor.
+
+        See Also
+        --------
+        Entity.anchor()
+        """
+
         self._anchored = False
         return self
 
@@ -425,7 +480,7 @@ class Entity:
         """Build a Property.
 
         Build a property and attach it to the current entity.
-        Returns the newly created property without its name, allowing to chain methods hence build nested properties.
+        One can chain prop(),tprop(), gprop(), rel() methods to build nested properties.
 
         Parameters
         ----------
@@ -444,8 +499,8 @@ class Entity:
 
         Returns
         -------
-        NgsiDict
-            A dictionary containing the property (without the property name)
+        Entity
+            The updated entity
 
         Example:
         --------
@@ -487,29 +542,101 @@ class Entity:
         """Build a GeoProperty.
 
         Build a GeoProperty and attach it to the current entity.
-        Returns the newly created property without its name, allowing to chain methods hence build nested properties.
+        One can chain prop(),tprop(), gprop(), rel() methods to build nested properties.
 
         Parameters
         ----------
         name : str
             the property name
-        value : Any
+        value : NgsiGeometry
             the property value
 
         Returns
         -------
-        NgsiDict
-            A dictionary containing the property (without the property name)
+        Entity
+            The updated entity
+
+        Example:
+        --------
+        >>> from orionldclient.model.entity import Entity
+        >>> e = Entity("PointOfInterest", "RZ:MainSquare")
+        >>> e.prop("description", "Beach of RZ")
+        >>> e.gprop("location", (44, -8))
+        >>> e.pprint()
+        {
+            "@context": [
+                "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+            ],
+            "id": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare",
+            "type": "PointOfInterest",
+            "description": {
+                "type": "Property",
+                "value": "Beach of RZ"
+            },
+            "location": {
+                "type": "GeoProperty",
+                "value": {
+                "type": "Point",
+                "coordinates": [
+                    -8,
+                    44
+                ]
+                }
+            }
+        }
         """
         property = self._payload.build_geoproperty(value)
         self._update_entity(name, property, nested)
         return self
 
     loc = partialmethod(gprop, "location")
+    """ A helper method to set the frequently used "location" geoproperty.
+
+    entity.loc((44, -8)) is a shorcut for entity.gprop("location", (44, -8))
+    """
 
     def tprop(
         self, name: str, value: NgsiDate = None, *, nested: bool = False
     ) -> Entity:
+        """Build a TemporalProperty.
+
+        Build a TemporalProperty and attach it to the current entity.
+        One can chain prop(),tprop(), gprop(), rel() methods to build nested properties.
+
+        Parameters
+        ----------
+        name : str
+            the property name
+        value : NgsiDate
+            the property value, utcnow() if None
+
+        Returns
+        -------
+        Entity
+            The updated entity
+
+        Example:
+        --------
+        >>> from datetime import datetime
+        >>> from orionldclient.model.entity import Entity
+        >>> e = Entity("AirQualityObserved", "RZ:Obsv4567")
+        >>> e.tprop("dateObserved", datetime(2018, 8, 7, 12))
+        >>> e.pprint()
+        {
+            "@context": [
+                "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+            ],
+            "id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+            "type": "AirQualityObserved",
+            "dateObserved": {
+                "type": "Property",
+                "value": {
+                    "@type": "DateTime",
+                    "@value": "2018-08-07T12:00:00Z"
+                }
+            }
+        }
+        """
         if value is None:
             value = self._payload._dtcached
         property = self._payload.build_temporal_property(value)
@@ -517,6 +644,10 @@ class Entity:
         return self
 
     obs = partialmethod(tprop, "dateObserved")
+    """ A helper method to set the frequently used "dateObserved" property.
+
+    entity.obs("2022-01-12T12:54:38Z") is a shorcut for entity.tprop("dateObserved", "2022-01-12T12:54:38Z")
+    """
 
     def rel(
         self,
@@ -527,7 +658,42 @@ class Entity:
         observedat: Union[str, datetime] = None,
         userdata: NgsiDict = NgsiDict(),
     ) -> Entity:
-        if isinstance(name, Enum):
+        """Build a Relationship Property.
+
+        Build a Relationship Property and attach it to the current entity.
+        One can chain prop(),tprop(), gprop(), rel() methods to build nested properties.
+
+        Parameters
+        ----------
+        name : str
+            the property name
+        value : str | PredefinedRelationship
+            the property value
+
+        Returns
+        -------
+        Entity
+            The updated entity
+
+        Example:
+        --------
+        >>> from orionldclient.model.entity import Entity
+        >>> e = Entity("AirQualityObserved", "RZ:Obsv4567")
+        >>> e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
+        >>> e.pprint()
+        {
+            "@context": [
+                "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+            ],
+            "id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+            "type": "AirQualityObserved",
+            "refPointOfInterest": {
+                "type": "Relationship",
+                "object": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare"
+            }
+        }
+        """
+        if isinstance(name, PredefinedRelationship):
             name = name.value
 
         property = self._payload.build_relationship(value, observedat, userdata)
@@ -538,7 +704,7 @@ class Entity:
     rel_hasdirectpart = partialmethod(rel, PredefinedRelationship.HAS_DIRECT_PART)
     rel_iscontainedin = partialmethod(rel, PredefinedRelationship.IS_CONTAINED_IN)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Entity):
         if other.__class__ is not self.__class__:
             return NotImplemented
         return self._payload == other._payload

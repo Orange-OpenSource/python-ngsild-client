@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """
-This module defines the NgsiError Exception that will be used as a base for other exceptions related to NGSI.
+This module defines the NgsiError Exception that will be used as a base for all NGSI exceptions.
 """
 
 
