@@ -16,8 +16,8 @@ from dataclasses import dataclass
 
 @dataclass
 class PostalAddress:
-    """https://schema.org/PostalAddress"""
-
+    """A PostalAddress as defined here : https://schema.org/PostalAddress.
+    """
     country: str = None
     locality: str = None
     region: str = None
@@ -47,6 +47,38 @@ class PostalAddress:
 
 
 class PostalAddressBuilder:
+    """A helper class that allows to easily build a PostalAddress property.
+
+    Example:
+    --------
+    >>> from orionldclient import *
+    >>> builder = PostalAddressBuilder()
+    >>> address = builder.street("C/ La Pereda 14")
+        .locality("Santander")
+        .region("Cantabria")
+        .country("Spain")
+        .build()
+    >>> # Add an address property to the entity you're creating
+    >>> busstop = Entity("PublicTransportStop", "santander:busStop:463")
+    >>> busstop.prop("adress", address)
+    >>> busstop.pprint()
+    {
+        "@context": [
+            "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+        ],
+        "id": "urn:ngsi-ld:PublicTransportStop:santander:busStop:463",
+        "type": "PublicTransportStop",
+        "adress": {
+            "type": "Property",
+            "value": {
+                "streetAddress": "C/ La Pereda 14",
+                "addressLocality": "Santander",
+                "addressRegion": "Cantabria",
+                "addressCountry": "Spain"
+            }
+        }
+    }
+    """
     def __init__(self):
         self._addr: PostalAddress = PostalAddress()
 

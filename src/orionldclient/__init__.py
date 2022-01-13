@@ -18,6 +18,8 @@ __version__ = "0.1.0"
 from .utils import iso8601
 from .utils.uuid import shortuuid
 from .model.entity import Entity
+from .model.helper.postal import PostalAddressBuilder
+from .model.helper.openinghours import OpeningHoursSpecificationBuilder
 from .model.constants import CORE_CONTEXT, NESTED, Auto, SmartDatamodels
 from .api.client import Client
 from .exceptions import NgsiError
@@ -29,6 +31,8 @@ __all__ = [
     "iso8601",
     "shortuuid",
     "Entity",
+    "PostalAddressBuilder",
+    "OpeningHoursSpecificationBuilder",
     "CORE_CONTEXT",
     "NESTED",
     "Auto",

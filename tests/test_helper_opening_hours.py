@@ -29,7 +29,7 @@ def test_build_opening_hours_set_days():
 
 def test_build_opening_hours_set_all_week_1():
     builder = OpeningHoursSpecificationBuilder()
-    openinghours = builder.set_all_week("08:00", "12:00").build()
+    openinghours = builder.wholeweek("08:00", "12:00").build()
     assert openinghours == [
         {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Monday"},
         {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Tuesday"},
@@ -43,7 +43,7 @@ def test_build_opening_hours_set_all_week_1():
 
 def test_build_opening_hours_set_all_week_2():
     builder = OpeningHoursSpecificationBuilder()
-    openinghours = builder.set_days("08:00", "12:00", *WEEK).build()
+    openinghours = builder.days("08:00", "12:00", *WEEK).build()
     assert openinghours == [
         {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Monday"},
         {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Tuesday"},

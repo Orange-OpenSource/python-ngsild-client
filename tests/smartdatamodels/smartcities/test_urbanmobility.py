@@ -75,7 +75,7 @@ def test_transportstop():
     e.prop("refPeopleCountDevice", Urn.prefix("PorpleCountDecice:santander:463"))
 
     builder = OpeningHoursSpecificationBuilder()
-    openinghours = builder.set_working_days("00:01", "23:59").build()
+    openinghours = builder.workingdays("00:01", "23:59").build()
     e.prop("openingHoursSpecification", openinghours)
 
     assert e.to_dict() == expected_dict("transport_stop")

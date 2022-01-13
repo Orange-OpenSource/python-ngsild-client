@@ -10,6 +10,12 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
+"""A module that covers NGSI-LD API exceptions.
+
+When possible, Exceptions are mapped from the API Error Types,
+and enriched thanks to the ProblemDetails added by the API.
+"""
+
 import logging
 
 from dataclasses import dataclass
@@ -112,6 +118,14 @@ ERRORTYPES = {
 
 
 def rfc7807_error_handle(func):
+    """A decorator function to handle enriched Exceptions that accept a ProblemDetails instance.
+
+    See Also
+    --------
+    api.entities.create
+    api.entities.retrieve
+    """
+
     def inner_function(*args, **kwargs):
         problemdetails: dict = {}
         try:

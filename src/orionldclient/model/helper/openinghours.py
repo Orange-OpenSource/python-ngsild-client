@@ -36,7 +36,10 @@ WORKING_DAYS = [day for day in WEEK if day not in WEEK_END]
 
 @dataclass
 class OpeningHoursSpecification:
-    """https://schema.org/OpeningHoursSpecification"""
+    """An OpeningHoursSpecification as described here : https://schema.org/OpeningHoursSpecification
+
+    Simplified. Support a single open timeslot per day.
+    """
 
     opens: str
     closes: str
@@ -47,6 +50,63 @@ class OpeningHoursSpecification:
 
 
 class OpeningHoursSpecificationBuilder:
+    """A helper class that allows to easily build an openingHours property.
+
+    Simplified. Support a single open timeslot per day.
+
+    Example:
+    --------
+    >>> from orionldclient import *
+    >>> builder = OpeningHoursSpecificationBuilder()
+    >>> openinghours = builder.workingdays("10:00", "17:30").saturday("10:00", "14:00").build()
+    >>> # Add an openingHours property to the entity you're creating
+    >>> library = Entity("Library", "MyLibrary")
+    >>> library.prop("openingHours", openinghours)
+    >>> library.pprint()
+    {
+        "@context": [
+            "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+        ],
+        "id": "urn:ngsi-ld:Library:MyLibrary",
+        "type": "Library",
+        "openingHours": {
+            "type": "Property",
+            "value": [
+            {
+                "opens": "10:00",
+                "closes": "17:30",
+                "dayOfWeek": "Monday"
+            },
+            {
+                "opens": "10:00",
+                "closes": "17:30",
+                "dayOfWeek": "Tuesday"
+            },
+            {
+                "opens": "10:00",
+                "closes": "17:30",
+                "dayOfWeek": "Wednesday"
+            },
+            {
+                "opens": "10:00",
+                "closes": "17:30",
+                "dayOfWeek": "Thursday"
+            },
+            {
+                "opens": "10:00",
+                "closes": "17:30",
+                "dayOfWeek": "Friday"
+            },
+            {
+                "opens": "10:00",
+                "closes": "14:00",
+                "dayOfWeek": "Saturday"
+            }
+            ]
+        }
+    }
+    """
+
     def __init__(self):
         self._oh: dict = {}
 
@@ -105,22 +165,21 @@ class OpeningHoursSpecificationBuilder:
         )
         return self
 
-    def set_days(self, opens: TimeOrStr, closes: TimeOrStr, *days):
+    def days(self, opens: TimeOrStr, closes: TimeOrStr, *days):
         opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
         for day in days:
             self._oh[day] = OpeningHoursSpecification(opens, closes, day.value)
         return self
 
-    def set_weekend(self, opens: TimeOrStr, closes: TimeOrStr):
-        return self.set_days(opens, closes, *WEEK_END)
+    def weekend(self, opens: TimeOrStr, closes: TimeOrStr):
+        return self.days(opens, closes, *WEEK_END)
 
-    def set_working_days(self, opens: TimeOrStr, closes: TimeOrStr, *exceptdays):
+    def workingdays(self, opens: TimeOrStr, closes: TimeOrStr, *exceptdays):
         openingdays = [day for day in WORKING_DAYS if day not in exceptdays]
-        return self.set_days(opens, closes, *openingdays)
+        return self.days(opens, closes, *openingdays)
 
-    def set_all_week(self, opens: TimeOrStr, closes: TimeOrStr, *exceptdays):
-        openingdays = [day for day in WEEK if day not in exceptdays]
-        return self.set_days(opens, closes, *WEEK)
+    def wholeweek(self, opens: TimeOrStr, closes: TimeOrStr, *exceptdays):
+        return self.days(opens, closes, *WEEK)
 
     def build(self) -> dict:
         openingdays = []

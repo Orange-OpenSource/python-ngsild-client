@@ -296,7 +296,6 @@ class Client:
         """
         return self.entities.exists(eid)
 
-    # facade method for Entities.upsert()
     def upsert(self, entity: Entity) -> Entity:
         """Create the entity or update it if already exists.
 
@@ -314,7 +313,6 @@ class Client:
         """
         return self.entities.upsert(entity)
 
-    # facade method for Entities.update()
     def update(self, entity: Entity) -> Optional[Entity]:
         """Update the entity.
 
