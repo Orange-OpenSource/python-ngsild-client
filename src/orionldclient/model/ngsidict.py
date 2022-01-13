@@ -25,8 +25,22 @@ from .exceptions import *
 import json
 import operator
 
+"""This module contains the definition of the NgsiDict class.
+"""
+
 
 class NgsiDict(dict):
+    """This class is a custom dictionary that backs an entity.
+
+    NgsiDict is used to build and hold the entity properties, as well as the entity's root.
+    It's not exposed to the user but intended to be used by the Entity class.
+    NgsiDict provides methods that allow to build a dictionary compliant with a NGSI-LD structure.
+
+    See Also
+    --------
+    model.Entity
+    """
+
     def __init__(self, *args, dtcached: datetime = None, **kwargs):
         super().__init__(*args, **kwargs)
         self._dtcached: datetime = dtcached if dtcached else iso8601.utcnow()

@@ -18,8 +18,7 @@ __version__ = "0.1.0"
 from .utils import iso8601
 from .utils.uuid import shortuuid
 from .model.entity import Entity
-from .model.ngsidict import NgsiDict
-from .model.constants import CORE_CONTEXT, SmartDatamodels
+from .model.constants import CORE_CONTEXT, NESTED, Auto, SmartDatamodels
 from .api.client import Client
 from .exceptions import NgsiError
 from .model.exceptions import NgsiModelError
@@ -30,8 +29,9 @@ __all__ = [
     "iso8601",
     "shortuuid",
     "Entity",
-    "NgsiDict",
     "CORE_CONTEXT",
+    "NESTED",
+    "Auto",
     "Client",
     "SmartDatamodels",
     "NgsiError",

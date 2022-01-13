@@ -41,6 +41,8 @@ META_ATTR_UNITCODE = "unitCode"
 META_ATTR_OBSERVED_AT = "observedAt"
 META_ATTR_DATASET_ID = "datasetId"
 
+NESTED = True
+
 
 class Auto(Sentinel):
     pass
@@ -81,7 +83,7 @@ SMARTDATAMODELS_BASEURL = "https://smart-data-models.github.io"  # Github Pages
 
 
 class SmartDatamodels:
-    class SmartAgrifood:
+    class SmartAgri:
         class Agrifood:
             AgriApp = f"{SMARTDATAMODELS_BASEURL}/dataModel.Agrifood/AgriApp/examples/example-normalized.jsonld"
             AgriCrop = f"{SMARTDATAMODELS_BASEURL}/dataModel.Agrifood/AgriCrop/examples/example-normalized.jsonld"

@@ -10,6 +10,9 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
+"""This module contains constants used in the api package.
+"""
+
 from orionldclient import __version__
 
 from typing import TYPE_CHECKING, Union, List
@@ -17,6 +20,7 @@ from enum import Enum, unique
 
 if TYPE_CHECKING:
     from .entities import Entity
+
     OneOrManyEntities = Union[Entity, List[Entity]]
 
 Version = str

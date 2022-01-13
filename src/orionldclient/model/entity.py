@@ -64,6 +64,8 @@ class Entity:
 
     Dates and Datetimes are ISO8601.
     Helper functions are provided in the module utils.iso8601.
+    Often a same date (the one when the measure/event happened) is used many times in the entity.
+    When building an entity, the first time a datetime is used it is cached, then can be reused using "Auto".
 
     Given a NGSI-LD entity, many actions are possible :
     - access/add/remove/update attributes
@@ -104,7 +106,7 @@ class Entity:
 
     >>> # Add a property named NO2 with a pollutant concentration value and a metadata to indicate the unit (mg/m3)
     >>> # The accuracy property is nested
-    >>> e.prop("NO2", 22, unitcode="GP").prop("accuracy", 0.95)
+    >>> e.prop("NO2", 22, unitcode="GP", observedat=Auto).prop("accuracy", 0.95, NESTED)
 
     >>> # Add a relationship towards a POI NGSI-LD Entity
     >>> e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
@@ -128,6 +130,7 @@ class Entity:
             "type": "Property",
             "value": 22,
             "unitCode": "GP",
+            "observedAt": "2018-08-07T12:00:00Z",
             "accuracy": {
                 "type": "Property",
                 "value": 0.95
@@ -326,7 +329,7 @@ class Entity:
 
         See Also
         --------
-        constants.SmartDataModels
+        model.constants.SmartDataModels
 
         Example:
         --------
@@ -469,8 +472,8 @@ class Entity:
         self,
         name: str,
         value: Any,
-        *,  # keyword-only arguments after this
         nested: bool = False,
+        *,  # keyword-only arguments after this
         unitcode: str = None,
         observedat: Union[str, datetime] = None,
         datasetid: str = None,
@@ -538,7 +541,7 @@ class Entity:
         self._update_entity(name, property, nested)
         return self
 
-    def gprop(self, name: str, value: NgsiGeometry, *, nested: bool = False) -> Entity:
+    def gprop(self, name: str, value: NgsiGeometry, nested: bool = False) -> Entity:
         """Build a GeoProperty.
 
         Build a GeoProperty and attach it to the current entity.
@@ -595,9 +598,7 @@ class Entity:
     entity.loc((44, -8)) is a shorcut for entity.gprop("location", (44, -8))
     """
 
-    def tprop(
-        self, name: str, value: NgsiDate = None, *, nested: bool = False
-    ) -> Entity:
+    def tprop(self, name: str, value: NgsiDate = None, nested: bool = False) -> Entity:
         """Build a TemporalProperty.
 
         Build a TemporalProperty and attach it to the current entity.
@@ -653,8 +654,8 @@ class Entity:
         self,
         name: Union[str, PredefinedRelationship],
         value: str,
-        *,
         nested: bool = False,
+        *,
         observedat: Union[str, datetime] = None,
         userdata: NgsiDict = NgsiDict(),
     ) -> Entity:
@@ -701,8 +702,20 @@ class Entity:
         return self
 
     rel_haspart = partialmethod(rel, PredefinedRelationship.HAS_PART)
+    """ A helper method to set the commonly used hasPart relationship.
+
+    parking.rel_haspart("Floor0") is a shorcut for parking.rel("hasPart", "Floor0")
+    """
+
     rel_hasdirectpart = partialmethod(rel, PredefinedRelationship.HAS_DIRECT_PART)
+    """ A helper method to set the commonly used hasDirectPart relationship.
+
+    parking.rel_hasdirectpart("Floor0") is a shorcut for parking.rel("hasDirectPart", "Floor0")
+    """
+
     rel_iscontainedin = partialmethod(rel, PredefinedRelationship.IS_CONTAINED_IN)
+    """ A helper method to set the commonly used isContainedIn relationship.
+    """
 
     def __eq__(self, other: Entity):
         if other.__class__ is not self.__class__:
