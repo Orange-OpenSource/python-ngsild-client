@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -10,6 +10,12 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Contains helper modules to handle iso8601 dates, URLs, NGSI-LD URNs, and generate short uuids.
+"""
+This module defines the NgsiError Exception that will be used as a base for all NGSI exceptions.
 """
 
+
+class NgsiError(Exception):
+    """The NgsiError base exception."""
+
+    pass

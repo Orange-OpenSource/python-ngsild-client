@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -12,7 +12,7 @@
 
 import pytest
 
-from orionldclient.utils.urn import Urn, UrnError
+from ngsildclient.utils.urn import Urn, UrnError
 
 
 def test_is_valid_nid_true():

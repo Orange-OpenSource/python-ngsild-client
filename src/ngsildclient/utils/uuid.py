@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -38,7 +38,7 @@ def uuidshortener(uuid: uuid.UUID) -> str:
     Example:
     --------
     >>> from uuid import uuid4
-    >>> from orionldclient.utils.uuid import uuidshortener
+    >>> from ngsildclient.utils.uuid import uuidshortener
     >>> uuid = uuid4()
     >>> print(uuid)
     632dd95d-55bf-4f4e-9dd1-05f02531756f
@@ -70,7 +70,7 @@ def shortuuid(random: bool = False) -> str:
 
     Example:
     --------
-    >>> from orionldclient import *
+    >>> from ngsildclient import *
     >>> crop = Entity("AgriCrop", shortuuid())
     >>> crop.pprint()
     {

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -15,7 +15,7 @@ import pytest
 from datetime import datetime, date, time
 from geojson import Point
 
-from orionldclient.model.ngsidict import NgsiDict
+from ngsildclient.model.ngsidict import NgsiDict
 
 
 def test_prop():

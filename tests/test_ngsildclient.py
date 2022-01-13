@@ -1,4 +1,4 @@
-from orionldclient import __version__
+from ngsildclient import __version__
 
 
 def test_version():

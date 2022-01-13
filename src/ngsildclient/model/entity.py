@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -26,8 +26,8 @@ from typing import overload, Any, Union, Optional
 from .exceptions import *
 from .constants import *
 from .ngsidict import NgsiDict
-from orionldclient.utils import iso8601, url
-from orionldclient.utils.urn import Urn
+from ngsildclient.utils import iso8601, url
+from ngsildclient.utils.urn import Urn
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +72,7 @@ class Entity:
     - access/update/remove values
     - print the content in the normalized or simplified (aka KeyValues) flavor
     - save the entity to a file
-    - send it to the NGSI-LD Context Broker for creation/update (use the orionldclient.api package)
+    - send it to the NGSI-LD Context Broker for creation/update (use the ngsildclient.api package)
 
     A NGSI-LD entity is backed by a NgsiDict object (a custom dictionary that inherits from the native Python dict).
     So if for any reasons you're stuck with the library and cannot achieve to build a NGSI-LD entity
@@ -95,7 +95,7 @@ class Entity:
     Example:
     --------
     >>> from datetime import datetime
-    >>> from orionldclient import *
+    >>> from ngsildclient import *
 
     >>> # Create the entity
     >>> e = Entity("AirQualityObserved", "RZ:Obsv4567")
@@ -189,7 +189,7 @@ class Entity:
 
         Example:
         --------
-        >>> from orionldclient.model.entity import Entity
+        >>> from ngsildclient.model.entity import Entity
         >>> e1 = Entity("AirQualityObserved", "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567") # long form
         >>> e2 = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567") # omit scheme + nss
         >>> e3 = Entity("AirQualityObserved", "RZ:Obsv4567") # omit scheme + nss + type
@@ -222,7 +222,7 @@ class Entity:
 
         Example:
         --------
-        >>> from orionldclient.model.entity import Entity
+        >>> from ngsildclient.model.entity import Entity
         >>> e = Entity("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
         >>> e.pprint()
         {
@@ -333,7 +333,7 @@ class Entity:
 
         Example:
         --------
-        >>> from orionldclient import *
+        >>> from ngsildclient import *
         >>> e = Entity.load(SmartDatamodels.SmartCities.Weather.WeatherObserved)
         """
         if url.isurl(filename):
@@ -417,7 +417,7 @@ class Entity:
         Hence the "reliability" and "providedBy" properties are attached to (nested in) the "availableSpotNumber" property.
         Without anchoring, the "reliability" and "providedBy" properties would apply to the entity's root.
 
-        >>> from orionldclient.model.entity import Entity
+        >>> from ngsildclient.model.entity import Entity
         >>> e = Entity("OffStreetParking", "Downtown1")
         >>> e.prop("availableSpotNumber", 121, observedat=datetime(2017, 7, 29, 12, 5, 2)).anchor()
         >>> e.prop("reliability", 0.7).rel("providedBy", "Camera:C1").unanchor()
@@ -507,7 +507,7 @@ class Entity:
 
         Example:
         --------
-        >>> from orionldclient.model.entity import Entity
+        >>> from ngsildclient.model.entity import Entity
         >>> e = Entity("AirQualityObserved", "RZ:Obsv4567")
         >>> e.prop("NO2", 22, unitcode="GP") # basic property
         {'type': 'Property', 'value': 22, 'unitCode': 'GP'}
@@ -561,7 +561,7 @@ class Entity:
 
         Example:
         --------
-        >>> from orionldclient.model.entity import Entity
+        >>> from ngsildclient.model.entity import Entity
         >>> e = Entity("PointOfInterest", "RZ:MainSquare")
         >>> e.prop("description", "Beach of RZ")
         >>> e.gprop("location", (44, -8))
@@ -619,7 +619,7 @@ class Entity:
         Example:
         --------
         >>> from datetime import datetime
-        >>> from orionldclient.model.entity import Entity
+        >>> from ngsildclient.model.entity import Entity
         >>> e = Entity("AirQualityObserved", "RZ:Obsv4567")
         >>> e.tprop("dateObserved", datetime(2018, 8, 7, 12))
         >>> e.pprint()
@@ -678,7 +678,7 @@ class Entity:
 
         Example:
         --------
-        >>> from orionldclient.model.entity import Entity
+        >>> from ngsildclient.model.entity import Entity
         >>> e = Entity("AirQualityObserved", "RZ:Obsv4567")
         >>> e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
         >>> e.pprint()

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "orionldclient"
+name = "ngsildclient"
 version = "0.1.0"
 description = ""
 authors = ["fbattello <fabien.battello@orange.com>"]

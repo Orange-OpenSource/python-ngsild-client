@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -13,8 +13,8 @@
 from pytest import fixture
 from pytest_mock import MockerFixture
 from datetime import datetime
-from orionldclient.model.entity import Entity
-from orionldclient.api.client import Client
+from ngsildclient.model.entity import Entity
+from ngsildclient.api.client import Client
 
 sample_entity = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
 sample_entity.tprop("dateObserved", datetime(2018, 8, 7, 12))

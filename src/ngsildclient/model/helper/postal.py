@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -51,7 +51,7 @@ class PostalAddressBuilder:
 
     Example:
     --------
-    >>> from orionldclient import *
+    >>> from ngsildclient import *
     >>> builder = PostalAddressBuilder()
     >>> address = builder.street("C/ La Pereda 14")
         .locality("Santander")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -14,10 +14,10 @@ import pkg_resources
 import json
 
 from datetime import datetime
-from orionldclient.model.entity import *
-from orionldclient.model.helper.postal import PostalAddressBuilder
-from orionldclient.model.helper.openinghours import OpeningHoursSpecificationBuilder
-from orionldclient.utils.urn import Urn
+from ngsildclient.model.entity import *
+from ngsildclient.model.helper.postal import PostalAddressBuilder
+from ngsildclient.model.helper.openinghours import OpeningHoursSpecificationBuilder
+from ngsildclient.utils.urn import Urn
 
 
 def expected_dict(basename: str) -> dict:

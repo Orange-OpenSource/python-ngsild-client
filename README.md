@@ -1,6 +1,6 @@
-# python-orion-client
+# ngsildclient
 
-``python-orion-client`` is a Python wrapper library for the Fiware NGSI-LD Context Broker API.
+``ngsildclient`` is a Python wrapper library for the Fiware NGSI-LD Context Broker API.
 
 The goal is not to cover 100% of the API but the basics.
 

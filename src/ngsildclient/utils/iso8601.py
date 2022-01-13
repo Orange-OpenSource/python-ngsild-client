@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -30,7 +30,7 @@ from typing import Union, Optional
 from datetime import datetime, date, time
 from contextlib import suppress
 
-from orionldclient.model.constants import TemporalType
+from ngsildclient.model.constants import TemporalType
 
 ISO8601_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
 
@@ -51,7 +51,7 @@ def from_datetime(value: datetime) -> str:
     Examples
     --------
     >>> from datetime import datetime
-    >>> from orionldclient import iso8601
+    >>> from ngsildclient import iso8601
     >>> d = datetime(2021, 10, 13, 9, 29)
     >>> print(iso8601.from_datetime(d))
     2021-10-13T09:29:00Z
@@ -86,7 +86,7 @@ def from_date(value: date) -> str:
     Examples
     --------
     >>> from datetime import date
-    >>> from orionldclient import iso8601
+    >>> from ngsildclient import iso8601
     >>> d = date(2021, 10, 13)
     >>> print(iso8601.from_date(d))
     2021-10-13
@@ -110,7 +110,7 @@ def from_time(value: time) -> str:
     Examples
     --------
     >>> from datetime import time
-    >>> from orionldclient import iso8601
+    >>> from ngsildclient import iso8601
     >>> d = time(9, 29)
     >>> print(iso8601.from_time(d))
     09:29:00Z
@@ -140,7 +140,7 @@ def _from_string(value: str) -> tuple[str, TemporalType, datetime]:
 
     Examples
     --------
-    >>> from orionldclient import iso8601
+    >>> from ngsildclient import iso8601
     >>> print(iso8601._from_string("2021-10-13"))
     ('2021-10-13', <TemporalType.DATE: 'Date'>)
     """
@@ -182,11 +182,11 @@ def parse(
 
     See Also
     --------
-    orionldclient.attribute
+    ngsildclient.attribute
 
     Examples
     --------
-    >>> from orionldclient import iso8601
+    >>> from ngsildclient import iso8601
     >>> print(iso8601.parse(date(2021,9,13)))
     ('2021-10-13', <TemporalType.DATE: 'Date'>)
     """
@@ -216,7 +216,7 @@ def extract(value: str) -> Optional[datetime]:
 
     Examples
     --------
-    >>> from orionldclient.utils import iso8601
+    >>> from ngsildclient.utils import iso8601
     >>> iso8601.extract("urn:ngsi-ld:WeatherObserved:Spain-WeatherObserved-Valladolid-2016-11-30T07:00:00Z")
     datetime.datetime(2016, 11, 30, 7, 0)
     """

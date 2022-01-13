@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -104,7 +104,7 @@ class Urn:
 
         Examples
         --------
-        >>> from orionldclient.utils.urn import Urn
+        >>> from ngsildclient.utils.urn import Urn
         >>> urn = Urn(nss="AirQualityObserved:RZ:Obsv4567")
         >>> print(urn.fqn)
         urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567
@@ -148,7 +148,7 @@ class Urn:
 
         Examples
         --------
-        >>> from orionldclient.utils.urn import Urn
+        >>> from ngsildclient.utils.urn import Urn
         >>> print(Urn.is_valid_nid("ngsi-ld"))
         True
         >>> print(Urn.is_valid_nid("ngsi+ld"))
@@ -173,7 +173,7 @@ class Urn:
 
         Examples
         --------
-        >>> from orionldclient.utils.urn import Urn
+        >>> from ngsildclient.utils.urn import Urn
         >>> print(Urn.is_prefixed("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"))
         True
         """
@@ -195,7 +195,7 @@ class Urn:
 
         Examples
         --------
-        >>> from orionldclient.utils.urn import Urn
+        >>> from ngsildclient.utils.urn import Urn
         >>> print(Urn.prefix("AirQualityObserved:RZ:Obsv4567"))
         urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567
         """
@@ -219,7 +219,7 @@ class Urn:
 
         Examples
         --------
-        >>> from orionldclient.utils.urn import Urn
+        >>> from ngsildclient.utils.urn import Urn
         >>> print(Urn.unprefix("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"))
         AirQualityObserved:RZ:Obsv4567
         """

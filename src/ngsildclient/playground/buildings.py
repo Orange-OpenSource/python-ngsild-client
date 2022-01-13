@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 from random import triangular, gauss
 
-from orionldclient.model.constants import Auto
+from ngsildclient.model.constants import Auto
 
 from .walker import RandomWalker, shortuuid
 from ..model.entity import Entity

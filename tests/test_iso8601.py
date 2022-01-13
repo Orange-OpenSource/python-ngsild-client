@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -13,8 +13,8 @@
 import pytest
 
 from datetime import datetime, date, time
-from orionldclient.utils import iso8601
-from orionldclient.model.constants import TemporalType
+from ngsildclient.utils import iso8601
+from ngsildclient.model.constants import TemporalType
 
 
 def test_from_datetime():

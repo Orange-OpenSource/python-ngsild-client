@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from orionldclient.api.client import Client, Vendor
+from ngsildclient.api.client import Client, Vendor
 from .common import mocked_connected
 
 logger = logging.getLogger(__name__)

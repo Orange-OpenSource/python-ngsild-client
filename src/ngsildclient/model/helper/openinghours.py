@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -56,7 +56,7 @@ class OpeningHoursSpecificationBuilder:
 
     Example:
     --------
-    >>> from orionldclient import *
+    >>> from ngsildclient import *
     >>> builder = OpeningHoursSpecificationBuilder()
     >>> openinghours = builder.workingdays("10:00", "17:30").saturday("10:00", "14:00").build()
     >>> # Add an openingHours property to the entity you're creating

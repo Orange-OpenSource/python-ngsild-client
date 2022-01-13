@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -13,7 +13,7 @@
 """This module contains constants used in the api package.
 """
 
-from orionldclient import __version__
+from ngsildclient import __version__
 
 from typing import TYPE_CHECKING, Union, List
 from enum import Enum, unique
@@ -53,7 +53,7 @@ class LogLevel(Enum):
     DEBUG = "DEBUG"
 
 
-UA = f"python-orion-client v{__version__}"
+UA = f"ngsildclient v{__version__}"
 
 NGSILD_PATH = "ngsi-ld"
 NGSILD_VERSION = "v1"

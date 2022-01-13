@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Software Name: python-orion-client
+# Software Name: ngsildclient
 # SPDX-FileCopyrightText: Copyright (c) 2021 Orange
 # SPDX-License-Identifier: Apache 2.0
 #
@@ -38,13 +38,13 @@ def escape(value: str) -> str:
 
     Examples
     --------
-    >>> from orionldclient.utils import url
+    >>> from ngsildclient.utils import url
     >>> print(url.escape("https://example.com?query=dummy&limit=5"))
     https%3A//example.com%3Fquery%3Ddummy%26limit%3D5
 
     See Also
     --------
-    orionldclient.utils.url.unescape
+    ngsildclient.utils.url.unescape
     """
     return urllib.parse.quote(value)
 
@@ -64,13 +64,13 @@ def unescape(value: str) -> str:
 
     Examples
     --------
-    >>> from orionldclient.utils import url
+    >>> from ngsildclient.utils import url
     >>> print(url.escape("https%3A//example.com%3Fquery%3Ddummy%26limit%3D5"))
     https://example.com?query=dummy&limit=5
 
     See Also
     --------
-    orionldclient.utils.url.escape
+    ngsildclient.utils.url.escape
     """
     return urllib.parse.unquote(value)
 
@@ -92,7 +92,7 @@ def isurl(value: str) -> bool:
 
     Examples
     --------
-    >>> from orionldclient.utils import url
+    >>> from ngsildclient.utils import url
     >>> print(url.isurl("https://example.com?query=dummy&limit=5"))
     True
     """
