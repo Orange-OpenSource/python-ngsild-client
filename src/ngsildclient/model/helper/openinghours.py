@@ -58,7 +58,7 @@ class OpeningHoursSpecificationBuilder:
     --------
     >>> from ngsildclient import *
     >>> builder = OpeningHoursSpecificationBuilder()
-    >>> openinghours = builder.workingdays("10:00", "17:30").saturday("10:00", "14:00").build()
+    >>> openinghours = builder.businessdays("10:00", "17:30").saturday("10:00", "14:00").build()
     >>> # Add an openingHours property to the entity you're creating
     >>> library = Entity("Library", "MyLibrary")
     >>> library.prop("openingHours", openinghours)
@@ -174,7 +174,7 @@ class OpeningHoursSpecificationBuilder:
     def weekend(self, opens: TimeOrStr, closes: TimeOrStr):
         return self.days(opens, closes, *WEEK_END)
 
-    def workingdays(self, opens: TimeOrStr, closes: TimeOrStr, *exceptdays):
+    def businessdays(self, opens: TimeOrStr, closes: TimeOrStr, *exceptdays):
         openingdays = [day for day in WORKING_DAYS if day not in exceptdays]
         return self.days(opens, closes, *openingdays)
 

@@ -20,7 +20,7 @@ from .utils.uuid import shortuuid
 from .model.entity import Entity
 from .model.helper.postal import PostalAddressBuilder
 from .model.helper.openinghours import OpeningHoursSpecificationBuilder
-from .model.constants import CORE_CONTEXT, NESTED, Auto, SmartDatamodels
+from .model.constants import CORE_CONTEXT, NESTED, Auto, SmartDataModels
 from .api.client import Client
 from .exceptions import NgsiError
 from .model.exceptions import NgsiModelError
@@ -37,7 +37,7 @@ __all__ = [
     "NESTED",
     "Auto",
     "Client",
-    "SmartDatamodels",
+    "SmartDataModels",
     "NgsiError",
     "NgsiModelError",
     "NgsiApiError",
