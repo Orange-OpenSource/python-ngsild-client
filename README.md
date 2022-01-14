@@ -12,7 +12,7 @@ The task of building a large NGSI-LD compliant entity is tedious, error-prone an
 
 By providing primitives to add properties and metadata in respect with the ETSI specification **ngsildclient** allows to build and manipulate NGSI-LD compliant entities without effort.
 
-It's also valuable in interactive mode - such as in IPython console or in Jupyter notebook - to design a DataModel or create sample entities.
+While the library primary purpose is to **ease and speed up the development of a NGSI Agent**, it's also **valuable for Data Modeling in the design stage** especially in interactive mode - such as in IPython console or in Jupyter notebook.
 
 ### Implement the NGSI-LD API
 
