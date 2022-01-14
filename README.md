@@ -8,7 +8,7 @@
 
 ### Build NGSI-LD entities
 
-The task of building a large NGSI-LD entity is tedious, error-prone and results in a significant amount of code. 
+The task of building a large NGSI-LD compliant entity is tedious, error-prone and results in a significant amount of code. 
 
 By providing primitives to add properties and metadata in respect with the ETSI specification **ngsildclient** allows to build and manipulate NGSI-LD compliant entities without effort.
 
