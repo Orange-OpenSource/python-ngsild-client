@@ -4,7 +4,7 @@
 
  **ngsildclient** is a Python library that helps building NGSI-LD entities and interacting with a NGSI-LD Context Broker.
 
- While the library primary purpose is to **ease and speed up the development of a NGSI Agent**, it's also **valuable for Data Modeling in the design stage** especially in interactive mode - such as in IPython console or in Jupyter notebook.
+ While the library primary purpose is to **ease and speed up the development of a NGSI Agent**, it's also **valuable for Data Modeling in the design stage** especially in interactive mode *with the help of autocompletion* - such as in IPython console or in Jupyter notebook.
 
 ## Key Features
 
