@@ -46,7 +46,7 @@ class Entities:
 
         r = self._session.post(
             f"{self.url}/",
-            entity.to_json(),
+            json = entity._payload,
         )
 
         if skip and r.status_code == 409: # Skip if already exists
