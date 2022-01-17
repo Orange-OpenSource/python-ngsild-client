@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ngsildclient"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["fbattello <fabien.battello@orange.com>"]
 

@@ -12,10 +12,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Union
+from typing import Any, Union, List
 from functools import reduce
 from datetime import datetime
-from geojson import Point, LineString, Polygon
+from geojson import Point, LineString, Polygon, MultiPoint
 
 from ..utils import iso8601, url
 from ..utils.urn import Urn
@@ -139,7 +139,7 @@ class NgsiDict(dict):
     ) -> NgsiDict:
         property: NgsiDict = NgsiDict()
         property["type"] = AttrType.GEO.value  # set type
-        if isinstance(value, (Point, LineString, Polygon)):
+        if isinstance(value, (Point, LineString, Polygon, MultiPoint)):
             geometry = value
         elif (
             isinstance(value, tuple) and len(value) == 2
@@ -172,16 +172,20 @@ class NgsiDict(dict):
         return property
 
     def build_relationship(
+        # Multiple Relationship limitation : no metadata
         self,
-        value: str,
+        value: Union[str, List[str]],
         observedat: Union[str, datetime, type[Auto]] = None,
         userdata: NgsiDict = None,
     ) -> NgsiDict:
         property: NgsiDict = NgsiDict()
         property["type"] = AttrType.REL.value  # set type
-        property["object"] = Urn.prefix(value)  # set value
-        if observedat is not None:
-            property[META_ATTR_OBSERVED_AT] = self._process_observedat(observedat)
-        if userdata:
-            property |= userdata
+        if isinstance(value, list):
+            property["object"] = [Urn.prefix(v) for v in value]              
+        else:
+            property["object"] = Urn.prefix(value)  # set value
+            if observedat is not None:
+                property[META_ATTR_OBSERVED_AT] = self._process_observedat(observedat)
+            if userdata:
+                property |= userdata
         return property

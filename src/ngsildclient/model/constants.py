@@ -48,10 +48,11 @@ class Auto(Sentinel):
     pass
 
 
-class PredefinedRelationship(Enum):
+class Relation(Enum):
     HAS_PART = "hasPart"
     HAS_DIRECT_PART = "hasDirectPart"
     IS_CONTAINED_IN = "isContainedIn"
+    OBSERVED_BY = "observedBy"
 
 
 class GeometryMetaAttr(Enum):

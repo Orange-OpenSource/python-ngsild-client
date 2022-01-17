@@ -21,10 +21,11 @@ from functools import partialmethod
 from dataclasses import dataclass
 
 from datetime import datetime
-from typing import overload, Any, Union, Optional
+from typing import overload, Any, Union, List, Optional
 
 from .exceptions import *
 from .constants import *
+from .helper.postal import PostalAddress
 from .ngsidict import NgsiDict
 from ngsildclient.utils import iso8601, url
 from ngsildclient.utils.urn import Urn
@@ -541,6 +542,9 @@ class Entity:
         self._update_entity(name, property, nested)
         return self
 
+    def address(self, value: str):
+        return self.prop("address", value)
+
     def gprop(self, name: str, value: NgsiGeometry, nested: bool = False) -> Entity:
         """Build a GeoProperty.
 
@@ -652,8 +656,8 @@ class Entity:
 
     def rel(
         self,
-        name: Union[str, PredefinedRelationship],
-        value: str,
+        name: Union[Relation, str],
+        value: Union[str, List[str]],
         nested: bool = False,
         *,
         observedat: Union[str, datetime] = None,
@@ -694,28 +698,12 @@ class Entity:
             }
         }
         """
-        if isinstance(name, PredefinedRelationship):
+        if isinstance(name, Relation):
             name = name.value
 
         property = self._payload.build_relationship(value, observedat, userdata)
         self._update_entity(name, property, nested)
         return self
-
-    rel_haspart = partialmethod(rel, PredefinedRelationship.HAS_PART)
-    """ A helper method to set the commonly used hasPart relationship.
-
-    parking.rel_haspart("Floor0") is a shorcut for parking.rel("hasPart", "Floor0")
-    """
-
-    rel_hasdirectpart = partialmethod(rel, PredefinedRelationship.HAS_DIRECT_PART)
-    """ A helper method to set the commonly used hasDirectPart relationship.
-
-    parking.rel_hasdirectpart("Floor0") is a shorcut for parking.rel("hasDirectPart", "Floor0")
-    """
-
-    rel_iscontainedin = partialmethod(rel, PredefinedRelationship.IS_CONTAINED_IN)
-    """ A helper method to set the commonly used isContainedIn relationship.
-    """
 
     def __eq__(self, other: Entity):
         if other.__class__ is not self.__class__:

@@ -236,7 +236,7 @@ class Client:
         Entity
             the entity succesfully created
         """
-        return self.entities.create(entity)
+        return self.entities.create(entity, skip, overwrite)
 
     def retrieve(
         self, eid: Union[EntityId, Entity], asdict: bool = False, **kwargs

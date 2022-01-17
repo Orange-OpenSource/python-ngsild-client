@@ -40,17 +40,16 @@ class Entities:
 
     @rfc7807_error_handle
     def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> Optional[Entity]:
-
-        if overwrite or self._client.overwrite:
-            return self.upsert(entity)
-
         r = self._session.post(
             f"{self.url}/",
             json = entity._payload,
         )
 
-        if skip and r.status_code == 409: # Skip if already exists
-            return None
+        if r.status_code == 409: # already exists
+            if skip:
+                return None
+            elif overwrite or self._client.overwrite:
+                return self.update(entity, check_exists=False)
 
         self._client.raise_for_status(r)
         location = r.headers.get("Location")
@@ -105,8 +104,8 @@ class Entities:
             return self.create(entity)
 
     @rfc7807_error_handle
-    def update(self, entity: Entity) -> Optional[Entity]:
-        if self.exists(entity):
+    def update(self, entity: Entity, check_exists: bool = True) -> Optional[Entity]:
+        if check_exists and self.exists(entity):
             self.delete(entity)
             return self.create(entity)
         return None
