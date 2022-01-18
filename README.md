@@ -4,7 +4,7 @@
 
  **ngsildclient** is a Python library that helps building NGSI-LD entities and interacting with a NGSI-LD Context Broker.
 
- While the library primary purpose is to **ease and speed up the development of a NGSI Agent**, it's also **valuable for Data Modeling in the design stage** especially in interactive mode *with the help of autocompletion* - such as in IPython console or in Jupyter notebook.
+ While the library primary purpose is to **ease and speed up the development of a NGSI Agent**, it's also **valuable for Data Modeling in the design stage** especially in interactive mode *with the help of autocompletion* - such as in Python console or in Jupyter notebook.
 
 ## Key Features
 
@@ -122,7 +122,7 @@ The resulting JSON looks like this :
 Once you're satisfied with it, you can save it to a file to share it, for example with the [Smart Data Models Initiative](https://smartdatamodels.org/).
 
 ```python
-entity.save("air_quality_sample.json")
+entity.save("air_quality_sample.jsonld")
 ```
 
 Or you can send it to the NGSI-LD Context Broker for creation.
@@ -183,9 +183,6 @@ And inside the ``tests/smartdatamodels`` folder that builds some sample entities
 
 ## Roadmap
 
-Add authentication.
-
-Extend API coverage : add support for query, batch operations and subscriptions.
-
-Add documentation.
-
+- Add authentication
+- Extend API coverage : add support for query, batch operations and subscriptions
+- Add documentation

@@ -49,7 +49,7 @@ class OpeningHoursSpecification:
         return {"opens": self.opens, "closes": self.closes, "dayOfWeek": self.dayofweek}
 
 
-class OpeningHoursSpecificationBuilder:
+class OpeningHoursBuilder:
     """A helper class that allows to easily build an openingHours property.
 
     Simplified. Support a single open timeslot per day.
@@ -57,7 +57,7 @@ class OpeningHoursSpecificationBuilder:
     Example:
     --------
     >>> from ngsildclient import *
-    >>> builder = OpeningHoursSpecificationBuilder()
+    >>> builder = OpeningHoursBuilder()
     >>> openinghours = builder.businessdays("10:00", "17:30").saturday("10:00", "14:00").build()
     >>> # Add an openingHours property to the entity you're creating
     >>> library = Entity("Library", "MyLibrary")
@@ -117,56 +117,56 @@ class OpeningHoursSpecificationBuilder:
         return opens, closes
 
     def monday(self, opens: TimeOrStr, closes: TimeOrStr):
-        opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
+        opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
         self._oh[WeekDay.MONDAY] = OpeningHoursSpecification(
             opens, closes, WeekDay.MONDAY.value
         )
         return self
 
     def tuesday(self, opens: TimeOrStr, closes: TimeOrStr):
-        opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
+        opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
         self._oh[WeekDay.TUESDAY] = OpeningHoursSpecification(
             opens, closes, WeekDay.TUESDAY.value
         )
         return self
 
     def wednesday(self, opens: TimeOrStr, closes: TimeOrStr):
-        opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
+        opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
         self._oh[WeekDay.WEDNESDAY] = OpeningHoursSpecification(
             opens, closes, WeekDay.WEDNESDAY.value
         )
         return self
 
     def thursday(self, opens: TimeOrStr, closes: TimeOrStr):
-        opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
+        opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
         self._oh[WeekDay.THURSDAY] = OpeningHoursSpecification(
             opens, closes, WeekDay.THURSDAY.value
         )
         return self
 
     def friday(self, opens: TimeOrStr, closes: TimeOrStr):
-        opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
+        opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
         self._oh[WeekDay.FRIDAY] = OpeningHoursSpecification(
             opens, closes, WeekDay.FRIDAY.value
         )
         return self
 
     def saturday(self, opens: TimeOrStr, closes: TimeOrStr):
-        opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
+        opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
         self._oh[WeekDay.SATURDAY] = OpeningHoursSpecification(
             opens, closes, WeekDay.SATURDAY.value
         )
         return self
 
     def sunday(self, opens: TimeOrStr, closes: TimeOrStr):
-        opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
+        opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
         self._oh[WeekDay.SUNDAY] = OpeningHoursSpecification(
             opens, closes, WeekDay.SUNDAY.value
         )
         return self
 
     def days(self, opens: TimeOrStr, closes: TimeOrStr, *days):
-        opens, closes = OpeningHoursSpecificationBuilder._converttimes(opens, closes)
+        opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
         for day in days:
             self._oh[day] = OpeningHoursSpecification(opens, closes, day.value)
         return self

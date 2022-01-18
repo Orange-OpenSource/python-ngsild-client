@@ -1,0 +1,37 @@
+{
+    "@context": [
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+    ],
+    "id": "urn:ngsi-ld:Pipe:74azsty-70d4l-4da9-b7d0-3340ef655nnb",
+    "type": "Pipe",
+    "bulkCoeff": 72.4549,
+    "description": "Free Text",
+    "diameter": 203,
+    "endsAt": "urn:ngsi-ld:Reservoir:1863179e-3768-4480-9167-ff21f870dd19",
+    "flow": 20,
+    "inititalStatus": "OPEN",
+    "length": 52.9,
+    "minorLoss": 72.4549,
+    "quality": 0.5,
+    "roughness": 72.4549,
+    "startsAt": "urn:ngsi-ld:Junction:63fe7d79-0d4c-4da9-b7d0-3340efa0656a",
+    "status": "OPEN",
+    "tag": "DMA1",
+    "velocity": 2,
+    "vertices": {
+        "type": "MultiPoint",
+        "coordinates": [
+            [
+                [
+                    24.40623,
+                    60.17966
+                ],
+                [
+                    24.50623,
+                    60.27966
+                ]
+            ]
+        ]
+    },
+    "wallCoeff": 72.4549
+}

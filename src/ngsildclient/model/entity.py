@@ -25,7 +25,6 @@ from typing import overload, Any, Union, List, Optional
 
 from .exceptions import *
 from .constants import *
-from .helper.postal import PostalAddress
 from .ngsidict import NgsiDict
 from ngsildclient.utils import iso8601, url
 from ngsildclient.utils.urn import Urn
@@ -542,7 +541,7 @@ class Entity:
         self._update_entity(name, property, nested)
         return self
 
-    def address(self, value: str):
+    def addr(self, value: str):
         return self.prop("address", value)
 
     def gprop(self, name: str, value: NgsiGeometry, nested: bool = False) -> Entity:
@@ -656,7 +655,7 @@ class Entity:
 
     def rel(
         self,
-        name: Union[Relation, str],
+        name: Union[Rel, str],
         value: Union[str, List[str]],
         nested: bool = False,
         *,
@@ -698,7 +697,7 @@ class Entity:
             }
         }
         """
-        if isinstance(name, Relation):
+        if isinstance(name, Rel):
             name = name.value
 
         property = self._payload.build_relationship(value, observedat, userdata)

@@ -48,7 +48,7 @@ class Auto(Sentinel):
     pass
 
 
-class Relation(Enum):
+class Rel(Enum):
     HAS_PART = "hasPart"
     HAS_DIRECT_PART = "hasDirectPart"
     IS_CONTAINED_IN = "isContainedIn"

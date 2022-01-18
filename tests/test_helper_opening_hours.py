@@ -14,12 +14,12 @@ from datetime import time
 
 from ngsildclient.model.helper.openinghours import (
     WEEK,
-    OpeningHoursSpecificationBuilder,
+    OpeningHoursBuilder,
 )
 
 
 def test_build_opening_hours_set_days():
-    builder = OpeningHoursSpecificationBuilder()
+    builder = OpeningHoursBuilder()
     openinghours = builder.monday(time(9), time(17)).tuesday("09:00", "18:00").build()
     assert openinghours == [
         {"opens": "09:00", "closes": "17:00", "dayOfWeek": "Monday"},
@@ -28,7 +28,7 @@ def test_build_opening_hours_set_days():
 
 
 def test_build_opening_hours_set_all_week_1():
-    builder = OpeningHoursSpecificationBuilder()
+    builder = OpeningHoursBuilder()
     openinghours = builder.wholeweek("08:00", "12:00").build()
     assert openinghours == [
         {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Monday"},
@@ -42,7 +42,7 @@ def test_build_opening_hours_set_all_week_1():
 
 
 def test_build_opening_hours_set_all_week_2():
-    builder = OpeningHoursSpecificationBuilder()
+    builder = OpeningHoursBuilder()
     openinghours = builder.days("08:00", "12:00", *WEEK).build()
     assert openinghours == [
         {"opens": "08:00", "closes": "12:00", "dayOfWeek": "Monday"},
