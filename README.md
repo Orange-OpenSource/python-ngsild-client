@@ -1,5 +1,8 @@
 # The ngsildclient library
 
+[![PyPI](https://img.shields.io/pypi/v/ngsildclient.svg)](https://pypi.org/project/ngsildclient/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 ## Overview
 
  **ngsildclient** is a Python library that helps building NGSI-LD entities and interacting with a NGSI-LD Context Broker.
@@ -24,7 +27,7 @@ As of v.01 it covers a subset of the API that consists of the ``/entities/{entit
 
 ## Smart Building Demo
 
-How to build the NGSI-LD [example](https://smart-data-models.github.io/dataModel.Building/Building/examples/example-normalized.jsonld) from the [Smart Data Models Initiative](https://smartdatamodels.org/), and ask the Context Broker to create it.
+How to build the NGSI-LD [example](https://smart-data-models.github.io/dataModel.Building/Building/examples/example-normalized.jsonld) from the [Smart Data Models Initiative](https://smartdatamodels.org/) and ask the Context Broker to create it.
 
 [![demo](https://asciinema.org/a/r328sRBCoKiDHuJHiBXNnQxqF.svg)](https://asciinema.org/a/r328sRBCoKiDHuJHiBXNnQxqF?autoplay=1&theme=solarized-dark&speed=3)
 
