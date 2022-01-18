@@ -37,7 +37,6 @@ def test_pipe():
     e.rel("endsAt", "Reservoir:1863179e-3768-4480-9167-ff21f870dd19")
     e.prop("flow", 20, unitcode="G51").rel(Rel.OBSERVED_BY, device, NESTED)
     e.prop("inititalStatus", "OPEN").prop("length", 52.9, unitcode="MTR")
-    e.prop("length", 52.9, unitcode="MTR")
     e.prop("minorLoss", 72.4549, unitcode="C62")
     e.prop("quality", 0.5, unitcode="F27").rel(Rel.OBSERVED_BY, device, NESTED)
     e.prop("roughness", 72.4549, unitcode="C62")

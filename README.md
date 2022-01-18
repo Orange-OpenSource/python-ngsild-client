@@ -22,6 +22,13 @@ Acting as a Context Producer/Consumer **ngsildclient** is able to send/receive N
 
 As of v.01 it covers a subset of the API that consists of the ``/entities/{entityId}`` endpoint.
 
+## Smart Building Demo
+
+How to build the NGSI-LD [example](https://smart-data-models.github.io/dataModel.Building/Building/examples/example-normalized.jsonld) from the [Smart Data Models Initiative](https://smartdatamodels.org/), and ask the Context Broker to create it.
+
+[![demo](https://asciinema.org/a/r328sRBCoKiDHuJHiBXNnQxqF.svg)](https://asciinema.org/a/r328sRBCoKiDHuJHiBXNnQxqF?autoplay=1&theme=solarized-dark&speed=3)
+
+
 ## Where to get it
 
 The source code is currently hosted on GitHub at :
