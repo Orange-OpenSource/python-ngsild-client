@@ -15,7 +15,12 @@
 
 The task of building a large NGSI-LD compliant entity is tedious, error-prone and results in a significant amount of code. 
 
-By providing primitives to add properties and metadata in respect with the ETSI specification **ngsildclient** allows to build and manipulate NGSI-LD compliant entities without effort.
+**ngsildclient** provides primitives to build and manipulate NGSI-LD compliant entities without effort, in respect with the [ETSI specifications](https://www.etsi.org/committee/cim).
+
+Development goals are :
+- Support metadata, nested properties, adding/updating/removing properties
+- Provide helpers to build commonly used structures from schema.org, i.e. PostalAdress, OpeningHoursSpecification
+- Remain pragmatic : aim at building entities compliant with concrete NGSI-LD Datamodels *while keeping up with evolving ETSI specifications*
 
 ### Implement the NGSI-LD API
 
