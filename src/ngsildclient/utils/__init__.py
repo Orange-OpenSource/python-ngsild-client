@@ -8,7 +8,6 @@
 # see the NOTICE file for more details.
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
-# SPDX-License-Identifier: Apache-2.0
 
 """Contains helper modules to handle iso8601 dates, URLs, NGSI-LD URNs, and generate short uuids.
 """

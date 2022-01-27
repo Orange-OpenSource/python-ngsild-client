@@ -8,4 +8,3 @@
 # see the NOTICE file for more details.
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
-# SPDX-License-Identifier: Apache-2.0
