@@ -37,16 +37,19 @@ class Broker:
 class Client:
     """An implementation of the NGSI-LD client API.
 
-    It allows to connect to a NGSI-LD Context Broker, check the connection and try to identify the vendor.
+    It allows to connect to a NGSI-LD Context Broker, check the connection and
+    try to identify the vendor.
     As for now it focuses on the /entities/{entityId} endpoint.
     Allowed operations are :
     - create(), update(), upsert()
     - retrieve(), exists()
     - delete()
 
-    Update() and upsert() operations are not atomic, as they aren't provided as-is by the API, but require chaining 2 API calls.
+    Update() and upsert() operations are not atomic, as they
+    aren't provided as-is by the API, but require chaining 2 API calls.
 
-    When encountering errors the Client throws enriched Exceptions, as NGSI-LD API supports ProblemDetails [IETF RFC 7807].
+    When encountering errors the Client throws enriched
+    Exceptions, as NGSI-LD API supports ProblemDetails [IETF RFC 7807].
 
     Example:
     --------
@@ -77,8 +80,10 @@ class Client:
     ):
         """Create a Client instance to interact with the Context Broker.
 
-        The Client allows to retrieve or send entities (model.Entity instances) to the Context Broker.
-        For example, one can retrieve an entity from the Context Broker, modify it (update/delete/add properties),
+        The Client allows to retrieve or send entities
+        (model.Entity instances) to the Context Broker.
+        For example, one can retrieve an entity from the Context Broker,
+        modify it (update/delete/add properties),
         and send it back to the Context Broker.
 
         Parameters
@@ -96,7 +101,7 @@ class Client:
         overwrite : bool, optional
             if set create() will behave like upsert(), by default False
         ignore_errors : bool, optional
-            if set tests the connection at init time and raises an exception if failed, by default False
+            if set tests the connection at init time and raisesan exception if failed, by default False
         proxy : str, optional
             proxies all requests to the provided proxy string (for debugging purpose), by default None
 

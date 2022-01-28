@@ -11,7 +11,6 @@
 
 import logging
 from ngsildclient.api.client import Client, Vendor
-from .common import mocked_connected
 
 logger = logging.getLogger(__name__)
 

@@ -22,11 +22,19 @@ black = {version = "^21.8b0", allow-prereleases = true}
 pytest-mock = "^3.6.1"
 requests-mock = "^1.9.3"
 pytest-cov = "^3.0.0"
-flake8 = "^4.0.1"
+flake8 = "^3.9.2"
 flake8-black = "^0.2.3"
 Sphinx = "^4.2.0"
 sphinx-autodoc-typehints = "^1.12.0"
 sphinx-rtd-theme = "^1.0.0"
+flakehell = "^0.9.0"
+
+[tool.flakehell]
+exclude = ["README.md"]
+format = "colored"
+max_line_length = 90
+extended_default_ignore = []
+show_source = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

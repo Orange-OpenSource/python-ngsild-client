@@ -14,13 +14,13 @@ import pytest
 from pytest_mock.plugin import MockerFixture
 
 from ngsildclient.api.client import Client
-from ngsildclient.api.entities import Entities
 from ngsildclient.api.exceptions import (
     NgsiAlreadyExistsError,
     NgsiResourceNotFoundError,
     ProblemDetails,
 )
-from .common import sample_entity, mocked_connected
+# from .common import sample_entity, mocked_connected
+from .common import sample_entity
 
 logger = logging.getLogger(__name__)
 
