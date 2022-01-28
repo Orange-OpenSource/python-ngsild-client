@@ -58,7 +58,13 @@ jobs:
       #    add matrix specifics and run test suite
       #----------------------------------------------
       - name: Run tests
-        run: |
-          source .venv/bin/activate
-          pytest tests/
-          coverage report
+        run: poetry run pytest --cov=ngsildclient --cov-report=xml
+      #----------------------------------------------
+      #    upload coverage stats
+      #----------------------------------------------
+      - name: Upload coverage
+        uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: true
+          verbose: true # optional (default = false)          
