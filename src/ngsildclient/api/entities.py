@@ -38,13 +38,15 @@ class Entities:
         self.url = url
 
     @rfc7807_error_handle
-    def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> Optional[Entity]:
+    def create(
+        self, entity: Entity, skip: bool = False, overwrite: bool = False
+    ) -> Optional[Entity]:
         r = self._session.post(
             f"{self.url}/",
-            json = entity._payload,
+            json=entity._payload,
         )
 
-        if r.status_code == 409: # already exists
+        if r.status_code == 409:  # already exists
             if skip:
                 return None
             elif overwrite or self._client.overwrite:
@@ -67,7 +69,7 @@ class Entities:
         return entity
 
     @rfc7807_error_handle
-    def retrieve(
+    def retrieve_by_id(
         self, eid: Union[EntityId, Entity], asdict: bool = False, **kwargs
     ) -> Entity:
         eid = eid.id if isinstance(eid, Entity) else eid
@@ -108,3 +110,26 @@ class Entities:
             self.delete(entity)
             return self.create(entity)
         return None
+
+    @rfc7807_error_handle
+    def retrieve(self, type: str = None, query: str = None, **kwargs) -> List[Entity]:
+        params = {}
+        if type is None and query is None:
+            raise ValueError("Must indicate at least a type or e query string")
+        if type:
+            params["type"] = type
+        if query:
+            params["q"] = query
+        r = self._session.get(
+            self.url,
+            headers={
+                "Accept": "application/ld+json",
+                "Content-Type": None,
+            },  # overrides session headers
+            params=params
+        )
+        r.raise_for_status()
+        self._client.raise_for_status(r)
+        entities = r.json()
+        logger.info(f"{entities=}")
+        return [Entity.from_dict(entity) for entity in entities]

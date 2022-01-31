@@ -169,9 +169,9 @@ with Client() as client:
 # Later you'll be able to retrieve the entity from the broker and resend it for update
 with Client() as client:
     # retrieve the entity by its id
-    farm = client.retrieve("urn:ngsi-ld:AgriFarm:72d9fb43-53f8-4ec8-a33c-fa931360259a")
+    farm = client.retrieve_by_id("urn:ngsi-ld:AgriFarm:72d9fb43-53f8-4ec8-a33c-fa931360259a")
     # It would also work by passing the entity - in case it's still in memory
-    # farm = client.retrieve(farm)
+    # farm = client.retrieve_by_id(farm)
     farm["contactPoint.value.telephone"] = "00349674539"
     client.update(farm)
 ```

@@ -242,7 +242,7 @@ class Client:
         """
         return self.entities.create(entity, skip, overwrite)
 
-    def retrieve(
+    def retrieve_by_id(
         self, eid: Union[EntityId, Entity], asdict: bool = False, **kwargs
     ) -> Entity:
         """Retrieve an entity given its id.
@@ -262,7 +262,7 @@ class Client:
         Entity
             The retrieved entity
         """
-        return self.entities.retrieve(eid)
+        return self.entities.retrieve_by_id(eid)
 
     def delete(self, eid: Union[EntityId, Entity]) -> bool:
         """Delete an entity given its id.
@@ -333,6 +333,25 @@ class Client:
             The entity successfully updated (or None if not found)
         """
         return self.entities.update(entity)
+
+    def retrieve(self, type: str = None, query: str = None, **kwargs) -> Entity:
+        """Retrieve entities given its type and/or query string.
+
+        Facade method for Entities.retrieve_by_type().
+
+        Parameters
+        ----------
+        etype : str
+            The entity's type
+        query: str
+            The query string (NGSI-LD Query Language)
+
+        Returns
+        -------
+        list[Entity]
+            Retrieved entities matching the given type and/or query string
+        """
+        return self.entities.retrieve(type, query)
 
     def guess_vendor(self) -> tuple[Vendor, Version]:
         """Try to guess the Context Broker vendor.
