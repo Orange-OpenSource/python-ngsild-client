@@ -337,7 +337,7 @@ class Client:
     def retrieve(self, type: str = None, query: str = None, **kwargs) -> Entity:
         """Retrieve entities given its type and/or query string.
 
-        Facade method for Entities.retrieve_by_type().
+        Facade method for Entities.retrieve().
 
         Parameters
         ----------
@@ -350,8 +350,43 @@ class Client:
         -------
         list[Entity]
             Retrieved entities matching the given type and/or query string
+
+        Example:
+        --------
+        >>> with Client() as client:
+        >>>     client.retrieve(type="AgriFarm") # match a given type
+
+        >>> with Client() as client:
+        >>>     client.retrieve(type="AgriFarm", query='contactPoint[emailZ]=="wheatfarm@email.com"') # match type and query
         """
         return self.entities.retrieve(type, query)
+
+    def count(self, type: str = None, query: str = None, **kwargs) -> int:
+        """Return number of entities matching type and/or query string.
+
+        Facade method for Entities.count().
+
+        Parameters
+        ----------
+        etype : str
+            The entity's type
+        query: str
+            The query string (NGSI-LD Query Language)
+
+        Returns
+        -------
+        int
+            The number of matching entities
+
+        Example:
+        --------
+        >>> with Client() as client:
+        >>>     client.count(type="AgriFarm") # match a given type
+
+        >>> with Client() as client:
+        >>>     client.count(type="AgriFarm", query='contactPoint[emailZ]=="wheatfarm@email.com"') # match type and query
+        """
+        return self.entities.count(type, query)
 
     def guess_vendor(self) -> tuple[Vendor, Version]:
         """Try to guess the Context Broker vendor.

@@ -115,7 +115,7 @@ class Entities:
     def retrieve(self, type: str = None, query: str = None, **kwargs) -> List[Entity]:
         params = {}
         if type is None and query is None:
-            raise ValueError("Must indicate at least a type or e query string")
+            raise ValueError("Must indicate at least a type or a query string")
         if type:
             params["type"] = type
         if query:
@@ -126,10 +126,32 @@ class Entities:
                 "Accept": "application/ld+json",
                 "Content-Type": None,
             },  # overrides session headers
-            params=params
+            params=params,
         )
         r.raise_for_status()
         self._client.raise_for_status(r)
         entities = r.json()
         logger.info(f"{entities=}")
         return [Entity.from_dict(entity) for entity in entities]
+
+    @rfc7807_error_handle
+    def count(self, type: str = None, query: str = None, **kwargs) -> int:
+        params = {"limit": 0, "count": "true"}
+        if type is None and query is None:
+            raise ValueError("Must indicate at least a type or a query string")
+        if type:
+            params["type"] = type
+        if query:
+            params["q"] = query
+        r = self._session.get(
+            self.url,
+            headers={
+                "Accept": "application/json",
+                "Content-Type": None,
+            },  # overrides session headers
+            params=params,
+        )
+        r.raise_for_status()
+        self._client.raise_for_status(r)
+        count = int(r.headers["NGSILD-Results-Count"])
+        return count
