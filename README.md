@@ -28,9 +28,13 @@ Development goals are :
 
 Acting as a Context Producer/Consumer **ngsildclient** is able to send/receive NGSI-LD entities to/from the Context Broker for creation and other operations.
 
-As of v.01 it covers a subset of the API that consists of the ``/entities/{entityId}`` endpoint.
+As of v.0.1.3 it covers a subset of the API that allows following operations :
+- single-entity operations : ``retrieve()``, ``exists()``, ``create()``, ``update()``, ``upsert()``, ``delete()``
+- array-of-entities *(aka batch)* operations : ``create()``, ``upsert()``, ``update()``, ``delete()``
+- query-based operations :  ``query()``, ``count()``, ``delete_where()``
+- type operations : ``available()``, ``drop()``
+- gobal operations : ``purge()``
 
-Available operations are : ``retrieve()``, ``exists()``, ``create()``, ``update()``, ``upsert()``, ``delete()``.
 
 ## Smart Building Demo
 
@@ -139,12 +143,12 @@ The resulting JSON looks like this :
 Once you're satisfied with it, you can save it to a file to share it, for example with the [Smart Data Models Initiative](https://smartdatamodels.org/).
 
 ```python
-entity.save("air_quality_sample.jsonld")
+entity.save("air_quality_sample.json")
 ```
 
 Or you can send it to the NGSI-LD Context Broker for creation.
 
-### Interact with the NGSI-LD Orion broker
+### Send an entity to the broker then retrieve it
 
 ```python
 from ngsildclient import Entity, SmartDataModels, Client
@@ -169,16 +173,46 @@ with Client() as client:
 # Later you'll be able to retrieve the entity from the broker and resend it for update
 with Client() as client:
     # retrieve the entity by its id
-    farm = client.retrieve_by_id("urn:ngsi-ld:AgriFarm:72d9fb43-53f8-4ec8-a33c-fa931360259a")
+    farm = client.retrieve("urn:ngsi-ld:AgriFarm:72d9fb43-53f8-4ec8-a33c-fa931360259a")
     # It would also work by passing the entity - in case it's still in memory
-    # farm = client.retrieve_by_id(farm)
+    # farm = client.retrieve(farm)
     farm["contactPoint.value.telephone"] = "00349674539"
     client.update(farm)
+```
+
+### Send, query then delete a batch of entities
+
+```python
+# Let's generate a batch of farms
+# A poor mocking strategy just for the sake of example !
+farms: list[Entity] = []
+for hexdigit in "bcdef":
+  newfarm = farm.copy()
+  newfarm.id = newfarm.id[:-1] + hexdigit
+  farms.append(newfarm)
+
+with Client() as client:
+    client.upsert(farms) # 5 new farms created ! (with a single API call)
+
+# Later you'll be able to retrieve entities
+with Client() as client:
+    # Count our farm entities
+    # Replace count by query to retrieve the entities
+    client.count(type="AgriFarm", query='contactPoint[email]=="wheatfarm@email.com"') # 6 = the original farm + 5 copies
+    
+# Eventually we'd like to do some cleanup
+# We could use client.purge() for an agressive cleanup
+with Client() as client:
+    client.drop("AgriFarm") # delete all entities with type Agrifarm
 ```
 
 ## License
 
 [Apache 2.0](LICENSE)
+
+## Known limitations
+
+As of v0.1.3 does not support pagination.
 
 ## Documentation
 
@@ -201,5 +235,5 @@ And inside the ``tests/smartdatamodels`` folder that builds some sample entities
 ## Roadmap
 
 - Add authentication
-- Extend API coverage : add support for query, batch operations and subscriptions
+- Extend API coverage : add support for subscriptions
 - Add documentation

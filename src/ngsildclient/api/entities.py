@@ -69,7 +69,7 @@ class Entities:
         return entity
 
     @rfc7807_error_handle
-    def retrieve_by_id(
+    def retrieve(
         self, eid: Union[EntityId, Entity], asdict: bool = False, **kwargs
     ) -> Entity:
         eid = eid.id if isinstance(eid, Entity) else eid
@@ -112,14 +112,14 @@ class Entities:
         return None
 
     @rfc7807_error_handle
-    def retrieve(self, type: str = None, query: str = None, **kwargs) -> List[Entity]:
+    def query(self, type: str = None, q: str = None, **kwargs) -> List[Entity]:
         params = {}
-        if type is None and query is None:
+        if type is None and q is None:
             raise ValueError("Must indicate at least a type or a query string")
         if type:
             params["type"] = type
-        if query:
-            params["q"] = query
+        if q:
+            params["q"] = q
         r = self._session.get(
             self.url,
             headers={
@@ -131,7 +131,7 @@ class Entities:
         r.raise_for_status()
         self._client.raise_for_status(r)
         entities = r.json()
-        logger.info(f"{entities=}")
+        logger.debug(f"{entities=}")
         return [Entity.from_dict(entity) for entity in entities]
 
     @rfc7807_error_handle

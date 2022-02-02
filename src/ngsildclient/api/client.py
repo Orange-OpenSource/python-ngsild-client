@@ -11,13 +11,15 @@
 
 import logging
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, overload
 
 import requests
 
 from ..model.entity import Entity
 from .constants import *
 from .entities import Entities
+from .batch import BatchOp
+from .types import Types
 from .exceptions import *
 
 logger = logging.getLogger(__name__)
@@ -136,6 +138,8 @@ class Client:
         logger.info("Connecting client ...")
 
         self._entities = Entities(self, f"{self.url}/{ENDPOINT_ENTITIES}")
+        self._batch = BatchOp(self, f"{self.url}/{ENDPOINT_BATCH}")
+        self._types = Types(self, f"{self.url}/{ENDPOINT_TYPES}")
         self._subscriptions = (
             None  # TODO : create Subscriptions class and implement subscription stuff
         )
@@ -209,6 +213,14 @@ class Client:
         return self._entities
 
     @property
+    def batch(self):
+        return self._batch
+
+    @property
+    def types(self):
+        return self._types
+
+    @property
     def subscriptions(self):
         return self._subscriptions
 
@@ -219,6 +231,7 @@ class Client:
         """
         self.session.close()
 
+    @overload
     def create(
         self, entity: Entity, skip: bool = False, overwrite: bool = False
     ) -> Entity:
@@ -240,9 +253,45 @@ class Client:
         Entity
             the entity succesfully created
         """
-        return self.entities.create(entity, skip, overwrite)
+        ...
 
-    def retrieve_by_id(
+    @overload
+    def create(
+        self, entities: List[Entity], skip: bool = False, overwrite: bool = False
+    ):
+        """Create a batch of entities.
+
+        Facade method for Batch.create().
+
+        Parameters
+        ----------
+        entities : List[Entity]
+            the entity to be created by the Context Broker
+        skip : bool, optional
+            if set, skips creation (do nothing) if already exists, by default False
+        overwrite : bool, optional
+            if set, force upsert the entity if already exists, by default False
+
+        Returns
+        -------
+        BatchOperationResult
+            TODO
+        """
+        ...
+
+    def create(
+        self,
+        _entities: Union[Entity, List[Entity]],
+        skip: bool = False,
+        overwrite: bool = False,
+    ) -> Optional[Entity]:
+        if isinstance(_entities, Entity):
+            entity = _entities
+            return self.entities.create(entity, skip, overwrite)
+        else:
+            return self.batch.create(_entities, skip, overwrite)
+
+    def retrieve(
         self, eid: Union[EntityId, Entity], asdict: bool = False, **kwargs
     ) -> Entity:
         """Retrieve an entity given its id.
@@ -262,8 +311,9 @@ class Client:
         Entity
             The retrieved entity
         """
-        return self.entities.retrieve_by_id(eid)
+        return self.entities.retrieve(eid)
 
+    @overload
     def delete(self, eid: Union[EntityId, Entity]) -> bool:
         """Delete an entity given its id.
 
@@ -280,7 +330,35 @@ class Client:
         bool
             True if the entity has been succefully deleted
         """
-        return self.entities.delete(eid)
+        ...
+
+    @overload
+    def delete(self, eids: List[Union[EntityId, Entity]]) -> bool:
+        """Delete entities given its id.
+
+        Facade method for Batch.delete().
+        If already dealing with entity instances one can provide the entities instead of ids.
+
+        Parameters
+        ----------
+        eids : List[Union[EntityId, Entity]]
+            The entities ids or instances
+
+        Returns
+        -------
+        bool
+            True if the entity has been succefully deleted
+        """
+        ...
+
+    def delete(
+        self, eids: Union[Union[EntityId, Entity], List[Union[EntityId, Entity]]]
+    ) -> bool:
+        if isinstance(eids, list):
+            return self.batch.delete(eids)
+        else:
+            eid = eids
+            return self.entities.delete(eid)
 
     def exists(self, eid: Union[EntityId, Entity]) -> bool:
         """Tests if an entity exists.
@@ -300,8 +378,9 @@ class Client:
         """
         return self.entities.exists(eid)
 
+    @overload
     def upsert(self, entity: Entity) -> Entity:
-        """Create the entity or update it if already exists.
+        """Upsert the entity or update it if already exists.
 
         Facade method for Entities.upsert().
 
@@ -315,8 +394,34 @@ class Client:
         Entity
             The entity successfully upserted
         """
-        return self.entities.upsert(entity)
+        ...
 
+    @overload
+    def upsert(self, entities: List[Entity]) -> dict:
+        """Upsert a batch of entities.
+
+        Facade method for Batch.upsert().
+
+        Parameters
+        ----------
+        entity : Entity
+            The entity to be upserted by the Context Broker
+
+        Returns
+        -------
+        Entity
+            The entities successfully upserted
+        """
+        ...
+
+    def upsert(self, entities: Union[Entity, List[Entity]]) -> Union[Entity, dict]:
+        if isinstance(entities, Entity):
+            entity = entities
+            return self.entities.upsert(entity)
+        else:
+            return self.batch.upsert(entities)
+
+    @overload
     def update(self, entity: Entity) -> Optional[Entity]:
         """Update the entity.
 
@@ -334,16 +439,43 @@ class Client:
         """
         return self.entities.update(entity)
 
-    def retrieve(self, type: str = None, query: str = None, **kwargs) -> Entity:
+    @overload
+    def update(self, entities: List[Entity]) -> dict:
+        """Update a batch of entities.
+
+        Facade method for Batch.update().
+
+        Parameters
+        ----------
+        entities : List[Entity]
+            The entities to be updated by the Context Broker
+
+        Returns
+        -------
+        Optional[Entity]
+            The entity successfully updated (or None if not found)
+        """
+        ...
+
+    def update(
+        self, entities: Union[Entity, List[Entity]]
+    ) -> Union[Optional[Entity], dict]:
+        if isinstance(entities, Entity):
+            entity = entities
+            return self.entities.update(entity)
+        else:
+            return self.batch.update(entities)
+
+    def query(self, type: str = None, q: str = None, **kwargs) -> List[Entity]:
         """Retrieve entities given its type and/or query string.
 
-        Facade method for Entities.retrieve().
+        Facade method for Entities.query().
 
         Parameters
         ----------
         etype : str
             The entity's type
-        query: str
+        q: str
             The query string (NGSI-LD Query Language)
 
         Returns
@@ -354,12 +486,12 @@ class Client:
         Example:
         --------
         >>> with Client() as client:
-        >>>     client.retrieve(type="AgriFarm") # match a given type
+        >>>     client.query(type="AgriFarm") # match a given type
 
         >>> with Client() as client:
-        >>>     client.retrieve(type="AgriFarm", query='contactPoint[emailZ]=="wheatfarm@email.com"') # match type and query
+        >>>     client.query(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
-        return self.entities.retrieve(type, query)
+        return self.entities.query(type, q)
 
     def count(self, type: str = None, query: str = None, **kwargs) -> int:
         """Return number of entities matching type and/or query string.
@@ -384,9 +516,55 @@ class Client:
         >>>     client.count(type="AgriFarm") # match a given type
 
         >>> with Client() as client:
-        >>>     client.count(type="AgriFarm", query='contactPoint[emailZ]=="wheatfarm@email.com"') # match type and query
+        >>>     client.count(type="AgriFarm", query='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
         return self.entities.count(type, query)
+
+    def delete_where(
+        self, type: str = None, q: str = None, **kwargs
+    ) -> tuple[bool, dict]:
+        """Batch delete entities matching type and/or query string.
+
+        Parameters
+        ----------
+        etype : str
+            The entity's type
+        query: str
+            The query string (NGSI-LD Query Language)
+
+        Example:
+        --------
+        >>> with Client() as client:
+        >>>     client.delete_where(type="AgriFarm", query='contactPoint[email]=="wheatfarm@email.com"') # match type and query
+        """
+        entities = self.query(type, q, **kwargs)
+        return self.batch.delete(entities)
+
+    def drop(self, type: str) -> None:
+        """Batch delete entities matching the given type.
+
+        Parameters
+        ----------
+        type : str
+            The entity's type
+
+        Example:
+        --------
+        >>> with Client() as client:
+        >>>     client.drop("AgriFarm")
+        """
+        self.delete_where(type=type)
+
+    def purge(self) -> None:
+        """Batch delete all entities.
+
+        Example:
+        --------
+        >>> with Client() as client:
+        >>>     client.purge()
+        """
+        for type in self.types.available():
+            self.drop(type)
 
     def guess_vendor(self) -> tuple[Vendor, Version]:
         """Try to guess the Context Broker vendor.

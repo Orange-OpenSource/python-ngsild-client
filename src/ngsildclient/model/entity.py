@@ -360,6 +360,16 @@ class Entity:
         new = deepcopy(entity)
         return new
 
+    def copy(self) -> Entity:
+        """Duplicates the entity
+
+        Returns
+        -------
+        Entity
+            The new entity
+        """
+        return Entity.duplicate(self)
+
     @property
     def id(self):
         return self._payload["id"]

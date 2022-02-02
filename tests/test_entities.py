@@ -33,7 +33,7 @@ def test_api_create(mocked_connected, requests_mock):
         status_code=201,
     )
     client = Client()
-    res = client._entities.create(sample_entity)
+    res = client.entities.create(sample_entity)
     assert res == sample_entity
 
 
@@ -50,7 +50,7 @@ def test_api_create_error_already_exists(mocked_connected, requests_mock):
     )
     client = Client()
     with pytest.raises(NgsiAlreadyExistsError) as excinfo:
-        client._entities.create(sample_entity)
+        client.entities.create(sample_entity)
     logger.info(f"{type(excinfo.value)=}")
     assert (
         excinfo.value.problemdetails.type
@@ -74,7 +74,7 @@ def test_api_retrieve(mocked_connected, requests_mock):
         json=sample_entity.to_dict(),
     )
     client = Client()
-    res = client._entities.retrieve_by_id("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
+    res = client.entities.retrieve("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
     assert res == sample_entity
 
 
@@ -91,7 +91,7 @@ def test_api_retrieve_error_not_found(mocked_connected, requests_mock):
     )
     client = Client()
     with pytest.raises(NgsiResourceNotFoundError) as excinfo:
-        client._entities.retrieve_by_id("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568")
+        client.entities.retrieve("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568")
     assert (
         excinfo.value.problemdetails.type
         == "https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound"

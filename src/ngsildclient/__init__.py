@@ -12,7 +12,7 @@
 import http.client
 import logging
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 from .utils import iso8601
 from .utils.uuid import shortuuid
