@@ -111,9 +111,13 @@ class Entities:
 
     @rfc7807_error_handle
     def query(
-        self, type: str = None, q: str = None, limit: int = 0, **kwargs
+        self, type: str = None, q: str = None, limit: int = 0, offset: int = 0, **kwargs
     ) -> List[Entity]:
-        params = {} if limit == 0 else {"limit": limit}
+        params = {}
+        if limit != 0:
+            params |= {"limit": limit}
+        if offset != 0:
+            params |= {"offset": offset}
         if type is None and q is None:
             raise ValueError("Must indicate at least a type or a query string")
         if type:
@@ -135,14 +139,14 @@ class Entities:
         return [Entity.from_dict(entity) for entity in entities]
 
     @rfc7807_error_handle
-    def count(self, type: str = None, query: str = None, **kwargs) -> int:
+    def count(self, type: str = None, q: str = None, **kwargs) -> int:
         params = {"limit": 0, "count": "true"}
-        if type is None and query is None:
+        if type is None and q is None:
             raise ValueError("Must indicate at least a type or a query string")
         if type:
             params["type"] = type
-        if query:
-            params["q"] = query
+        if q:
+            params["q"] = q
         r = self._session.get(
             self.url,
             headers={

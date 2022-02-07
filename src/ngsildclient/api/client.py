@@ -10,10 +10,10 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 import logging
+import requests
 from dataclasses import dataclass
 from typing import Optional, overload
-
-import requests
+from math import ceil
 
 from ..model.entity import Entity
 from .constants import *
@@ -469,7 +469,9 @@ class Client:
     def query(self, type: str = None, q: str = None, **kwargs) -> List[Entity]:
         """Retrieve entities given its type and/or query string.
 
-        Facade method for Entities.query().
+        Retrieve up to PAGINATION_LIMIT_MAX entities.
+        Use query_all() to retrieve all entities.
+        Use entities.query() to deal with limit and offset on your own.
 
         Parameters
         ----------
@@ -493,7 +495,48 @@ class Client:
         """
         return self.entities.query(type, q, limit=PAGINATION_LIMIT_MAX)
 
-    def count(self, type: str = None, query: str = None, **kwargs) -> int:
+    def query_all(
+        self,
+        type: str = None,
+        q: str = None,
+        limit: int = PAGINATION_LIMIT_MAX,
+        **kwargs,
+    ) -> List[Entity]:
+        """Retrieve entities given its type and/or query string.
+
+        Retrieve all entities by sending as many requests as needed, using pagination.
+        Assume data hold in memory.
+
+        Parameters
+        ----------
+        etype : str
+            The entity's type
+        q: str
+            The query string (NGSI-LD Query Language)
+        limit: int
+            The number of entities retrieved in each request
+
+        Returns
+        -------
+        list[Entity]
+            Retrieved entities matching the given type and/or query string
+
+        Example:
+        --------
+        >>> with Client() as client:
+        >>>     client.query_all(type="AgriFarm") # match a given type
+
+        >>> with Client() as client:
+        >>>     client.query_all(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
+        """
+
+        entities: list[Entity] = []
+        count = self.entities.count(type, q)
+        for page in range(ceil(count / limit)):
+            entities.extend(self.entities.query(type, q, limit, page * limit))
+        return entities
+
+    def count(self, type: str = None, q: str = None, **kwargs) -> int:
         """Return number of entities matching type and/or query string.
 
         Facade method for Entities.count().
@@ -518,7 +561,7 @@ class Client:
         >>> with Client() as client:
         >>>     client.count(type="AgriFarm", query='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
-        return self.entities.count(type, query)
+        return self.entities.count(type, q)
 
     def delete_where(
         self, type: str = None, q: str = None, **kwargs
@@ -537,7 +580,7 @@ class Client:
         >>> with Client() as client:
         >>>     client.delete_where(type="AgriFarm", query='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
-        entities = self.query(type, q, **kwargs)
+        entities = self.query_all(type, q, **kwargs)
         return self.batch.delete(entities)
 
     def drop(self, type: str) -> None:
