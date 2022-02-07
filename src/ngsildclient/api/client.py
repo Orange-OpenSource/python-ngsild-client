@@ -491,7 +491,7 @@ class Client:
         >>> with Client() as client:
         >>>     client.query(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
-        return self.entities.query(type, q)
+        return self.entities.query(type, q, limit=PAGINATION_LIMIT_MAX)
 
     def count(self, type: str = None, query: str = None, **kwargs) -> int:
         """Return number of entities matching type and/or query string.

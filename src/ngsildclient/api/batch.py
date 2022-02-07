@@ -10,8 +10,7 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional
-from functools import partialmethod
+from typing import TYPE_CHECKING
 
 import logging
 
@@ -64,9 +63,7 @@ class BatchOp:
             f"{self.url}/update/", json=[entity._payload for entity in entities]
         )
         if r.status_code == 204:
-            return True, {
-                "success": "all entities have been successfully updated"
-            }
+            return True, {"success": "all entities have been successfully updated"}
         else:
             return False, r.json()
 

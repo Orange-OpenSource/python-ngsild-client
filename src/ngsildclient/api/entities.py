@@ -22,7 +22,6 @@ from .constants import *
 from .exceptions import (
     NgsiAlreadyExistsError,
     NgsiApiError,
-    NgsiContextBrokerError,
     rfc7807_error_handle,
 )
 from ..model.entity import Entity
@@ -112,8 +111,10 @@ class Entities:
         return None
 
     @rfc7807_error_handle
-    def query(self, type: str = None, q: str = None, **kwargs) -> List[Entity]:
-        params = {}
+    def query(
+        self, type: str = None, q: str = None, limit: int = 0, **kwargs
+    ) -> List[Entity]:
+        params = {} if limit == 0 else {"limit": limit}
         if type is None and q is None:
             raise ValueError("Must indicate at least a type or a query string")
         if type:
