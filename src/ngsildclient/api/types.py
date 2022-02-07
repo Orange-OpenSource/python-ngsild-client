@@ -11,16 +11,13 @@
 
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
-from functools import partialmethod
 
 import logging
 
 if TYPE_CHECKING:
     from .client import Client
 
-from .constants import *
 from .exceptions import rfc7807_error_handle
-from ..model.entity import Entity
 
 
 logger = logging.getLogger(__name__)
@@ -33,6 +30,6 @@ class Types:
         self.url = url
 
     @rfc7807_error_handle
-    def available(self) -> Optional[dict]:
+    def list(self) -> Optional[dict]:
         r = self._session.get(f"{self.url}")
         return r.json()["typeList"]

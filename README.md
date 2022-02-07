@@ -28,11 +28,11 @@ Development goals are :
 
 Acting as a Context Producer/Consumer **ngsildclient** is able to send/receive NGSI-LD entities to/from the Context Broker for creation and other operations.
 
-As of v.0.1.3 it covers a subset of the API that allows following operations :
+As of v0.1.3 it covers a subset of the API that allows following operations :
 - single-entity operations : ``retrieve()``, ``exists()``, ``create()``, ``update()``, ``upsert()``, ``delete()``
 - array-of-entities *(aka batch)* operations : ``create()``, ``upsert()``, ``update()``, ``delete()``
 - query-based operations :  ``query()``, ``count()``, ``delete_where()``
-- type operations : ``available()``, ``drop()``
+- type operations : ``list()``, ``drop()``
 - gobal operations : ``purge()``
 
 
@@ -157,11 +157,10 @@ from ngsildclient import Entity, SmartDataModels, Client
 farm = Entity.load(SmartDataModels.SmartAgri.Agrifood.AgriFarm)
 
 # We can visualize it : here we would like the simplified representation (aka KeyValues)
-farm.pprint(kv=True)
+farm.pprint(kv=True) # this is a wheat farm
 
-# We could add/update properties using the prop primitives as we did previously
-# For the sake of example we'll just update the phone number, using the dot notation facility
-farm["contactPoint.value.telephone"] = "00349674538"
+# For the sake of example we'll transform this wheat farm into a corn farm
+farm.prop("name", "Corn farm") # override the existing property
 
 # Send it to the Context Broker for creation
 # Here you need a Context Broker up and running
@@ -176,21 +175,18 @@ with Client() as client:
     farm = client.retrieve("urn:ngsi-ld:AgriFarm:72d9fb43-53f8-4ec8-a33c-fa931360259a")
     # It would also work by passing the entity - in case it's still in memory
     # farm = client.retrieve(farm)
-    farm["contactPoint.value.telephone"] = "00349674539"
+    # Update the email according to the corn activity (using the dot notation facility)
+    farm["contactPoint.value.email"] = "cornfarm@email.com"
     client.update(farm)
 ```
 
 ### Send, query then delete a batch of entities
 
 ```python
-# Let's generate a batch of farms
-# A poor mocking strategy just for the sake of example !
-farms: list[Entity] = []
-for hexdigit in "bcdef":
-  newfarm = farm.copy()
-  newfarm.id = newfarm.id[:-1] + hexdigit
-  farms.append(newfarm)
+from ngsildclient import MockerNgsi
 
+# Let's generate five new farms
+farms = MockerNgsi(farm).mock(5)
 with Client() as client:
     client.upsert(farms) # 5 new farms created ! (with a single API call)
 
@@ -198,10 +194,9 @@ with Client() as client:
 with Client() as client:
     # Count our farm entities
     # Replace count by query to retrieve the entities
-    client.count(type="AgriFarm", query='contactPoint[email]=="wheatfarm@email.com"') # 6 = the original farm + 5 copies
+    client.count(type="AgriFarm", query='contactPoint[email]=="cornfarm@email.com"') # 6 = the original farm + 5 copies
     
 # Eventually we'd like to do some cleanup
-# We could use client.purge() for an agressive cleanup
 with Client() as client:
     client.drop("AgriFarm") # delete all entities with type Agrifarm
 ```
@@ -212,7 +207,7 @@ with Client() as client:
 
 ## Known limitations
 
-As of v0.1.3 does not support pagination.
+Does not support pagination.
 
 ## Documentation
 

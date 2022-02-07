@@ -12,7 +12,7 @@
 import http.client
 import logging
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 from .utils import iso8601
 from .utils.uuid import shortuuid
@@ -20,6 +20,7 @@ from .model.entity import Entity
 from .model.helper.postal import PostalAddressBuilder
 from .model.helper.openinghours import OpeningHoursBuilder
 from .model.constants import CORE_CONTEXT, NESTED, Auto, SmartDataModels, Rel
+from .model.mock import MockerNgsi
 from .api.client import Client
 from .exceptions import NgsiError
 from .model.exceptions import NgsiModelError
@@ -36,6 +37,7 @@ __all__ = [
     "NESTED",
     "Auto",
     "Rel",
+    "MockerNgsi",
     "Client",
     "SmartDataModels",
     "NgsiError",
