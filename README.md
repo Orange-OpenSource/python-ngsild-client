@@ -173,8 +173,6 @@ with Client() as client:
 with Client() as client:
     # retrieve the entity by its id
     farm = client.retrieve("urn:ngsi-ld:AgriFarm:72d9fb43-53f8-4ec8-a33c-fa931360259a")
-    # It would also work by passing the entity - in case it's still in memory
-    # farm = client.retrieve(farm)
     # Update the email according to the corn activity (using the dot notation facility)
     farm["contactPoint.value.email"] = "cornfarm@email.com"
     client.update(farm)
