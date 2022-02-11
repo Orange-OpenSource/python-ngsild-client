@@ -250,7 +250,7 @@ class Entity:
 
         self._lastprop: NgsiDict = None
         self._anchored: bool = False
-        
+
         if payload is not None:  # create Entity from a dictionary
             if not payload.get("id", None):
                 raise NgsiMissingIdError()
@@ -289,7 +289,6 @@ class Entity:
             {"@context": ctx, "id": urn.fqn, "type": type},
             dtcached=dt if dt else iso8601.utcnow(),
         )
-
 
     @classmethod
     def from_dict(cls, payload: dict):

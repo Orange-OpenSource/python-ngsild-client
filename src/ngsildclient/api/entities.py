@@ -67,7 +67,7 @@ class Entities:
         return entity
 
     @rfc7807_error_handle
-    def retrieve(
+    def get(
         self, eid: Union[EntityId, Entity], asdict: bool = False, **kwargs
     ) -> Entity:
         eid = eid.id if isinstance(eid, Entity) else eid

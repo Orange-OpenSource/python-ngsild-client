@@ -74,7 +74,7 @@ def test_api_retrieve(mocked_connected, requests_mock):
         json=sample_entity.to_dict(),
     )
     client = Client()
-    res = client.entities.retrieve("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
+    res = client.entities.get("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
     assert res == sample_entity
 
 
@@ -91,16 +91,14 @@ def test_api_retrieve_error_not_found(mocked_connected, requests_mock):
     )
     client = Client()
     with pytest.raises(NgsiResourceNotFoundError) as excinfo:
-        client.entities.retrieve("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568")
+        client.entities.get("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568")
     assert (
-        excinfo.value.problemdetails.type
-        == "https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound"
+        excinfo.value.problemdetails.type == "https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound"
     )
     assert excinfo.value.problemdetails.title == "Entity Not Found"
     assert excinfo.value.problemdetails.status == 404
     assert (
-        excinfo.value.problemdetails.detail
-        == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
+        excinfo.value.problemdetails.detail == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     )
     assert excinfo.value.problemdetails.instance is None
     assert excinfo.value.problemdetails.extension == {}

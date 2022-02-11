@@ -12,14 +12,16 @@
 import logging
 import requests
 from dataclasses import dataclass
-from typing import Optional, overload
+from typing import Optional, Generator, overload
 from math import ceil
+from itertools import islice
 
 from ..model.entity import Entity
 from .constants import *
 from .entities import Entities
 from .batch import BatchOp
 from .types import Types
+from .contexts import Contexts
 from .exceptions import *
 
 logger = logging.getLogger(__name__)
@@ -44,7 +46,7 @@ class Client:
     As for now it focuses on the /entities/{entityId} endpoint.
     Allowed operations are :
     - create(), update(), upsert()
-    - retrieve(), exists()
+    - get(), exists()
     - delete()
 
     Update() and upsert() operations are not atomic, as they
@@ -140,6 +142,7 @@ class Client:
         self._entities = Entities(self, f"{self.url}/{ENDPOINT_ENTITIES}")
         self._batch = BatchOp(self, f"{self.url}/{ENDPOINT_BATCH}")
         self._types = Types(self, f"{self.url}/{ENDPOINT_TYPES}")
+        self._contexts = Contexts(self, f"{self.url}/{ENDPOINT_CONTEXTS}")
         self._subscriptions = (
             None  # TODO : create Subscriptions class and implement subscription stuff
         )
@@ -221,6 +224,10 @@ class Client:
         return self._types
 
     @property
+    def contexts(self):
+        return self._contexts
+
+    @property
     def subscriptions(self):
         return self._subscriptions
 
@@ -291,7 +298,7 @@ class Client:
         else:
             return self.batch.create(_entities, skip, overwrite)
 
-    def retrieve(
+    def get(
         self, eid: Union[EntityId, Entity], asdict: bool = False, **kwargs
     ) -> Entity:
         """Retrieve an entity given its id.
@@ -311,7 +318,7 @@ class Client:
         Entity
             The retrieved entity
         """
-        return self.entities.retrieve(eid)
+        return self.entities.get(eid)
 
     @overload
     def delete(self, eid: Union[EntityId, Entity]) -> bool:
@@ -505,7 +512,7 @@ class Client:
         """Retrieve entities given its type and/or query string.
 
         Retrieve all entities by sending as many requests as needed, using pagination.
-        Assume data hold in memory.
+        Assume data hold in memory. Should not be an issue except for very large datasets.
 
         Parameters
         ----------
@@ -535,6 +542,33 @@ class Client:
         for page in range(ceil(count / limit)):
             entities.extend(self.entities.query(type, q, limit, page * limit))
         return entities
+
+    def query_generator(
+        self,
+        type: str = None,
+        q: str = None,
+        limit: int = PAGINATION_LIMIT_MAX,
+        **kwargs,
+    ) -> Generator[Entity, None, None]:
+        count = self.entities.count(type, q)
+        for page in range(ceil(count / limit)):
+            yield from self.entities.query(type, q, limit, page * limit)
+
+    def dump_type(self, type: str, limit: int = 100):  # TODO
+        count = self.entities.count(type)
+        with open(f"dump_{type}.txt", "wt") as dumpfile:
+            for page in range(ceil(count / limit)):
+                entities = self.entities.query(type, None, limit, page * limit)
+                dumpfile.writelines([e.to_json() + "\n" for e in entities])
+
+    def import_type(self, type: str, limit: int = 100):  # TODO
+        with open(f"dump_{type}.txt", "rt") as dumpfile:
+            while True:
+                lines = list(islice(dumpfile, 5))
+                if lines:
+                    print(lines)
+                else:
+                    break
 
     def count(self, type: str = None, q: str = None, **kwargs) -> int:
         """Return number of entities matching type and/or query string.
@@ -606,7 +640,7 @@ class Client:
         >>> with Client() as client:
         >>>     client.purge()
         """
-        for type in self.types.available():
+        for type in self.types.list():
             self.drop(type)
 
     def guess_vendor(self) -> tuple[Vendor, Version]:
