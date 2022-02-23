@@ -3,5 +3,5 @@
 ## Orion Context Broker *(with Linked Data Extensions)*
 
 ```console
-$ docker-compose up -d
+$ docker compose up -d
 ```

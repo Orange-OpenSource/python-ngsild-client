@@ -3,5 +3,5 @@
 ## Scorpio NGSI-LD Broker
 
 ```console
-$ docker-compose up -d
+$ docker compose up -d
 ```

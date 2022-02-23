@@ -690,24 +690,26 @@ class Client:
             return None
 
     def _broker_version_scorpio(self) -> Optional[str]:
-        """Requests the broker looking for Scorpio version.
+        """Requests the broker looking for Stellio version.
 
-        Targets the /health endpoint.
-        No /version endpoint as for now.
+        Targets the /actuator/health endpoint.
 
         Returns
         -------
         Optional[str]
-            "N/A" if the broker is Scorpio else None
+            The ScorpioBroker version if found
         """
-        url = f"{self.url}/scorpio/v1/info/health"
+        url = f"{self.url}/actuator"
         headers = {
             "Accept": "application/json",
             "Content-Type": None,
         }  # overrides session headers
         try:
-            r = self.session.get(url, headers=headers)
+            r = self.session.get(f"{url}/health", headers=headers)
             r.raise_for_status()
+            r = self.session.get(f"{url}/info", headers=headers)
+            if r.ok:
+                return r.json()["build"]["version"]
             return "N/A"
         except Exception:
             return None
@@ -716,21 +718,23 @@ class Client:
         """Requests the broker looking for Stellio version.
 
         Targets the /actuator/health endpoint.
-        No /version endpoint as for now.
 
         Returns
         -------
         Optional[str]
-            "N/A" if the broker is Stellio else None
+            The StellioBroker version if found
         """
-        url = f"{self.url}/actuator/health"
+        url = f"{self.url}/actuator"
         headers = {
             "Accept": "application/json",
             "Content-Type": None,
         }  # overrides session headers
         try:
-            r = self.session.get(url, headers=headers)
+            r = self.session.get(f"{url}/health", headers=headers)
             r.raise_for_status()
+            r = self.session.get(f"{url}/info", headers=headers)
+            if r.ok:
+                return r.json()["build"]["version"]
             return "N/A"
         except Exception:
             return None

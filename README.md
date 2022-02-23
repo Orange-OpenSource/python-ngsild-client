@@ -64,7 +64,7 @@ One should use a virtual environment. For example with pyenv.
 ```sh
 mkdir myfiwareproject && cd myfiwareproject
 pyenv virtualenv 3.10.2 myfiwareproject
-pyenv local
+pyenv local 3.10.2
 pip install ngsildclient
 ```
 
