@@ -15,7 +15,6 @@ import requests
 from dataclasses import dataclass
 from typing import Optional, Tuple, Generator, overload
 from math import ceil
-from itertools import islice
 
 from ..model.entity import Entity
 from .constants import *
