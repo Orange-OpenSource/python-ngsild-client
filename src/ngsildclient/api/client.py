@@ -10,9 +10,10 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 import logging
+import sys
 import requests
 from dataclasses import dataclass
-from typing import Optional, Generator, overload
+from typing import Optional, Tuple, Generator, overload
 from math import ceil
 from itertools import islice
 
@@ -28,6 +29,10 @@ logger = logging.getLogger(__name__)
 
 """This module contains the definition of the Client class.
 """
+
+
+def is_interactive() -> bool:
+    return hasattr(sys, "ps1") or sys.flags.interactive
 
 
 @dataclass
@@ -147,9 +152,11 @@ class Client:
             None  # TODO : create Subscriptions class and implement subscription stuff
         )
 
+        self.broker = Broker(Vendor.UNKNOWN, "N/A")
+
         # get status and retrieve Context Broker information
         status = self.is_connected(raise_for_disconnected=True)
-        if status:
+        if status and is_interactive():
             self.broker = Broker(*self.guess_vendor())
             print(self._welcome_message())
         else:
@@ -198,6 +205,8 @@ class Client:
             )
             r.raise_for_status()
         except Exception as e:
+            if is_interactive():
+                return False
             if raise_for_disconnected:
                 raise NgsiNotConnectedError(
                     f"Cannot connect to Context Broker at {self.hostname}:{self.port}: {e}"
@@ -554,22 +563,6 @@ class Client:
         for page in range(ceil(count / limit)):
             yield from self.entities.query(type, q, limit, page * limit)
 
-    def dump_type(self, type: str, limit: int = 100):  # TODO
-        count = self.entities.count(type)
-        with open(f"dump_{type}.txt", "wt") as dumpfile:
-            for page in range(ceil(count / limit)):
-                entities = self.entities.query(type, None, limit, page * limit)
-                dumpfile.writelines([e.to_json() + "\n" for e in entities])
-
-    def import_type(self, type: str, limit: int = 100):  # TODO
-        with open(f"dump_{type}.txt", "rt") as dumpfile:
-            while True:
-                lines = list(islice(dumpfile, 5))
-                if lines:
-                    print(lines)
-                else:
-                    break
-
     def count(self, type: str = None, q: str = None, **kwargs) -> int:
         """Return number of entities matching type and/or query string.
 
@@ -659,12 +652,10 @@ class Client:
         >>>     print(client.guess_vendor())
         (<Vendor.ORIONLD: 'Orion-LD'>, 'post-v0.8.1')
         """
-        if version := self._broker_version_orionld():
-            return Vendor.ORIONLD, version
-        if version := self._broker_version_scorpio():
-            return Vendor.SCORPIO, version
-        if version := self._broker_version_stellio():
-            return Vendor.STELLIO, version
+        if broker := self._broker_version_orionld():
+            return broker
+        if broker := self._broker_version_java_spring():
+            return broker
         return Vendor.UNKNOWN, "N/A"
 
     def _broker_version_orionld(self) -> Optional[str]:
@@ -685,19 +676,19 @@ class Client:
         try:
             r = self.session.get(url, headers=headers)
             r.raise_for_status()
-            return r.json()["orionld version"]
+            return Vendor.ORIONLD, r.json()["orionld version"]
         except Exception:
             return None
 
-    def _broker_version_scorpio(self) -> Optional[str]:
-        """Requests the broker looking for Stellio version.
+    def _broker_version_java_spring(self) -> Optional[Tuple[Vendor, str]]:
+        """Requests the Java-Spring based broker looking for Vendor and Version.
 
-        Targets the /actuator/health endpoint.
+        Targets the /actuator/info endpoint.
 
         Returns
         -------
-        Optional[str]
-            The ScorpioBroker version if found
+        Optional[Tuple[Vendor, str]]
+            A tuple composed of the Vendor and the broker version
         """
         url = f"{self.url}/actuator"
         headers = {
@@ -708,48 +699,22 @@ class Client:
             r = self.session.get(f"{url}/health", headers=headers)
             r.raise_for_status()
             r = self.session.get(f"{url}/info", headers=headers)
-            if r.ok:
-                return r.json()["build"]["version"]
-            return "N/A"
-        except Exception:
-            return None
-
-    def _broker_version_stellio(self) -> Optional[str]:
-        """Requests the broker looking for Stellio version.
-
-        Targets the /actuator/health endpoint.
-
-        Returns
-        -------
-        Optional[str]
-            The StellioBroker version if found
-        """
-        url = f"{self.url}/actuator"
-        headers = {
-            "Accept": "application/json",
-            "Content-Type": None,
-        }  # overrides session headers
-        try:
-            r = self.session.get(f"{url}/health", headers=headers)
             r.raise_for_status()
-            r = self.session.get(f"{url}/info", headers=headers)
-            if r.ok:
-                return r.json()["build"]["version"]
-            return "N/A"
+            build = r.json()["build"]
+            version = build["version"]
+            group = build["group"]
+            if group == "eu.neclab.ngsildbroker":
+                vendor = Vendor.SCORPIO
+            elif group == "com.egm.stellio":
+                vendor = Vendor.STELLIO
+            else:
+                return None
+            return vendor, version
         except Exception:
             return None
-
-    def _broker_version_cassiopeia(self) -> Optional[str]:
-        """Requests the broker looking for Cassiopeia version.
-
-        Raises
-        ------
-        NotImplemented
-        """
-        raise NotImplementedError
 
     def _welcome_message(self) -> str:
-        return f"Connected to Context Broker at {self.hostname}:{self.port} | vendor={self.broker.vendor.value} version={self.broker.version}"
+        return f"Connected to Context Broker at {self.hostname}:{self.port} | vendor={self.broker.vendor.value} | version={self.broker.version}"
 
     def _fail_message(self) -> str:
         return f"Failed to connect to Context Broker at {self.hostname}:{self.port}"
