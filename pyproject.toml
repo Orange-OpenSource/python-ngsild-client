@@ -5,7 +5,7 @@ description = "A Python library that helps building NGSI-LD entities and interac
 license = "Apache-2.0"
 readme="README.md"
 authors = ["fbattello <fabien.battello@orange.com>"]
-homepage = "https://github.com/Orange-OpenSource/python-orion-client"
+homepage = "https://github.com/Orange-OpenSource/python-ngsild-client"
 keywords = ["Fiware", "NGSI", "NGSI-LD", "NGSI Agent"]
 classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"

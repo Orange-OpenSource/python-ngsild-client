@@ -29,7 +29,7 @@ Development goals are :
 Acting as a Context Producer/Consumer **ngsildclient** is able to send/receive NGSI-LD entities to/from the Context Broker for creation and other operations.
 
 As of v0.1.3 it covers a subset of the API that allows following operations :
-- single-entity operations : ``retrieve()``, ``exists()``, ``create()``, ``update()``, ``upsert()``, ``delete()``
+- single-entity operations : ``get()``, ``exists()``, ``create()``, ``update()``, ``upsert()``, ``delete()``
 - array-of-entities *(aka batch)* operations : ``create()``, ``upsert()``, ``update()``, ``delete()``
 - query-based operations :  ``query()``, ``count()``, ``delete_where()``
 - type operations : ``list()``, ``drop()``
@@ -46,7 +46,7 @@ How to build the NGSI-LD [SmartBuilding example](https://smart-data-models.githu
 ## Where to get it
 
 The source code is currently hosted on GitHub at :
-https://github.com/Orange-OpenSource/python-orion-client
+https://github.com/Orange-OpenSource/python-ngsild-client
 
 Binary installer for the latest released version is available at the [Python
 package index](https://pypi.org/project/ngsildclient).
@@ -62,9 +62,9 @@ pip install ngsildclient
 One should use a virtual environment. For example with pyenv.
 
 ```sh
-mkdir myfiwareproject && cd myfiwareproject
-pyenv virtualenv 3.10.2 myfiwareproject
-pyenv local 3.10.2
+mkdir myagent && cd myagent
+pyenv virtualenv 3.10.2 myagent
+pyenv local myagent
 pip install ngsildclient
 ```
 
