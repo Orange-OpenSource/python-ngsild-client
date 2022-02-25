@@ -2,7 +2,6 @@
 
 ## Stellio context broker
 
-
 The docker-compose file from Stellio is slightly modified in order to enable the version endpoint.
 
 ```console

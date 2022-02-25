@@ -1,0 +1,37 @@
+# ngsildclient 0.1.4
+## February 7, 2022
+
+- Added pagination support
+- Added MockerNgsi to allow generate a bunch of entities (for testing purpose)
+- Fixed bug : unable to update prop in a loaded entity
+
+# ngsildclient 0.1.3
+## February 2, 2022
+
+- Added ``count()`` method
+- Added wrapping for ``batch`` operations and ``types``
+
+# ngsildclient 0.1.2
+## January 31, 2022
+
+- Added query features : query entities by a type or a query string
+- Added github CI workflow
+- Fixed SPDX headers
+
+# ngsildclient 0.1.1
+## January 18, 2022
+
+- Added ``overwrite`` option to create entity
+- Added well-known relationships as constants
+- Added ``MultiPoint`` support
+- Added the ``Building`` and ``Pipe`` NGSI-LD example from the Smart Data Models Initiative
+
+# ngsildclient 0.1.0
+## January 14, 2022
+
+First public release.
+
+- Allow to build NGSI-LD compliant entities : ``model`` package
+- Wrap a subset of the NGSI-LD API (single entity CRUD) : ``api`` package
+- Build many examples from the [Smart Data Models Initiative](https://smartdatamodels.org/) : ``tests`` folder
+
