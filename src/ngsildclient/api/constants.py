@@ -63,6 +63,9 @@ NGSILD_DEFAULT_PORT_SCORPIO = 9090
 NGSILD_DEFAULT_PORT_STELLIO = 8080
 NGSILD_DEFAULT_PORT = NGSILD_DEFAULT_PORT_ORIONLD
 
+# JSON-LD Vocabulary at w3.org
+JSONLD_CONTEXT = "http://www.w3.org/ns/json-ld#context"
+
 # endpoints MUST NOT end with a slash
 ENDPOINT_STATUS = "version"
 ENDPOINT_ADMIN = "admin"
@@ -74,7 +77,7 @@ ENDPOINT_CONTEXTS = f"{NGSILD_BASEPATH}/jsonldContexts"
 ENDPOINT_SUBSCRIPTIONS = f"{NGSILD_BASEPATH}/subscriptions"
 
 
-PAGINATION_LIMIT_MAX = 1000  # pagination (max. allowed by Orion-LD)
+PAGINATION_LIMIT_MAX = 100  # pagination
 
 DEFAULT_ATTR_FORMAT = None  # Let Orion default value => AttrsFormat.NORMALIZED
 DEFAULT_LOGLEVEL = LogLevel.WARN

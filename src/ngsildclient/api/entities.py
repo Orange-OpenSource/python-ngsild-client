@@ -68,10 +68,22 @@ class Entities:
 
     @rfc7807_error_handle
     def get(
-        self, eid: Union[EntityId, Entity], asdict: bool = False, **kwargs
+        self,
+        eid: Union[EntityId, Entity],
+        ctx: str = None,
+        asdict: bool = False,
+        **kwargs,
     ) -> Entity:
         eid = eid.id if isinstance(eid, Entity) else eid
-        r = self._session.get(f"{self.url}/{eid}", **kwargs)
+        headers = {
+            "Accept": "application/ld+json",
+            "Content-Type": None,
+        }  # overrides session headers
+        if ctx is not None:
+            headers[
+                "Link"
+            ] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
+        r = self._session.get(f"{self.url}/{eid}", headers=headers, **kwargs)
         self._client.raise_for_status(r)
         return r.json() if asdict else Entity.from_dict(r.json())
 
@@ -111,7 +123,13 @@ class Entities:
 
     @rfc7807_error_handle
     def query(
-        self, type: str = None, q: str = None, limit: int = 0, offset: int = 0, **kwargs
+        self,
+        type: str = None,
+        q: str = None,
+        ctx: str = None,        
+        limit: int = 0,
+        offset: int = 0,
+        **kwargs,
     ) -> List[Entity]:
         params = {}
         if limit != 0:
@@ -124,12 +142,17 @@ class Entities:
             params["type"] = type
         if q:
             params["q"] = q
+        headers = {
+            "Accept": "application/ld+json",
+            "Content-Type": None,
+        }  # overrides session headers
+        if ctx is not None:
+            headers[
+                "Link"
+            ] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
         r = self._session.get(
             self.url,
-            headers={
-                "Accept": "application/ld+json",
-                "Content-Type": None,
-            },  # overrides session headers
+            headers=headers,
             params=params,
         )
         r.raise_for_status()

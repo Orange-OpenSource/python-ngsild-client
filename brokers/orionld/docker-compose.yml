@@ -1,15 +1,16 @@
+# Note that mongo container is started before Orion, as Orion needs it
+# as dependency and reserve the order has been found problematic in some
+# low resource hosts
 version: "3"
 services:
-  orion:
-    image: fiware/orion-ld 
-    container_name: orionld
-    ports:
-      - 1026:1026
-    depends_on:
-      - oriondb
-    command: -dbhost oriondb -logLevel DEBUG
-    restart: always
-  oriondb:
-    image: mongo
-    container_name: oriondb
+  mongo:
+    image: mongo:4.4
     command: --nojournal
+  orion:
+    image: fiware/orion-ld
+    links:
+      - mongo
+    ports:
+      - "1026:1026"
+    command: -dbhost mongo
+

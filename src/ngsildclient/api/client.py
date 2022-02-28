@@ -307,7 +307,11 @@ class Client:
             return self.batch.create(_entities, skip, overwrite)
 
     def get(
-        self, eid: Union[EntityId, Entity], asdict: bool = False, **kwargs
+        self,
+        eid: Union[EntityId, Entity],
+        ctx: str = None,
+        asdict: bool = False,
+        **kwargs,
     ) -> Entity:
         """Retrieve an entity given its id.
 
@@ -318,6 +322,8 @@ class Client:
         ----------
         eid : Union[EntityId, Entity]
             The entity identifier or the entity instance
+        ctx : str
+            The context
         asdict : bool, optional
             If set (instead of returning an Entity) returns the raw API response (a Python dict that represents the JSON response), by default False
 
@@ -326,7 +332,7 @@ class Client:
         Entity
             The retrieved entity
         """
-        return self.entities.get(eid)
+        return self.entities.get(eid, ctx, asdict, **kwargs)
 
     @overload
     def delete(self, eid: Union[EntityId, Entity]) -> bool:
@@ -481,7 +487,9 @@ class Client:
         else:
             return self.batch.update(entities)
 
-    def query(self, type: str = None, q: str = None, **kwargs) -> List[Entity]:
+    def query(
+        self, type: str = None, q: str = None, ctx: str = None, **kwargs
+    ) -> List[Entity]:
         """Retrieve entities given its type and/or query string.
 
         Retrieve up to PAGINATION_LIMIT_MAX entities.
@@ -494,7 +502,8 @@ class Client:
             The entity's type
         q: str
             The query string (NGSI-LD Query Language)
-
+        ctx : str
+            The context
         Returns
         -------
         list[Entity]
@@ -508,12 +517,13 @@ class Client:
         >>> with Client() as client:
         >>>     client.query(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
-        return self.entities.query(type, q, limit=PAGINATION_LIMIT_MAX)
+        return self.entities.query(type, q, ctx, limit=PAGINATION_LIMIT_MAX)
 
     def query_all(
         self,
         type: str = None,
         q: str = None,
+        ctx: str = None,
         limit: int = PAGINATION_LIMIT_MAX,
         **kwargs,
     ) -> List[Entity]:
@@ -528,6 +538,8 @@ class Client:
             The entity's type
         q: str
             The query string (NGSI-LD Query Language)
+        ctx: str
+            The context
         limit: int
             The number of entities retrieved in each request
 
@@ -548,19 +560,20 @@ class Client:
         entities: list[Entity] = []
         count = self.entities.count(type, q)
         for page in range(ceil(count / limit)):
-            entities.extend(self.entities.query(type, q, limit, page * limit))
+            entities.extend(self.entities.query(type, q, ctx, limit, page * limit))
         return entities
 
     def query_generator(
         self,
         type: str = None,
         q: str = None,
+        ctx: str = None,
         limit: int = PAGINATION_LIMIT_MAX,
         **kwargs,
     ) -> Generator[Entity, None, None]:
         count = self.entities.count(type, q)
         for page in range(ceil(count / limit)):
-            yield from self.entities.query(type, q, limit, page * limit)
+            yield from self.entities.query(type, q, ctx, limit, page * limit)
 
     def count(self, type: str = None, q: str = None, **kwargs) -> int:
         """Return number of entities matching type and/or query string.
@@ -697,6 +710,9 @@ class Client:
         try:
             r = self.session.get(f"{url}/health", headers=headers)
             r.raise_for_status()
+        except Exception:
+            return None
+        try:
             r = self.session.get(f"{url}/info", headers=headers)
             r.raise_for_status()
             build = r.json()["build"]
@@ -710,6 +726,10 @@ class Client:
                 return None
             return vendor, version
         except Exception:
+            if is_interactive():
+                print(
+                    "Java-Spring based Context Broker detected. Try to enable info endpoint."
+                )
             return None
 
     def _welcome_message(self) -> str:
@@ -717,6 +737,9 @@ class Client:
 
     def _fail_message(self) -> str:
         return f"Failed to connect to Context Broker at {self.hostname}:{self.port}"
+
+    def _warn_spring_message(self) -> str:
+        return "Java-Spring based Context Broker detected. Info endpoint disabled."
 
     # below the context manager methods
 
