@@ -11,10 +11,11 @@
 
 import http.client
 import logging
+import sys
 
 __version__ = "0.1.5"
 
-from .utils import iso8601
+from .utils import iso8601, is_interactive
 from .utils.uuid import shortuuid
 from .model.entity import Entity
 from .model.helper.postal import PostalAddressBuilder
@@ -50,6 +51,9 @@ __all__ = [
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
+if is_interactive():
+    logging.disable(logging.CRITICAL)
+    sys.tracebacklimit = 0
 
 logger = logging.getLogger(__name__)
 

@@ -21,7 +21,7 @@ from .constants import *
 from .exceptions import (
     NgsiAlreadyExistsError,
     NgsiApiError,
-    rfc7807_error_handle,
+    rfc7807_error_handle
 )
 from ..model.entity import Entity
 
@@ -37,7 +37,10 @@ class Entities:
 
     @rfc7807_error_handle
     def create(
-        self, entity: Entity, skip: bool = False, overwrite: bool = False
+        self,
+        entity: Entity,
+        skip: bool = False,
+        overwrite: bool = False
     ) -> Optional[Entity]:
         r = self._session.post(
             f"{self.url}/",
@@ -126,7 +129,7 @@ class Entities:
         self,
         type: str = None,
         q: str = None,
-        ctx: str = None,        
+        ctx: str = None,
         limit: int = 0,
         offset: int = 0,
         **kwargs,

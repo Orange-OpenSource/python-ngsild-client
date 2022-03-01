@@ -12,3 +12,8 @@
 """Contains helper modules to handle iso8601 dates, URLs, NGSI-LD URNs, and generate short uuids.
 """
 
+import sys
+
+
+def is_interactive() -> bool:
+    return hasattr(sys, "ps1") or sys.flags.interactive

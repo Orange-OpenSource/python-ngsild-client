@@ -10,12 +10,12 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 import logging
-import sys
 import requests
 from dataclasses import dataclass
 from typing import Optional, Tuple, Generator, overload
 from math import ceil
 
+from ..utils import is_interactive
 from ..model.entity import Entity
 from .constants import *
 from .entities import Entities
@@ -28,10 +28,6 @@ logger = logging.getLogger(__name__)
 
 """This module contains the definition of the Client class.
 """
-
-
-def is_interactive() -> bool:
-    return hasattr(sys, "ps1") or sys.flags.interactive
 
 
 @dataclass
