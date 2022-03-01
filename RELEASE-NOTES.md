@@ -1,3 +1,11 @@
+# ngsildclient 0.1.5
+## March 1, 2022
+
+- Handle JSON-LD Context parameter in ``get()`` and ``query()`` methods
+- Wrap API endpoint ``jsonldContexts``
+- Detect version for Java-Spring based brokers
+- Improved behaviour in interactive mode (console)
+
 # ngsildclient 0.1.4
 ## February 7, 2022
 
