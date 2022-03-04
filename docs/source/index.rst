@@ -3,12 +3,12 @@ ngsildclient documentation
 
 Welcome to the **ngsildclient** documentation, where you can learn about ngsildclient and explore its features.
 
-**ngsildclient** is a Python NGSI-LD_ client implementation.
+**ngsildclient** is a Python NGSI-LD client implementation.
 
-NGSI-LD has been standardized by the ETSI and is widely used in the Fiware_ ecosystem.
+NGSI-LD_ has been standardized by the ETSI_ and is widely used in the Fiware_ ecosystem.
 
-Goals
------
+Project Goals
+-------------
 
 The ngsildclient Python library has two main objectives.
 
@@ -22,8 +22,8 @@ The ngsildclient Python library has two main objectives.
    | As a Python NGSI-LD client it allows to interact with a broker by sending and retrieving NGSI-LD entities.
    | As of v0.1.5 it supports a subset of the API.
 
-In practice
------------
+Four practical use cases
+------------------------
 
 ngsildclient can be useful in practice to :
 
@@ -56,11 +56,56 @@ ngsildclient can be useful in practice to :
    - purge entities
    - list contexts
 
-  
+Installation
+------------
+
+ngsildclient requires Python 3.9 or above.
+
+It's recommended to use a virtual environment.
+
+.. code-block:: bash
+   :emphasize-lines: 5
+
+   mkdir myagent && cd myagent
+   pyenv virtualenv 3.9.10 myagent
+   pyenv local myagent
+
+   pip install ngsildclient
+
+Getting started
+---------------
+
+Create a first very basic NGSI-LD entity.
+
+.. code-block::
+
+   from datetime import datetime
+   from ngsildclient import Entity
+
+   entity = Entity("AirQualityObserved", "RZ:Obsv4567")
+   entity.tprop("dateObserved", datetime(2018, 8, 7, 12))
+   entity.gprop("location", (44, -8))
+   entity.prop("PM10", 8).prop("NO2", 22, unitcode="GP", userdata={"reliability": 0.95})
+   entity.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
+
+   entity.pprint() # have a look at your just created entity
+
+| Send it to the Broker for creation.
+| *It assumes you have a broker instance running locally.*
+
+.. code-block::
+
+   from ngsildclient import Client
+
+   with Client() as client:
+    client.create(entity)
 
 .. toctree::
    :hidden:
 
+   Home Page <self>
+   Build Entities <build>
+   Interact with the Broker <client>
    License <license>
    API Reference <_autosummary/ngsildclient>
 
@@ -72,6 +117,7 @@ Indices and tables
 * :ref:`search`
 
 .. _NGSI-LD: https://en.wikipedia.org/wiki/NGSI-LD
+.. _ETSI: https://www.etsi.org/
 .. _Fiware: https://www.fiware.org
 .. _specifications: https://www.etsi.org/committee/cim
 
