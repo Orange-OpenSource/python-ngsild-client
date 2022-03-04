@@ -7,7 +7,7 @@ services:
     image: mongo:4.4
     command: --nojournal
   orion:
-    image: fiware/orion-ld
+    image: fiware/orion-ld:latest
     links:
       - mongo
     ports:

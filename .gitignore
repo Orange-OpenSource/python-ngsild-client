@@ -1,7 +1,6 @@
 # Thanks to https://github.com/github/gitignore
 
 # temporary
-docs/
 .python-version
 
 # Byte-compiled / optimized / DLL files
