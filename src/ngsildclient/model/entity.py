@@ -545,7 +545,7 @@ class Entity:
             }
         }
         """
-        property = self._payload.build_property(
+        property = self._payload._build_property(
             value, unitcode, observedat, datasetid, userdata, escape
         )
         self._update_entity(name, property, nested)
@@ -608,7 +608,7 @@ class Entity:
             }
         }
         """
-        property = self._payload.build_geoproperty(value, observedat, datasetid)
+        property = self._payload._build_geoproperty(value, observedat, datasetid)
         self._update_entity(name, property, nested)
         return self
 
@@ -660,7 +660,7 @@ class Entity:
         """
         if value is None:
             value = self._payload._dtcached
-        property = self._payload.build_temporal_property(value)
+        property = self._payload._build_temporal_property(value)
         self._update_entity(name, property, nested)
         return self
 
@@ -718,7 +718,7 @@ class Entity:
         if isinstance(name, Rel):
             name = name.value
 
-        property = self._payload.build_relationship(value, observedat, datasetid, userdata)
+        property = self._payload._build_relationship(value, observedat, datasetid, userdata)
         self._update_entity(name, property, nested)
         return self
 

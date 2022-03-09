@@ -1,4 +1,4 @@
-ngsildclient.model.ngsidict.NgsiDict
+﻿ngsildclient.model.ngsidict.NgsiDict
 ====================================
 
 .. currentmodule:: ngsildclient.model.ngsidict
@@ -16,23 +16,21 @@ ngsildclient.model.ngsidict.NgsiDict
    .. autosummary::
       :nosignatures:
    
-      ~NgsiDict.build_geoproperty
-      ~NgsiDict.build_property
-      ~NgsiDict.build_relationship
-      ~NgsiDict.build_temporal_property
-      ~NgsiDict.cachedate
       ~NgsiDict.clear
       ~NgsiDict.copy
-      ~NgsiDict.dateauto
       ~NgsiDict.fromkeys
       ~NgsiDict.get
+      ~NgsiDict.gprop
       ~NgsiDict.items
       ~NgsiDict.keys
       ~NgsiDict.pop
       ~NgsiDict.popitem
       ~NgsiDict.pprint
+      ~NgsiDict.prop
+      ~NgsiDict.rel
       ~NgsiDict.setdefault
       ~NgsiDict.to_json
+      ~NgsiDict.tprop
       ~NgsiDict.update
       ~NgsiDict.values
    

@@ -1,8 +1,8 @@
 Build Entities
 ==============
 
-Create entity
--------------
+Create an entity
+----------------
 
 | Let's start by creating an empty entity - without any properties *yet*.
 | We'll add properties in a next step.
@@ -425,8 +425,8 @@ The Relationship Property points to one *or many* JSON-LD objects.
 
 Import the **Rel** Enum to access well-known relationship names, such as ``observedBy`` or ``hasPart``.
 
-Nest properties
----------------
+Implement nested properties
+---------------------------
 
 Sometimes properties are composed of properties.
 
@@ -576,63 +576,21 @@ Anchoring
       }
    }
 
-Low-level manipulation
-----------------------
+Update an entity
+----------------
 
-How to update and remove properties, change an attribute value.
-An entity instance is backed by a dictionary, a NGSI-dedicated dictonary called NgsiDict.
+| An Entity instance is backed by a dictionary.
+| In fact a NGSI-dedicated dictionary that extends the native Python dictionary.
+| You use this dictionary each time you deal with a subpart of the Entity.
 
-Members
-~~~~~~~
+It provides obviously all the native dictionary staff but also :
 
-| Entity members are ``id``, ``type`` and ``context``.
-| The Entity class provides a Python property for each one.
+- the **prop()**, **gprop()**, **tprop()** and **rel()** primitives quite equivalent to those provided by the Entity
+- a dot notation to access fields, i.e. `room["temperature.value"]`
 
-.. code-block::
-
-   from ngsildclient import Entity
-
-   room.id = "urn:ngsi-ld:Room:02"
-
-Properties
-~~~~~~~~~~
-
-| To update a property the easiest way is to override it.
-
-.. code-block::
-
-   from ngsildclient import Entity
-
-   room.prop("pressure", 938.7)
-
-| Consider the following example.
-
-.. code-block::
-
-   from ngsildclient import Entity
-
-   room["temperature.value"] += 0.2
-
-The same method can be used to add a metadata.
-
-.. code-block::
-
-   from ngsildclient import Entity
-
-   room["temperature.unitCode"] = "CEL"
-
-Or to add a nested property.
-
-.. code-block::
-
-   from ngsildclient import Entity
-
-   room["temperature.reliability"] = {"type": "Property", "value": 0.7}
-
-| Consider the following example.
+Let's consider the following example.
 
 .. code-block:: json-ld
-   :caption: Example from the ETSI White Paper
 
    {
       "@context": [
@@ -650,13 +608,89 @@ Or to add a nested property.
       },
       "pressure": {
          "type": "Property",
-         "value": 938.8,
-         "unitCode": "A97"
+         "value": 938.8
       }
    }
 
+Update a member
+~~~~~~~~~~~~~~~
 
+| Entity members are ``id``, ``type`` and ``context``.
+| The Entity class provides a Python property for each one.
+| Members can be updated but cannot be removed.
 
+.. code-block::
+
+   from ngsildclient import Entity
+
+   room.id = "urn:ngsi-ld:Room:02"
+
+Update a value
+~~~~~~~~~~~~~~~
+
+.. code-block::
+
+   from ngsildclient import Entity
+
+   room["temperature.value"] += 0.2
+
+Add metadata or userdata
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use the same method.
+
+.. code-block::
+
+   from ngsildclient import Entity
+
+   room["temperature.unitCode"] = "CEL"
+
+Remove any part of the Entity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It applies to properties as well.
+
+.. code-block::
+
+   from ngsildclient import Entity
+
+   del room["temperature.unitCode"]
+
+Update a property
+~~~~~~~~~~~~~~~~~
+
+To update an Entity's property the easiest way is to override it.
+
+.. code-block::
+
+   from ngsildclient import Entity
+
+   room.prop("pressure", 938.7, unitcode="A97")
+
+Add a nested property
+~~~~~~~~~~~~~~~~~~~~~
+
+| We can add a nested property without rebuilding the upper property.
+| Here we nest a qc property into the temperature property.
+
+.. code-block::
+
+   from ngsildclient import Entity
+
+   room["temperature"].prop("qc", "checked")
+
+Add a multilevel nested property
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+| Here we nest a status property into a qc property, itself nested into the temperature property.
+| Note that chaining the **prop()** automatically enables nesting.
+| The **prop()** method used here does not belong to the Entity but to the NGSI-dedicated dictionary.
+
+.. code-block::
+
+   from ngsildclient import Entity
+
+   room["temperature"].prop("qc", "checked").prop("status", "discarded")
 
 
 .. [ETSI_WP42] Guidelines for Modelling with NGSI-LD `ETSI WhitePaper <https://www.etsi.org/images/files/ETSIWhitePapers/etsi_wp_42_NGSI_LD.pdf>`_

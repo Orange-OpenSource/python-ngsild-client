@@ -40,7 +40,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="index.html">Home Page</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Build Entities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#create-entity">Create entity</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#create-an-entity">Create an entity</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#the-preferred-way">1. The preferred way</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#alternate-way">1. Alternate way</a></li>
 </ul>
@@ -60,15 +60,20 @@
 <li class="toctree-l3"><a class="reference internal" href="#relationship">Relationship</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#nest-properties">Nest properties</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#implement-nested-properties">Implement nested properties</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#single-level">Single level</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#multilevel">Multilevel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#anchoring">Anchoring</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#low-level-manipulation">Low-level manipulation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#members">Members</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#update-an-entity">Update an entity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#update-a-member">Update a member</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#update-a-value">Update a value</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-metadata-or-userdata">Add metadata or userdata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#remove-any-part-of-the-entity">Remove any part of the Entity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#update-a-property">Update a property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-a-nested-property">Add a nested property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-a-multilevel-nested-property">Add a multilevel nested property</a></li>
 </ul>
 </li>
 </ul>
@@ -104,8 +109,8 @@
              
   <section id="build-entities">
 <h1>Build Entities<a class="headerlink" href="#build-entities" title="Permalink to this headline"></a></h1>
-<section id="create-entity">
-<h2>Create entity<a class="headerlink" href="#create-entity" title="Permalink to this headline"></a></h2>
+<section id="create-an-entity">
+<h2>Create an entity<a class="headerlink" href="#create-an-entity" title="Permalink to this headline"></a></h2>
 <div class="line-block">
 <div class="line">Let’s start by creating an empty entity - without any properties <em>yet</em>.</div>
 <div class="line">We’ll add properties in a next step.</div>
@@ -557,8 +562,8 @@
 <p>Import the <strong>Rel</strong> Enum to access well-known relationship names, such as <code class="docutils literal notranslate"><span class="pre">observedBy</span></code> or <code class="docutils literal notranslate"><span class="pre">hasPart</span></code>.</p>
 </section>
 </section>
-<section id="nest-properties">
-<h2>Nest properties<a class="headerlink" href="#nest-properties" title="Permalink to this headline"></a></h2>
+<section id="implement-nested-properties">
+<h2>Implement nested properties<a class="headerlink" href="#implement-nested-properties" title="Permalink to this headline"></a></h2>
 <p>Sometimes properties are composed of properties.</p>
 <section id="single-level">
 <h3>Single level<a class="headerlink" href="#single-level" title="Permalink to this headline"></a></h3>
@@ -710,57 +715,19 @@
 </div>
 </section>
 </section>
-<section id="low-level-manipulation">
-<h2>Low-level manipulation<a class="headerlink" href="#low-level-manipulation" title="Permalink to this headline"></a></h2>
-<p>How to update and remove properties, change an attribute value.
-An entity instance is backed by a dictionary, a NGSI-dedicated dictonary called NgsiDict.</p>
-<section id="members">
-<h3>Members<a class="headerlink" href="#members" title="Permalink to this headline"></a></h3>
+<section id="update-an-entity">
+<h2>Update an entity<a class="headerlink" href="#update-an-entity" title="Permalink to this headline"></a></h2>
 <div class="line-block">
-<div class="line">Entity members are <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">type</span></code> and <code class="docutils literal notranslate"><span class="pre">context</span></code>.</div>
-<div class="line">The Entity class provides a Python property for each one.</div>
+<div class="line">An Entity instance is backed by a dictionary.</div>
+<div class="line">In fact a NGSI-dedicated dictionary that extends the native Python dictionary.</div>
+<div class="line">You use this dictionary each time you deal with a subpart of the Entity.</div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
-
-<span class="n">room</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="s2">&quot;urn:ngsi-ld:Room:02&quot;</span>
-</pre></div>
-</div>
-</section>
-<section id="properties">
-<h3>Properties<a class="headerlink" href="#properties" title="Permalink to this headline"></a></h3>
-<div class="line-block">
-<div class="line">To update a property the easiest way is to override it.</div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
-
-<span class="n">room</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;pressure&quot;</span><span class="p">,</span> <span class="mf">938.7</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="line-block">
-<div class="line">Consider the following example.</div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
-
-<span class="n">room</span><span class="p">[</span><span class="s2">&quot;temperature.value&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.2</span>
-</pre></div>
-</div>
-<p>The same method can be used to add a metadata.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
-
-<span class="n">room</span><span class="p">[</span><span class="s2">&quot;temperature.unitCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;CEL&quot;</span>
-</pre></div>
-</div>
-<p>Or to add a nested property.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
-
-<span class="n">room</span><span class="p">[</span><span class="s2">&quot;temperature.reliability&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Property&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">}</span>
-</pre></div>
-</div>
-<div class="line-block">
-<div class="line">Consider the following example.</div>
-</div>
-<div class="literal-block-wrapper docutils container" id="id25">
-<div class="code-block-caption"><span class="caption-text">Example from the ETSI White Paper</span><a class="headerlink" href="#id25" title="Permalink to this code"></a></div>
+<p>It provides obviously all the native dictionary staff but also :</p>
+<ul class="simple">
+<li><p>the <strong>prop()</strong>, <strong>gprop()</strong>, <strong>tprop()</strong> and <strong>rel()</strong> primitives quite equivalent to those provided by the Entity</p></li>
+<li><p>a dot notation to access fields, i.e. <cite>room[“temperature.value”]</cite></p></li>
+</ul>
+<p>Let’s consider the following example.</p>
 <div class="highlight-json-ld notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="nd">&quot;@context&quot;</span><span class="p">:</span> <span class="p">[</span>
       <span class="s2">&quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
@@ -777,12 +744,82 @@ An entity instance is backed by a dictionary, a NGSI-dedicated dictonary called 
    <span class="p">},</span>
    <span class="nt">&quot;pressure&quot;</span><span class="p">:</span> <span class="p">{</span>
       <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Property&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mf">938.8</span><span class="p">,</span>
-      <span class="nt">&quot;unitCode&quot;</span><span class="p">:</span> <span class="s2">&quot;A97&quot;</span>
+      <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mf">938.8</span>
    <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
+<section id="update-a-member">
+<h3>Update a member<a class="headerlink" href="#update-a-member" title="Permalink to this headline"></a></h3>
+<div class="line-block">
+<div class="line">Entity members are <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">type</span></code> and <code class="docutils literal notranslate"><span class="pre">context</span></code>.</div>
+<div class="line">The Entity class provides a Python property for each one.</div>
+<div class="line">Members can be updated but cannot be removed.</div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
+
+<span class="n">room</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="s2">&quot;urn:ngsi-ld:Room:02&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="update-a-value">
+<h3>Update a value<a class="headerlink" href="#update-a-value" title="Permalink to this headline"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
+
+<span class="n">room</span><span class="p">[</span><span class="s2">&quot;temperature.value&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.2</span>
+</pre></div>
+</div>
+</section>
+<section id="add-metadata-or-userdata">
+<h3>Add metadata or userdata<a class="headerlink" href="#add-metadata-or-userdata" title="Permalink to this headline"></a></h3>
+<p>Use the same method.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
+
+<span class="n">room</span><span class="p">[</span><span class="s2">&quot;temperature.unitCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;CEL&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="remove-any-part-of-the-entity">
+<h3>Remove any part of the Entity<a class="headerlink" href="#remove-any-part-of-the-entity" title="Permalink to this headline"></a></h3>
+<p>It applies to properties as well.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
+
+<span class="k">del</span> <span class="n">room</span><span class="p">[</span><span class="s2">&quot;temperature.unitCode&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="update-a-property">
+<h3>Update a property<a class="headerlink" href="#update-a-property" title="Permalink to this headline"></a></h3>
+<p>To update an Entity’s property the easiest way is to override it.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
+
+<span class="n">room</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;pressure&quot;</span><span class="p">,</span> <span class="mf">938.7</span><span class="p">,</span> <span class="n">unitcode</span><span class="o">=</span><span class="s2">&quot;A97&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="add-a-nested-property">
+<h3>Add a nested property<a class="headerlink" href="#add-a-nested-property" title="Permalink to this headline"></a></h3>
+<div class="line-block">
+<div class="line">We can add a nested property without rebuilding the upper property.</div>
+<div class="line">Here we nest a qc property into the temperature property.</div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
+
+<span class="n">room</span><span class="p">[</span><span class="s2">&quot;temperature&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;qc&quot;</span><span class="p">,</span> <span class="s2">&quot;checked&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="add-a-multilevel-nested-property">
+<h3>Add a multilevel nested property<a class="headerlink" href="#add-a-multilevel-nested-property" title="Permalink to this headline"></a></h3>
+<div class="line-block">
+<div class="line">Here we nest a status property into a qc property, itself nested into the temperature property.</div>
+<div class="line">Note that chaining the <strong>prop()</strong> automatically enables nesting.</div>
+<div class="line">The <strong>prop()</strong> method used here does not belong to the Entity but to the NGSI-dedicated dictionary.</div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
+
+<span class="n">room</span><span class="p">[</span><span class="s2">&quot;temperature&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;qc&quot;</span><span class="p">,</span> <span class="s2">&quot;checked&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;discarded&quot;</span><span class="p">)</span>
+</pre></div>
 </div>
 <dl class="citation">
 <dt class="label" id="etsi-wp42"><span class="brackets"><a class="fn-backref" href="#id1">ETSI_WP42</a></span></dt>

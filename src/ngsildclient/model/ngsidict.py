@@ -49,10 +49,10 @@ class NgsiDict(dict):
         d = json.loads(payload)
         return cls(d)
 
-    def cachedate(self, dt: datetime):
+    def _cachedate(self, dt: datetime):
         self._dtcached = dt
 
-    def dateauto(self):
+    def _dateauto(self):
         if self._dtcached is None:
             self._dtcached = iso8601.utcnow()
         return self._dtcached
@@ -96,14 +96,14 @@ class NgsiDict(dict):
 
     def _process_observedat(self, observedat):
         if observedat is Auto:
-            observedat = self.dateauto()
+            observedat = self._dateauto()
         date_str, temporaltype, dt = iso8601.parse(observedat)
         if temporaltype != TemporalType.DATETIME:
             raise NgsiDateFormatError(f"observedAt must be a DateTime : {date_str}")
-        self.cachedate(dt)
+        self._cachedate(dt)
         return date_str
 
-    def build_property(
+    def _build_property(
         self,
         value: Any,
         unitcode: str = None,
@@ -134,9 +134,10 @@ class NgsiDict(dict):
         return property
 
     def prop(self, name: str, value: str, **kwargs):
-        self[name] = self.build_property(value, **kwargs)
+        self[name] = self._build_property(value, **kwargs)
+        return self[name]
 
-    def build_geoproperty(
+    def _build_geoproperty(
         self,
         value: NgsiGeometry,
         observedat: Union[str, datetime, type[Auto]] = None,
@@ -163,14 +164,15 @@ class NgsiDict(dict):
         return property
 
     def gprop(self, name: str, value: str, **kwargs):
-        self[name] = self.build_geoproperty(value, **kwargs)
+        self[name] = self._build_geoproperty(value, **kwargs)
+        return self[name]
 
-    def build_temporal_property(self, value: Union[NgsiDate, type[Auto]]) -> NgsiDict:
+    def _build_temporal_property(self, value: Union[NgsiDate, type[Auto]]) -> NgsiDict:
         property: NgsiDict = NgsiDict()
         property["type"] = AttrType.TEMPORAL.value  # set type
 
         if value is Auto:
-            value = self.dateauto()
+            value = self._dateauto()
 
         date_str, temporaltype, dt = iso8601.parse(value)
         v = {
@@ -178,13 +180,14 @@ class NgsiDict(dict):
             "@value": date_str,
         }
         property["value"] = v  # set value
-        self.cachedate(dt)
+        self._cachedate(dt)
         return property
 
     def tprop(self, name: str, value: str, **kwargs):
-        self[name] = self.build_temporal_property(value, **kwargs)
+        self[name] = self._build_temporal_property(value, **kwargs)
+        return self[name]
 
-    def build_relationship(
+    def _build_relationship(
         # Multiple Relationship limitation : no metadata
         self,
         value: Union[str, List[str]],
@@ -207,5 +210,7 @@ class NgsiDict(dict):
         return property
 
     def rel(self, name: str, value: str, **kwargs):
-        self[name] = self.build_relationship(value, **kwargs)
-        
+        if isinstance(name, Rel):
+            name = name.value
+        self[name] = self._build_relationship(value, **kwargs)
+        return self[name]
