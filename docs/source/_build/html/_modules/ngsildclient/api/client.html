@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ngsildclient.api.client &mdash; ngsildclient 0.1.5 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> ngsildclient
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Home Page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../build.html">Build Entities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client.html">Interact with the Broker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/ngsildclient.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ngsildclient</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../ngsildclient.html">ngsildclient</a> &raquo;</li>
+      <li>ngsildclient.api.client</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ngsildclient.api.client</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="c1"># Software Name: ngsildclient</span>
+<span class="c1"># SPDX-FileCopyrightText: Copyright (c) 2021 Orange</span>
+<span class="c1"># SPDX-License-Identifier: Apache 2.0</span>
+<span class="c1">#</span>
+<span class="c1"># This software is distributed under the Apache 2.0;</span>
+<span class="c1"># see the NOTICE file for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># Author: Fabien BATTELLO &lt;fabien.battello@orange.com&gt; et al.</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
+
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">is_interactive</span>
+<span class="kn">from</span> <span class="nn">..model.entity</span> <span class="kn">import</span> <span class="n">Entity</span>
+<span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.entities</span> <span class="kn">import</span> <span class="n">Entities</span>
+<span class="kn">from</span> <span class="nn">.batch</span> <span class="kn">import</span> <span class="n">BatchOp</span>
+<span class="kn">from</span> <span class="nn">.types</span> <span class="kn">import</span> <span class="n">Types</span>
+<span class="kn">from</span> <span class="nn">.contexts</span> <span class="kn">import</span> <span class="n">Contexts</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="sd">&quot;&quot;&quot;This module contains the definition of the Client class.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="Broker"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.api.client.Broker.html#ngsildclient.Broker">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Broker</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Represent a NGSI-LD Context Broker.&quot;&quot;&quot;</span>
+
+    <span class="n">vendor</span><span class="p">:</span> <span class="n">Vendor</span> <span class="o">=</span> <span class="n">Vendor</span><span class="o">.</span><span class="n">UNKNOWN</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;N/A&quot;</span></div>
+
+
+<div class="viewcode-block" id="Client"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.api.client.Client.html#ngsildclient.Client">[docs]</a><span class="k">class</span> <span class="nc">Client</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;An implementation of the NGSI-LD client API.</span>
+
+<span class="sd">    It allows to connect to a NGSI-LD Context Broker, check the connection and</span>
+<span class="sd">    try to identify the vendor.</span>
+<span class="sd">    As for now it focuses on the /entities/{entityId} endpoint.</span>
+<span class="sd">    Allowed operations are :</span>
+<span class="sd">    - create(), update(), upsert()</span>
+<span class="sd">    - get(), exists()</span>
+<span class="sd">    - delete()</span>
+
+<span class="sd">    Update() and upsert() operations are not atomic, as they</span>
+<span class="sd">    aren&#39;t provided as-is by the API, but require chaining 2 API calls.</span>
+
+<span class="sd">    When encountering errors the Client throws enriched</span>
+<span class="sd">    Exceptions, as NGSI-LD API supports ProblemDetails [IETF RFC 7807].</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from ngsildclient import *</span>
+
+<span class="sd">    &gt;&gt;&gt; # Here we don&#39;t build our own NGSI-LD entity, but grab an example from SmartDatamodels</span>
+<span class="sd">    &gt;&gt;&gt; farm = Entity.load(SmartDatamodels.SmartAgri.Agrifood.AgriFarm)</span>
+
+<span class="sd">    &gt;&gt;&gt; # farm.pprint()</span>
+
+<span class="sd">    &gt;&gt;&gt; # Connect to the Context Broker and upsert the entity</span>
+<span class="sd">    &gt;&gt;&gt; # As we don&#39;t provide any arguments to the Client constructor</span>
+<span class="sd">    &gt;&gt;&gt; # It connects to localhost and default port (without any authentication)</span>
+<span class="sd">    &gt;&gt;&gt; with Client() as client:</span>
+<span class="sd">    &gt;&gt;&gt;     client.upsert(farm)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">hostname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span><span class="p">,</span>
+        <span class="n">port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">NGSILD_DEFAULT_PORT</span><span class="p">,</span>
+        <span class="n">secure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">useragent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">UA</span><span class="p">,</span>
+        <span class="n">tenant</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">ignore_errors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">proxy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a Client instance to interact with the Context Broker.</span>
+
+<span class="sd">        The Client allows to retrieve or send entities</span>
+<span class="sd">        (model.Entity instances) to the Context Broker.</span>
+<span class="sd">        For example, one can retrieve an entity from the Context Broker,</span>
+<span class="sd">        modify it (update/delete/add properties),</span>
+<span class="sd">        and send it back to the Context Broker.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hostname : str, optional</span>
+<span class="sd">            the hostname to connect to, by default &quot;localhost&quot;</span>
+<span class="sd">        port : int, optional</span>
+<span class="sd">            the TCP port to connect to, by default NGSILD_DEFAULT_PORT</span>
+<span class="sd">        secure : bool, optional</span>
+<span class="sd">            whether to use TLS, by default False</span>
+<span class="sd">        useragent : str, optional</span>
+<span class="sd">            the User Agent string sent in the HTTP headers, by default UA</span>
+<span class="sd">        tenant : str, optional</span>
+<span class="sd">            the tenant string in case you make use of multi-tenancy, by default None</span>
+<span class="sd">        overwrite : bool, optional</span>
+<span class="sd">            if set create() will behave like upsert(), by default False</span>
+<span class="sd">        ignore_errors : bool, optional</span>
+<span class="sd">            if set tests the connection at init time and raisesan exception if failed, by default False</span>
+<span class="sd">        proxy : str, optional</span>
+<span class="sd">            proxies all requests to the provided proxy string (for debugging purpose), by default None</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        api.model.Entity</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hostname</span> <span class="o">=</span> <span class="n">hostname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">secure</span> <span class="o">=</span> <span class="n">secure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="s2">&quot;https&quot;</span> <span class="k">if</span> <span class="n">secure</span> <span class="k">else</span> <span class="s2">&quot;http&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">scheme</span><span class="si">}</span><span class="s2">://</span><span class="si">{</span><span class="n">hostname</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">NGSILD_PATH</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">useragent</span> <span class="o">=</span> <span class="n">useragent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tenant</span> <span class="o">=</span> <span class="n">tenant</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overwrite</span> <span class="o">=</span> <span class="n">overwrite</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_errors</span> <span class="o">=</span> <span class="n">ignore_errors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proxy</span> <span class="o">=</span> <span class="n">proxy</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">useragent</span><span class="p">,</span>
+            <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/ld+json&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/ld+json&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">tenant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;NGSILD-Tenant&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tenant</span>
+        <span class="k">if</span> <span class="n">proxy</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">proxies</span> <span class="o">=</span> <span class="p">{</span><span class="n">proxy</span><span class="p">}</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Connecting client ...&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_entities</span> <span class="o">=</span> <span class="n">Entities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ENDPOINT_ENTITIES</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_batch</span> <span class="o">=</span> <span class="n">BatchOp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ENDPOINT_BATCH</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_types</span> <span class="o">=</span> <span class="n">Types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ENDPOINT_TYPES</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_contexts</span> <span class="o">=</span> <span class="n">Contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ENDPOINT_CONTEXTS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_subscriptions</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="kc">None</span>  <span class="c1"># TODO : create Subscriptions class and implement subscription stuff</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">broker</span> <span class="o">=</span> <span class="n">Broker</span><span class="p">(</span><span class="n">Vendor</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
+
+        <span class="c1"># get status and retrieve Context Broker information</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_connected</span><span class="p">(</span><span class="n">raise_for_disconnected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="ow">and</span> <span class="n">is_interactive</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">broker</span> <span class="o">=</span> <span class="n">Broker</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">guess_vendor</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_welcome_message</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fail_message</span><span class="p">())</span>
+
+<div class="viewcode-block" id="Client.raise_for_status"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.api.client.Client.html#ngsildclient.Client.raise_for_status">[docs]</a>    <span class="k">def</span> <span class="nf">raise_for_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">Response</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Raises an exception depending on the API response.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        r : Response</span>
+<span class="sd">            Response from the Context Broker</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_errors</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Client.is_connected"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.api.client.Client.html#ngsildclient.Client.is_connected">[docs]</a>    <span class="k">def</span> <span class="nf">is_connected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raise_for_disconnected</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Test if connection to Context Broker is established.</span>
+
+<span class="sd">        Send a valid test request to the Context Broker and expects a result.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raise_for_disconnected : bool, optional</span>
+<span class="sd">            throw an exception if connection fails (if not set only return False), by default False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the Context Broker replies</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        NgsiNotConnectedError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ENDPOINT_ENTITIES</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;None&quot;</span><span class="p">,</span> <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">url</span><span class="p">,</span>
+                <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">},</span>  <span class="c1"># overrides session headers</span>
+                <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">is_interactive</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">raise_for_disconnected</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">NgsiNotConnectedError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Cannot connect to Context Broker at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hostname</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">__version__</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">entities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_entities</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_batch</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_types</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contexts</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">subscriptions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subscriptions</span>
+
+<div class="viewcode-block" id="Client.close"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.api.client.Client.html#ngsildclient.Client.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Terminates the client.</span>
+
+<span class="sd">        Closes the underlying Requests.Session.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">skip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Entity</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create an entity.</span>
+
+<span class="sd">        Facade method for Entities.create().</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        entity : Entity</span>
+<span class="sd">            the entity to be created by the Context Broker</span>
+<span class="sd">        skip : bool, optional</span>
+<span class="sd">            if set, skips creation (do nothing) if already exists, by default False</span>
+<span class="sd">        overwrite : bool, optional</span>
+<span class="sd">            if set, force upsert the entity if already exists, by default False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Entity</span>
+<span class="sd">            the entity succesfully created</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">entities</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Entity</span><span class="p">],</span> <span class="n">skip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a batch of entities.</span>
+
+<span class="sd">        Facade method for Batch.create().</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        entities : List[Entity]</span>
+<span class="sd">            the entity to be created by the Context Broker</span>
+<span class="sd">        skip : bool, optional</span>
+<span class="sd">            if set, skips creation (do nothing) if already exists, by default False</span>
+<span class="sd">        overwrite : bool, optional</span>
+<span class="sd">            if set, force upsert the entity if already exists, by default False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        BatchOperationResult</span>
+<span class="sd">            TODO</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">_entities</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Entity</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Entity</span><span class="p">]],</span>
+        <span class="n">skip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Entity</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_entities</span><span class="p">,</span> <span class="n">Entity</span><span class="p">):</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="n">_entities</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">skip</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">_entities</span><span class="p">,</span> <span class="n">skip</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Client.get"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.api.client.Client.html#ngsildclient.Client.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">eid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">EntityId</span><span class="p">,</span> <span class="n">Entity</span><span class="p">],</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">asdict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Entity</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve an entity given its id.</span>
+
+<span class="sd">        Facade method for Entities.retrieve().</span>
+<span class="sd">        If already dealing with an entity instance one can provide the entity itself instead of its id.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        eid : Union[EntityId, Entity]</span>
+<span class="sd">            The entity identifier or the entity instance</span>
+<span class="sd">        ctx : str</span>
+<span class="sd">            The context</span>
+<span class="sd">        asdict : bool, optional</span>
+<span class="sd">            If set (instead of returning an Entity) returns the raw API response (a Python dict that represents the JSON response), by default False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Entity</span>
+<span class="sd">            The retrieved entity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">asdict</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">EntityId</span><span class="p">,</span> <span class="n">Entity</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Delete an entity given its id.</span>
+
+<span class="sd">        Facade method for Entities.delete().</span>
+<span class="sd">        If already dealing with an entity instance one can provide the entity itself instead of its id.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        eid : Union[EntityId, Entity]</span>
+<span class="sd">            The entity identifier or the entity instance</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the entity has been succefully deleted</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">EntityId</span><span class="p">,</span> <span class="n">Entity</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Delete entities given its id.</span>
+
+<span class="sd">        Facade method for Batch.delete().</span>
+<span class="sd">        If already dealing with entity instances one can provide the entities instead of ids.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        eids : List[Union[EntityId, Entity]]</span>
+<span class="sd">            The entities ids or instances</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the entity has been succefully deleted</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">eids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">EntityId</span><span class="p">,</span> <span class="n">Entity</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">EntityId</span><span class="p">,</span> <span class="n">Entity</span><span class="p">]]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">eids</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">eids</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">eid</span> <span class="o">=</span> <span class="n">eids</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Client.exists"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.api.client.Client.html#ngsildclient.Client.exists">[docs]</a>    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">EntityId</span><span class="p">,</span> <span class="n">Entity</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Tests if an entity exists.</span>
+
+<span class="sd">        Facade method for Entities.exists().</span>
+<span class="sd">        If already dealing with an entity instance one can provide the entity itself instead of its id.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        eid : Union[EntityId, Entity]</span>
+<span class="sd">            The entity identifier or the entity instance</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the entity exists</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">eid</span><span class="p">)</span></div>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span> <span class="nf">upsert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Entity</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Upsert the entity or update it if already exists.</span>
+
+<span class="sd">        Facade method for Entities.upsert().</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        entity : Entity</span>
+<span class="sd">            The entity to be upserted by the Context Broker</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Entity</span>
+<span class="sd">            The entity successfully upserted</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span> <span class="nf">upsert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entities</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Entity</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Upsert a batch of entities.</span>
+
+<span class="sd">        Facade method for Batch.upsert().</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        entity : Entity</span>
+<span class="sd">            The entity to be upserted by the Context Broker</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Entity</span>
+<span class="sd">            The entities successfully upserted</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">upsert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entities</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Entity</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Entity</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Entity</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entities</span><span class="p">,</span> <span class="n">Entity</span><span class="p">):</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="n">entities</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">upsert</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch</span><span class="o">.</span><span class="n">upsert</span><span class="p">(</span><span class="n">entities</span><span class="p">)</span>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Entity</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Update the entity.</span>
+
+<span class="sd">        Facade method for Entities.update().</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        entity : Entity</span>
+<span class="sd">            The entity to be updated by the Context Broker</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[Entity]</span>
+<span class="sd">            The entity successfully updated (or None if not found)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entities</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Entity</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Update a batch of entities.</span>
+
+<span class="sd">        Facade method for Batch.update().</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        entities : List[Entity]</span>
+<span class="sd">            The entities to be updated by the Context Broker</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[Entity]</span>
+<span class="sd">            The entity successfully updated (or None if not found)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">entities</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Entity</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Entity</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">Entity</span><span class="p">],</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entities</span><span class="p">,</span> <span class="n">Entity</span><span class="p">):</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="n">entities</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">entities</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Client.query"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.api.client.Client.html#ngsildclient.Client.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Entity</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve entities given its type and/or query string.</span>
+
+<span class="sd">        Retrieve up to PAGINATION_LIMIT_MAX entities.</span>
+<span class="sd">        Use query_all() to retrieve all entities.</span>
+<span class="sd">        Use entities.query() to deal with limit and offset on your own.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        etype : str</span>
+<span class="sd">            The entity&#39;s type</span>
+<span class="sd">        q: str</span>
+<span class="sd">            The query string (NGSI-LD Query Language)</span>
+<span class="sd">        ctx : str</span>
+<span class="sd">            The context</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[Entity]</span>
+<span class="sd">            Retrieved entities matching the given type and/or query string</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; with Client() as client:</span>
+<span class="sd">        &gt;&gt;&gt;     client.query(type=&quot;AgriFarm&quot;) # match a given type</span>
+
+<span class="sd">        &gt;&gt;&gt; with Client() as client:</span>
+<span class="sd">        &gt;&gt;&gt;     client.query(type=&quot;AgriFarm&quot;, q=&#39;contactPoint[email]==&quot;wheatfarm@email.com&quot;&#39;) # match type and query</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">PAGINATION_LIMIT_MAX</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Client.query_all"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.api.client.Client.html#ngsildclient.Client.query_all">[docs]</a>    <span class="k">def</span> <span class="nf">query_all</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">q</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">PAGINATION_LIMIT_MAX</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Entity</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve entities given its type and/or query string.</span>
+
+<span class="sd">        Retrieve all entities by sending as many requests as needed, using pagination.</span>
+<span class="sd">        Assume data hold in memory. Should not be an issue except for very large datasets.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        etype : str</span>
+<span class="sd">            The entity&#39;s type</span>
+<span class="sd">        q: str</span>
+<span class="sd">            The query string (NGSI-LD Query Language)</span>
+<span class="sd">        ctx: str</span>
+<span class="sd">            The context</span>
+<span class="sd">        limit: int</span>
+<span class="sd">            The number of entities retrieved in each request</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[Entity]</span>
+<span class="sd">            Retrieved entities matching the given type and/or query string</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; with Client() as client:</span>
+<span class="sd">        &gt;&gt;&gt;     client.query_all(type=&quot;AgriFarm&quot;) # match a given type</span>
+
+<span class="sd">        &gt;&gt;&gt; with Client() as client:</span>
+<span class="sd">        &gt;&gt;&gt;     client.query_all(type=&quot;AgriFarm&quot;, q=&#39;contactPoint[email]==&quot;wheatfarm@email.com&quot;&#39;) # match type and query</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">entities</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Entity</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ceil</span><span class="p">(</span><span class="n">count</span> <span class="o">/</span> <span class="n">limit</span><span class="p">)):</span>
+            <span class="n">entities</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">page</span> <span class="o">*</span> <span class="n">limit</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">entities</span></div>
+
+    <span class="k">def</span> <span class="nf">query_generator</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">q</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">PAGINATION_LIMIT_MAX</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Entity</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ceil</span><span class="p">(</span><span class="n">count</span> <span class="o">/</span> <span class="n">limit</span><span class="p">)):</span>
+            <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">page</span> <span class="o">*</span> <span class="n">limit</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Client.count"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.api.client.Client.html#ngsildclient.Client.count">[docs]</a>    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return number of entities matching type and/or query string.</span>
+
+<span class="sd">        Facade method for Entities.count().</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        etype : str</span>
+<span class="sd">            The entity&#39;s type</span>
+<span class="sd">        query: str</span>
+<span class="sd">            The query string (NGSI-LD Query Language)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The number of matching entities</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; with Client() as client:</span>
+<span class="sd">        &gt;&gt;&gt;     client.count(type=&quot;AgriFarm&quot;) # match a given type</span>
+
+<span class="sd">        &gt;&gt;&gt; with Client() as client:</span>
+<span class="sd">        &gt;&gt;&gt;     client.count(type=&quot;AgriFarm&quot;, query=&#39;contactPoint[email]==&quot;wheatfarm@email.com&quot;&#39;) # match type and query</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Client.delete_where"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.api.client.Client.html#ngsildclient.Client.delete_where">[docs]</a>    <span class="k">def</span> <span class="nf">delete_where</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Batch delete entities matching type and/or query string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        etype : str</span>
+<span class="sd">            The entity&#39;s type</span>
+<span class="sd">        query: str</span>
+<span class="sd">            The query string (NGSI-LD Query Language)</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; with Client() as client:</span>
+<span class="sd">        &gt;&gt;&gt;     client.delete_where(type=&quot;AgriFarm&quot;, query=&#39;contactPoint[email]==&quot;wheatfarm@email.com&quot;&#39;) # match type and query</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">entities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_all</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">entities</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Client.drop"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.api.client.Client.html#ngsildclient.Client.drop">[docs]</a>    <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Batch delete entities matching the given type.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        type : str</span>
+<span class="sd">            The entity&#39;s type</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; with Client() as client:</span>
+<span class="sd">        &gt;&gt;&gt;     client.drop(&quot;AgriFarm&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delete_where</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Client.purge"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.api.client.Client.html#ngsildclient.Client.purge">[docs]</a>    <span class="k">def</span> <span class="nf">purge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Batch delete all entities.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; with Client() as client:</span>
+<span class="sd">        &gt;&gt;&gt;     client.purge()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Client.guess_vendor"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.api.client.Client.html#ngsildclient.Client.guess_vendor">[docs]</a>    <span class="k">def</span> <span class="nf">guess_vendor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Vendor</span><span class="p">,</span> <span class="n">Version</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Try to guess the Context Broker vendor.</span>
+
+<span class="sd">        According to its own API, by using version or status endpoint.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[Vendor, Version]</span>
+<span class="sd">            A tuple composed of the Vendor (if identified) and the version.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; with Client() as client:</span>
+<span class="sd">        &gt;&gt;&gt;     print(client.guess_vendor())</span>
+<span class="sd">        (&lt;Vendor.ORIONLD: &#39;Orion-LD&#39;&gt;, &#39;post-v0.8.1&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">broker</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_broker_version_orionld</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">broker</span>
+        <span class="k">if</span> <span class="n">broker</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_broker_version_java_spring</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">broker</span>
+        <span class="k">return</span> <span class="n">Vendor</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span></div>
+
+    <span class="k">def</span> <span class="nf">_broker_version_orionld</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Requests the broker looking for Orion-LD version.</span>
+
+<span class="sd">        Targets the /version endpoint.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[str]</span>
+<span class="sd">            The Orion-LD version if found</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/version&quot;</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">}</span>  <span class="c1"># overrides session headers</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Vendor</span><span class="o">.</span><span class="n">ORIONLD</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;orionld version&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_broker_version_java_spring</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Vendor</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Requests the Java-Spring based broker looking for Vendor and Version.</span>
+
+<span class="sd">        Targets the /actuator/info endpoint.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[Tuple[Vendor, str]]</span>
+<span class="sd">            A tuple composed of the Vendor and the broker version</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/actuator&quot;</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">}</span>  <span class="c1"># overrides session headers</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">/health&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">/info&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+            <span class="n">build</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;build&quot;</span><span class="p">]</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">build</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">]</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">build</span><span class="p">[</span><span class="s2">&quot;group&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">group</span> <span class="o">==</span> <span class="s2">&quot;eu.neclab.ngsildbroker&quot;</span><span class="p">:</span>
+                <span class="n">vendor</span> <span class="o">=</span> <span class="n">Vendor</span><span class="o">.</span><span class="n">SCORPIO</span>
+            <span class="k">elif</span> <span class="n">group</span> <span class="o">==</span> <span class="s2">&quot;com.egm.stellio&quot;</span><span class="p">:</span>
+                <span class="n">vendor</span> <span class="o">=</span> <span class="n">Vendor</span><span class="o">.</span><span class="n">STELLIO</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="n">vendor</span><span class="p">,</span> <span class="n">version</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">is_interactive</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Java-Spring based Context Broker detected. Try to enable info endpoint.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_welcome_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Connected to Context Broker at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hostname</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2"> | vendor=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">vendor</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> | version=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_fail_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Failed to connect to Context Broker at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hostname</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_warn_spring_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Java-Spring based Context Broker detected. Info endpoint disabled.&quot;</span>
+
+    <span class="c1"># below the context manager methods</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Fabien Battello.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

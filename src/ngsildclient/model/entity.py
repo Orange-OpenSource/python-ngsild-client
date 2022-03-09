@@ -554,7 +554,14 @@ class Entity:
     def addr(self, value: str):
         return self.prop("address", value)
 
-    def gprop(self, name: str, value: NgsiGeometry, nested: bool = False) -> Entity:
+    def gprop(
+        self,
+        name: str,
+        value: NgsiGeometry,
+        nested: bool = False,
+        observedat: Union[str, datetime] = None,
+        datasetid: str = None,
+    ) -> Entity:
         """Build a GeoProperty.
 
         Build a GeoProperty and attach it to the current entity.
@@ -601,7 +608,7 @@ class Entity:
             }
         }
         """
-        property = self._payload.build_geoproperty(value)
+        property = self._payload.build_geoproperty(value, observedat, datasetid)
         self._update_entity(name, property, nested)
         return self
 
@@ -670,6 +677,7 @@ class Entity:
         nested: bool = False,
         *,
         observedat: Union[str, datetime] = None,
+        datasetid: str = None,        
         userdata: NgsiDict = NgsiDict(),
     ) -> Entity:
         """Build a Relationship Property.
@@ -710,7 +718,7 @@ class Entity:
         if isinstance(name, Rel):
             name = name.value
 
-        property = self._payload.build_relationship(value, observedat, userdata)
+        property = self._payload.build_relationship(value, observedat, datasetid, userdata)
         self._update_entity(name, property, nested)
         return self
 

@@ -1,0 +1,37 @@
+ngsildclient.model.exceptions
+=============================
+
+.. automodule:: ngsildclient.model.exceptions
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+      :toctree:
+   
+      NgsiDateFormatError
+      NgsiJsonError
+      NgsiMissingContextError
+      NgsiMissingIdError
+      NgsiMissingTypeError
+      NgsiModelError
+      NgsiUnmatchedAttributeTypeError
+      NgsiUnsupportedFormatError
+   
+   
+
+
+

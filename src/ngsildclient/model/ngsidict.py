@@ -133,8 +133,14 @@ class NgsiDict(dict):
             property |= userdata
         return property
 
+    def prop(self, name: str, value: str, **kwargs):
+        self[name] = self.build_property(value, **kwargs)
+
     def build_geoproperty(
-        self, value: NgsiGeometry, observedat: Union[str, datetime, type[Auto]] = None
+        self,
+        value: NgsiGeometry,
+        observedat: Union[str, datetime, type[Auto]] = None,
+        datasetid: str = None,
     ) -> NgsiDict:
         property: NgsiDict = NgsiDict()
         property["type"] = AttrType.GEO.value  # set type
@@ -152,7 +158,12 @@ class NgsiDict(dict):
         property["value"] = geometry  # set value
         if observedat is not None:
             property[META_ATTR_OBSERVED_AT] = self._process_observedat(observedat)
+        if datasetid is not None:
+            property[META_ATTR_DATASET_ID] = Urn.prefix(datasetid)
         return property
+
+    def gprop(self, name: str, value: str, **kwargs):
+        self[name] = self.build_geoproperty(value, **kwargs)
 
     def build_temporal_property(self, value: Union[NgsiDate, type[Auto]]) -> NgsiDict:
         property: NgsiDict = NgsiDict()
@@ -170,21 +181,31 @@ class NgsiDict(dict):
         self.cachedate(dt)
         return property
 
+    def tprop(self, name: str, value: str, **kwargs):
+        self[name] = self.build_temporal_property(value, **kwargs)
+
     def build_relationship(
         # Multiple Relationship limitation : no metadata
         self,
         value: Union[str, List[str]],
         observedat: Union[str, datetime, type[Auto]] = None,
+        datasetid: str = None,
         userdata: NgsiDict = None,
     ) -> NgsiDict:
         property: NgsiDict = NgsiDict()
         property["type"] = AttrType.REL.value  # set type
         if isinstance(value, list):
-            property["object"] = [Urn.prefix(v) for v in value]              
+            property["object"] = [Urn.prefix(v) for v in value]
         else:
             property["object"] = Urn.prefix(value)  # set value
             if observedat is not None:
                 property[META_ATTR_OBSERVED_AT] = self._process_observedat(observedat)
+            if datasetid is not None:
+                property[META_ATTR_DATASET_ID] = Urn.prefix(datasetid)                
             if userdata:
                 property |= userdata
         return property
+
+    def rel(self, name: str, value: str, **kwargs):
+        self[name] = self.build_relationship(value, **kwargs)
+        

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ngsildclient.model.constants &mdash; ngsildclient 0.1.5 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> ngsildclient
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Home Page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../build.html">Build Entities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client.html">Interact with the Broker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/ngsildclient.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ngsildclient</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../ngsildclient.html">ngsildclient</a> &raquo;</li>
+      <li>ngsildclient.model.constants</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ngsildclient.model.constants</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="c1"># Software Name: ngsildclient</span>
+<span class="c1"># SPDX-FileCopyrightText: Copyright (c) 2021 Orange</span>
+<span class="c1"># SPDX-License-Identifier: Apache 2.0</span>
+<span class="c1">#</span>
+<span class="c1"># This software is distributed under the Apache 2.0;</span>
+<span class="c1"># see the NOTICE file for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># Author: Fabien BATTELLO &lt;fabien.battello@orange.com&gt; et al.</span>
+
+<span class="sd">&quot;&quot;&quot;This module contains constants used in the model package.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">time</span>
+<span class="kn">from</span> <span class="nn">geojson</span> <span class="kn">import</span> <span class="n">Point</span><span class="p">,</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">Polygon</span>
+
+<span class="kn">from</span> <span class="nn">..utils.sentinel</span> <span class="kn">import</span> <span class="n">Sentinel</span>
+
+<span class="n">NgsiLocation</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Point</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;A user type : either a tuple of two ints (lat, lon) or a GeoJson Point.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">NgsiGeometry</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">NgsiLocation</span><span class="p">,</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;A user type : Valid Geometries types for a NGSI-LD GeoProperty.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">NgsiDate</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">time</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;A user type : Valid Date types for a NGSI-LD TemporalProperty.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">CORE_CONTEXT</span> <span class="o">=</span> <span class="s2">&quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
+<span class="sd">&quot;&quot;&quot;The default NGSI-LD Core Context. Automatically set at entity creation time if no context is provided.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">META_ATTR_CONTEXT</span> <span class="o">=</span> <span class="s2">&quot;@context&quot;</span>
+<span class="n">META_ATTR_UNITCODE</span> <span class="o">=</span> <span class="s2">&quot;unitCode&quot;</span>
+<span class="n">META_ATTR_OBSERVED_AT</span> <span class="o">=</span> <span class="s2">&quot;observedAt&quot;</span>
+<span class="n">META_ATTR_DATASET_ID</span> <span class="o">=</span> <span class="s2">&quot;datasetId&quot;</span>
+
+<span class="n">NESTED</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+<div class="viewcode-block" id="Auto"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.constants.Auto.html#ngsildclient.Auto">[docs]</a><span class="k">class</span> <span class="nc">Auto</span><span class="p">(</span><span class="n">Sentinel</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Rel"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.constants.Rel.html#ngsildclient.Rel">[docs]</a><span class="k">class</span> <span class="nc">Rel</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">HAS_PART</span> <span class="o">=</span> <span class="s2">&quot;hasPart&quot;</span>
+    <span class="n">HAS_DIRECT_PART</span> <span class="o">=</span> <span class="s2">&quot;hasDirectPart&quot;</span>
+    <span class="n">IS_CONTAINED_IN</span> <span class="o">=</span> <span class="s2">&quot;isContainedIn&quot;</span>
+    <span class="n">OBSERVED_BY</span> <span class="o">=</span> <span class="s2">&quot;observedBy&quot;</span></div>
+
+
+<div class="viewcode-block" id="GeometryMetaAttr"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.constants.GeometryMetaAttr.html#ngsildclient.GeometryMetaAttr">[docs]</a><span class="k">class</span> <span class="nc">GeometryMetaAttr</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">LOCATION</span> <span class="o">=</span> <span class="s2">&quot;location&quot;</span>
+    <span class="n">OBSERVATION_SPACE</span> <span class="o">=</span> <span class="s2">&quot;observationSpace&quot;</span>
+    <span class="n">OPERATION_SPACE</span> <span class="o">=</span> <span class="s2">&quot;operationSpace&quot;</span></div>
+
+
+<div class="viewcode-block" id="AttrType"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.constants.AttrType.html#ngsildclient.AttrType">[docs]</a><span class="k">class</span> <span class="nc">AttrType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">PROP</span> <span class="o">=</span> <span class="s2">&quot;Property&quot;</span>
+    <span class="n">TEMPORAL</span> <span class="o">=</span> <span class="s2">&quot;Property&quot;</span>  <span class="c1"># Temporal Property</span>
+    <span class="n">GEO</span> <span class="o">=</span> <span class="s2">&quot;GeoProperty&quot;</span>
+    <span class="n">REL</span> <span class="o">=</span> <span class="s2">&quot;Relationship&quot;</span></div>
+
+
+<div class="viewcode-block" id="GeometryType"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.constants.GeometryType.html#ngsildclient.GeometryType">[docs]</a><span class="k">class</span> <span class="nc">GeometryType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">POINT</span> <span class="o">=</span> <span class="s2">&quot;Point&quot;</span>
+    <span class="n">LINESTRING</span> <span class="o">=</span> <span class="s2">&quot;LineString&quot;</span>
+    <span class="n">POLYGON</span> <span class="o">=</span> <span class="s2">&quot;Polygon&quot;</span></div>
+
+
+<div class="viewcode-block" id="TemporalType"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.constants.TemporalType.html#ngsildclient.TemporalType">[docs]</a><span class="k">class</span> <span class="nc">TemporalType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">DATETIME</span> <span class="o">=</span> <span class="s2">&quot;DateTime&quot;</span>
+    <span class="n">DATE</span> <span class="o">=</span> <span class="s2">&quot;Date&quot;</span>
+    <span class="n">TIME</span> <span class="o">=</span> <span class="s2">&quot;Time&quot;</span></div>
+
+
+<span class="n">SMARTDATAMODELS_BASEURL</span> <span class="o">=</span> <span class="s2">&quot;https://smart-data-models.github.io&quot;</span>  <span class="c1"># Github Pages</span>
+
+
+<div class="viewcode-block" id="SmartDataModels"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.constants.SmartDataModels.html#ngsildclient.SmartDataModels">[docs]</a><span class="k">class</span> <span class="nc">SmartDataModels</span><span class="p">:</span>
+    <span class="k">class</span> <span class="nc">SmartAgri</span><span class="p">:</span>
+        <span class="k">class</span> <span class="nc">Agrifood</span><span class="p">:</span>
+            <span class="n">AgriApp</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Agrifood/AgriApp/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">AgriCrop</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Agrifood/AgriCrop/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">AgriFarm</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Agrifood/AgriFarm/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">AgriGreenhouse</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Agrifood/AgriGreenhouse/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">AgriParcel</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Agrifood/AgriParcel/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">AgriParcelOperation</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Agrifood/AgriParcelOperation/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">AgriParcelRecord</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Agrifood/AgriParcelRecord/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">AgriPest</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Agrifood/AgriPest/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">AgriProductType</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Agrifood/AgriProductType/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">AgriSoil</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Agrifood/AgriSoil/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">Animal</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Agrifood/Animal/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">Compartment</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Agrifood/Compartment/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">Pen</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Agrifood/Pen/examples/example-normalized.jsonld&quot;</span>
+
+        <span class="k">class</span> <span class="nc">Aquaculture</span><span class="p">:</span>
+            <span class="n">BreedingOperation</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Aquaculture/BreedingOperation/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">FishContainment</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Aquaculture/FishContainment/examples/example-normalized.jsonld&quot;</span>
+
+        <span class="k">class</span> <span class="nc">Weather</span><span class="p">:</span>
+            <span class="n">SeaConditions</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Weather/SeaConditions/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">WeatherAlert</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Weather/WeatherAlert/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">WeatherForecast</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Weather/WeatherForecast/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">WeatherObserved</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Weather/WeatherObserved/examples/example-normalized.jsonld&quot;</span>
+
+    <span class="k">class</span> <span class="nc">SmartCities</span><span class="p">:</span>
+        <span class="k">class</span> <span class="nc">Building</span><span class="p">:</span>
+            <span class="n">Building</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Building/Building/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">BuildingOperation</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Building/BuildingOperation/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">VibrationsObserved</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Building/VibrationsObserved/examples/example-normalized.jsonld&quot;</span>
+
+        <span class="k">class</span> <span class="nc">Parking</span><span class="p">:</span>
+            <span class="n">OffStreetParking</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Parking/OffStreetParking/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">OnStreetParking</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Parking/OnStreetParking/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">ParkingAccess</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Parking/ParkingAccess/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">ParkingGroup</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Parking/ParkingGroup/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">ParkingSpot</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Parking/ParkingSpot/examples/example-normalized.jsonld&quot;</span>
+
+        <span class="k">class</span> <span class="nc">ParksAndGarden</span><span class="p">:</span>
+            <span class="n">FlowerBed</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.ParksAndGardens/FlowerBed/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">Garden</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.ParksAndGardens/Garden/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">GreenSpaceRecord</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.ParksAndGardens/GreenspaceRecord/examples/example-normalized.jsonld&quot;</span>
+
+        <span class="k">class</span> <span class="nc">PointOfInterest</span><span class="p">:</span>
+            <span class="n">Beach</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.PointOfInterest/Beach/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">Museum</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.PointOfInterest/Museum/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">PointOfInterest</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.PointOfInterest/PointOfInterest/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">Store</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.PointOfInterest/Store/examples/example-normalized.jsonld&quot;</span>
+
+        <span class="k">class</span> <span class="nc">Ports</span><span class="p">:</span>
+            <span class="n">BoatAuthorized</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Ports/BoatAuthorized/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">SeaportFacilities</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Ports/SeaportFacilities/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">BoatPlacesAvailable</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Ports/BoatPlacesAvailable/examples/example-normalized.jsonld&quot;</span>
+
+        <span class="k">class</span> <span class="nc">StreetLightning</span><span class="p">:</span>
+            <span class="n">StreetLight</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Streetlighting/Streetlight/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">StreetLightControlCabinet</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Streetlighting/StreetlightControlCabinet/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">StreetLightGroup</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Streetlighting/StreetlightGroup/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">StreetLightModel</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Streetlighting/StreetlightModel/examples/example-normalized.jsonld&quot;</span>
+
+        <span class="k">class</span> <span class="nc">Transportation</span><span class="p">:</span>
+            <span class="n">BikeHireDockingStation</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/BikeHireDockingStation/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">BikeLane</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/BikeLane/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">CityWork</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/CityWork/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">CrowFlowObserved</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/CrowdFlowObserved/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">EVChargingStation</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/EVChargingStation/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">FareCollectionSystem</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/FareCollectionSystem/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">ItemFlowObserved</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/ItemFlowObserved/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">RestrictedTrafficArea</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/RestrictedTrafficArea/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">RestrictionException</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/RestrictionException/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">Road</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/Road/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">RoadAccident</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/RoadAccident/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">RoadSegment</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/RoadSegment/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">SpecialRestriction</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/SpecialRestriction/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">TrafficFlowObserved</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/TrafficFlowObserved/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">TransportStation</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/TransportStation/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">Vehicle</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/Vehicle/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">VehicleModel</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Transportation/VehicleModel/examples/example-normalized.jsonld&quot;</span>
+
+        <span class="k">class</span> <span class="nc">UrbanMobility</span><span class="p">:</span>
+            <span class="n">ArrivalEstimation</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/ArrivalEstimation/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">GtfsAccessPoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/GtfsAccessPoint/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">GtfsAgency</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/GtfsAgency/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">GtfsCalendarDateRule</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/GtfsCalendarDateRule/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">GtfsCalendarRule</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/GtfsCalendarRule/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">GtfsFrequency</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/GtfsFrequency/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">GtfsRoute</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/GtfsRoute/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">GtfsService</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/GtfsService/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">GtfsShape</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/GtfsShape/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">GtfsStation</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/GtfsStation/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">GtfsStop</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/GtfsStop/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">GtfsStopTime</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/GtfsStopTime/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">GtfsTransferRule</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/GtfsTransferRule/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">GtfsTrip</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/GtfsTrip/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">PublicTransportRoute</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/PublicTransportRoute/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">PublicTransportStop</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.UrbanMobility/PublicTransportStop/examples/example-normalized.jsonld&quot;</span>
+
+        <span class="k">class</span> <span class="nc">WasteManagement</span><span class="p">:</span>
+            <span class="n">WasteContainer</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.WasteManagement/WasteContainer/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">WasteContainerIsle</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.WasteManagement/WasteContainerIsle/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">WasteContainerModel</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.WasteManagement/WasteContainerModel/examples/example-normalized.jsonld&quot;</span>
+
+        <span class="k">class</span> <span class="nc">Weather</span><span class="p">:</span>
+            <span class="n">SeaConditions</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Weather/SeaConditions/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">WeatherAlert</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Weather/WeatherAlert/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">WeatherForecast</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Weather/WeatherForecast/examples/example-normalized.jsonld&quot;</span>
+            <span class="n">WeatherObserved</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SMARTDATAMODELS_BASEURL</span><span class="si">}</span><span class="s2">/dataModel.Weather/WeatherObserved/examples/example-normalized.jsonld&quot;</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Fabien Battello.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

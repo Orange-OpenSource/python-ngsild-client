@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ngsildclient.api.client &mdash; ngsildclient 0.1.5 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ngsildclient.api.client.Broker" href="ngsildclient.api.client.Broker.html" />
+    <link rel="prev" title="ngsildclient.api.batch.BatchOp" href="ngsildclient.api.batch.BatchOp.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> ngsildclient
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home Page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">Build Entities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client.html">Interact with the Broker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="ngsildclient.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ngsildclient.print_to_log.html">ngsildclient.print_to_log</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="ngsildclient.api.html">ngsildclient.api</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ngsildclient.api.batch.html">ngsildclient.api.batch</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ngsildclient.api.client</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.client.Broker.html">ngsildclient.api.client.Broker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.client.Client.html">ngsildclient.api.client.Client</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ngsildclient.api.constants.html">ngsildclient.api.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ngsildclient.api.contexts.html">ngsildclient.api.contexts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ngsildclient.api.entities.html">ngsildclient.api.entities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ngsildclient.api.exceptions.html">ngsildclient.api.exceptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ngsildclient.api.types.html">ngsildclient.api.types</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ngsildclient.exceptions.html">ngsildclient.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ngsildclient.model.html">ngsildclient.model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ngsildclient.utils.html">ngsildclient.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ngsildclient</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="ngsildclient.html">ngsildclient</a> &raquo;</li>
+          <li><a href="ngsildclient.api.html">ngsildclient.api</a> &raquo;</li>
+      <li>ngsildclient.api.client</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/ngsildclient.api.client.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-ngsildclient.api.client">
+<span id="ngsildclient-api-client"></span><h1>ngsildclient.api.client<a class="headerlink" href="#module-ngsildclient.api.client" title="Permalink to this headline"></a></h1>
+<p class="rubric">Classes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="ngsildclient.api.client.Broker.html#ngsildclient.api.client.Broker" title="ngsildclient.api.client.Broker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Broker</span></code></a></p></td>
+<td><p>Represent a NGSI-LD Context Broker.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ngsildclient.api.client.Client.html#ngsildclient.api.client.Client" title="ngsildclient.api.client.Client"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client</span></code></a></p></td>
+<td><p>An implementation of the NGSI-LD client API.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="ngsildclient.api.client.Broker">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Broker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vendor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Vendor.UNKNOWN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'N/A'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/client.html#Broker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.client.Broker" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represent a NGSI-LD Context Broker.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ngsildclient.api.client.Client">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hostname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1026</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">useragent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ngsildclient</span> <span class="pre">v0.1.5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tenant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/client.html#Client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.client.Client" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An implementation of the NGSI-LD client API.</p>
+<p>It allows to connect to a NGSI-LD Context Broker, check the connection and
+try to identify the vendor.
+As for now it focuses on the /entities/{entityId} endpoint.
+Allowed operations are :
+- create(), update(), upsert()
+- get(), exists()
+- delete()</p>
+<p>Update() and upsert() operations are not atomic, as they
+aren’t provided as-is by the API, but require chaining 2 API calls.</p>
+<p>When encountering errors the Client throws enriched
+Exceptions, as NGSI-LD API supports ProblemDetails [IETF RFC 7807].</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Here we don&#39;t build our own NGSI-LD entity, but grab an example from SmartDatamodels</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">farm</span> <span class="o">=</span> <span class="n">Entity</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">SmartDatamodels</span><span class="o">.</span><span class="n">SmartAgri</span><span class="o">.</span><span class="n">Agrifood</span><span class="o">.</span><span class="n">AgriFarm</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># farm.pprint()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Connect to the Context Broker and upsert the entity</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># As we don&#39;t provide any arguments to the Client constructor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># It connects to localhost and default port (without any authentication)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">Client</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">client</span><span class="o">.</span><span class="n">upsert</span><span class="p">(</span><span class="n">farm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create a Client instance to interact with the Context Broker.</p>
+<p>The Client allows to retrieve or send entities
+(model.Entity instances) to the Context Broker.
+For example, one can retrieve an entity from the Context Broker,
+modify it (update/delete/add properties),
+and send it back to the Context Broker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hostname</strong> (<em>str</em><em>, </em><em>optional</em>) – the hostname to connect to, by default “localhost”</p></li>
+<li><p><strong>port</strong> (<em>int</em><em>, </em><em>optional</em>) – the TCP port to connect to, by default NGSILD_DEFAULT_PORT</p></li>
+<li><p><strong>secure</strong> (<em>bool</em><em>, </em><em>optional</em>) – whether to use TLS, by default False</p></li>
+<li><p><strong>useragent</strong> (<em>str</em><em>, </em><em>optional</em>) – the User Agent string sent in the HTTP headers, by default UA</p></li>
+<li><p><strong>tenant</strong> (<em>str</em><em>, </em><em>optional</em>) – the tenant string in case you make use of multi-tenancy, by default None</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em><em>, </em><em>optional</em>) – if set create() will behave like upsert(), by default False</p></li>
+<li><p><strong>ignore_errors</strong> (<em>bool</em><em>, </em><em>optional</em>) – if set tests the connection at init time and raisesan exception if failed, by default False</p></li>
+<li><p><strong>proxy</strong> (<em>str</em><em>, </em><em>optional</em>) – proxies all requests to the provided proxy string (for debugging purpose), by default None</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">api.model.Entity</span></code></p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.client.Client.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/client.html#Client.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.client.Client.close" title="Permalink to this definition"></a></dt>
+<dd><p>Terminates the client.</p>
+<p>Closes the underlying Requests.Session.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.client.Client.count">
+<span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/client.html#Client.count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.client.Client.count" title="Permalink to this definition"></a></dt>
+<dd><p>Return number of entities matching type and/or query string.</p>
+<p>Facade method for Entities.count().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>etype</strong> (<em>str</em>) – The entity’s type</p></li>
+<li><p><strong>query</strong> (<em>str</em>) – The query string (NGSI-LD Query Language)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>int</em> – The number of matching entities</p></li>
+<li><p><em>Example</em></p></li>
+<li><p><em>——–</em></p></li>
+<li><p><em>&gt;&gt;&gt; with Client() as client</em></p></li>
+<li><p><em>&gt;&gt;&gt;     client.count(type=”AgriFarm”) # match a given type</em></p></li>
+<li><p><em>&gt;&gt;&gt; with Client() as client</em></p></li>
+<li><p><em>&gt;&gt;&gt;     client.count(type=”AgriFarm”, query=’contactPoint[email]==”wheatfarm&#64;email.com”’) # match type and query</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.client.Client.delete_where">
+<span class="sig-name descname"><span class="pre">delete_where</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/client.html#Client.delete_where"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.client.Client.delete_where" title="Permalink to this definition"></a></dt>
+<dd><p>Batch delete entities matching type and/or query string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>etype</strong> (<em>str</em>) – The entity’s type</p></li>
+<li><p><strong>query</strong> (<em>query='contactPoint</em><em>[</em><em>email</em><em>]</em><em>==&quot;wheatfarm&#64;email.com&quot;'</em><em>) </em><em># match type and</em>) – The query string (NGSI-LD Query Language)</p></li>
+<li><p><strong>Example</strong> – </p></li>
+<li><p><strong>--------</strong> – </p></li>
+<li><p><strong>client</strong> (<em>&gt;&gt;&gt; with Client</em><em>(</em><em>) </em><em>as</em>) – </p></li>
+<li><p><strong>client.delete_where</strong><strong>(</strong><strong>type=&quot;AgriFarm&quot;</strong> (<em>&gt;&gt;&gt;</em>) – </p></li>
+<li><p><strong>query</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.client.Client.drop">
+<span class="sig-name descname"><span class="pre">drop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/client.html#Client.drop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.client.Client.drop" title="Permalink to this definition"></a></dt>
+<dd><p>Batch delete entities matching the given type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>type</strong> (<em>str</em>) – The entity’s type</p></li>
+<li><p><strong>Example</strong> – </p></li>
+<li><p><strong>--------</strong> – </p></li>
+<li><p><strong>client</strong> (<em>&gt;&gt;&gt; with Client</em><em>(</em><em>) </em><em>as</em>) – </p></li>
+<li><p><strong>client.drop</strong><strong>(</strong><strong>&quot;AgriFarm&quot;</strong><strong>)</strong> (<em>&gt;&gt;&gt;</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.client.Client.exists">
+<span class="sig-name descname"><span class="pre">exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/client.html#Client.exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.client.Client.exists" title="Permalink to this definition"></a></dt>
+<dd><p>Tests if an entity exists.</p>
+<p>Facade method for Entities.exists().
+If already dealing with an entity instance one can provide the entity itself instead of its id.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>eid</strong> (<em>Union</em><em>[</em><em>EntityId</em><em>, </em><a class="reference internal" href="ngsildclient.html#ngsildclient.Entity" title="ngsildclient.Entity"><em>Entity</em></a><em>]</em>) – The entity identifier or the entity instance</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the entity exists</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.client.Client.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">asdict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/client.html#Client.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.client.Client.get" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve an entity given its id.</p>
+<p>Facade method for Entities.retrieve().
+If already dealing with an entity instance one can provide the entity itself instead of its id.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eid</strong> (<em>Union</em><em>[</em><em>EntityId</em><em>, </em><a class="reference internal" href="ngsildclient.html#ngsildclient.Entity" title="ngsildclient.Entity"><em>Entity</em></a><em>]</em>) – The entity identifier or the entity instance</p></li>
+<li><p><strong>ctx</strong> (<em>str</em>) – The context</p></li>
+<li><p><strong>asdict</strong> (<em>bool</em><em>, </em><em>optional</em>) – If set (instead of returning an Entity) returns the raw API response (a Python dict that represents the JSON response), by default False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The retrieved entity</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="ngsildclient.html#ngsildclient.Entity" title="ngsildclient.Entity">Entity</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.client.Client.guess_vendor">
+<span class="sig-name descname"><span class="pre">guess_vendor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/client.html#Client.guess_vendor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.client.Client.guess_vendor" title="Permalink to this definition"></a></dt>
+<dd><p>Try to guess the Context Broker vendor.</p>
+<p>According to its own API, by using version or status endpoint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<a class="reference internal" href="ngsildclient.api.constants.Vendor.html#ngsildclient.api.constants.Vendor" title="ngsildclient.api.constants.Vendor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Vendor</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>tuple[Vendor, Version]</em> – A tuple composed of the Vendor (if identified) and the version.</p></li>
+<li><p><em>Example</em></p></li>
+<li><p><em>——–</em></p></li>
+<li><p><em>&gt;&gt;&gt; with Client() as client</em></p></li>
+<li><p><em>&gt;&gt;&gt;     print(client.guess_vendor())</em></p></li>
+<li><p><strong>(&lt;Vendor.ORIONLD</strong> (<em>‘Orion-LD’&gt;, ‘post-v0.8.1’)</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.client.Client.is_connected">
+<span class="sig-name descname"><span class="pre">is_connected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_for_disconnected</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/client.html#Client.is_connected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.client.Client.is_connected" title="Permalink to this definition"></a></dt>
+<dd><p>Test if connection to Context Broker is established.</p>
+<p>Send a valid test request to the Context Broker and expects a result.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_for_disconnected</strong> (<em>bool</em><em>, </em><em>optional</em>) – throw an exception if connection fails (if not set only return False), by default False</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the Context Broker replies</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiNotConnectedError.html#ngsildclient.api.exceptions.NgsiNotConnectedError" title="ngsildclient.api.exceptions.NgsiNotConnectedError"><strong>NgsiNotConnectedError</strong></a> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.client.Client.purge">
+<span class="sig-name descname"><span class="pre">purge</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/client.html#Client.purge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.client.Client.purge" title="Permalink to this definition"></a></dt>
+<dd><p>Batch delete all entities.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">Client</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">client</span><span class="o">.</span><span class="n">purge</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.client.Client.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/client.html#Client.query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.client.Client.query" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve entities given its type and/or query string.</p>
+<p>Retrieve up to PAGINATION_LIMIT_MAX entities.
+Use query_all() to retrieve all entities.
+Use entities.query() to deal with limit and offset on your own.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>etype</strong> (<em>str</em>) – The entity’s type</p></li>
+<li><p><strong>q</strong> (<em>str</em>) – The query string (NGSI-LD Query Language)</p></li>
+<li><p><strong>ctx</strong> (<em>str</em>) – The context</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="ngsildclient.model.entity.Entity.html#ngsildclient.model.entity.Entity" title="ngsildclient.model.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>list[Entity]</em> – Retrieved entities matching the given type and/or query string</p></li>
+<li><p><em>Example</em></p></li>
+<li><p><em>——–</em></p></li>
+<li><p><em>&gt;&gt;&gt; with Client() as client</em></p></li>
+<li><p><em>&gt;&gt;&gt;     client.query(type=”AgriFarm”) # match a given type</em></p></li>
+<li><p><em>&gt;&gt;&gt; with Client() as client</em></p></li>
+<li><p><em>&gt;&gt;&gt;     client.query(type=”AgriFarm”, q=’contactPoint[email]==”wheatfarm&#64;email.com”’) # match type and query</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.client.Client.query_all">
+<span class="sig-name descname"><span class="pre">query_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/client.html#Client.query_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.client.Client.query_all" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve entities given its type and/or query string.</p>
+<p>Retrieve all entities by sending as many requests as needed, using pagination.
+Assume data hold in memory. Should not be an issue except for very large datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>etype</strong> (<em>str</em>) – The entity’s type</p></li>
+<li><p><strong>q</strong> (<em>str</em>) – The query string (NGSI-LD Query Language)</p></li>
+<li><p><strong>ctx</strong> (<em>str</em>) – The context</p></li>
+<li><p><strong>limit</strong> (<em>int</em>) – The number of entities retrieved in each request</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="ngsildclient.model.entity.Entity.html#ngsildclient.model.entity.Entity" title="ngsildclient.model.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>list[Entity]</em> – Retrieved entities matching the given type and/or query string</p></li>
+<li><p><em>Example</em></p></li>
+<li><p><em>——–</em></p></li>
+<li><p><em>&gt;&gt;&gt; with Client() as client</em></p></li>
+<li><p><em>&gt;&gt;&gt;     client.query_all(type=”AgriFarm”) # match a given type</em></p></li>
+<li><p><em>&gt;&gt;&gt; with Client() as client</em></p></li>
+<li><p><em>&gt;&gt;&gt;     client.query_all(type=”AgriFarm”, q=’contactPoint[email]==”wheatfarm&#64;email.com”’) # match type and query</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.client.Client.raise_for_status">
+<span class="sig-name descname"><span class="pre">raise_for_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/client.html#Client.raise_for_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.client.Client.raise_for_status" title="Permalink to this definition"></a></dt>
+<dd><p>Raises an exception depending on the API response.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>r</strong> (<em>Response</em>) – Response from the Context Broker</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ngsildclient.api.client.logger">
+<span class="sig-name descname"><span class="pre">logger</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;Logger</span> <span class="pre">ngsildclient.api.client</span> <span class="pre">(INFO)&gt;</span></em><a class="headerlink" href="#ngsildclient.api.client.logger" title="Permalink to this definition"></a></dt>
+<dd><p>This module contains the definition of the Client class.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ngsildclient.api.batch.BatchOp.html" class="btn btn-neutral float-left" title="ngsildclient.api.batch.BatchOp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ngsildclient.api.client.Broker.html" class="btn btn-neutral float-right" title="ngsildclient.api.client.Broker" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Fabien Battello.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ngsildclient.model.ngsidict &mdash; ngsildclient 0.1.5 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> ngsildclient
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Home Page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../build.html">Build Entities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client.html">Interact with the Broker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/ngsildclient.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ngsildclient</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../ngsildclient.html">ngsildclient</a> &raquo;</li>
+      <li>ngsildclient.model.ngsidict</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ngsildclient.model.ngsidict</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="c1"># Software Name: ngsildclient</span>
+<span class="c1"># SPDX-FileCopyrightText: Copyright (c) 2021 Orange</span>
+<span class="c1"># SPDX-License-Identifier: Apache 2.0</span>
+<span class="c1">#</span>
+<span class="c1"># This software is distributed under the Apache 2.0;</span>
+<span class="c1"># see the NOTICE file for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># Author: Fabien BATTELLO &lt;fabien.battello@orange.com&gt; et al.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">geojson</span> <span class="kn">import</span> <span class="n">Point</span><span class="p">,</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">MultiPoint</span>
+
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">iso8601</span><span class="p">,</span> <span class="n">url</span>
+<span class="kn">from</span> <span class="nn">..utils.urn</span> <span class="kn">import</span> <span class="n">Urn</span>
+<span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+
+<span class="sd">&quot;&quot;&quot;This module contains the definition of the NgsiDict class.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="NgsiDict"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.ngsidict.NgsiDict.html#ngsildclient.model.ngsidict.NgsiDict">[docs]</a><span class="k">class</span> <span class="nc">NgsiDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This class is a custom dictionary that backs an entity.</span>
+
+<span class="sd">    NgsiDict is used to build and hold the entity properties, as well as the entity&#39;s root.</span>
+<span class="sd">    It&#39;s not exposed to the user but intended to be used by the Entity class.</span>
+<span class="sd">    NgsiDict provides methods that allow to build a dictionary compliant with a NGSI-LD structure.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    model.Entity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">dtcached</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dtcached</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">dtcached</span> <span class="k">if</span> <span class="n">dtcached</span> <span class="k">else</span> <span class="n">iso8601</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_from_json</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">cachedate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dtcached</span> <span class="o">=</span> <span class="n">dt</span>
+
+    <span class="k">def</span> <span class="nf">dateauto</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtcached</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dtcached</span> <span class="o">=</span> <span class="n">iso8601</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtcached</span>
+
+    <span class="k">def</span> <span class="nf">_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">getitem</span><span class="p">,</span> <span class="n">element</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_rmattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">nested</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="n">element</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr</span><span class="p">(</span><span class="n">nested</span><span class="p">)[</span><span class="n">k</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">nested</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">element</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attr</span><span class="p">(</span><span class="n">nested</span><span class="p">)[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NgsiDict.to_json"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.ngsidict.NgsiDict.html#ngsildclient.model.ngsidict.NgsiDict.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns the dict in json format&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NgsiDict.pprint"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.ngsidict.NgsiDict.html#ngsildclient.model.ngsidict.NgsiDict.pprint">[docs]</a>    <span class="k">def</span> <span class="nf">pprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns the dict pretty-json-formatted&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_process_observedat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observedat</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">observedat</span> <span class="ow">is</span> <span class="n">Auto</span><span class="p">:</span>
+            <span class="n">observedat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dateauto</span><span class="p">()</span>
+        <span class="n">date_str</span><span class="p">,</span> <span class="n">temporaltype</span><span class="p">,</span> <span class="n">dt</span> <span class="o">=</span> <span class="n">iso8601</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">observedat</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">temporaltype</span> <span class="o">!=</span> <span class="n">TemporalType</span><span class="o">.</span><span class="n">DATETIME</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NgsiDateFormatError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;observedAt must be a DateTime : </span><span class="si">{</span><span class="n">date_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cachedate</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">date_str</span>
+
+    <span class="k">def</span> <span class="nf">build_property</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">unitcode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">observedat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">Auto</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">datasetid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">userdata</span><span class="p">:</span> <span class="n">NgsiDict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">escape</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NgsiDict</span><span class="p">:</span>
+        <span class="nb">property</span><span class="p">:</span> <span class="n">NgsiDict</span> <span class="o">=</span> <span class="n">NgsiDict</span><span class="p">()</span>
+        <span class="nb">property</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AttrType</span><span class="o">.</span><span class="n">PROP</span><span class="o">.</span><span class="n">value</span>  <span class="c1"># set type</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">escape</span> <span class="k">else</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NgsiUnmatchedAttributeTypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Cannot map </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2"> to NGSI type. </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="nb">property</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>  <span class="c1"># set value</span>
+        <span class="k">if</span> <span class="n">unitcode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">property</span><span class="p">[</span><span class="n">META_ATTR_UNITCODE</span><span class="p">]</span> <span class="o">=</span> <span class="n">unitcode</span>
+        <span class="k">if</span> <span class="n">observedat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">property</span><span class="p">[</span><span class="n">META_ATTR_OBSERVED_AT</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_observedat</span><span class="p">(</span><span class="n">observedat</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">datasetid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">property</span><span class="p">[</span><span class="n">META_ATTR_DATASET_ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">Urn</span><span class="o">.</span><span class="n">prefix</span><span class="p">(</span><span class="n">datasetid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">userdata</span><span class="p">:</span>
+            <span class="nb">property</span> <span class="o">|=</span> <span class="n">userdata</span>
+        <span class="k">return</span> <span class="nb">property</span>
+
+    <span class="k">def</span> <span class="nf">build_geoproperty</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">NgsiGeometry</span><span class="p">,</span>
+        <span class="n">observedat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">Auto</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">datasetid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NgsiDict</span><span class="p">:</span>
+        <span class="nb">property</span><span class="p">:</span> <span class="n">NgsiDict</span> <span class="o">=</span> <span class="n">NgsiDict</span><span class="p">()</span>
+        <span class="nb">property</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AttrType</span><span class="o">.</span><span class="n">GEO</span><span class="o">.</span><span class="n">value</span>  <span class="c1"># set type</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">Point</span><span class="p">,</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">MultiPoint</span><span class="p">)):</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="p">):</span>  <span class="c1"># simple way for a location Point</span>
+            <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="n">Point</span><span class="p">((</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NgsiUnmatchedAttributeTypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Cannot map </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2"> to NGSI type. </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="nb">property</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geometry</span>  <span class="c1"># set value</span>
+        <span class="k">if</span> <span class="n">observedat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">property</span><span class="p">[</span><span class="n">META_ATTR_OBSERVED_AT</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_observedat</span><span class="p">(</span><span class="n">observedat</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">datasetid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">property</span><span class="p">[</span><span class="n">META_ATTR_DATASET_ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">Urn</span><span class="o">.</span><span class="n">prefix</span><span class="p">(</span><span class="n">datasetid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">property</span>
+
+    <span class="k">def</span> <span class="nf">build_temporal_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">NgsiDate</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">Auto</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">NgsiDict</span><span class="p">:</span>
+        <span class="nb">property</span><span class="p">:</span> <span class="n">NgsiDict</span> <span class="o">=</span> <span class="n">NgsiDict</span><span class="p">()</span>
+        <span class="nb">property</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AttrType</span><span class="o">.</span><span class="n">TEMPORAL</span><span class="o">.</span><span class="n">value</span>  <span class="c1"># set type</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">Auto</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dateauto</span><span class="p">()</span>
+
+        <span class="n">date_str</span><span class="p">,</span> <span class="n">temporaltype</span><span class="p">,</span> <span class="n">dt</span> <span class="o">=</span> <span class="n">iso8601</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;@type&quot;</span><span class="p">:</span> <span class="n">temporaltype</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;@value&quot;</span><span class="p">:</span> <span class="n">date_str</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="nb">property</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>  <span class="c1"># set value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cachedate</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">property</span>
+
+    <span class="k">def</span> <span class="nf">build_relationship</span><span class="p">(</span>
+        <span class="c1"># Multiple Relationship limitation : no metadata</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+        <span class="n">observedat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">Auto</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">datasetid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">userdata</span><span class="p">:</span> <span class="n">NgsiDict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NgsiDict</span><span class="p">:</span>
+        <span class="nb">property</span><span class="p">:</span> <span class="n">NgsiDict</span> <span class="o">=</span> <span class="n">NgsiDict</span><span class="p">()</span>
+        <span class="nb">property</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AttrType</span><span class="o">.</span><span class="n">REL</span><span class="o">.</span><span class="n">value</span>  <span class="c1"># set type</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="nb">property</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">Urn</span><span class="o">.</span><span class="n">prefix</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">property</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Urn</span><span class="o">.</span><span class="n">prefix</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># set value</span>
+            <span class="k">if</span> <span class="n">observedat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">property</span><span class="p">[</span><span class="n">META_ATTR_OBSERVED_AT</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_observedat</span><span class="p">(</span><span class="n">observedat</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">datasetid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">property</span><span class="p">[</span><span class="n">META_ATTR_DATASET_ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">Urn</span><span class="o">.</span><span class="n">prefix</span><span class="p">(</span><span class="n">datasetid</span><span class="p">)</span>                
+            <span class="k">if</span> <span class="n">userdata</span><span class="p">:</span>
+                <span class="nb">property</span> <span class="o">|=</span> <span class="n">userdata</span>
+        <span class="k">return</span> <span class="nb">property</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Fabien Battello.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

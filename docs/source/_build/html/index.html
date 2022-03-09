@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ngsildclient documentation &mdash; ngsildclient 0.1.5 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Build Entities" href="build.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="#" class="icon icon-home"> ngsildclient
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Home Page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build.html">Build Entities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client.html">Interact with the Broker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/ngsildclient.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">ngsildclient</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+      <li>ngsildclient documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ngsildclient-documentation">
+<h1>ngsildclient documentation<a class="headerlink" href="#ngsildclient-documentation" title="Permalink to this headline"></a></h1>
+<p>Welcome to the <strong>ngsildclient</strong> documentation, where you can learn about ngsildclient and explore its features.</p>
+<p><strong>ngsildclient</strong> is a Python NGSI-LD client implementation.</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/NGSI-LD">NGSI-LD</a> has been standardized by the <a class="reference external" href="https://www.etsi.org/">ETSI</a> and is widely used in the <a class="reference external" href="https://www.fiware.org">Fiware</a> ecosystem.</p>
+<section id="project-goals">
+<h2>Project Goals<a class="headerlink" href="#project-goals" title="Permalink to this headline"></a></h2>
+<p>The ngsildclient Python library has two main objectives.</p>
+<ol class="arabic">
+<li><p><strong>Build NGSI-LD compliant entities</strong></p>
+<div class="line-block">
+<div class="line">The task of writing large NGSI-LD compliant entities using JSON is tedious, error-prone and results in a significant amount of code.</div>
+<div class="line">ngsilclient provides primitives to build and manipulate NGSI-LD entities without effort, in respect with the ETSI <a class="reference external" href="https://www.etsi.org/committee/cim">specifications</a>.</div>
+</div>
+</li>
+<li><p><strong>Wrap the NGSI-LD API</strong></p>
+<div class="line-block">
+<div class="line">As a Python NGSI-LD client it allows to interact with a broker by sending and retrieving NGSI-LD entities.</div>
+<div class="line">As of v0.1.5 it supports a subset of the API.</div>
+</div>
+</li>
+</ol>
+</section>
+<section id="four-practical-use-cases">
+<h2>Four practical use cases<a class="headerlink" href="#four-practical-use-cases" title="Permalink to this headline"></a></h2>
+<p>ngsildclient can be useful in practice to :</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><strong>model a domain-specific system</strong></dt><dd><p>it has many benefits in the exploration phase :</p>
+<ul>
+<li><p>use the interactive mode to quickly build entities <em>thanks to Python REPL (console)</em></p></li>
+<li><p>use Jupyter notebooks to share and discuss about modeling</p></li>
+<li><p>load and extend example entities from the Smart Data Model Initiatives</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>demonstrate feasibility</strong></dt><dd><p>quickly develop a Proof Of Concept by :</p>
+<ul>
+<li><p>populating the broker with your entities</p></li>
+<li><p>query the broker to test relationships</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>develop a full NGSI-LD Agent</strong></dt><dd><p>putting all parts together the NGSI-LD Agent :</p>
+<ul>
+<li><p>collects incoming domain-specific data</p></li>
+<li><p>converts data to NGSI-LD compliant entities</p></li>
+<li><p>feed the NGSI-LD broker</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>administrate the broker</strong></dt><dd><p>allow admin tasks in interactive mode :</p>
+<ul>
+<li><p>purge entities</p></li>
+<li><p>list contexts</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
+<p>ngsildclient requires Python 3.9 or above.</p>
+<p>It’s recommended to use a virtual environment.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir myagent <span class="o">&amp;&amp;</span> <span class="nb">cd</span> myagent
+pyenv virtualenv <span class="m">3</span>.9.10 myagent
+pyenv <span class="nb">local</span> myagent
+
+<span class="hll">pip install ngsildclient
+</span></pre></div>
+</div>
+</section>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h2>
+<p>Create a first very basic NGSI-LD entity.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
+
+<span class="n">entity</span> <span class="o">=</span> <span class="n">Entity</span><span class="p">(</span><span class="s2">&quot;AirQualityObserved&quot;</span><span class="p">,</span> <span class="s2">&quot;RZ:Obsv4567&quot;</span><span class="p">)</span>
+<span class="n">entity</span><span class="o">.</span><span class="n">tprop</span><span class="p">(</span><span class="s2">&quot;dateObserved&quot;</span><span class="p">,</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+<span class="n">entity</span><span class="o">.</span><span class="n">gprop</span><span class="p">(</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">44</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">entity</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;PM10&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;NO2&quot;</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="n">unitcode</span><span class="o">=</span><span class="s2">&quot;GP&quot;</span><span class="p">,</span> <span class="n">userdata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;reliability&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">})</span>
+<span class="n">entity</span><span class="o">.</span><span class="n">rel</span><span class="p">(</span><span class="s2">&quot;refPointOfInterest&quot;</span><span class="p">,</span> <span class="s2">&quot;PointOfInterest:RZ:MainSquare&quot;</span><span class="p">)</span>
+
+<span class="n">entity</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span> <span class="c1"># have a look at your just created entity</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">Send it to the Broker for creation.</div>
+<div class="line"><em>It assumes you have a broker instance running locally.</em></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="k">with</span> <span class="n">Client</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+ <span class="n">client</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="build.html" class="btn btn-neutral float-right" title="Build Entities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Fabien Battello.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

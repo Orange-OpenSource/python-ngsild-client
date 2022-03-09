@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ngsildclient.api.exceptions &mdash; ngsildclient 0.1.5 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ngsildclient.api.exceptions.rfc7807_error_handle" href="ngsildclient.api.exceptions.rfc7807_error_handle.html" />
+    <link rel="prev" title="ngsildclient.api.entities.Entities" href="ngsildclient.api.entities.Entities.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> ngsildclient
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home Page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">Build Entities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client.html">Interact with the Broker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="ngsildclient.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ngsildclient.print_to_log.html">ngsildclient.print_to_log</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="ngsildclient.api.html">ngsildclient.api</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ngsildclient.api.batch.html">ngsildclient.api.batch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ngsildclient.api.client.html">ngsildclient.api.client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ngsildclient.api.constants.html">ngsildclient.api.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ngsildclient.api.contexts.html">ngsildclient.api.contexts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ngsildclient.api.entities.html">ngsildclient.api.entities</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ngsildclient.api.exceptions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.rfc7807_error_handle.html">ngsildclient.api.exceptions.rfc7807_error_handle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.ProblemDetails.html">ngsildclient.api.exceptions.ProblemDetails</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiAlreadyExistsError.html">ngsildclient.api.exceptions.NgsiAlreadyExistsError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiApiError.html">ngsildclient.api.exceptions.NgsiApiError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiBadRequestDataError.html">ngsildclient.api.exceptions.NgsiBadRequestDataError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiContextBrokerError.html">ngsildclient.api.exceptions.NgsiContextBrokerError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiHttpError.html">ngsildclient.api.exceptions.NgsiHttpError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiInternalError.html">ngsildclient.api.exceptions.NgsiInternalError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiInvalidRequestError.html">ngsildclient.api.exceptions.NgsiInvalidRequestError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiLdContextNotAvailableError.html">ngsildclient.api.exceptions.NgsiLdContextNotAvailableError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiNoMultiTenantSupportError.html">ngsildclient.api.exceptions.NgsiNoMultiTenantSupportError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiNonexistentTenantError.html">ngsildclient.api.exceptions.NgsiNonexistentTenantError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiNotConnectedError.html">ngsildclient.api.exceptions.NgsiNotConnectedError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiOperationNotSupportedError.html">ngsildclient.api.exceptions.NgsiOperationNotSupportedError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiResourceNotFoundError.html">ngsildclient.api.exceptions.NgsiResourceNotFoundError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiTooComplexQueryError.html">ngsildclient.api.exceptions.NgsiTooComplexQueryError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ngsildclient.api.exceptions.NgsiTooManyResultsError.html">ngsildclient.api.exceptions.NgsiTooManyResultsError</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ngsildclient.api.types.html">ngsildclient.api.types</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ngsildclient.exceptions.html">ngsildclient.exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ngsildclient.model.html">ngsildclient.model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ngsildclient.utils.html">ngsildclient.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ngsildclient</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="ngsildclient.html">ngsildclient</a> &raquo;</li>
+          <li><a href="ngsildclient.api.html">ngsildclient.api</a> &raquo;</li>
+      <li>ngsildclient.api.exceptions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/ngsildclient.api.exceptions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-ngsildclient.api.exceptions">
+<span id="ngsildclient-api-exceptions"></span><h1>ngsildclient.api.exceptions<a class="headerlink" href="#module-ngsildclient.api.exceptions" title="Permalink to this headline"></a></h1>
+<p>A module that covers NGSI-LD API exceptions.</p>
+<p>When possible, Exceptions are mapped from the API Error Types,
+and enriched thanks to the ProblemDetails added by the API.</p>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.rfc7807_error_handle.html#ngsildclient.api.exceptions.rfc7807_error_handle" title="ngsildclient.api.exceptions.rfc7807_error_handle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rfc7807_error_handle</span></code></a></p></td>
+<td><p>A decorator function to handle enriched Exceptions that accept a ProblemDetails instance.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.ProblemDetails.html#ngsildclient.api.exceptions.ProblemDetails" title="ngsildclient.api.exceptions.ProblemDetails"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProblemDetails</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Exceptions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiAlreadyExistsError.html#ngsildclient.api.exceptions.NgsiAlreadyExistsError" title="ngsildclient.api.exceptions.NgsiAlreadyExistsError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiAlreadyExistsError</span></code></a>(problemdetails)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiApiError.html#ngsildclient.api.exceptions.NgsiApiError" title="ngsildclient.api.exceptions.NgsiApiError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiApiError</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiBadRequestDataError.html#ngsildclient.api.exceptions.NgsiBadRequestDataError" title="ngsildclient.api.exceptions.NgsiBadRequestDataError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiBadRequestDataError</span></code></a>(problemdetails)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiContextBrokerError.html#ngsildclient.api.exceptions.NgsiContextBrokerError" title="ngsildclient.api.exceptions.NgsiContextBrokerError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiContextBrokerError</span></code></a>(problemdetails)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiHttpError.html#ngsildclient.api.exceptions.NgsiHttpError" title="ngsildclient.api.exceptions.NgsiHttpError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiHttpError</span></code></a>(statuscode)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiInternalError.html#ngsildclient.api.exceptions.NgsiInternalError" title="ngsildclient.api.exceptions.NgsiInternalError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiInternalError</span></code></a>(problemdetails)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiInvalidRequestError.html#ngsildclient.api.exceptions.NgsiInvalidRequestError" title="ngsildclient.api.exceptions.NgsiInvalidRequestError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiInvalidRequestError</span></code></a>(problemdetails)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiLdContextNotAvailableError.html#ngsildclient.api.exceptions.NgsiLdContextNotAvailableError" title="ngsildclient.api.exceptions.NgsiLdContextNotAvailableError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiLdContextNotAvailableError</span></code></a>(problemdetails)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiNoMultiTenantSupportError.html#ngsildclient.api.exceptions.NgsiNoMultiTenantSupportError" title="ngsildclient.api.exceptions.NgsiNoMultiTenantSupportError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiNoMultiTenantSupportError</span></code></a>(problemdetails)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiNonexistentTenantError.html#ngsildclient.api.exceptions.NgsiNonexistentTenantError" title="ngsildclient.api.exceptions.NgsiNonexistentTenantError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiNonexistentTenantError</span></code></a>(problemdetails)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiNotConnectedError.html#ngsildclient.api.exceptions.NgsiNotConnectedError" title="ngsildclient.api.exceptions.NgsiNotConnectedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiNotConnectedError</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiOperationNotSupportedError.html#ngsildclient.api.exceptions.NgsiOperationNotSupportedError" title="ngsildclient.api.exceptions.NgsiOperationNotSupportedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiOperationNotSupportedError</span></code></a>(problemdetails)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiResourceNotFoundError.html#ngsildclient.api.exceptions.NgsiResourceNotFoundError" title="ngsildclient.api.exceptions.NgsiResourceNotFoundError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiResourceNotFoundError</span></code></a>(problemdetails)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiTooComplexQueryError.html#ngsildclient.api.exceptions.NgsiTooComplexQueryError" title="ngsildclient.api.exceptions.NgsiTooComplexQueryError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiTooComplexQueryError</span></code></a>(problemdetails)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ngsildclient.api.exceptions.NgsiTooManyResultsError.html#ngsildclient.api.exceptions.NgsiTooManyResultsError" title="ngsildclient.api.exceptions.NgsiTooManyResultsError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NgsiTooManyResultsError</span></code></a>(problemdetails)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiAlreadyExistsError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiAlreadyExistsError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problemdetails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiAlreadyExistsError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiAlreadyExistsError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.api.exceptions.NgsiContextBrokerError.html#ngsildclient.api.exceptions.NgsiContextBrokerError" title="ngsildclient.api.exceptions.NgsiContextBrokerError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.api.exceptions.NgsiContextBrokerError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiAlreadyExistsError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiAlreadyExistsError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiApiError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiApiError</span></span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiApiError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiApiError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.exceptions.NgsiError.html#ngsildclient.exceptions.NgsiError" title="ngsildclient.exceptions.NgsiError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.exceptions.NgsiError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiApiError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiApiError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiBadRequestDataError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiBadRequestDataError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problemdetails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiBadRequestDataError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiBadRequestDataError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.api.exceptions.NgsiContextBrokerError.html#ngsildclient.api.exceptions.NgsiContextBrokerError" title="ngsildclient.api.exceptions.NgsiContextBrokerError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.api.exceptions.NgsiContextBrokerError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiBadRequestDataError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiBadRequestDataError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiContextBrokerError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiContextBrokerError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problemdetails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiContextBrokerError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiContextBrokerError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.api.exceptions.NgsiApiError.html#ngsildclient.api.exceptions.NgsiApiError" title="ngsildclient.api.exceptions.NgsiApiError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.api.exceptions.NgsiApiError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiContextBrokerError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiContextBrokerError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiHttpError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiHttpError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statuscode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiHttpError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiHttpError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.api.exceptions.NgsiApiError.html#ngsildclient.api.exceptions.NgsiApiError" title="ngsildclient.api.exceptions.NgsiApiError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.api.exceptions.NgsiApiError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiHttpError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiHttpError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiInternalError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiInternalError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problemdetails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiInternalError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiInternalError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.api.exceptions.NgsiContextBrokerError.html#ngsildclient.api.exceptions.NgsiContextBrokerError" title="ngsildclient.api.exceptions.NgsiContextBrokerError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.api.exceptions.NgsiContextBrokerError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiInternalError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiInternalError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiInvalidRequestError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiInvalidRequestError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problemdetails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiInvalidRequestError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiInvalidRequestError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.api.exceptions.NgsiContextBrokerError.html#ngsildclient.api.exceptions.NgsiContextBrokerError" title="ngsildclient.api.exceptions.NgsiContextBrokerError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.api.exceptions.NgsiContextBrokerError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiInvalidRequestError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiInvalidRequestError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiLdContextNotAvailableError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiLdContextNotAvailableError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problemdetails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiLdContextNotAvailableError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiLdContextNotAvailableError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.api.exceptions.NgsiContextBrokerError.html#ngsildclient.api.exceptions.NgsiContextBrokerError" title="ngsildclient.api.exceptions.NgsiContextBrokerError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.api.exceptions.NgsiContextBrokerError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiLdContextNotAvailableError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiLdContextNotAvailableError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiNoMultiTenantSupportError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiNoMultiTenantSupportError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problemdetails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiNoMultiTenantSupportError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiNoMultiTenantSupportError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.api.exceptions.NgsiContextBrokerError.html#ngsildclient.api.exceptions.NgsiContextBrokerError" title="ngsildclient.api.exceptions.NgsiContextBrokerError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.api.exceptions.NgsiContextBrokerError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiNoMultiTenantSupportError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiNoMultiTenantSupportError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiNonexistentTenantError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiNonexistentTenantError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problemdetails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiNonexistentTenantError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiNonexistentTenantError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.api.exceptions.NgsiContextBrokerError.html#ngsildclient.api.exceptions.NgsiContextBrokerError" title="ngsildclient.api.exceptions.NgsiContextBrokerError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.api.exceptions.NgsiContextBrokerError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiNonexistentTenantError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiNonexistentTenantError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiNotConnectedError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiNotConnectedError</span></span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiNotConnectedError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiNotConnectedError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.api.exceptions.NgsiApiError.html#ngsildclient.api.exceptions.NgsiApiError" title="ngsildclient.api.exceptions.NgsiApiError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.api.exceptions.NgsiApiError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiNotConnectedError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiNotConnectedError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiOperationNotSupportedError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiOperationNotSupportedError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problemdetails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiOperationNotSupportedError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiOperationNotSupportedError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.api.exceptions.NgsiContextBrokerError.html#ngsildclient.api.exceptions.NgsiContextBrokerError" title="ngsildclient.api.exceptions.NgsiContextBrokerError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.api.exceptions.NgsiContextBrokerError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiOperationNotSupportedError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiOperationNotSupportedError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiResourceNotFoundError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiResourceNotFoundError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problemdetails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiResourceNotFoundError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiResourceNotFoundError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.api.exceptions.NgsiContextBrokerError.html#ngsildclient.api.exceptions.NgsiContextBrokerError" title="ngsildclient.api.exceptions.NgsiContextBrokerError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.api.exceptions.NgsiContextBrokerError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiResourceNotFoundError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiResourceNotFoundError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiTooComplexQueryError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiTooComplexQueryError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problemdetails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiTooComplexQueryError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiTooComplexQueryError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.api.exceptions.NgsiContextBrokerError.html#ngsildclient.api.exceptions.NgsiContextBrokerError" title="ngsildclient.api.exceptions.NgsiContextBrokerError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.api.exceptions.NgsiContextBrokerError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiTooComplexQueryError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiTooComplexQueryError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiTooManyResultsError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">NgsiTooManyResultsError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problemdetails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#NgsiTooManyResultsError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiTooManyResultsError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="ngsildclient.api.exceptions.NgsiContextBrokerError.html#ngsildclient.api.exceptions.NgsiContextBrokerError" title="ngsildclient.api.exceptions.NgsiContextBrokerError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ngsildclient.api.exceptions.NgsiContextBrokerError</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.NgsiTooManyResultsError.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ngsildclient.api.exceptions.NgsiTooManyResultsError.with_traceback" title="Permalink to this definition"></a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.ProblemDetails">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">ProblemDetails</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#ProblemDetails"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.ProblemDetails" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ngsildclient.api.exceptions.rfc7807_error_handle">
+<span class="sig-name descname"><span class="pre">rfc7807_error_handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ngsildclient/api/exceptions.html#rfc7807_error_handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ngsildclient.api.exceptions.rfc7807_error_handle" title="Permalink to this definition"></a></dt>
+<dd><p>A decorator function to handle enriched Exceptions that accept a ProblemDetails instance.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">api.entities.create</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">api.entities.retrieve</span></code></p>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ngsildclient.api.entities.Entities.html" class="btn btn-neutral float-left" title="ngsildclient.api.entities.Entities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ngsildclient.api.exceptions.rfc7807_error_handle.html" class="btn btn-neutral float-right" title="ngsildclient.api.exceptions.rfc7807_error_handle" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Fabien Battello.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

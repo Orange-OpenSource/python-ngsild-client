@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ngsildclient.model.entity &mdash; ngsildclient 0.1.5 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> ngsildclient
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Home Page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../build.html">Build Entities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client.html">Interact with the Broker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_autosummary/ngsildclient.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ngsildclient</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../ngsildclient.html">ngsildclient</a> &raquo;</li>
+      <li>ngsildclient.model.entity</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ngsildclient.model.entity</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="c1"># Software Name: ngsildclient</span>
+<span class="c1"># SPDX-FileCopyrightText: Copyright (c) 2021 Orange</span>
+<span class="c1"># SPDX-License-Identifier: Apache 2.0</span>
+<span class="c1">#</span>
+<span class="c1"># This software is distributed under the Apache 2.0;</span>
+<span class="c1"># see the NOTICE file for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># Author: Fabien BATTELLO &lt;fabien.battello@orange.com&gt; et al.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partialmethod</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">overload</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.ngsidict</span> <span class="kn">import</span> <span class="n">NgsiDict</span>
+<span class="kn">from</span> <span class="nn">ngsildclient.utils</span> <span class="kn">import</span> <span class="n">iso8601</span><span class="p">,</span> <span class="n">url</span>
+<span class="kn">from</span> <span class="nn">ngsildclient.utils.urn</span> <span class="kn">import</span> <span class="n">Urn</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="sd">&quot;&quot;&quot;This module contains the definition of the Entity class.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="Entity"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity">[docs]</a><span class="k">class</span> <span class="nc">Entity</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;The main goal of this class is to build, manipulate and represent a NGSI-LD compliant entity.</span>
+
+<span class="sd">    The preferred constructor allows to create an entity from its NGSI-LD type and identifier (and optionally context),</span>
+<span class="sd">    If no context is provided, it defaults to the NGSI-LD Core Context.</span>
+<span class="sd">    The identifier can be written using the &quot;long form&quot; : the fully qualified urn string.</span>
+<span class="sd">    It can also be shorten :</span>
+<span class="sd">    - omit the urn prefix (scheme+nss)</span>
+<span class="sd">    - omit the type inside the identifier, assuming the naming convention &quot;urn:ngsi-ld:&lt;type&gt;:&lt;remainder&gt;&quot;</span>
+
+<span class="sd">    An alternate constructor allows to create an entity by just providing its id (and optionally context).</span>
+<span class="sd">    In this case the type is inferred from the fully qualified urn string,</span>
+<span class="sd">    assuming the naming convention &quot;urn:ngsi-ld:&lt;type&gt;:&lt;remainder&gt;&quot;.</span>
+
+<span class="sd">    The load() classmethod allows to load a NGSI-LD entity from a file or remotely through HTTP.</span>
+<span class="sd">    For convenience some `SmartDataModels &lt;https://smartdatamodels.org/&gt;`_ examples are made available.</span>
+
+<span class="sd">    Once initiated, we can build a complete NGSI-LD entity by adding attributes to the NGSI-LD entity.</span>
+<span class="sd">    An attribute can be a Property, TemporalProperty, GeoProperty or RelationShip.</span>
+<span class="sd">    Methods prop(), tprop(), gprop() and rel() are used to respectively build a Property, TemporalProperty,</span>
+<span class="sd">    GeoProperty, and Relationship.</span>
+<span class="sd">    Attributes can carry metadatas, such as &quot;observedAt&quot;.</span>
+<span class="sd">    Attributes can carry user data.</span>
+
+<span class="sd">    Nested attributes are supported.</span>
+<span class="sd">    Methods prop(), tprop(), gprop() are chainable, allowing to build nested properties.</span>
+
+<span class="sd">    Dates and Datetimes are ISO8601.</span>
+<span class="sd">    Helper functions are provided in the module utils.iso8601.</span>
+<span class="sd">    Often a same date (the one when the measure/event happened) is used many times in the entity.</span>
+<span class="sd">    When building an entity, the first time a datetime is used it is cached, then can be reused using &quot;Auto&quot;.</span>
+
+<span class="sd">    Given a NGSI-LD entity, many actions are possible :</span>
+<span class="sd">    - access/add/remove/update attributes</span>
+<span class="sd">    - access/update/remove values</span>
+<span class="sd">    - print the content in the normalized or simplified (aka KeyValues) flavor</span>
+<span class="sd">    - save the entity to a file</span>
+<span class="sd">    - send it to the NGSI-LD Context Broker for creation/update (use the ngsildclient.api package)</span>
+
+<span class="sd">    A NGSI-LD entity is backed by a NgsiDict object (a custom dictionary that inherits from the native Python dict).</span>
+<span class="sd">    So if for any reasons you&#39;re stuck with the library and cannot achieve to build a NGSI-LD entity</span>
+<span class="sd">    that fully matches your target datamodel, it&#39;s always possible to manipulate directly the underlying dictionary.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    NgsiMissingIdError</span>
+<span class="sd">        The identifier is missing</span>
+<span class="sd">    NgsiMissingTypeError</span>
+<span class="sd">        The type is missing</span>
+<span class="sd">    NgsiMissingContextError</span>
+<span class="sd">        The context is missing</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    model.NgsiDict : a custom dictionary that inherits from the native dict and provides primitives to build attributes</span>
+<span class="sd">    api.client.Client : the NGSI-LD Context Broker client to interact with a Context Broker</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from datetime import datetime</span>
+<span class="sd">    &gt;&gt;&gt; from ngsildclient import *</span>
+
+<span class="sd">    &gt;&gt;&gt; # Create the entity</span>
+<span class="sd">    &gt;&gt;&gt; e = Entity(&quot;AirQualityObserved&quot;, &quot;RZ:Obsv4567&quot;)</span>
+
+<span class="sd">    &gt;&gt;&gt; # Add a temporal property named dateObserved</span>
+<span class="sd">    &gt;&gt;&gt; # We could provide a string if preferred (rather than a datetime)</span>
+<span class="sd">    &gt;&gt;&gt; e.tprop(&quot;dateObserved&quot;, datetime(2018, 8, 7, 12))</span>
+
+<span class="sd">    &gt;&gt;&gt; # Add a property named NO2 with a pollutant concentration value and a metadata to indicate the unit (mg/m3)</span>
+<span class="sd">    &gt;&gt;&gt; # The accuracy property is nested</span>
+<span class="sd">    &gt;&gt;&gt; e.prop(&quot;NO2&quot;, 22, unitcode=&quot;GP&quot;, observedat=Auto).prop(&quot;accuracy&quot;, 0.95, NESTED)</span>
+
+<span class="sd">    &gt;&gt;&gt; # Add a relationship towards a POI NGSI-LD Entity</span>
+<span class="sd">    &gt;&gt;&gt; e.rel(&quot;refPointOfInterest&quot;, &quot;PointOfInterest:RZ:MainSquare&quot;)</span>
+
+<span class="sd">    &gt;&gt;&gt; # Pretty-print to standard output</span>
+<span class="sd">    &gt;&gt;&gt; e.pprint()</span>
+<span class="sd">    {</span>
+<span class="sd">        &quot;@context&quot;: [</span>
+<span class="sd">            &quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
+<span class="sd">        ],</span>
+<span class="sd">        &quot;id&quot;: &quot;urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567&quot;,</span>
+<span class="sd">        &quot;type&quot;: &quot;AirQualityObserved&quot;,</span>
+<span class="sd">        &quot;dateObserved&quot;: {</span>
+<span class="sd">            &quot;type&quot;: &quot;Property&quot;,</span>
+<span class="sd">            &quot;value&quot;: {</span>
+<span class="sd">                &quot;@type&quot;: &quot;DateTime&quot;,</span>
+<span class="sd">                &quot;@value&quot;: &quot;2018-08-07T12:00:00Z&quot;</span>
+<span class="sd">            }</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;NO2&quot;: {</span>
+<span class="sd">            &quot;type&quot;: &quot;Property&quot;,</span>
+<span class="sd">            &quot;value&quot;: 22,</span>
+<span class="sd">            &quot;unitCode&quot;: &quot;GP&quot;,</span>
+<span class="sd">            &quot;observedAt&quot;: &quot;2018-08-07T12:00:00Z&quot;,</span>
+<span class="sd">            &quot;accuracy&quot;: {</span>
+<span class="sd">                &quot;type&quot;: &quot;Property&quot;,</span>
+<span class="sd">                &quot;value&quot;: 0.95</span>
+<span class="sd">            }</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;refPointOfInterest&quot;: {</span>
+<span class="sd">            &quot;type&quot;: &quot;Relationship&quot;,</span>
+<span class="sd">            &quot;object&quot;: &quot;urn:ngsi-ld:PointOfInterest:RZ:MainSquare&quot;</span>
+<span class="sd">        }</span>
+<span class="sd">    }</span>
+
+<span class="sd">    &gt;&gt;&gt; # Update a property by overriding it</span>
+<span class="sd">    &gt;&gt;&gt; e.prop(&quot;dateObserved&quot;, iso8601.utcnow())</span>
+
+<span class="sd">    &gt;&gt;&gt; # Update a value using the dot notation</span>
+<span class="sd">    &gt;&gt;&gt; e[&quot;NO2.accuracy.value&quot;] = 0.96</span>
+
+<span class="sd">    &gt;&gt;&gt; # Remove a property</span>
+<span class="sd">    &gt;&gt;&gt; e.rm(&quot;NO2.accuracy&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Entity.Settings"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.Settings">[docs]</a>    <span class="nd">@dataclass</span>
+    <span class="k">class</span> <span class="nc">Settings</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;The default settings used to build an Entity&quot;&quot;&quot;</span>
+
+        <span class="n">autoprefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="sd">&quot;&quot;&quot;A boolean to enable/disable the automatic insertion of the type into the identifier.</span>
+<span class="sd">        Default is enabled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># for future use</span>
+        <span class="n">autoescape</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># for future use</span></div>
+
+    <span class="n">globalsettings</span><span class="p">:</span> <span class="n">Settings</span> <span class="o">=</span> <span class="n">Settings</span><span class="p">()</span>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[</span><span class="n">CORE_CONTEXT</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;Create a NGSI-LD compliant entity</span>
+
+<span class="sd">        One can omit the urn and namespace, &quot;urn:ngsi-ld:&quot; will be added automatically.</span>
+<span class="sd">        One can omit the type inside the identifier.</span>
+
+<span class="sd">        By default, the constructor assumes the identifier naming convention &quot;urn:ngsi-ld:&lt;type&gt;:&lt;remainder&gt;&quot; and automatically</span>
+<span class="sd">        insert the type into the identifier.</span>
+<span class="sd">        The default behaviour can be disabled : Entity.globalsettings.autoprefix = False.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        type : str</span>
+<span class="sd">            entity type</span>
+<span class="sd">        id : str</span>
+<span class="sd">            entity identifier</span>
+<span class="sd">        ctx : list, optional</span>
+<span class="sd">            the NGSI-LD context, by default the NGSI-LD Core Context</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from ngsildclient.model.entity import Entity</span>
+<span class="sd">        &gt;&gt;&gt; e1 = Entity(&quot;AirQualityObserved&quot;, &quot;urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567&quot;) # long form</span>
+<span class="sd">        &gt;&gt;&gt; e2 = Entity(&quot;AirQualityObserved&quot;, &quot;AirQualityObserved:RZ:Obsv4567&quot;) # omit scheme + nss</span>
+<span class="sd">        &gt;&gt;&gt; e3 = Entity(&quot;AirQualityObserved&quot;, &quot;RZ:Obsv4567&quot;) # omit scheme + nss + type</span>
+<span class="sd">        &gt;&gt;&gt; print(e1 == e2 == e3)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; e1.pprint()</span>
+<span class="sd">        {</span>
+<span class="sd">            &quot;@context&quot;: [</span>
+<span class="sd">                &quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
+<span class="sd">            ],</span>
+<span class="sd">            &quot;id&quot;: &quot;urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567&quot;,</span>
+<span class="sd">            &quot;type&quot;: &quot;AirQualityObserved&quot;</span>
+<span class="sd">        }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[</span><span class="n">CORE_CONTEXT</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;Create a NGSI-LD compliant entity.</span>
+
+<span class="sd">        Type is inferred from the fully qualified identifier.</span>
+<span class="sd">        Works only if your identifiers follow the naming convention &quot;urn:ngsi-ld:&lt;type&gt;:&lt;remainder&gt;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        id : str</span>
+<span class="sd">            entity identifier (fully qualified urn)</span>
+<span class="sd">        context : list, optional</span>
+<span class="sd">            the NGSI-LD context, by default the NGSI-LD Core Context</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from ngsildclient.model.entity import Entity</span>
+<span class="sd">        &gt;&gt;&gt; e = Entity(&quot;urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; e.pprint()</span>
+<span class="sd">        {</span>
+<span class="sd">            &quot;@context&quot;: [</span>
+<span class="sd">                &quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
+<span class="sd">            ],</span>
+<span class="sd">            &quot;id&quot;: &quot;urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567&quot;,</span>
+<span class="sd">            &quot;type&quot;: &quot;AirQualityObserved&quot;</span>
+<span class="sd">        }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">arg1</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">arg2</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[</span><span class="n">CORE_CONTEXT</span><span class="p">],</span>
+        <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">autoprefix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">arg1</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">arg2</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">autoprefix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">autoprefix</span> <span class="o">=</span> <span class="n">Entity</span><span class="o">.</span><span class="n">globalsettings</span><span class="o">.</span><span class="n">autoprefix</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lastprop</span><span class="p">:</span> <span class="n">NgsiDict</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_anchored</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">payload</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># create Entity from a dictionary</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">NgsiMissingIdError</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">NgsiMissingTypeError</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;@context&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">NgsiMissingContextError</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">:</span> <span class="n">NgsiDict</span> <span class="o">=</span> <span class="n">NgsiDict</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># create a new Entity using its id and type</span>
+
+        <span class="k">if</span> <span class="n">arg2</span><span class="p">:</span>
+            <span class="nb">type</span><span class="p">,</span> <span class="nb">id</span> <span class="o">=</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">type</span><span class="p">,</span> <span class="nb">id</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">arg1</span>
+
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">iso8601</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># try to infer type from the fully qualified identifier</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="n">Urn</span><span class="o">.</span><span class="n">prefix</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="n">urn</span> <span class="o">=</span> <span class="n">Urn</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">type</span> <span class="o">:=</span> <span class="n">urn</span><span class="o">.</span><span class="n">infertype</span><span class="p">())</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">NgsiMissingTypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">urn</span><span class="o">.</span><span class="n">fqn</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># type is not None</span>
+            <span class="n">autoprefix</span> <span class="o">&amp;=</span> <span class="ow">not</span> <span class="n">Urn</span><span class="o">.</span><span class="n">is_prefixed</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">autoprefix</span><span class="p">:</span>
+                <span class="n">bareid</span> <span class="o">=</span> <span class="n">Urn</span><span class="o">.</span><span class="n">unprefix</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+                <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s2">:&quot;</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">bareid</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+                    <span class="nb">id</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">bareid</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="n">Urn</span><span class="o">.</span><span class="n">prefix</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>  <span class="c1"># set the prefix &quot;urn:ngsi-ld:&quot; if not already done</span>
+            <span class="n">urn</span> <span class="o">=</span> <span class="n">Urn</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">:</span> <span class="n">NgsiDict</span> <span class="o">=</span> <span class="n">NgsiDict</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;@context&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">urn</span><span class="o">.</span><span class="n">fqn</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">},</span>
+            <span class="n">dtcached</span><span class="o">=</span><span class="n">dt</span> <span class="k">if</span> <span class="n">dt</span> <span class="k">else</span> <span class="n">iso8601</span><span class="o">.</span><span class="n">utcnow</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Entity.from_dict"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a NGSI-LD entity from a dictionary.</span>
+
+<span class="sd">        The input dictionary must at least contain the &#39;id&#39;, &#39;type&#39; and &#39;@context&#39;.</span>
+<span class="sd">        This method assumes that the input dictionary matches a valid NGSI-LD structure.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        payload : dict</span>
+<span class="sd">            The given dictionary.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Entity</span>
+<span class="sd">            The result Entity instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Entity.load"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load an Entity from a JSON file, locally from the filesystem or remotely through HTTP.</span>
+
+<span class="sd">        For convenience some `SmartDataModels &lt;https://smartdatamodels.org/&gt;`_ examples are made available thanks to the Smart Data Models initiative.</span>
+<span class="sd">        You can benefit from autocompletion to navigate inside the available datamodels.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            If filename corresponds to an URL, the JSON file is downloaded from HTTP.</span>
+<span class="sd">            Else it is retrieved locally from the filesystem.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        [Entity]</span>
+<span class="sd">            The Entity instance</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        model.constants.SmartDataModels</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from ngsildclient import *</span>
+<span class="sd">        &gt;&gt;&gt; e = Entity.load(SmartDatamodels.SmartCities.Weather.WeatherObserved)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">isurl</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Entity.duplicate"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.duplicate">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">duplicate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Entity</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Duplicate a given entity.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        entity : Entity</span>
+<span class="sd">            The input Entity</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Entity</span>
+<span class="sd">            The output entity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new</span></div>
+
+<div class="viewcode-block" id="Entity.copy"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Entity</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Duplicates the entity</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Entity</span>
+<span class="sd">            The new entity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Entity</span><span class="o">.</span><span class="n">duplicate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+
+    <span class="nd">@id</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eid</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">eid</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
+
+    <span class="nd">@type</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">etype</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">etype</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">[</span><span class="s2">&quot;@context&quot;</span><span class="p">]</span>
+
+    <span class="nd">@context</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">[</span><span class="s2">&quot;@context&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="o">.</span><span class="n">_attr</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="o">.</span><span class="n">_setattr</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="o">.</span><span class="n">_rmattr</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="Entity.anchor"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.anchor">[docs]</a>    <span class="k">def</span> <span class="nf">anchor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set an anchor.</span>
+
+<span class="sd">        Allow to specify that the last property is used as an anchor.</span>
+<span class="sd">        Once the anchor property is specified, new properties are attached to the anchor property.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        entity : Entity</span>
+<span class="sd">            The input Entity</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Entity</span>
+<span class="sd">            The output entity</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        Here an anchor is set at the &quot;availableSpotNumber&quot; property.</span>
+<span class="sd">        Hence the &quot;reliability&quot; and &quot;providedBy&quot; properties are attached to (nested in) the &quot;availableSpotNumber&quot; property.</span>
+<span class="sd">        Without anchoring, the &quot;reliability&quot; and &quot;providedBy&quot; properties would apply to the entity&#39;s root.</span>
+
+<span class="sd">        &gt;&gt;&gt; from ngsildclient.model.entity import Entity</span>
+<span class="sd">        &gt;&gt;&gt; e = Entity(&quot;OffStreetParking&quot;, &quot;Downtown1&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; e.prop(&quot;availableSpotNumber&quot;, 121, observedat=datetime(2017, 7, 29, 12, 5, 2)).anchor()</span>
+<span class="sd">        &gt;&gt;&gt; e.prop(&quot;reliability&quot;, 0.7).rel(&quot;providedBy&quot;, &quot;Camera:C1&quot;).unanchor()</span>
+<span class="sd">        &gt;&gt;&gt; e.pprint()</span>
+<span class="sd">        {</span>
+<span class="sd">            &quot;@context&quot;: [</span>
+<span class="sd">                &quot;http://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;,</span>
+<span class="sd">                &quot;http://example.org/ngsi-ld/parking.jsonld&quot;</span>
+<span class="sd">            ],</span>
+<span class="sd">            &quot;id&quot;: &quot;urn:ngsi-ld:OffStreetParking:Downtown1&quot;,</span>
+<span class="sd">            &quot;type&quot;: &quot;OffStreetParking&quot;,</span>
+<span class="sd">            &quot;availableSpotNumber&quot;: {</span>
+<span class="sd">                &quot;type&quot;: &quot;Property&quot;,</span>
+<span class="sd">                &quot;value&quot;: 121,</span>
+<span class="sd">                &quot;observedAt&quot;: &quot;2017-07-29T12:05:02Z&quot;,</span>
+<span class="sd">                &quot;reliability&quot;: {</span>
+<span class="sd">                    &quot;type&quot;: &quot;Property&quot;,</span>
+<span class="sd">                    &quot;value&quot;: 0.7</span>
+<span class="sd">                },</span>
+<span class="sd">                &quot;providedBy&quot;: {</span>
+<span class="sd">                    &quot;type&quot;: &quot;Relationship&quot;,</span>
+<span class="sd">                    &quot;object&quot;: &quot;urn:ngsi-ld:Camera:C1&quot;</span>
+<span class="sd">                }</span>
+<span class="sd">            }</span>
+<span class="sd">        }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_anchored</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Entity.unanchor"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.unanchor">[docs]</a>    <span class="k">def</span> <span class="nf">unanchor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove the anchor.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        Entity.anchor()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_anchored</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="nf">_update_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">property</span><span class="p">:</span> <span class="n">NgsiDict</span><span class="p">,</span> <span class="n">nested</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">nested</span> <span class="o">|=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anchored</span>
+        <span class="k">if</span> <span class="n">nested</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lastprop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># update _lastprop only if not anchored</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lastprop</span><span class="p">[</span><span class="n">attrname</span><span class="p">]</span> <span class="o">=</span> <span class="nb">property</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anchored</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_lastprop</span> <span class="o">=</span> <span class="nb">property</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lastprop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">[</span><span class="n">attrname</span><span class="p">]</span> <span class="o">=</span> <span class="nb">property</span>
+
+<div class="viewcode-block" id="Entity.prop"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.prop">[docs]</a>    <span class="k">def</span> <span class="nf">prop</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">nested</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>  <span class="c1"># keyword-only arguments after this</span>
+        <span class="n">unitcode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">observedat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">datasetid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">userdata</span><span class="p">:</span> <span class="n">NgsiDict</span> <span class="o">=</span> <span class="n">NgsiDict</span><span class="p">(),</span>
+        <span class="n">escape</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Entity</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Build a Property.</span>
+
+<span class="sd">        Build a property and attach it to the current entity.</span>
+<span class="sd">        One can chain prop(),tprop(), gprop(), rel() methods to build nested properties.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            the property name</span>
+<span class="sd">        value : Any</span>
+<span class="sd">            the property value</span>
+<span class="sd">        observedat : Union[str, datetime], optional</span>
+<span class="sd">            observetAt metadata, timestamp, ISO8601, UTC, by default None</span>
+<span class="sd">        datasetid : str, optional</span>
+<span class="sd">            it allows identifying a set or group of property values, by default None</span>
+<span class="sd">        userdata : NgsiDict, optional</span>
+<span class="sd">            a dict or NgsiDict containing user data, i.e. userdata={&quot;reliability&quot;: 0.95}, by default NgsiDict()</span>
+<span class="sd">        escape : bool, optional</span>
+<span class="sd">            if set escape the string value (useful if contains forbidden characters), by default False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Entity</span>
+<span class="sd">            The updated entity</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from ngsildclient.model.entity import Entity</span>
+<span class="sd">        &gt;&gt;&gt; e = Entity(&quot;AirQualityObserved&quot;, &quot;RZ:Obsv4567&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; e.prop(&quot;NO2&quot;, 22, unitcode=&quot;GP&quot;) # basic property</span>
+<span class="sd">        {&#39;type&#39;: &#39;Property&#39;, &#39;value&#39;: 22, &#39;unitCode&#39;: &#39;GP&#39;}</span>
+<span class="sd">        &gt;&gt;&gt; e.prop(&quot;PM10&quot;, 18, unitcode=&quot;GP&quot;).prop(&quot;reliability&quot;, 0.95) # chain methods to obtain a nested property</span>
+<span class="sd">        {&#39;type&#39;: &#39;Property&#39;, &#39;value&#39;: 0.95}</span>
+<span class="sd">        &gt;&gt;&gt; e.pprint()</span>
+<span class="sd">        {</span>
+<span class="sd">        &quot;@context&quot;: [</span>
+<span class="sd">            &quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
+<span class="sd">        ],</span>
+<span class="sd">        &quot;id&quot;: &quot;urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567&quot;,</span>
+<span class="sd">        &quot;type&quot;: &quot;AirQualityObserved&quot;,</span>
+<span class="sd">        &quot;NO2&quot;: {</span>
+<span class="sd">            &quot;type&quot;: &quot;Property&quot;,</span>
+<span class="sd">            &quot;value&quot;: 22,</span>
+<span class="sd">            &quot;unitCode&quot;: &quot;GP&quot;</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;PM10&quot;: {</span>
+<span class="sd">            &quot;type&quot;: &quot;Property&quot;,</span>
+<span class="sd">            &quot;value&quot;: 18,</span>
+<span class="sd">            &quot;unitCode&quot;: &quot;GP&quot;,</span>
+<span class="sd">            &quot;reliability&quot;: {</span>
+<span class="sd">                &quot;type&quot;: &quot;Property&quot;,</span>
+<span class="sd">                &quot;value&quot;: 0.95</span>
+<span class="sd">            }</span>
+<span class="sd">        }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">property</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="o">.</span><span class="n">build_property</span><span class="p">(</span>
+            <span class="n">value</span><span class="p">,</span> <span class="n">unitcode</span><span class="p">,</span> <span class="n">observedat</span><span class="p">,</span> <span class="n">datasetid</span><span class="p">,</span> <span class="n">userdata</span><span class="p">,</span> <span class="n">escape</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_entity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">nested</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="nf">addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;address&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Entity.gprop"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.gprop">[docs]</a>    <span class="k">def</span> <span class="nf">gprop</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">NgsiGeometry</span><span class="p">,</span>
+        <span class="n">nested</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">observedat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">datasetid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Entity</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Build a GeoProperty.</span>
+
+<span class="sd">        Build a GeoProperty and attach it to the current entity.</span>
+<span class="sd">        One can chain prop(),tprop(), gprop(), rel() methods to build nested properties.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            the property name</span>
+<span class="sd">        value : NgsiGeometry</span>
+<span class="sd">            the property value</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Entity</span>
+<span class="sd">            The updated entity</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from ngsildclient.model.entity import Entity</span>
+<span class="sd">        &gt;&gt;&gt; e = Entity(&quot;PointOfInterest&quot;, &quot;RZ:MainSquare&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; e.prop(&quot;description&quot;, &quot;Beach of RZ&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; e.gprop(&quot;location&quot;, (44, -8))</span>
+<span class="sd">        &gt;&gt;&gt; e.pprint()</span>
+<span class="sd">        {</span>
+<span class="sd">            &quot;@context&quot;: [</span>
+<span class="sd">                &quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
+<span class="sd">            ],</span>
+<span class="sd">            &quot;id&quot;: &quot;urn:ngsi-ld:PointOfInterest:RZ:MainSquare&quot;,</span>
+<span class="sd">            &quot;type&quot;: &quot;PointOfInterest&quot;,</span>
+<span class="sd">            &quot;description&quot;: {</span>
+<span class="sd">                &quot;type&quot;: &quot;Property&quot;,</span>
+<span class="sd">                &quot;value&quot;: &quot;Beach of RZ&quot;</span>
+<span class="sd">            },</span>
+<span class="sd">            &quot;location&quot;: {</span>
+<span class="sd">                &quot;type&quot;: &quot;GeoProperty&quot;,</span>
+<span class="sd">                &quot;value&quot;: {</span>
+<span class="sd">                &quot;type&quot;: &quot;Point&quot;,</span>
+<span class="sd">                &quot;coordinates&quot;: [</span>
+<span class="sd">                    -8,</span>
+<span class="sd">                    44</span>
+<span class="sd">                ]</span>
+<span class="sd">                }</span>
+<span class="sd">            }</span>
+<span class="sd">        }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">property</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="o">.</span><span class="n">build_geoproperty</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">observedat</span><span class="p">,</span> <span class="n">datasetid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_entity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">nested</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="n">loc</span> <span class="o">=</span> <span class="n">partialmethod</span><span class="p">(</span><span class="n">gprop</span><span class="p">,</span> <span class="s2">&quot;location&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot; A helper method to set the frequently used &quot;location&quot; geoproperty.</span>
+
+<span class="sd">    entity.loc((44, -8)) is a shorcut for entity.gprop(&quot;location&quot;, (44, -8))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Entity.tprop"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.tprop">[docs]</a>    <span class="k">def</span> <span class="nf">tprop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">NgsiDate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nested</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Entity</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Build a TemporalProperty.</span>
+
+<span class="sd">        Build a TemporalProperty and attach it to the current entity.</span>
+<span class="sd">        One can chain prop(),tprop(), gprop(), rel() methods to build nested properties.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            the property name</span>
+<span class="sd">        value : NgsiDate</span>
+<span class="sd">            the property value, utcnow() if None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Entity</span>
+<span class="sd">            The updated entity</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from datetime import datetime</span>
+<span class="sd">        &gt;&gt;&gt; from ngsildclient.model.entity import Entity</span>
+<span class="sd">        &gt;&gt;&gt; e = Entity(&quot;AirQualityObserved&quot;, &quot;RZ:Obsv4567&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; e.tprop(&quot;dateObserved&quot;, datetime(2018, 8, 7, 12))</span>
+<span class="sd">        &gt;&gt;&gt; e.pprint()</span>
+<span class="sd">        {</span>
+<span class="sd">            &quot;@context&quot;: [</span>
+<span class="sd">                &quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
+<span class="sd">            ],</span>
+<span class="sd">            &quot;id&quot;: &quot;urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567&quot;,</span>
+<span class="sd">            &quot;type&quot;: &quot;AirQualityObserved&quot;,</span>
+<span class="sd">            &quot;dateObserved&quot;: {</span>
+<span class="sd">                &quot;type&quot;: &quot;Property&quot;,</span>
+<span class="sd">                &quot;value&quot;: {</span>
+<span class="sd">                    &quot;@type&quot;: &quot;DateTime&quot;,</span>
+<span class="sd">                    &quot;@value&quot;: &quot;2018-08-07T12:00:00Z&quot;</span>
+<span class="sd">                }</span>
+<span class="sd">            }</span>
+<span class="sd">        }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="o">.</span><span class="n">_dtcached</span>
+        <span class="nb">property</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="o">.</span><span class="n">build_temporal_property</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_entity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">nested</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">partialmethod</span><span class="p">(</span><span class="n">tprop</span><span class="p">,</span> <span class="s2">&quot;dateObserved&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot; A helper method to set the frequently used &quot;dateObserved&quot; property.</span>
+
+<span class="sd">    entity.obs(&quot;2022-01-12T12:54:38Z&quot;) is a shorcut for entity.tprop(&quot;dateObserved&quot;, &quot;2022-01-12T12:54:38Z&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Entity.rel"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.rel">[docs]</a>    <span class="k">def</span> <span class="nf">rel</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Rel</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+        <span class="n">nested</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">observedat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">datasetid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>        
+        <span class="n">userdata</span><span class="p">:</span> <span class="n">NgsiDict</span> <span class="o">=</span> <span class="n">NgsiDict</span><span class="p">(),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Entity</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Build a Relationship Property.</span>
+
+<span class="sd">        Build a Relationship Property and attach it to the current entity.</span>
+<span class="sd">        One can chain prop(),tprop(), gprop(), rel() methods to build nested properties.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            the property name</span>
+<span class="sd">        value : str | PredefinedRelationship</span>
+<span class="sd">            the property value</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Entity</span>
+<span class="sd">            The updated entity</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from ngsildclient.model.entity import Entity</span>
+<span class="sd">        &gt;&gt;&gt; e = Entity(&quot;AirQualityObserved&quot;, &quot;RZ:Obsv4567&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; e.rel(&quot;refPointOfInterest&quot;, &quot;PointOfInterest:RZ:MainSquare&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; e.pprint()</span>
+<span class="sd">        {</span>
+<span class="sd">            &quot;@context&quot;: [</span>
+<span class="sd">                &quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
+<span class="sd">            ],</span>
+<span class="sd">            &quot;id&quot;: &quot;urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567&quot;,</span>
+<span class="sd">            &quot;type&quot;: &quot;AirQualityObserved&quot;,</span>
+<span class="sd">            &quot;refPointOfInterest&quot;: {</span>
+<span class="sd">                &quot;type&quot;: &quot;Relationship&quot;,</span>
+<span class="sd">                &quot;object&quot;: &quot;urn:ngsi-ld:PointOfInterest:RZ:MainSquare&quot;</span>
+<span class="sd">            }</span>
+<span class="sd">        }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">Rel</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="nb">property</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="o">.</span><span class="n">build_relationship</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">observedat</span><span class="p">,</span> <span class="n">datasetid</span><span class="p">,</span> <span class="n">userdata</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_entity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">nested</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Entity</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_payload</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Entity.to_dict"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kv</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NgsiDict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns the entity as a dictionary.</span>
+
+<span class="sd">        The returned type is NgsiDict, fully compatible with a native dict.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kv : bool, optional</span>
+<span class="sd">            KeyValues format (aka simplified representation), by default False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        NgsiDict</span>
+<span class="sd">            The underlying native Python dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_keyvalues</span><span class="p">()</span> <span class="k">if</span> <span class="n">kv</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span></div>
+
+    <span class="k">def</span> <span class="nf">_to_keyvalues</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NgsiDict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Compute a NgsiDict that contains only the highest-level of information.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        NgsiDict</span>
+<span class="sd">            The simplified representation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">NgsiDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">v</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">AttrType</span><span class="o">.</span><span class="n">PROP</span><span class="o">.</span><span class="n">value</span>
+                <span class="p">):</span>  <span class="c1"># apply to Property and TemporalProperty</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;@value&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>  <span class="c1"># for Temporal Property only</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="k">elif</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">AttrType</span><span class="o">.</span><span class="n">GEO</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">AttrType</span><span class="o">.</span><span class="n">REL</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">d</span>
+
+<div class="viewcode-block" id="Entity.to_json"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns the entity as JSON.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kv : bool, optional</span>
+<span class="sd">            KeyValues format (aka simplified representation), by default False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The JSON content</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">payload</span><span class="p">:</span> <span class="n">NgsiDict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">kv</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">payload</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Entity.pprint"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.pprint">[docs]</a>    <span class="k">def</span> <span class="nf">pprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pretty-print the entity to the standard ouput.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kv : bool, optional</span>
+<span class="sd">            KeyValues format (aka simplified representation), by default False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">kv</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Entity.save"><a class="viewcode-back" href="../../../_autosummary/ngsildclient.model.entity.Entity.html#ngsildclient.Entity.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save the entity to a file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            Name of the output file</span>
+<span class="sd">        indent : int, optional</span>
+<span class="sd">            identation size (number of spaces), by default 2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Fabien Battello.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
