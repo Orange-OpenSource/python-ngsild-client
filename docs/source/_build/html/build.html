@@ -76,6 +76,23 @@
 <li class="toctree-l3"><a class="reference internal" href="#add-a-multilevel-nested-property">Add a multilevel nested property</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#display-an-entity">Display an entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#import-export">Import/Export</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dictionary">Dictionary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#file">File</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#utils">Utils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#iso8601">ISO8601</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uuid">UUID</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#helpers">Helpers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#postaladdress">PostalAddress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openinghours">OpeningHours</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mocking">Mocking</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="client.html">Interact with the Broker</a></li>
@@ -821,12 +838,110 @@
 <span class="n">room</span><span class="p">[</span><span class="s2">&quot;temperature&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;qc&quot;</span><span class="p">,</span> <span class="s2">&quot;checked&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;discarded&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</section>
+</section>
+<section id="display-an-entity">
+<h2>Display an entity<a class="headerlink" href="#display-an-entity" title="Permalink to this headline"></a></h2>
+<div class="line-block">
+<div class="line">The <strong>to_json()</strong> method returns the JSON payload as a string.</div>
+<div class="line">By setting the <strong>kv</strong> argument to True, it returns the simplified representation aka <strong>KeyValues</strong> format.</div>
+</div>
+<div class="line-block">
+<div class="line">The <strong>pprint()</strong> method relies on <strong>to_json()</strong> in order to pretty-print the entity.</div>
+<div class="line">It also takes a <strong>kv</strong> argument.</div>
+</div>
+</section>
+<section id="import-export">
+<h2>Import/Export<a class="headerlink" href="#import-export" title="Permalink to this headline"></a></h2>
+<section id="dictionary">
+<h3>Dictionary<a class="headerlink" href="#dictionary" title="Permalink to this headline"></a></h3>
+<p>Suppose we have this dictionary.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+   <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Room&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;urn:ngsi-ld:Room:01&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;@context&quot;</span><span class="p">:</span> <span class="s2">&quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Property&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="mf">22.5</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">You can create an entity from this dictionary.</div>
+<div class="line">Note that <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">type</span></code> and <code class="docutils literal notranslate"><span class="pre">&#64;context</span></code> are mandatory.</div>
+<div class="line">If missing an exception will be raised.</div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
+
+<span class="n">room</span> <span class="o">=</span> <span class="n">Entity</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The opposite operation converts your entity to a dictionary.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="n">room</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="file">
+<h3>File<a class="headerlink" href="#file" title="Permalink to this headline"></a></h3>
+<p>Import and Export from/to a file is a very useful feature that allows :</p>
+<ul class="simple">
+<li><p>backup : just restore an entity you’ve previously saved</p></li>
+<li><p>testing : store an expected result for further comparison</p></li>
+<li><p>sharing : elaborate with others about modeling</p></li>
+<li><p>experimenting : load an example from the <a class="reference external" href="https://smartdatamodels.org/">Smart Data Models Initiative</a> and play around</p></li>
+<li><p>contributing : propose a NGSI-LD example to the Smart Data Models Initiative</p></li>
+</ul>
+<p>We can load a local file.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">SmartDataModels</span>
+
+<span class="n">room</span> <span class="o">=</span> <span class="n">Entity</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;/tmp/room1.jsonld&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And save an entity to a file.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">SmartDataModels</span>
+
+<span class="n">room</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;/tmp/room2.jsonld&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can load a remote file through HTTP.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
+
+<span class="n">battery</span> <span class="o">=</span> <span class="n">Entity</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;https://github.com/smart-data-models/dataModel.Battery/raw/master/Battery/examples/example-normalized.jsonld&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For convenience some datamodel example URLs of the <a class="reference external" href="https://smartdatamodels.org/">Smart Data Models Initiative</a> are made available.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">SmartDataModels</span>
+
+<span class="n">beach</span> <span class="o">=</span> <span class="n">Entity</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">SmartDataModels</span><span class="o">.</span><span class="n">SmartCities</span><span class="o">.</span><span class="n">PointOfInterest</span><span class="o">.</span><span class="n">Beach</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="utils">
+<h2>Utils<a class="headerlink" href="#utils" title="Permalink to this headline"></a></h2>
+<section id="iso8601">
+<h3>ISO8601<a class="headerlink" href="#iso8601" title="Permalink to this headline"></a></h3>
+</section>
+<section id="uuid">
+<h3>UUID<a class="headerlink" href="#uuid" title="Permalink to this headline"></a></h3>
+</section>
+</section>
+<section id="helpers">
+<h2>Helpers<a class="headerlink" href="#helpers" title="Permalink to this headline"></a></h2>
+<section id="postaladdress">
+<h3>PostalAddress<a class="headerlink" href="#postaladdress" title="Permalink to this headline"></a></h3>
+</section>
+<section id="openinghours">
+<h3>OpeningHours<a class="headerlink" href="#openinghours" title="Permalink to this headline"></a></h3>
+</section>
+</section>
+<section id="mocking">
+<h2>Mocking<a class="headerlink" href="#mocking" title="Permalink to this headline"></a></h2>
 <dl class="citation">
 <dt class="label" id="etsi-wp42"><span class="brackets"><a class="fn-backref" href="#id1">ETSI_WP42</a></span></dt>
 <dd><p>Guidelines for Modelling with NGSI-LD <a class="reference external" href="https://www.etsi.org/images/files/ETSIWhitePapers/etsi_wp_42_NGSI_LD.pdf">ETSI WhitePaper</a></p>
 </dd>
 </dl>
-</section>
 </section>
 </section>
 

@@ -693,4 +693,116 @@ Add a multilevel nested property
    room["temperature"].prop("qc", "checked").prop("status", "discarded")
 
 
+Display an entity
+-----------------
+
+| The **to_json()** method returns the JSON payload as a string.
+| By setting the **kv** argument to True, it returns the simplified representation aka **KeyValues** format.
+
+| The **pprint()** method relies on **to_json()** in order to pretty-print the entity.
+| It also takes a **kv** argument.
+
+Import/Export
+-------------
+
+Dictionary
+~~~~~~~~~~
+
+Suppose we have this dictionary.
+
+.. code-block::
+
+   payload = {
+      "type": "Room",
+      "id": "urn:ngsi-ld:Room:01",
+      "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+      "temperature": {"type": "Property", "value": 22.5}
+   }
+
+| You can create an entity from this dictionary.
+| Note that ``id``, ``type`` and ``@context`` are mandatory.
+| If missing an exception will be raised.
+
+.. code-block::
+
+   from ngsildclient import Entity
+
+   room = Entity.from_dict(payload)
+
+The opposite operation converts your entity to a dictionary.
+
+.. code-block::
+
+   from ngsildclient import Entity
+
+   payload = room.to_dict()
+
+File
+~~~~
+
+Import and Export from/to a file is a very useful feature that allows :
+
+- backup : just restore an entity you've previously saved
+- testing : store an expected result for further comparison
+- sharing : elaborate with others about modeling
+- experimenting : load an example from the `Smart Data Models Initiative`_ and play around
+- contributing : propose a NGSI-LD example to the Smart Data Models Initiative
+
+We can load a local file.
+
+.. code-block::
+
+   from ngsildclient import Entity, SmartDataModels
+
+   room = Entity.load("/tmp/room1.jsonld")
+
+And save an entity to a file.
+
+.. code-block::
+
+   from ngsildclient import Entity, SmartDataModels
+
+   room.save("/tmp/room2.jsonld")
+
+We can load a remote file through HTTP.
+
+.. code-block::
+
+   from ngsildclient import Entity
+
+   battery = Entity.load("https://github.com/smart-data-models/dataModel.Battery/raw/master/Battery/examples/example-normalized.jsonld")
+
+For convenience some datamodel example URLs of the `Smart Data Models Initiative`_ are made available.
+
+.. code-block::
+
+   from ngsildclient import Entity, SmartDataModels
+
+   beach = Entity.load(SmartDataModels.SmartCities.PointOfInterest.Beach)
+
+
+Utils
+-----
+
+ISO8601
+~~~~~~~
+
+UUID
+~~~~
+
+Helpers
+-------
+
+PostalAddress
+~~~~~~~~~~~~~
+
+OpeningHours
+~~~~~~~~~~~~
+
+
+Mocking
+-------
+
+
 .. [ETSI_WP42] Guidelines for Modelling with NGSI-LD `ETSI WhitePaper <https://www.etsi.org/images/files/ETSIWhitePapers/etsi_wp_42_NGSI_LD.pdf>`_
+.. _Smart Data Models Initiative: https://smartdatamodels.org/
