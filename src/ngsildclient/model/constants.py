@@ -14,7 +14,8 @@
 
 from enum import Enum
 from typing import Union
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timezone
+from zoneinfo import ZoneInfo
 from geojson import Point, LineString, Polygon
 
 from ..utils.sentinel import Sentinel
@@ -42,6 +43,11 @@ META_ATTR_DATASET_ID = "datasetId"
 
 NESTED = True
 
+TZ_UTC = timezone.utc
+TZ_WET = ZoneInfo("WET")  # UTC+1 i.e. Europe/Lisbon
+TZ_CET = ZoneInfo("CET")  # UTC+2 i.e. Europe/Paris
+TZ_FET = ZoneInfo("Europe/Minsk")  # UTC+3
+
 
 class Auto(Sentinel):
     pass
@@ -52,6 +58,7 @@ class Rel(Enum):
     HAS_DIRECT_PART = "hasDirectPart"
     IS_CONTAINED_IN = "isContainedIn"
     OBSERVED_BY = "observedBy"
+    PROVIDED_BY = "providedBy"
 
 
 class GeometryMetaAttr(Enum):

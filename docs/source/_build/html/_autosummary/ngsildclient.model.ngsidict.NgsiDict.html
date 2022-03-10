@@ -123,26 +123,38 @@ NgsiDict provides methods that allow to build a dictionary compliant with a NGSI
 <tr class="row-even"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.get" title="ngsildclient.model.ngsidict.NgsiDict.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a></p></td>
 <td><p>Return the value for key if key is in the dictionary, else default.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.items" title="ngsildclient.model.ngsidict.NgsiDict.items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">items</span></code></a></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gprop</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.keys" title="ngsildclient.model.ngsidict.NgsiDict.keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.items" title="ngsildclient.model.ngsidict.NgsiDict.items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">items</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.pop" title="ngsildclient.model.ngsidict.NgsiDict.pop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pop</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.keys" title="ngsildclient.model.ngsidict.NgsiDict.keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.pop" title="ngsildclient.model.ngsidict.NgsiDict.pop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pop</span></code></a></p></td>
 <td><p>If key is not found, default is returned if given, otherwise KeyError is raised</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.popitem" title="ngsildclient.model.ngsidict.NgsiDict.popitem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">popitem</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.popitem" title="ngsildclient.model.ngsidict.NgsiDict.popitem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">popitem</span></code></a></p></td>
 <td><p>Remove and return a (key, value) pair as a 2-tuple.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.pprint" title="ngsildclient.model.ngsidict.NgsiDict.pprint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pprint</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.pprint" title="ngsildclient.model.ngsidict.NgsiDict.pprint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pprint</span></code></a></p></td>
 <td><p>Returns the dict pretty-json-formatted</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.setdefault" title="ngsildclient.model.ngsidict.NgsiDict.setdefault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setdefault</span></code></a></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">prop</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rel</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.setdefault" title="ngsildclient.model.ngsidict.NgsiDict.setdefault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setdefault</span></code></a></p></td>
 <td><p>Insert key with a value of default if key is not in the dictionary.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.to_json" title="ngsildclient.model.ngsidict.NgsiDict.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.to_json" title="ngsildclient.model.ngsidict.NgsiDict.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></p></td>
 <td><p>Returns the dict in json format</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tprop</span></code></p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#ngsildclient.model.ngsidict.NgsiDict.update" title="ngsildclient.model.ngsidict.NgsiDict.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a></p></td>
 <td><p>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k] If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v In either case, this is followed by: for k in F:  D[k] = F[k]</p></td>

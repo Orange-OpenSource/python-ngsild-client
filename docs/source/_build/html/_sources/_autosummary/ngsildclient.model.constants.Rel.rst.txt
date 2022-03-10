@@ -1,4 +1,4 @@
-ngsildclient.model.constants.Rel
+﻿ngsildclient.model.constants.Rel
 ================================
 
 .. currentmodule:: ngsildclient.model.constants
@@ -23,5 +23,6 @@ ngsildclient.model.constants.Rel
       ~Rel.HAS_DIRECT_PART
       ~Rel.IS_CONTAINED_IN
       ~Rel.OBSERVED_BY
+      ~Rel.PROVIDED_BY
    
    

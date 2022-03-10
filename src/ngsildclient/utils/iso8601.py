@@ -26,7 +26,7 @@ References
 import re
 
 from typing import Union, Optional
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timezone
 from contextlib import suppress
 
 from ngsildclient.model.constants import TemporalType
@@ -55,6 +55,9 @@ def from_datetime(value: datetime) -> str:
     >>> print(iso8601.from_datetime(d))
     2021-10-13T09:29:00Z
     """
+    # convert to UTC if naive-datetime or not-UTC aware-datetime
+    if value.tzinfo is None or value.tzinfo != timezone.utc:
+        value = value.astimezone(timezone.utc)
     return value.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
@@ -66,7 +69,7 @@ def utcnow() -> str:
     str
         The current UTC datetime, ISO8601-formatted
     """
-    return from_datetime(datetime.utcnow())
+    return datetime.now(timezone.utc)
 
 
 def from_date(value: date) -> str:
@@ -223,6 +226,6 @@ def extract(value: str) -> Optional[datetime]:
     if len(dates) < 1:
         return None
     try:
-        return datetime.strptime(dates[-1], "%Y-%m-%dT%H:%M:%SZ")
+        return datetime.strptime(dates[-1], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
     except ValueError:
         return None

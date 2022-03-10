@@ -198,9 +198,27 @@ Corresponding arguments in lower case.
 .. code-block::
   :caption: SO2 concentration with the observation date
 
-   from datetime import datetime
+   from datetime import datetime, timezone
 
-   entity.prop("SO2", 11, observedat=datetime(2016, 3, 15, 11))
+   entity.prop("SO2", 11, observedat=datetime(2016, 3, 15, 11, tzinfo=timezone.utc))
+
+   # Alternatively one could pass directly an ISO8601 string
+   # entity.prop("SO2", 11, observedat="2016-03-15T11:00:00Z")
+
+| Note that all NGSI-LD datetimes are UTC.
+| The library will always convert datetimes to UTC, either naive or aware.
+| The downside of not specifying the timezone is that it depends on your local environment hence it is not deterministic.
+| Behaviour may change if your code is used in a different place/timezone.
+| It's recommended to work with **aware** datetimes.
+
+.. code-block::
+  :caption: SO2 concentration with a CET observation date
+
+   from datetime import datetime
+   from zoneinfo import ZoneInfo
+
+   CET = ZoneInfo("CET") # UTC+1
+   entity.prop("SO2", 11, observedat=datetime(2016, 3, 15, 12, tzinfo=CET))
 
    # Alternatively one could pass directly an ISO8601 string
    # entity.prop("SO2", 11, observedat="2016-03-15T11:00:00Z")
@@ -265,7 +283,7 @@ User data
 | You can use the **userdata** argument to provide your own dictionary.
 
 | For example imagine you'd like to add to our AirQualityObserved entity a NOx measure with an accuracy indice.
-| But you don't want to exprime this information as a property.
+| But you don't want to express this information as a property.
 | *More on nested properties later*.
 
 .. code-block::
@@ -390,6 +408,12 @@ The Temporal Property accepts values of following types : **datetime**, **date**
    entity.tprop("dateObserved", Auto)
 
 The **obs()** alias can be used to set this very common **dateObserved** Temporal Property.
+
+| Note that all NGSI-LD datetimes are UTC.
+| The library will always convert datetimes to UTC, either naive or aware.
+| The downside of not specifying the timezone is that it depends on your local environment hence it is not deterministic.
+| Behaviour may change if your code is used in a different place/timezone.
+| It's recommended to work with **aware** datetimes.
 
 .. code-block::
 
@@ -787,6 +811,18 @@ Utils
 ISO8601
 ~~~~~~~
 
+In NGSI-LD entities dates, times and datetimes are represented as ISO8601 strings.
+
+The **iso8601** module provides you with functions to convert from Python types to ISO8601 :
+
+- **from_date()**
+- **from_time()**
+- **from_datetime()**
+- **utcnow()** to get the current datetime
+
+Note that this is not needed for the **tprop()** primitive and **observedat** argument that accepts Python date types, *calling these functions for you*.
+
+
 UUID
 ~~~~
 
@@ -803,6 +839,8 @@ OpeningHours
 Mocking
 -------
 
+Examples
+--------
 
 .. [ETSI_WP42] Guidelines for Modelling with NGSI-LD `ETSI WhitePaper <https://www.etsi.org/images/files/ETSIWhitePapers/etsi_wp_42_NGSI_LD.pdf>`_
 .. _Smart Data Models Initiative: https://smartdatamodels.org/

@@ -9,10 +9,10 @@
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
-from datetime import datetime
+from datetime import datetime, timezone
 from ngsildclient.model.entity import Entity
 
 sample_entity = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
-sample_entity.tprop("dateObserved", datetime(2018, 8, 7, 12))
+sample_entity.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))
 sample_entity.prop("NO2", 22, unitcode="GP")
 sample_entity.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")

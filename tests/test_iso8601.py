@@ -11,13 +11,13 @@
 
 import pytest
 
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timezone
 from ngsildclient.utils import iso8601
 from ngsildclient.model.constants import TemporalType
 
 
 def test_from_datetime():
-    d = datetime(2021, 9, 17, 9, 25)
+    d = datetime(2021, 9, 17, 9, 25, tzinfo=timezone.utc)
     assert iso8601.from_datetime(d) == "2021-09-17T09:25:00Z"
 
 
@@ -62,7 +62,7 @@ def test_extract_datetime():
     dt = iso8601.extract(
         "urn:ngsi-ld:WeatherObserved:Spain-WeatherObserved-Valladolid-2016-11-30T07:00:00Z"
     )
-    assert dt == datetime(2016, 11, 30, 7, 0)
+    assert dt == datetime(2016, 11, 30, 7, 0, tzinfo=timezone.utc)
 
 
 def test_extract_datetime_not_found():

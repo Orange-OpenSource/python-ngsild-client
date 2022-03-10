@@ -93,6 +93,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#mocking">Mocking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="client.html">Interact with the Broker</a></li>
@@ -339,9 +340,29 @@
 </div>
 <div class="literal-block-wrapper docutils container" id="id7">
 <div class="code-block-caption"><span class="caption-text">SO2 concentration with the observation date</span><a class="headerlink" href="#id7" title="Permalink to this code"></a></div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 
- <span class="n">entity</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;SO2&quot;</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="n">observedat</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">11</span><span class="p">))</span>
+ <span class="n">entity</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;SO2&quot;</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="n">observedat</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">))</span>
+
+ <span class="c1"># Alternatively one could pass directly an ISO8601 string</span>
+ <span class="c1"># entity.prop(&quot;SO2&quot;, 11, observedat=&quot;2016-03-15T11:00:00Z&quot;)</span>
+</pre></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Note that all NGSI-LD datetimes are UTC.</div>
+<div class="line">The library will always convert datetimes to UTC, either naive or aware.</div>
+<div class="line">The downside of not specifying the timezone is that it depends on your local environment hence it is not deterministic.</div>
+<div class="line">Behaviour may change if your code is used in a different place/timezone.</div>
+<div class="line">It’s recommended to work with <strong>aware</strong> datetimes.</div>
+</div>
+<div class="literal-block-wrapper docutils container" id="id8">
+<div class="code-block-caption"><span class="caption-text">SO2 concentration with a CET observation date</span><a class="headerlink" href="#id8" title="Permalink to this code"></a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+ <span class="kn">from</span> <span class="nn">zoneinfo</span> <span class="kn">import</span> <span class="n">ZoneInfo</span>
+
+ <span class="n">CET</span> <span class="o">=</span> <span class="n">ZoneInfo</span><span class="p">(</span><span class="s2">&quot;CET&quot;</span><span class="p">)</span> <span class="c1"># UTC+1</span>
+ <span class="n">entity</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;SO2&quot;</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="n">observedat</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">CET</span><span class="p">))</span>
 
  <span class="c1"># Alternatively one could pass directly an ISO8601 string</span>
  <span class="c1"># entity.prop(&quot;SO2&quot;, 11, observedat=&quot;2016-03-15T11:00:00Z&quot;)</span>
@@ -354,8 +375,8 @@
 <div class="line">The library caches the first datetime it encounters and allows to reuse it.</div>
 </div>
 <p>For the sake of example let’s rewrite our entity.</p>
-<div class="literal-block-wrapper docutils container" id="id8">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id8" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id9">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id9" title="Permalink to this code"></a></div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">Auto</span>
 
  <span class="n">entity</span> <span class="o">=</span> <span class="n">Entity</span><span class="p">(</span><span class="s2">&quot;AirQualityObserved&quot;</span><span class="p">,</span> <span class="s2">&quot;Madrid-28079004-2016-03-15T11:00:00Z&quot;</span><span class="p">)</span>
@@ -366,8 +387,8 @@
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id9">
-<div class="code-block-caption"><span class="caption-text">AirQualityObserved NGSI-LD Entity with all measures</span><a class="headerlink" href="#id9" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id10">
+<div class="code-block-caption"><span class="caption-text">AirQualityObserved NGSI-LD Entity with all measures</span><a class="headerlink" href="#id10" title="Permalink to this code"></a></div>
 <div class="highlight-json-ld notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="nd">&quot;@context&quot;</span><span class="p">:</span> <span class="p">[</span>
       <span class="s2">&quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
@@ -411,17 +432,17 @@
 </div>
 <div class="line-block">
 <div class="line">For example imagine you’d like to add to our AirQualityObserved entity a NOx measure with an accuracy indice.</div>
-<div class="line">But you don’t want to exprime this information as a property.</div>
+<div class="line">But you don’t want to express this information as a property.</div>
 <div class="line"><em>More on nested properties later</em>.</div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id10">
-<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id10" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id11">
+<div class="code-block-caption"><span class="caption-text">Example</span><a class="headerlink" href="#id11" title="Permalink to this code"></a></div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="n">entity</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;NOx&quot;</span><span class="p">,</span> <span class="mi">119</span><span class="p">,</span> <span class="n">userdata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;accuracy&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">})</span>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id11">
-<div class="code-block-caption"><span class="caption-text">The NOx property with userdata</span><a class="headerlink" href="#id11" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id12">
+<div class="code-block-caption"><span class="caption-text">The NOx property with userdata</span><a class="headerlink" href="#id12" title="Permalink to this code"></a></div>
 <div class="highlight-json-ld notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;NOx&quot;</span><span class="p">:</span> <span class="p">{</span>
    <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Property&quot;</span><span class="p">,</span>
    <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mi">119</span><span class="p">,</span>
@@ -437,14 +458,14 @@
 <div class="line">We have already spoken of the Property in previous examples.</div>
 <div class="line">That is a general Property that has a name and a value of any Python type that can be serialized to JSON.</div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id12">
-<div class="code-block-caption"><span class="caption-text">A temperature property with a float value</span><a class="headerlink" href="#id12" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id13">
+<div class="code-block-caption"><span class="caption-text">A temperature property with a float value</span><a class="headerlink" href="#id13" title="Permalink to this code"></a></div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="n">entity</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="mf">22.5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id13">
-<div class="code-block-caption"><span class="caption-text">A description property with a List value</span><a class="headerlink" href="#id13" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id14">
+<div class="code-block-caption"><span class="caption-text">A description property with a List value</span><a class="headerlink" href="#id14" title="Permalink to this code"></a></div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="n">entity</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="p">[</span>
     <span class="s2">&quot;https://example.org/concept/clay&quot;</span><span class="p">,</span>
     <span class="s2">&quot;https://datamodel.org/example/clay&quot;</span><span class="p">]</span>
@@ -452,8 +473,8 @@
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id14">
-<div class="code-block-caption"><span class="caption-text">A description property with a string value</span><a class="headerlink" href="#id14" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id15">
+<div class="code-block-caption"><span class="caption-text">A description property with a string value</span><a class="headerlink" href="#id15" title="Permalink to this code"></a></div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="n">entity</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;Corn farm&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -462,8 +483,8 @@
 <div class="line">Considering strings, some characters are prohibited by the NGSI-LD broker.</div>
 <div class="line">In this case you can set the escape argument to to escape the string.</div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id15">
-<div class="code-block-caption"><span class="caption-text">A description property with a string value including forbidden characters</span><a class="headerlink" href="#id15" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id16">
+<div class="code-block-caption"><span class="caption-text">A description property with a string value including forbidden characters</span><a class="headerlink" href="#id16" title="Permalink to this code"></a></div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="n">entity</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;Corn farm (organic)&quot;</span><span class="p">,</span> <span class="n">escape</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -476,8 +497,8 @@
 <div class="line">ngsildclient relies on the <strong>geojson</strong> library.</div>
 <div class="line">As of now allowed <em>geojson</em> types are <strong>Point</strong>, <strong>LineString</strong>, <strong>Polygon</strong> and <strong>MultiPoint</strong>.</div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id16">
-<div class="code-block-caption"><span class="caption-text">A simple GeoProperty</span><a class="headerlink" href="#id16" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id17">
+<div class="code-block-caption"><span class="caption-text">A simple GeoProperty</span><a class="headerlink" href="#id17" title="Permalink to this code"></a></div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">geojson</span> <span class="kn">import</span> <span class="n">Point</span>
  <span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
 
@@ -486,8 +507,8 @@
 </pre></div>
 </div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id17">
-<div class="code-block-caption"><span class="caption-text">A location geoproperty illustrated</span><a class="headerlink" href="#id17" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id18">
+<div class="code-block-caption"><span class="caption-text">A location geoproperty illustrated</span><a class="headerlink" href="#id18" title="Permalink to this code"></a></div>
 <div class="highlight-json-ld notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="nd">&quot;@context&quot;</span><span class="p">:</span> <span class="p">[</span>
       <span class="s2">&quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
@@ -523,8 +544,8 @@
 <section id="temporal-property">
 <h3>Temporal Property<a class="headerlink" href="#temporal-property" title="Permalink to this headline"></a></h3>
 <p>The Temporal Property accepts values of following types : <strong>datetime</strong>, <strong>date</strong> and <strong>time</strong>, or <strong>ISO8601 string</strong> representations of these latter.</p>
-<div class="literal-block-wrapper docutils container" id="id18">
-<div class="code-block-caption"><span class="caption-text">Temporal Property illustrated</span><a class="headerlink" href="#id18" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id19">
+<div class="code-block-caption"><span class="caption-text">Temporal Property illustrated</span><a class="headerlink" href="#id19" title="Permalink to this code"></a></div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span>
 
  <span class="n">entity</span> <span class="o">=</span> <span class="n">Entity</span><span class="p">(</span><span class="s2">&quot;AirQualityObserved&quot;</span><span class="p">,</span> <span class="s2">&quot;Madrid-28079004-2016-03-15T11:00:00Z&quot;</span><span class="p">)</span>
@@ -536,8 +557,8 @@
 <div class="line">In the above example the library has cached <em>at the entity creation time</em> the datetime that is part of the identifier.</div>
 <div class="line">The <strong>Auto</strong> directive can be used to benefit from the cached datetime.</div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id19">
-<div class="code-block-caption"><span class="caption-text">Temporal Property using the Auto keyword</span><a class="headerlink" href="#id19" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id20">
+<div class="code-block-caption"><span class="caption-text">Temporal Property using the Auto keyword</span><a class="headerlink" href="#id20" title="Permalink to this code"></a></div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">ngsildclient</span> <span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">Auto</span>
 
  <span class="n">entity</span> <span class="o">=</span> <span class="n">Entity</span><span class="p">(</span><span class="s2">&quot;AirQualityObserved&quot;</span><span class="p">,</span> <span class="s2">&quot;Madrid-28079004-2016-03-15T11:00:00Z&quot;</span><span class="p">)</span>
@@ -546,6 +567,13 @@
 </div>
 </div>
 <p>The <strong>obs()</strong> alias can be used to set this very common <strong>dateObserved</strong> Temporal Property.</p>
+<div class="line-block">
+<div class="line">Note that all NGSI-LD datetimes are UTC.</div>
+<div class="line">The library will always convert datetimes to UTC, either naive or aware.</div>
+<div class="line">The downside of not specifying the timezone is that it depends on your local environment hence it is not deterministic.</div>
+<div class="line">Behaviour may change if your code is used in a different place/timezone.</div>
+<div class="line">It’s recommended to work with <strong>aware</strong> datetimes.</div>
+</div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">entity</span><span class="o">.</span><span class="n">obs</span><span class="p">()</span> <span class="c1"># use a cached datetime if any, else current datetime</span>
 </pre></div>
 </div>
@@ -559,8 +587,8 @@
 <span class="n">entity</span><span class="o">.</span><span class="n">rel</span><span class="p">(</span><span class="s2">&quot;isParked&quot;</span><span class="p">,</span> <span class="s2">&quot;OffStreetParking:Downtown1&quot;</span><span class="p">,</span> <span class="n">observedat</span><span class="o">=</span><span class="s2">&quot;2017-07-29T12:00:04Z&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id20">
-<div class="code-block-caption"><span class="caption-text">Relationship illustrated</span><a class="headerlink" href="#id20" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id21">
+<div class="code-block-caption"><span class="caption-text">Relationship illustrated</span><a class="headerlink" href="#id21" title="Permalink to this code"></a></div>
 <div class="highlight-json-ld notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="nd">&quot;@context&quot;</span><span class="p">:</span> <span class="p">[</span>
       <span class="s2">&quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
@@ -595,8 +623,8 @@
 <span class="n">entity</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;NO2&quot;</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="n">unitcode</span><span class="o">=</span><span class="s2">&quot;GP&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;qc&quot;</span><span class="p">,</span> <span class="s2">&quot;checked&quot;</span><span class="p">,</span> <span class="n">NESTED</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id21">
-<div class="code-block-caption"><span class="caption-text">Nested property illustrated</span><a class="headerlink" href="#id21" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id22">
+<div class="code-block-caption"><span class="caption-text">Nested property illustrated</span><a class="headerlink" href="#id22" title="Permalink to this code"></a></div>
 <div class="highlight-json-ld notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="nd">&quot;@context&quot;</span><span class="p">:</span> <span class="p">[</span>
       <span class="s2">&quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
@@ -625,8 +653,8 @@
 <span class="n">room</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="mi">17</span><span class="p">)</span><span class="o">.</span><span class="n">rel</span><span class="p">(</span><span class="n">Rel</span><span class="o">.</span><span class="n">OBSERVED_BY</span><span class="p">,</span> <span class="s2">&quot;Sensor:01&quot;</span><span class="p">,</span> <span class="n">NESTED</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id22">
-<div class="code-block-caption"><span class="caption-text">Example from the ETSI White Paper</span><a class="headerlink" href="#id22" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id23">
+<div class="code-block-caption"><span class="caption-text">Example from the ETSI White Paper</span><a class="headerlink" href="#id23" title="Permalink to this code"></a></div>
 <div class="highlight-json-ld notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="nd">&quot;@context&quot;</span><span class="p">:</span> <span class="p">[</span>
       <span class="s2">&quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
@@ -655,8 +683,8 @@
 <span class="n">entity</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;NO2&quot;</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="n">unitcode</span><span class="o">=</span><span class="s2">&quot;GP&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;qc&quot;</span><span class="p">,</span> <span class="s2">&quot;checked&quot;</span><span class="p">,</span> <span class="n">NESTED</span><span class="p">)</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;discarded&quot;</span><span class="p">,</span> <span class="n">NESTED</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id23">
-<div class="code-block-caption"><span class="caption-text">Multilevel nested property illustrated</span><a class="headerlink" href="#id23" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id24">
+<div class="code-block-caption"><span class="caption-text">Multilevel nested property illustrated</span><a class="headerlink" href="#id24" title="Permalink to this code"></a></div>
 <div class="highlight-json-ld notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="nd">&quot;@context&quot;</span><span class="p">:</span> <span class="p">[</span>
       <span class="s2">&quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
@@ -701,8 +729,8 @@
 <span class="n">parking</span><span class="o">.</span><span class="n">prop</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;Municipal car park located near the Trindade metro station and the Town Hall&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="literal-block-wrapper docutils container" id="id24">
-<div class="code-block-caption"><span class="caption-text">Multilevel nested property illustrated</span><a class="headerlink" href="#id24" title="Permalink to this code"></a></div>
+<div class="literal-block-wrapper docutils container" id="id25">
+<div class="code-block-caption"><span class="caption-text">Multilevel nested property illustrated</span><a class="headerlink" href="#id25" title="Permalink to this code"></a></div>
 <div class="highlight-json-ld notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
    <span class="nd">&quot;@context&quot;</span><span class="p">:</span> <span class="p">[</span>
       <span class="s2">&quot;https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld&quot;</span>
@@ -921,6 +949,15 @@
 <h2>Utils<a class="headerlink" href="#utils" title="Permalink to this headline"></a></h2>
 <section id="iso8601">
 <h3>ISO8601<a class="headerlink" href="#iso8601" title="Permalink to this headline"></a></h3>
+<p>In NGSI-LD entities dates, times and datetimes are represented as ISO8601 strings.</p>
+<p>The <strong>iso8601</strong> module provides you with functions to convert from Python types to ISO8601 :</p>
+<ul class="simple">
+<li><p><strong>from_date()</strong></p></li>
+<li><p><strong>from_time()</strong></p></li>
+<li><p><strong>from_datetime()</strong></p></li>
+<li><p><strong>utcnow()</strong> to get the current datetime</p></li>
+</ul>
+<p>Note that this is not needed for the <strong>tprop()</strong> primitive and <strong>observedat</strong> argument that accepts Python date types, <em>calling these functions for you</em>.</p>
 </section>
 <section id="uuid">
 <h3>UUID<a class="headerlink" href="#uuid" title="Permalink to this headline"></a></h3>
@@ -937,6 +974,9 @@
 </section>
 <section id="mocking">
 <h2>Mocking<a class="headerlink" href="#mocking" title="Permalink to this headline"></a></h2>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline"></a></h2>
 <dl class="citation">
 <dt class="label" id="etsi-wp42"><span class="brackets"><a class="fn-backref" href="#id1">ETSI_WP42</a></span></dt>
 <dd><p>Guidelines for Modelling with NGSI-LD <a class="reference external" href="https://www.etsi.org/images/files/ETSIWhitePapers/etsi_wp_42_NGSI_LD.pdf">ETSI WhitePaper</a></p>

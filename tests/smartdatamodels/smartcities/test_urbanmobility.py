@@ -12,7 +12,7 @@
 import pkg_resources
 import json
 
-from datetime import datetime
+from datetime import datetime, timezone
 from ngsildclient.model.entity import *
 from ngsildclient.model.helper.postal import PostalAddressBuilder
 from ngsildclient.model.helper.openinghours import OpeningHoursBuilder
@@ -41,7 +41,7 @@ def test_transportstop():
         ],
     )
 
-    e.tprop("dateModified", datetime(2018, 9, 25, 8, 32, 26))
+    e.tprop("dateModified", datetime(2018, 9, 25, 8, 32, 26, tzinfo=timezone.utc))
     e.prop("source", "https://api.smartsantander.eu/")
     e.prop("dataProvider", "http://www.smartsantander.eu/")
     e.prop("entityVersion", "2.0")

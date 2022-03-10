@@ -119,10 +119,10 @@
         <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">cachedate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_cachedate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dtcached</span> <span class="o">=</span> <span class="n">dt</span>
 
-    <span class="k">def</span> <span class="nf">dateauto</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_dateauto</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtcached</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dtcached</span> <span class="o">=</span> <span class="n">iso8601</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtcached</span>
@@ -166,14 +166,14 @@
 
     <span class="k">def</span> <span class="nf">_process_observedat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observedat</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">observedat</span> <span class="ow">is</span> <span class="n">Auto</span><span class="p">:</span>
-            <span class="n">observedat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dateauto</span><span class="p">()</span>
+            <span class="n">observedat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dateauto</span><span class="p">()</span>
         <span class="n">date_str</span><span class="p">,</span> <span class="n">temporaltype</span><span class="p">,</span> <span class="n">dt</span> <span class="o">=</span> <span class="n">iso8601</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">observedat</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">temporaltype</span> <span class="o">!=</span> <span class="n">TemporalType</span><span class="o">.</span><span class="n">DATETIME</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">NgsiDateFormatError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;observedAt must be a DateTime : </span><span class="si">{</span><span class="n">date_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cachedate</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cachedate</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">date_str</span>
 
-    <span class="k">def</span> <span class="nf">build_property</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_build_property</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
         <span class="n">unitcode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -203,7 +203,11 @@
             <span class="nb">property</span> <span class="o">|=</span> <span class="n">userdata</span>
         <span class="k">return</span> <span class="nb">property</span>
 
-    <span class="k">def</span> <span class="nf">build_geoproperty</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">prop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_property</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_build_geoproperty</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">value</span><span class="p">:</span> <span class="n">NgsiGeometry</span><span class="p">,</span>
         <span class="n">observedat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">Auto</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -229,12 +233,16 @@
             <span class="nb">property</span><span class="p">[</span><span class="n">META_ATTR_DATASET_ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">Urn</span><span class="o">.</span><span class="n">prefix</span><span class="p">(</span><span class="n">datasetid</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">property</span>
 
-    <span class="k">def</span> <span class="nf">build_temporal_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">NgsiDate</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">Auto</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">NgsiDict</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">gprop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_geoproperty</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_build_temporal_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">NgsiDate</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">Auto</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">NgsiDict</span><span class="p">:</span>
         <span class="nb">property</span><span class="p">:</span> <span class="n">NgsiDict</span> <span class="o">=</span> <span class="n">NgsiDict</span><span class="p">()</span>
         <span class="nb">property</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AttrType</span><span class="o">.</span><span class="n">TEMPORAL</span><span class="o">.</span><span class="n">value</span>  <span class="c1"># set type</span>
 
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">Auto</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dateauto</span><span class="p">()</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dateauto</span><span class="p">()</span>
 
         <span class="n">date_str</span><span class="p">,</span> <span class="n">temporaltype</span><span class="p">,</span> <span class="n">dt</span> <span class="o">=</span> <span class="n">iso8601</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="n">v</span> <span class="o">=</span> <span class="p">{</span>
@@ -242,10 +250,14 @@
             <span class="s2">&quot;@value&quot;</span><span class="p">:</span> <span class="n">date_str</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="nb">property</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>  <span class="c1"># set value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cachedate</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cachedate</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">property</span>
 
-    <span class="k">def</span> <span class="nf">build_relationship</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">tprop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_temporal_property</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_build_relationship</span><span class="p">(</span>
         <span class="c1"># Multiple Relationship limitation : no metadata</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
@@ -265,7 +277,13 @@
                 <span class="nb">property</span><span class="p">[</span><span class="n">META_ATTR_DATASET_ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">Urn</span><span class="o">.</span><span class="n">prefix</span><span class="p">(</span><span class="n">datasetid</span><span class="p">)</span>                
             <span class="k">if</span> <span class="n">userdata</span><span class="p">:</span>
                 <span class="nb">property</span> <span class="o">|=</span> <span class="n">userdata</span>
-        <span class="k">return</span> <span class="nb">property</span></div>
+        <span class="k">return</span> <span class="nb">property</span>
+
+    <span class="k">def</span> <span class="nf">rel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">Rel</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">value</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_relationship</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
 </pre></div>
 
            </div>

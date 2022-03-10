@@ -13,7 +13,8 @@ import pkg_resources
 import json
 from pytest import fixture
 
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from ngsildclient.model.entity import *
 
 
@@ -67,7 +68,7 @@ def test_air_quality(expected_air_quality):
 
     """
     e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
-    e.tprop("dateObserved", datetime(2018, 8, 7, 12))
+    e.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))
     e.prop("NO2", 22, unitcode="GP")
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
     assert e.to_dict() == expected_air_quality
@@ -103,7 +104,7 @@ def test_air_quality_from_json_file(expected_air_quality):
 
 def test_air_quality_with_userdata():
     e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
-    e.tprop("dateObserved", datetime(2018, 8, 7, 12))
+    e.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))
     e.prop("NO2", 22, unitcode="GP", userdata={"reliability": 0.95})
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
     assert e.to_dict() == expected_dict("air_quality_with_userdata")
@@ -117,7 +118,7 @@ def test_air_quality_with_nested_prop_1_lvl():
 
     """
     e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
-    e.tprop("dateObserved", datetime(2018, 8, 7, 12))
+    e.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))
     e.prop("NO2", 22, unitcode="GP").prop("accuracy", 0.95, NESTED)
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
     assert e.to_dict() == expected_dict("air_quality_with_nested_prop_1_lvl")
@@ -125,7 +126,7 @@ def test_air_quality_with_nested_prop_1_lvl():
 
 def test_air_quality_with_nested_prop_2_lvl():
     e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
-    e.tprop("dateObserved", datetime(2018, 8, 7, 12))
+    e.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))
     e.prop("NO2", 22, unitcode="GP").prop("qc", "checked", NESTED).prop(
         "status", "discarded", nested=True
     )
@@ -135,7 +136,7 @@ def test_air_quality_with_nested_prop_2_lvl():
 
 def test_air_quality_with_nested_prop_3_lvl():
     e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
-    e.tprop("dateObserved", datetime(2018, 8, 7, 12))
+    e.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))
     e.prop("NO2", 22, unitcode="GP").prop("qc", "checked", NESTED).prop(
         "status", "passed", NESTED
     ).prop("reliability", 0.95, NESTED)
@@ -216,7 +217,7 @@ def test_vehicle():
     e.rel(
         "isParked",
         "OffStreetParking:Downtown1",
-        observedat=datetime(2017, 7, 29, 12, 0, 4),
+        observedat=datetime(2017, 7, 29, 12, 0, 4, tzinfo=timezone.utc),
     ).rel("providedBy", "Person:Bob", NESTED)
     assert e.to_dict() == expected_dict("vehicle")
     assert json.loads(e.to_json(kv=True)) == expected_dict("vehicle.kv")
@@ -266,7 +267,7 @@ def test_parking():
         ],
     )
     e.prop(
-        "availableSpotNumber", 121, observedat=datetime(2017, 7, 29, 12, 5, 2)
+        "availableSpotNumber", 121, observedat=datetime(2017, 7, 29, 12, 5, 2, tzinfo=timezone.utc)
     ).anchor()
     e.prop("reliability", 0.7).rel("providedBy", "Camera:C1").unanchor()
     e.prop("totalSpotNumber", 200)
@@ -277,7 +278,7 @@ def test_parking():
 
 def test_cached_datetime_in_observedat():
     e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
-    e.tprop("dateObserved", datetime(2018, 8, 7, 12))  # cache the datetime
+    e.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))  # cache the datetime
     e.prop(
         "NO2", 22, unitcode="GP", observedat=Auto
     )  # reuse the datetime set by the previous tprop() call

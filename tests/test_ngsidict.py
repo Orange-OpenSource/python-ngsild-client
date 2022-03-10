@@ -11,7 +11,7 @@
 
 import pytest
 
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timezone
 from geojson import Point
 
 from ngsildclient.model.ngsidict import NgsiDict
@@ -38,7 +38,7 @@ def test_prop_with_meta_unitcode():
 
 
 def test_prop_with_meta_timestamp():
-    p = NgsiDict()._build_property(22, observedat=datetime(2021, 8, 31, 12))
+    p = NgsiDict()._build_property(22, observedat=datetime(2021, 8, 31, 12, tzinfo=timezone.utc))
     assert p == {"observedAt": "2021-08-31T12:00:00Z", "type": "Property", "value": 22}
 
 
@@ -78,7 +78,7 @@ def test_geoprop_point_as_tuple():
 
 
 def test_temporal_prop_datetime():
-    p = NgsiDict()._build_temporal_property(datetime(2021, 8, 31, 12))
+    p = NgsiDict()._build_temporal_property(datetime(2021, 8, 31, 12, tzinfo=timezone.utc))
     assert p == {
         "type": "Property",
         "value": {"@type": "DateTime", "@value": "2021-08-31T12:00:00Z"},

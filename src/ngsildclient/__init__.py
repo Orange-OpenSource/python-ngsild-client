@@ -20,7 +20,7 @@ from .utils.uuid import shortuuid
 from .model.entity import Entity
 from .model.helper.postal import PostalAddressBuilder
 from .model.helper.openinghours import OpeningHoursBuilder
-from .model.constants import CORE_CONTEXT, NESTED, Auto, SmartDataModels, Rel
+from .model.constants import CORE_CONTEXT, NESTED, Auto, SmartDataModels, Rel, TZ_UTC, TZ_WET, TZ_CET, TZ_FET
 from .model.mock import MockerNgsi
 from .api.client import Client
 from .exceptions import NgsiError
@@ -38,6 +38,10 @@ __all__ = [
     "NESTED",
     "Auto",
     "Rel",
+    "TZ_UTC",
+    "TZ_WET",
+    "TZ_CET",
+    "TZ_FET",
     "MockerNgsi",
     "Client",
     "SmartDataModels",
