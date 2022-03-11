@@ -14,15 +14,15 @@ Project Goals
 
 The ngsildclient Python library has two main objectives.
 
-1. **Build NGSI-LD compliant entities**
+1. :ref:`Build NGSI-LD compliant entities<Build Entities>`
 
    | The task of writing large NGSI-LD compliant entities using JSON is tedious, error-prone and results in a significant amount of code.
    | ngsilclient provides primitives to build and manipulate NGSI-LD entities without effort, in respect with the ETSI specifications_.
 
-2. **Wrap the NGSI-LD API**
+2. :ref:`Wrap the NGSI-LD API<Interact with the broker>`
 
    | As a Python NGSI-LD client it allows to interact with a broker by sending and retrieving NGSI-LD entities.
-   | As of v0.1.5 it supports a subset of the API.
+   | As of v0.1.6 it supports a subset of the API.
 
 Four practical use cases
 ------------------------
