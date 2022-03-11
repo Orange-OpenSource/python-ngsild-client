@@ -17,29 +17,29 @@ from ngsildclient.utils.uuid import shortuuid
 logger = logging.getLogger(__name__)
 
 
-def mock_id(e: Entity) -> Entity:
+def mock_id(e: Entity):
     mock_id = shortuuid()
     e.id = f"{e.id}:Mocked:{mock_id}"
+
+
+def mock_payload(e: Entity):
     e.prop("mocked", True)
 
 
 class MockerNgsi:
-    def __init__(self, entity: Entity):
-        self.src = entity
+    def __init__(
+        self,
+        f_mock_id: Callable = mock_id,
+        f_mock_payload: Callable = mock_payload,
+    ):
+        self.f_mock_id = f_mock_id
+        self.f_mock_payload = f_mock_payload
 
-    def _mock(
-        self, mock_id: Callable = mock_id, mock_payload: Callable = None
-    ) -> Entity:
-        dst: Entity = self.src.copy()
-        mock_id(dst)
-        if mock_payload is not None:
-            mock_payload(dst)
+    def _mock(self, entity: Entity) -> Entity:
+        dst: Entity = entity.copy()
+        self.f_mock_id(dst)
+        self.f_mock_payload(dst)
         return dst
 
-    def mock(
-        self,
-        n: int = 1,
-        mock_id: Callable = mock_id,
-        mock_payload: Callable = None,
-    ) -> list[Entity]:
-        return [self._mock() for _ in range(n)]
+    def mock(self, entity: Entity, n: int = 10) -> list[Entity]:
+        return [self._mock(entity) for _ in range(n)]

@@ -14,7 +14,6 @@ import json
 from pytest import fixture
 
 from datetime import datetime, timezone
-from zoneinfo import ZoneInfo
 from ngsildclient.model.entity import *
 
 

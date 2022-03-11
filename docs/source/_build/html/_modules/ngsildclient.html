@@ -89,7 +89,7 @@
 <span class="kn">from</span> <span class="nn">.model.entity</span> <span class="kn">import</span> <span class="n">Entity</span>
 <span class="kn">from</span> <span class="nn">.model.helper.postal</span> <span class="kn">import</span> <span class="n">PostalAddressBuilder</span>
 <span class="kn">from</span> <span class="nn">.model.helper.openinghours</span> <span class="kn">import</span> <span class="n">OpeningHoursBuilder</span>
-<span class="kn">from</span> <span class="nn">.model.constants</span> <span class="kn">import</span> <span class="n">CORE_CONTEXT</span><span class="p">,</span> <span class="n">NESTED</span><span class="p">,</span> <span class="n">Auto</span><span class="p">,</span> <span class="n">SmartDataModels</span><span class="p">,</span> <span class="n">Rel</span>
+<span class="kn">from</span> <span class="nn">.model.constants</span> <span class="kn">import</span> <span class="n">CORE_CONTEXT</span><span class="p">,</span> <span class="n">NESTED</span><span class="p">,</span> <span class="n">Auto</span><span class="p">,</span> <span class="n">SmartDataModels</span><span class="p">,</span> <span class="n">Rel</span><span class="p">,</span> <span class="n">TZ_UTC</span><span class="p">,</span> <span class="n">TZ_WET</span><span class="p">,</span> <span class="n">TZ_CET</span><span class="p">,</span> <span class="n">TZ_FET</span>
 <span class="kn">from</span> <span class="nn">.model.mock</span> <span class="kn">import</span> <span class="n">MockerNgsi</span>
 <span class="kn">from</span> <span class="nn">.api.client</span> <span class="kn">import</span> <span class="n">Client</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">NgsiError</span>
@@ -107,6 +107,10 @@
     <span class="s2">&quot;NESTED&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Auto&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Rel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TZ_UTC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TZ_WET&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TZ_CET&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TZ_FET&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MockerNgsi&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Client&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SmartDataModels&quot;</span><span class="p">,</span>

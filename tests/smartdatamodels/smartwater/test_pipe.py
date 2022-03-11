@@ -42,7 +42,7 @@ def test_pipe():
     e.rel("startsAt", "Junction:63fe7d79-0d4c-4da9-b7d0-3340efa0656a")
     e.prop("status", "OPEN").prop("tag", "DMA1")
     e.prop("velocity", 2, unitcode="MTS").rel(Rel.OBSERVED_BY, device, NESTED)
-    e.gprop("vertices", MultiPoint([[(24.40623,60.17966), (24.50623,60.27966)]]))
+    e.gprop("vertices", MultiPoint([[(24.40623, 60.17966), (24.50623, 60.27966)]]))
     e.prop("wallCoeff", 72.4549, unitcode="RRC")
 
     assert e.to_dict() == expected_dict("pipe")

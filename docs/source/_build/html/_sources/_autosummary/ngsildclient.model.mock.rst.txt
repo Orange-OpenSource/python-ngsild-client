@@ -1,4 +1,4 @@
-ngsildclient.model.mock
+﻿ngsildclient.model.mock
 =======================
 
 .. automodule:: ngsildclient.model.mock
@@ -16,6 +16,7 @@ ngsildclient.model.mock
       :nosignatures:
    
       mock_id
+      mock_payload
    
    
 
