@@ -1,3 +1,10 @@
+# ngsildclient 0.1.6
+## March 11, 2022
+
+- Added documentation. *Available on readthedocs*
+- Added NGSI-LD datetimes UTC support. *TODO : API section*
+- Added ability to handle NGSI-LD properties from the entity's inner properties
+
 # ngsildclient 0.1.5
 ## March 1, 2022
 

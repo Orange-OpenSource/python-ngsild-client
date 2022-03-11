@@ -68,6 +68,11 @@ pyenv local myagent
 pip install ngsildclient
 ```
 
+## Documentation
+
+User guide is available on [Read the Docs](https://ngsildclient.readthedocs.io/en/latest/index.html)
+
+
 ## Getting started
 
 ### Build your first NGSI-LD entity
