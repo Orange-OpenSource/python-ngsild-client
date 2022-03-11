@@ -1,4 +1,4 @@
-﻿ngsildclient.model.ngsidict.NgsiDict
+ngsildclient.model.ngsidict.NgsiDict
 ====================================
 
 .. currentmodule:: ngsildclient.model.ngsidict

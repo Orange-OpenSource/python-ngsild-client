@@ -107,7 +107,8 @@ Create a first very basic NGSI-LD entity.
 
    Home Page <self>
    Build Entities <build>
-   Interact with the Broker <api>
+   Interact with the Broker <client>
+   Annex <annex>
    License <license>
    API Reference <_autosummary/ngsildclient>
 

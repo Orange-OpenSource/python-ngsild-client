@@ -1,4 +1,4 @@
-﻿ngsildclient.model.constants.Rel
+ngsildclient.model.constants.Rel
 ================================
 
 .. currentmodule:: ngsildclient.model.constants

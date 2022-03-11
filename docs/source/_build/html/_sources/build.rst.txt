@@ -1,6 +1,10 @@
 Build Entities
 ==============
 
+This chapter explains how to build NGSI-LD compliant entities.
+
+:ref:`Annex<Realistic Examples>` shows realistic examples - taken from the `Smart Data Models Initiative`_ - built with **ngsildclient**.
+
 Create an entity
 ----------------
 
