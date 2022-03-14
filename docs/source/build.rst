@@ -896,6 +896,8 @@ PostalAddress_ as defined by `Schema.org`_.
       .country("Spain")
       .build())
 
+The **addr()** alias can be used to set this very common **address** Property.
+
 .. code-block:: json-ld
    :caption: PostalAddress illustrated
 

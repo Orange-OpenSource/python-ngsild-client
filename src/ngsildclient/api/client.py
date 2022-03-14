@@ -22,6 +22,7 @@ from .entities import Entities
 from .batch import BatchOp
 from .types import Types
 from .contexts import Contexts
+from .subscriptions import Subscriptions
 from .exceptions import *
 
 logger = logging.getLogger(__name__)
@@ -143,8 +144,8 @@ class Client:
         self._batch = BatchOp(self, f"{self.url}/{ENDPOINT_BATCH}")
         self._types = Types(self, f"{self.url}/{ENDPOINT_TYPES}")
         self._contexts = Contexts(self, f"{self.url}/{ENDPOINT_CONTEXTS}")
-        self._subscriptions = (
-            None  # TODO : create Subscriptions class and implement subscription stuff
+        self._subscriptions = Subscriptions(
+            self, f"{self.url}/{ENDPOINT_SUBSCRIPTIONS}"
         )
 
         self.broker = Broker(Vendor.UNKNOWN, "N/A")

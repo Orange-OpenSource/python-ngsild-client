@@ -13,7 +13,7 @@ import http.client
 import logging
 import sys
 
-__version__ = "0.1.6"
+__version__ = "0.1.7"
 
 from .utils import iso8601, is_interactive
 from .utils.uuid import shortuuid
@@ -33,6 +33,7 @@ from .model.constants import (
 )
 from .model.mock import MockerNgsi
 from .api.client import Client
+from .api.helper.subscription import SubscriptionBuilder
 from .exceptions import NgsiError
 from .model.exceptions import NgsiModelError
 from .api.exceptions import NgsiApiError, NgsiContextBrokerError, NgsiAlreadyExistsError
@@ -54,6 +55,7 @@ __all__ = [
     "TZ_FET",
     "MockerNgsi",
     "Client",
+    "SubscriptionBuilder",
     "SmartDataModels",
     "NgsiError",
     "NgsiModelError",
