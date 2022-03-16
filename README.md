@@ -70,7 +70,7 @@ pip install ngsildclient
 
 ## Documentation
 
-User guide is available on [Read the Docs](https://ngsildclient.readthedocs.io/en/latest/index.html)
+User guide is available on [Read the Docs](https://ngsildclient.readthedocs.io/en/latest/index.html).
 
 
 ## Getting started
@@ -207,24 +207,6 @@ with Client() as client:
 ## License
 
 [Apache 2.0](LICENSE)
-
-## Documentation
-
-Docstrings are widely used in the code.
-
-For example.
-
-```python
-from ngsildclient import Entity
-
-help(Entity)
-```
-
-For examples (from basic to more complex and realistic) you can have a look at the ``tests`` folder.
-
-Especially the ``tests/test_entity.py`` file that builds various entities.
-
-And inside the ``tests/smartdatamodels`` folder that builds some example entities from the Smart Data Models Initiative.
 
 ## Roadmap
 
