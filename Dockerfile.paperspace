@@ -1,0 +1,12 @@
+# temp stage
+FROM python:3.9-slim
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    DEBCONF_NOWARNINGS=yes \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN pip install jupyterlab
+RUN pip install ngsildclient==0.1.6
+
+CMD ["jupyter", "notebook", "--ServerApp.ip=0.0.0.0", "--no-browser", "--allow-root", "--ServerApp.trust_xheaders=True", "--ServerApp.disable_check_xsrf=False", "--ServerApp.allow_remote_access=True", "--ServerApp.allow_origin=*"]
