@@ -2,6 +2,9 @@
 
 [![PyPI](https://img.shields.io/pypi/v/ngsildclient.svg)](https://pypi.org/project/ngsildclient/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![deploy status](https://github.com/Orange-OpenSource/python-ngsild-client/workflows/ci/badge.svg)](https://github.com/Orange-OpenSource/python-ngsild-client/actions)
+[![Python version](https://img.shields.io/pypi/pyversions/ngsildclient)](https://pypi.org/project/ngsildclient/)
+[![Powered by Fiware](https://img.shields.io/badge/powered%20by-Fiware-orange.svg?style=flat&colorA=E1523D&colorB=007D8A)](https://www.fiware.org/)
 
 ## Overview
 
