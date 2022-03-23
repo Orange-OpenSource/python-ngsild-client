@@ -1,3 +1,10 @@
+# ngsildclient 0.1.7
+## March 23, 2022
+
+- Subscription support.
+- Added Docker image : ``orangeopensource/ngsildclient`` on Dockerhub
+- Added Docker image for use with Gradient Paperspace : ``orangeopensource/ngsildclient-paperspace`` on Dockerhub
+
 # ngsildclient 0.1.6
 ## March 11, 2022
 
