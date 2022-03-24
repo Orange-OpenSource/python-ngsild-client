@@ -58,6 +58,24 @@ pyenv local myagent
 pip install ngsildclient
 ```
 
+## Getting started
+
+The following code snippet builds a NGSI-LD entity related to a measure of air quality in Bordeaux then sends it to the Context Broker.
+
+```python
+from ngsildclient import Entity, Client
+
+e = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T09:00:00Z")
+e.tprop("dateObserved").gprop("location", (44.84044, -0.5805))
+e.prop("PM2.5", 12, unitcode="GP").prop("PM10", 18, unitcode="GP")
+e.prop("NO2", 8, unitcode="GP").prop("O3", 83, unitcode="GP")
+e.rel("refDevice", "Device:AirProbe42")
+with Client() as client:
+    client.upsert(e)
+```
+
+The corresponding JSON-LD [payload](https://github.com/Orange-OpenSource/python-ngsild-client/blob/master/samples/gettingstarted.json) has been generated.
+
 ## Documentation
 
 User guide is available on [Read the Docs](https://ngsildclient.readthedocs.io/en/latest/index.html).

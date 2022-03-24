@@ -1,0 +1,48 @@
+{
+  "@context": [
+    "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+  ],
+  "id": "urn:ngsi-ld:AirQualityObserved:Bordeaux-AirProbe42-2022-03-24T09:00:00Z",
+  "type": "AirQualityObserved",
+  "dateObserved": {
+    "type": "Property",
+    "value": {
+      "@type": "DateTime",
+      "@value": "2022-03-24T09:00:00Z"
+    }
+  },
+  "location": {
+    "type": "GeoProperty",
+    "value": {
+      "type": "Point",
+      "coordinates": [
+        -0.5805,
+        44.84044
+      ]
+    }
+  },
+  "PM2.5": {
+    "type": "Property",
+    "value": 12,
+    "unitCode": "GP"
+  },
+  "PM10": {
+    "type": "Property",
+    "value": 18,
+    "unitCode": "GP"
+  },
+  "NO2": {
+    "type": "Property",
+    "value": 8,
+    "unitCode": "GP"
+  },
+  "O3": {
+    "type": "Property",
+    "value": 83,
+    "unitCode": "GP"
+  },
+  "refDevice": {
+    "type": "Relationship",
+    "object": "urn:ngsi-ld:Device:AirProbe42"
+  }
+}
