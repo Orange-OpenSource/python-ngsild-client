@@ -12,7 +12,7 @@
 import logging
 import requests
 from dataclasses import dataclass
-from typing import Optional, Tuple, Generator, overload
+from typing import Optional, Tuple, Generator, List, Union, overload
 from math import ceil
 
 from ..utils import is_interactive
