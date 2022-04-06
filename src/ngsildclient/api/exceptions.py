@@ -44,6 +44,10 @@ class NgsiNotConnectedError(NgsiApiError):
     pass
 
 
+class NgsiClientTooManyResultsError(NgsiApiError):
+    pass
+
+
 class NgsiHttpError(NgsiApiError):
     def __init__(self, statuscode: int):
         self.statuscode = statuscode
@@ -151,9 +155,7 @@ def rfc7807_error_handle(func):
                 )
                 raise exception(pd)
             except HTTPError as e:
-                raise NgsiApiError(
-                    f"Error while requesting the broker API. Status code = {r.status_code}"
-                ) from e
+                raise NgsiApiError(f"Error while requesting the broker API. Status code = {r.status_code}") from e
         except RequestException as e:
             raise NgsiApiError("Error while requesting the broker API") from e
 

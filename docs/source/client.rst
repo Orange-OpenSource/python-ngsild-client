@@ -204,10 +204,30 @@ Upsert
 .. note::
    The **upsert()** method is not atomic as it combines a delete operation followed by a create operation.
 
-Query
-^^^^^
+Query Head
+^^^^^^^^^^
 
-   The **query()** method returns a list of entities.
+   | The **query_head()** method retrieves the first 5 matching entities.
+   | 
+
+.. code-block::
+   :caption: Retrieve the 5 first AirQualityObserved entities
+
+   from ngsilclient import Client, Entity
+
+   with Client() as client:
+      entities = client.query_head(type="AirQualityObserved")
+
+.. note::
+   | The **query_head()** method takes an entity type, a query string, or both.
+   | It takes a **num** optional argument to retrieve the first **num** entities (default is 5).
+   | It retrieves up to **PAGINATION_LIMIT_MAX** results which depends on the broker implementation.
+   
+
+Query All
+^^^^^^^^^
+
+   The **query_all()** method returns a list of matching entities.
 
 .. code-block::
    :caption: Print top ten NO2 worst levels
@@ -215,42 +235,24 @@ Query
    from ngsilclient import Client, Entity
 
    with Client() as client:
-      entities = client.query(type="AirQualityObserved", q="NO2>0")
+      entities = client.query(type="AirQualityObserved", q="NO2>40")
       top10 = sorted(entities, reverse=True, key=lambda x: x["NO2.value"])[:10]
       print(top10)
 
 .. note::
-   | The **query()** method takes an entity type, a query string, or both.
-   | This **client.entities.query()** method doesn't support pagination.
-   | It retrieves up to **PAGINATION_LIMIT_MAX** results which depends on the broker implementation.
-   | Prefer using advanced query methods : **query_all()** and **query_generator()**.
-
-Query All
-^^^^^^^^^
-
-   The **query_all()** method returns a list of entities.
-
-.. code-block::
-   :caption: Retrieve all AirQualityObserved entities
-
-   from ngsilclient import Client, Entity
-
-   with Client() as client:
-      entities = client.query(type="AirQualityObserved")
-
-.. note::
    | The **query_all()** method retrieves at once **ALL** the matching entities *by enabling pagination and sending behind the curtain as many requests as needed*.
-   | It could lead to a large amount of data stored in memory.
+   | Assume data hold in memory. Should not be an issue except for very large datasets.
+   | **NgsiClientTooManyResultsError** is raised if more than 1 million entities (configurable thanks to the **max** argument).
    | Depending on your RAM you could confidently retrieve millions or even tens of millions entities.
 
 Query Generator
 ^^^^^^^^^^^^^^^
 
    | The **query_generator()** method returns a generator of entities.
-   | It relies on the Python generator mechanism and allows to retrieve entities on the fly.
+   | It relies on the Python generator mechanism and allows to retrieve entities on the fly *(without storing them)*.
 
 .. code-block::
-   :caption: Print all AirQualityObserved entities on the fly
+   :caption: Print all AirQualityObserved entities
 
    from ngsilclient import Client, Entity
 
@@ -259,18 +261,22 @@ Query Generator
          e.pprint()
 
 .. code-block::
-   :caption: Retrieve a list limited to the first 1000 entities
+   :caption: Print all NO2 values over 80 *(filtering on the client side)*
 
-   import itertools
    from ngsilclient import Client, Entity
 
    with Client() as client:
-      g = client.query_generator(type="AirQualityObserved"):
-      entities = [*itertools.islice(g, 1000)]
+      g = client.query_generator(type="AirQualityObserved")
+      g = (e for e in g if e["NO2.value"] > 80)  # generator comprehension
+      for e in g:
+         e.pprint()
 
-.. note::
-   The **query_generator()** relies on the Python generator mechanism to retrieve entities on the fly.   
-  
+Low-Level Query
+^^^^^^^^^^^^^^^
+
+| Above query methods are advanced methods that handle pagination for you.
+| If you want to handle pagination by yourself, you can use **client.entities.query()** that basically wraps the API endpoint and allows to specify the **offset** and **limit** arguments.
+
 Count
 ^^^^^
 

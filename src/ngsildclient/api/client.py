@@ -484,8 +484,8 @@ class Client:
         else:
             return self.batch.update(entities)
 
-    def query(
-        self, type: str = None, q: str = None, ctx: str = None, **kwargs
+    def query_head(
+        self, type: str = None, q: str = None, ctx: str = None, n: int = 5, **kwargs
     ) -> List[Entity]:
         """Retrieve entities given its type and/or query string.
 
@@ -499,8 +499,10 @@ class Client:
             The entity's type
         q: str
             The query string (NGSI-LD Query Language)
-        ctx : str
+        ctx: str
             The context
+        n: int
+            The first n entities to be retrieved
         Returns
         -------
         list[Entity]
@@ -514,7 +516,7 @@ class Client:
         >>> with Client() as client:
         >>>     client.query(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
-        return self.entities.query(type, q, ctx, limit=PAGINATION_LIMIT_MAX)
+        return self.entities.query(type, q, ctx, limit=n)
 
     def query_all(
         self,
@@ -522,6 +524,7 @@ class Client:
         q: str = None,
         ctx: str = None,
         limit: int = PAGINATION_LIMIT_MAX,
+        max: int = 1_000_000,
         **kwargs,
     ) -> List[Entity]:
         """Retrieve entities given its type and/or query string.
@@ -556,6 +559,8 @@ class Client:
 
         entities: list[Entity] = []
         count = self.entities.count(type, q)
+        if count > max:
+            raise NgsiClientTooManyResultsError(f"{count} results exceed maximum {max}")
         for page in range(ceil(count / limit)):
             entities.extend(self.entities.query(type, q, ctx, limit, page * limit))
         return entities
