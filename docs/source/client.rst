@@ -71,8 +71,8 @@ One could use the **with** statement. It will automatically close the client.
    The **is_connected()** method sends a dummy but compliant request to the Context Broker then returns True
    if the broker answered.
 
-Wrap API operations
--------------------
+API operations
+--------------
 
 | The client wraps the following endpoints : **entities**, **entityOperations**, **types**, **jsonldContexts**, **subscriptions**.
 | Operations for each endpoint are available using the proper submodule.
@@ -109,10 +109,11 @@ Entities
 
 Entities operations handle **Entity** objects as defined in ``ngsildclient.model.entity``.
 
-Create
-^^^^^^
+Create a single entity
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block::
+   :emphasize-lines: 5
 
    from ngsilclient import Client, Entity
 
@@ -120,7 +121,7 @@ Create
    with Client() as client:
       client.create(entity)
 
-| If the entity already exists, a **NgsiAlreadyExistsError** exception is raised.
+| If the entity already exists a **NgsiAlreadyExistsError** exception is raised.
 | You should either catch this exception or use an overwrite strategy.
 
 You can enable the **overwrite** argument
@@ -144,10 +145,35 @@ You can enable an overwrite strategy at the client level globally for all operat
    
    client = Client(overwrite=True)
 
-Retrieve
-^^^^^^^^
+Create a batch of entities
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block::
+   :emphasize-lines: 7
+
+   from ngsilclient import Client, Entity
+
+   e1 = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T09:00:00Z").prop("NO2", 8)
+   e2 = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T10:00:00Z").prop("NO2", 9)
+   entities = [e1, e2]
+   with Client() as client:
+      client.create(entities)
+
+.. note::
+   | **batch.create()** returns a tuple.
+   | The 1st element is a boolean. True means creation has been successfull for all the entities.
+   | If True the 2nd element is a list of identifiers.
+   | If False the 2nd element is a dictionary with 2 entries, the ``success`` identifiers and the ``errors`` ones.
+
+.. note::
+   | The **MockerNgsi** class is very useful to mock and experiment with numerous entities.
+   | One can duplicate an entity by using the **copy()** method or the **Entity.duplicate()** class method.
+
+Retrieve a single entity
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block::
+   :emphasize-lines: 4
 
    from ngsilclient import Client, Entity
 
@@ -160,24 +186,16 @@ Retrieve
 
 If the entity doesn't exist, a **NgsiResourceNotFoundError** exception is raised.
 
-Delete
-^^^^^^
-
-.. code-block::
-
-   from ngsilclient import Client
-
-   with Client() as client:
-      client.delete("urn:ngsi-ld:AirQualityObserved:Bordeaux-AirProbe42-2022-03-24T09:00:00Z")
-
 .. note::
-   | The **delete()** method accept both a NGSI-LD identifier and an entity object.
-   | **delete()** returns True if the entity has been successfully deleted.
+   The corresponding batch methods to retrieve list of entities are named **Query** methods and prefixed with ``query_``.
 
 Exists
 ^^^^^^
 
+Test if an entity exists.
+
 .. code-block::
+   :emphasize-lines: 4
 
    from ngsilclient import Client, Entity
 
@@ -187,28 +205,80 @@ Exists
 
 .. note::
    | The **exists()** method accept both a NGSI-LD identifier and an entity object.
-   | **delete()** returns True if the entity exists.
+   | There's no equivalent in batch mode.
 
-Upsert
-^^^^^^
+Upsert a single entity
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block::
+   :emphasize-lines: 5
+
+   from ngsilclient import Client, Entity
+
+   with Client() as client:
+      entity = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T09:00:00Z").prop("NO2", 8)
+      client.upsert(entity)
+
+.. note::
+   The **upsert()** method is not atomic as *- for an existing entity -* it combines a delete operation followed by a create operation.
+
+Upsert a batch of entities
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block::
+   :emphasize-lines: 7
+
+   from ngsilclient import Client, Entity
+
+   e1 = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T09:00:00Z").prop("NO2", 8)
+   e2 = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T10:00:00Z").prop("NO2", 9)
+   entities = [e1, e2]
+   with Client() as client:
+      client.upsert(entities)
+
+.. note::
+   | **batch.upsert()** returns a tuple.
+   | The 1st element is a boolean. True means upsert has been successfull for all the entities.
+   | The 2nd element is a dictionary with ``success`` and ``errors`` entries.
+
+Update a single entity
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block::
+   :emphasize-lines: 6
 
    from ngsilclient import Client, Entity
 
    with Client() as client:
       entity = client.get("urn:ngsi-ld:AirQualityObserved:Bordeaux-AirProbe42-2022-03-24T09:00:00Z")
       entity["NO2.value"] += 1
-      client.upsert(entity)
+      client.update(entity)
+
+Update a batch of entities
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block::
+   :emphasize-lines: 9
+
+   from ngsilclient import Client, Entity
+
+   e1 = client.get("urn:ngsi-ld:AirQualityObserved:Bordeaux-AirProbe42-2022-03-24T09:00:00Z")
+   e2 = client.get("urn:ngsi-ld:AirQualityObserved:Bordeaux-AirProbe42-2022-03-24T10:00:00Z")
+   entities = [e1, e2]
+   for e in entities:
+      e["NO2.value"] += 1
+   with Client() as client:
+      client.update(entities)
 
 .. note::
-   The **upsert()** method is not atomic as it combines a delete operation followed by a create operation.
+   | **batch.update()** returns a tuple.
+   | The 1st element is a boolean. True means update has been successfull for all the entities.
+   | The 2nd element is a dictionary with ``success`` and ``errors`` entries.
 
 Query Head
 ^^^^^^^^^^
 
-   | The **query_head()** method retrieves the first 5 matching entities.
-   | 
+The **query_head()** method retrieves the first 5 matching entities.
 
 .. code-block::
    :caption: Retrieve the 5 first AirQualityObserved entities
@@ -227,7 +297,7 @@ Query Head
 Query All
 ^^^^^^^^^
 
-   The **query_all()** method returns a list of matching entities.
+The **query_all()** method returns a list of matching entities.
 
 .. code-block::
    :caption: Print top ten NO2 worst levels
@@ -248,8 +318,8 @@ Query All
 Query Generator
 ^^^^^^^^^^^^^^^
 
-   | The **query_generator()** method returns a generator of entities.
-   | It relies on the Python generator mechanism and allows to retrieve entities on the fly *(without storing them)*.
+| The **query_generator()** method returns a generator of entities.
+| It relies on the Python generator mechanism and allows to retrieve entities on the fly *(without storing them)*.
 
 .. code-block::
    :caption: Print all AirQualityObserved entities
@@ -280,7 +350,7 @@ Low-Level Query
 Count
 ^^^^^
 
-   The **count()** method returns the number of matching entities.
+The **count()** method returns the number of matching entities.
 
 .. code-block::
    :caption: Print number of values over threshold
@@ -295,85 +365,71 @@ Count
    | **count()** has the same signature as the **query()** method.
    | Except it returns an integer.
 
-Batch
-~~~~~
-
-Batch operations handle **Entity** list of objects as defined in ``ngsildclient.model.entity``.
-
-Batch Create
-^^^^^^^^^^^^
+Delete a single entity
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block::
 
-   from ngsilclient import Client, Entity
+   from ngsilclient import Client
 
-   e1 = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T09:00:00Z").prop("NO2", 8)
-   e2 = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T10:00:00Z").prop("NO2", 9)
-   entities = [e1, e2]
    with Client() as client:
-      client.batch.create(entities)
+      client.delete("urn:ngsi-ld:AirQualityObserved:Bordeaux-AirProbe42-2022-03-24T09:00:00Z")
 
 .. note::
-   | **batch.create()** returns a tuple.
-   | The 1st element is a boolean. True means creation has been successfull for all the entities.
-   | If True the 2nd element is a list of identifiers.
-   | If False the 2nd element is a dictionary with 2 entries, the ``success`` identifiers and the ``errors`` ones.
+   | The **delete()** method accept both a NGSI-LD identifier and an entity object.
+   | **delete()** returns True if the entity has been successfully deleted.
 
-.. note::
-   | The **MockerNgsi** class is very useful to mock and experiment with numerous entities.
-   | One can duplicate an entity by using the **copy()** method or the **Entity.duplicate()** class method.
-
-Batch Upsert
-^^^^^^^^^^^^
-
-.. code-block::
-
-   from ngsilclient import Client, Entity
-
-   e1 = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T09:00:00Z").prop("NO2", 8)
-   e2 = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T10:00:00Z").prop("NO2", 9)
-   entities = [e1, e2]
-   with Client() as client:
-      client.batch.upsert(entities)
-
-.. note::
-   | **batch.upsert()** returns a tuple.
-   | The 1st element is a boolean. True means upsert has been successfull for all the entities.
-   | The 2nd element is a dictionary with ``success`` and ``errors`` entries.
- 
-Batch Update
-^^^^^^^^^^^^
-
-.. code-block::
-
-   from ngsilclient import Client, Entity
-
-   e1 = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T09:00:00Z").prop("NO2", 8)
-   e2 = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T10:00:00Z").prop("NO2", 9)
-   entities = [e1, e2]
-   with Client() as client:
-      client.batch.update(entities)
-
-.. note::
-   | **batch.update()** returns a tuple.
-   | The 1st element is a boolean. True means update has been successfull for all the entities.
-   | The 2nd element is a dictionary with ``success`` and ``errors`` entries.
-
-Batch Delete
-^^^^^^^^^^^^
+Delete a batch of entities
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block::
 
    from ngsilclient import Client, Entity
 
    with Client() as client:
-      entities = client.query(type="AirQualityObserved")
-      client.batch.delete(entities)
+      e1 = client.get("urn:ngsi-ld:AirQualityObserved:Bordeaux-AirProbe42-2022-03-24T09:00:00Z")
+      e2 = client.get("urn:ngsi-ld:AirQualityObserved:Bordeaux-AirProbe42-2022-03-24T10:00:00Z")
+      entities = [e1, e2]  
+      client.delete(entities)
 
 .. note::
    | **batch.delete()** returns a tuple.
    | The 1st element is a boolean. True means update has been successfull for all the entities.
-   | The 2nd element is a dictionary with ``success`` and ``errors`` entries.
+   | The 2nd element is a dictionary with ``success`` and ``errors`` entries. 
+
+Conditional Delete
+^^^^^^^^^^^^^^^^^^
+
+.. code-block::
+   :caption: Remove outliers
+
+   from ngsilclient import Client, Entity
+
+   with Client() as client:
+      entities = client.delete_where(type="AirQualityObserved", q="NO2<0|NO2>1000")
+
+Drop all entities of the same type
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block::
+
+   from ngsilclient import Client
+
+   with Client() as client:
+      entities = client.drop("AirQualityObserved")
+
+Purge all entities
+^^^^^^^^^^^^^^^^^^
+
+.. code-block::
+
+   from ngsilclient import Client
+
+   with Client() as client:
+      entities = client.purge()
+
+.. caution::
+   **purge()** removes **ALL** entities.
 
 Exception handling
 ------------------
