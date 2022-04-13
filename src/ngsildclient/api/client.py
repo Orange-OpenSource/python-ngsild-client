@@ -144,9 +144,7 @@ class Client:
         self._batch = BatchOp(self, f"{self.url}/{ENDPOINT_BATCH}")
         self._types = Types(self, f"{self.url}/{ENDPOINT_TYPES}")
         self._contexts = Contexts(self, f"{self.url}/{ENDPOINT_CONTEXTS}")
-        self._subscriptions = Subscriptions(
-            self, f"{self.url}/{ENDPOINT_SUBSCRIPTIONS}"
-        )
+        self._subscriptions = Subscriptions(self, f"{self.url}/{ENDPOINT_SUBSCRIPTIONS}")
 
         self.broker = Broker(Vendor.UNKNOWN, "N/A")
 
@@ -204,9 +202,7 @@ class Client:
             if is_interactive():
                 return False
             if raise_for_disconnected:
-                raise NgsiNotConnectedError(
-                    f"Cannot connect to Context Broker at {self.hostname}:{self.port}: {e}"
-                )
+                raise NgsiNotConnectedError(f"Cannot connect to Context Broker at {self.hostname}:{self.port}: {e}")
             else:
                 logger.error(e)
                 return False
@@ -244,9 +240,7 @@ class Client:
         self.session.close()
 
     @overload
-    def create(
-        self, entity: Entity, skip: bool = False, overwrite: bool = False
-    ) -> Entity:
+    def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> Entity:
         """Create an entity.
 
         Facade method for Entities.create().
@@ -268,9 +262,7 @@ class Client:
         ...
 
     @overload
-    def create(
-        self, entities: List[Entity], skip: bool = False, overwrite: bool = False
-    ):
+    def create(self, entities: List[Entity], skip: bool = False, overwrite: bool = False):
         """Create a batch of entities.
 
         Facade method for Batch.create().
@@ -369,9 +361,7 @@ class Client:
         """
         ...
 
-    def delete(
-        self, eids: Union[Union[EntityId, Entity], List[Union[EntityId, Entity]]]
-    ) -> bool:
+    def delete(self, eids: Union[Union[EntityId, Entity], List[Union[EntityId, Entity]]]) -> bool:
         if isinstance(eids, list):
             return self.batch.delete(eids)
         else:
@@ -475,18 +465,14 @@ class Client:
         """
         ...
 
-    def update(
-        self, entities: Union[Entity, List[Entity]]
-    ) -> Union[Optional[Entity], dict]:
+    def update(self, entities: Union[Entity, List[Entity]]) -> Union[Optional[Entity], dict]:
         if isinstance(entities, Entity):
             entity = entities
             return self.entities.update(entity)
         else:
             return self.batch.update(entities)
 
-    def query_head(
-        self, type: str = None, q: str = None, ctx: str = None, n: int = 5, **kwargs
-    ) -> List[Entity]:
+    def query_head(self, type: str = None, q: str = None, ctx: str = None, n: int = 5, **kwargs) -> List[Entity]:
         """Retrieve entities given its type and/or query string.
 
         Retrieve up to PAGINATION_LIMIT_MAX entities.
@@ -571,11 +557,15 @@ class Client:
         q: str = None,
         ctx: str = None,
         limit: int = PAGINATION_LIMIT_MAX,
+        batch: bool = False,
         **kwargs,
     ) -> Generator[Entity, None, None]:
         count = self.entities.count(type, q)
         for page in range(ceil(count / limit)):
-            yield from self.entities.query(type, q, ctx, limit, page * limit)
+            if batch:
+                yield self.entities.query(type, q, ctx, limit, page * limit)
+            else:
+                yield from self.entities.query(type, q, ctx, limit, page * limit)
 
     def count(self, type: str = None, q: str = None, **kwargs) -> int:
         """Return number of entities matching type and/or query string.
@@ -604,9 +594,7 @@ class Client:
         """
         return self.entities.count(type, q)
 
-    def delete_where(
-        self, type: str = None, q: str = None, **kwargs
-    ) -> tuple[bool, dict]:
+    def delete_where(self, type: str = None, q: str = None, **kwargs):
         """Batch delete entities matching type and/or query string.
 
         Parameters
@@ -621,8 +609,9 @@ class Client:
         >>> with Client() as client:
         >>>     client.delete_where(type="AgriFarm", query='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
-        entities = self.query_all(type, q, **kwargs)
-        return self.batch.delete(entities)
+        g = self.query_generator(type, q, batch=True, **kwargs)
+        for batch in g:
+            self.batch.delete(batch)
 
     def drop(self, type: str) -> None:
         """Batch delete entities matching the given type.
@@ -639,6 +628,9 @@ class Client:
         """
         self.delete_where(type=type)
 
+    def list_types(self) -> Optional[dict]:
+        return self.types.list()
+
     def purge(self) -> None:
         """Batch delete all entities.
 
@@ -649,6 +641,17 @@ class Client:
         """
         for type in self.types.list():
             self.drop(type)
+
+    def flush_all(self) -> None:
+        """Batch delete all entities and remove all contexts.
+
+        Example:
+        --------
+        >>> with Client() as client:
+        >>>     client.purge()
+        """
+        self.purge(type)
+        self.contexts.cleanup()
 
     def guess_vendor(self) -> tuple[Vendor, Version]:
         """Try to guess the Context Broker vendor.
@@ -729,9 +732,7 @@ class Client:
             return vendor, version
         except Exception:
             if is_interactive():
-                print(
-                    "Java-Spring based Context Broker detected. Try to enable info endpoint."
-                )
+                print("Java-Spring based Context Broker detected. Try to enable info endpoint.")
             return None
 
     def _welcome_message(self) -> str:

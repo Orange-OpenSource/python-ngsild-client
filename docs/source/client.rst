@@ -13,6 +13,7 @@ Connect
 | Then tell the client to point to the broker by providing its ip address and TCP port.
 
 .. code-block::
+   :emphasize-lines: 3
     
    from ngsilclient import Client
 
@@ -32,6 +33,7 @@ Connect
 
 .. code-block::
    :caption: Connect to a local broker instance
+   :emphasize-lines: 3
     
    from ngsilclient import Client
 
@@ -47,6 +49,7 @@ To free resources it's recommended to properly close the client at the end.
 
 .. code-block::
    :caption: Disconnect from a local broker instance
+   :emphasize-lines: 5
     
    from ngsilclient import Client
 
@@ -61,6 +64,7 @@ The with statement
 One could use the **with** statement. It will automatically close the client.
 
 .. code-block::
+   :emphasize-lines: 3
 
    from ngsilclient import Client
 
@@ -71,21 +75,24 @@ One could use the **with** statement. It will automatically close the client.
    The **is_connected()** method sends a dummy but compliant request to the Context Broker then returns True
    if the broker answered.
 
-API operations
---------------
+Use the API
+-----------
 
 | The client wraps the following endpoints : **entities**, **entityOperations**, **types**, **jsonldContexts**, **subscriptions**.
 | Operations for each endpoint are available using the proper submodule.
 | i.e. **client.types** provides the **list()** method that corresponds to the operation "Retrieve Available Entity Types".
-| Common operations such as operations on entities are directly available at the client level.
+
+.. note::
+   For convenience common operations such as operations on entities are provided by the Client class.
 
 .. code-block::
    :caption: Retrieve available entity types
+   :emphasize-lines: 4
 
    from ngsilclient import Client
 
    with Client() as client:
-      print(client.types.list())
+      print(client.list_types())
 
 .. table:: Submodule Mapping Table
 
@@ -104,8 +111,8 @@ API operations
    +---------------+------------------+
 
 
-Entities
-~~~~~~~~
+Handle Entities
+~~~~~~~~~~~~~~~
 
 Entities operations handle **Entity** objects as defined in ``ngsildclient.model.entity``.
 
@@ -187,12 +194,10 @@ Retrieve a single entity
 If the entity doesn't exist, a **NgsiResourceNotFoundError** exception is raised.
 
 .. note::
-   The corresponding batch methods to retrieve list of entities are named **Query** methods and prefixed with ``query_``.
+   The corresponding batch methods to retrieve a list of entities are known as **query** methods and prefixed with ``query_``.
 
-Exists
-^^^^^^
-
-Test if an entity exists.
+Check whether an entity exists
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block::
    :emphasize-lines: 4
@@ -278,10 +283,12 @@ Update a batch of entities
 Query Head
 ^^^^^^^^^^
 
-The **query_head()** method retrieves the first 5 matching entities.
+| The **query_head()** method is useful to **preview** a query execution.
+| By default it retrieves the first 5 matching entities.
 
 .. code-block::
    :caption: Retrieve the 5 first AirQualityObserved entities
+   :emphasize-lines: 4
 
    from ngsilclient import Client, Entity
 
@@ -290,8 +297,8 @@ The **query_head()** method retrieves the first 5 matching entities.
 
 .. note::
    | The **query_head()** method takes an entity type, a query string, or both.
-   | It takes a **num** optional argument to retrieve the first **num** entities (default is 5).
-   | It retrieves up to **PAGINATION_LIMIT_MAX** results which depends on the broker implementation.
+   | It takes a **num** optional argument to retrieve the first **num** entities. *Default is 5*.
+   | It retrieves up to **PAGINATION_LIMIT_MAX** results that is currently a constant set to 100.
    
 
 Query All
@@ -301,19 +308,22 @@ The **query_all()** method returns a list of matching entities.
 
 .. code-block::
    :caption: Print top ten NO2 worst levels
+   :emphasize-lines: 4
 
    from ngsilclient import Client, Entity
 
    with Client() as client:
-      entities = client.query(type="AirQualityObserved", q="NO2>40")
+      entities = client.query_all(type="AirQualityObserved", q="NO2>40")
       top10 = sorted(entities, reverse=True, key=lambda x: x["NO2.value"])[:10]
       print(top10)
 
 .. note::
    | The **query_all()** method retrieves at once **ALL** the matching entities *by enabling pagination and sending behind the curtain as many requests as needed*.
-   | Assume data hold in memory. Should not be an issue except for very large datasets.
    | **NgsiClientTooManyResultsError** is raised if more than 1 million entities (configurable thanks to the **max** argument).
-   | Depending on your RAM you could confidently retrieve millions or even tens of millions entities.
+
+.. warning:: 
+   | Assume the whole dataset fits in memory.
+   | It should not be an issue except for very large datasets.
 
 Query Generator
 ^^^^^^^^^^^^^^^
@@ -323,6 +333,7 @@ Query Generator
 
 .. code-block::
    :caption: Print all AirQualityObserved entities
+   :emphasize-lines: 4
 
    from ngsilclient import Client, Entity
 
@@ -332,6 +343,7 @@ Query Generator
 
 .. code-block::
    :caption: Print all NO2 values over 80 *(filtering on the client side)*
+   :emphasize-lines: 4
 
    from ngsilclient import Client, Entity
 
@@ -340,6 +352,12 @@ Query Generator
       g = (e for e in g if e["NO2.value"] > 80)  # generator comprehension
       for e in g:
          e.pprint()
+
+.. note::
+   | The **query_generator()** method takes an entity type, a query string, or both.
+   | By default it **yields** entities one by one.
+   | When the **batch** boolean argument is set it **yields** batch of entities.
+   | Batch size is currently defined by the constant **PAGINATION_LIMIT_MAX**.
 
 Low-Level Query
 ^^^^^^^^^^^^^^^
@@ -354,11 +372,12 @@ The **count()** method returns the number of matching entities.
 
 .. code-block::
    :caption: Print number of values over threshold
+   :emphasize-lines: 4
 
    from ngsilclient import Client, Entity
 
    with Client() as client:
-      exceed_threshold: int = client.county(type="AirQualityObserved", q="NO2>80")
+      exceed_threshold: int = client.count(type="AirQualityObserved", q="NO2>80")
       print(f"Values over threshold : {exceed_threshold}")
 
 .. note::
@@ -369,6 +388,7 @@ Delete a single entity
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block::
+   :emphasize-lines: 4
 
    from ngsilclient import Client
 
@@ -383,6 +403,7 @@ Delete a batch of entities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block::
+   :emphasize-lines: 6
 
    from ngsilclient import Client, Entity
 
@@ -402,34 +423,169 @@ Conditional Delete
 
 .. code-block::
    :caption: Remove outliers
+   :emphasize-lines: 4
 
    from ngsilclient import Client, Entity
 
    with Client() as client:
-      entities = client.delete_where(type="AirQualityObserved", q="NO2<0|NO2>1000")
+      client.delete_where(type="AirQualityObserved", q="NO2<0|NO2>1000")
 
 Drop all entities of the same type
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block::
+   :emphasize-lines: 4
 
    from ngsilclient import Client
 
    with Client() as client:
-      entities = client.drop("AirQualityObserved")
+      client.drop("AirQualityObserved")
 
 Purge all entities
 ^^^^^^^^^^^^^^^^^^
 
 .. code-block::
+   :emphasize-lines: 4
 
    from ngsilclient import Client
 
    with Client() as client:
-      entities = client.purge()
+      client.purge()
 
 .. caution::
    **purge()** removes **ALL** entities.
+
+Flush all
+^^^^^^^^^
+
+Remove all entities and all contexts *except the Core context*.
+
+.. code-block::
+   :emphasize-lines: 4
+
+   from ngsilclient import Client
+
+   with Client() as client:
+      client.flush_all()
+
+.. caution::
+   No confirmation is asked.
+
+List types
+^^^^^^^^^^
+
+List available entity types.
+
+.. code-block::
+   :emphasize-lines: 4
+
+   from ngsilclient import Client
+
+   with Client() as client:
+      client.list_types()
+
+
+Handle Contexts
+~~~~~~~~~~~~~~~
+
+List contexts
+^^^^^^^^^^^^^
+
+.. code-block::
+   :caption: Display stored contexts
+   :emphasize-lines: 4
+
+   from ngsilclient import Client
+
+   with Client() as client:
+      contexts = client.contexts.list()
+      print(contexts)
+
+It returns a list of strings. Each string heads to a context URI.
+
+.. note::
+   There should be at least one entry : the default Core context.
+
+Retrieve a context
+^^^^^^^^^^^^^^^^^^
+
+.. code-block::
+   :caption: Display the content of the default core context
+   :emphasize-lines: 4
+
+   from ngsilclient import Client
+
+   with Client() as client:
+      ctx_core = client.contexts.get("https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld")
+      print(ctx_core)
+
+Delete a context
+^^^^^^^^^^^^^^^^^^
+
+.. code-block::
+   :caption: Remove the Device context
+   :emphasize-lines: 5
+
+   from ngsilclient import Client
+
+   ctx_device = "https://github.com/smart-data-models/dataModel.Device/raw/aba14f18bb6e5f7ee1bd2f3b866d23c7ad630ad8/context.jsonld"
+   with Client() as client:
+      client.contexts.delete(ctx_device)
+
+Delete any context matching a substring
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block::
+   :caption: Remove the Device context and other contexts containing the word ``device``
+   :emphasize-lines: 4
+
+   from ngsilclient import Client
+
+   with Client() as client:
+      client.contexts.delete("device")
+
+.. note::
+   Matching is case insensitive.
+
+Cleanup contexts
+^^^^^^^^^^^^^^^^
+
+Remove all contexts except the default core context.
+
+.. code-block::
+   :emphasize-lines: 4
+
+   from ngsilclient import Client, CORE_CONTEXT
+
+   with Client() as client:
+      client.contexts.cleanup()
+
+Add a context
+^^^^^^^^^^^^^
+
+.. code-block::
+   :emphasize-lines: 5
+
+   from ngsilclient import Client
+
+   ctx_nimp = {"@context": {"nimp": "https://nimp.org/nimp"}}
+   with Client() as client:
+      client.contexts.add(ctx_nimp)
+
+.. note::
+   Raise a **ValueError** exception if input dictionary does not contain a ``@context`` key.
+
+Check whether a context exists
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block::
+   :emphasize-lines: 4
+
+   from ngsilclient import Client, CORE_CONTEXT
+
+   with Client() as client:
+      if not client.contexts.exists(CORE_CONTEXT):
+         print("Missing default context !!")
 
 Exception handling
 ------------------

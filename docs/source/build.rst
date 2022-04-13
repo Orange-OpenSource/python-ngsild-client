@@ -352,6 +352,7 @@ GeoProperty
 
 .. code-block::
   :caption: A simple GeoProperty
+  :emphasize-lines: 5
 
    from geojson import Point
    from ngsildclient import Entity
@@ -400,6 +401,7 @@ The Temporal Property accepts values of following types : **datetime**, **date**
 
 .. code-block::
   :caption: Temporal Property illustrated
+  :emphasize-lines: 4
 
    from ngsildclient import Entity
 
@@ -411,11 +413,16 @@ The Temporal Property accepts values of following types : **datetime**, **date**
 
 .. code-block::
   :caption: Temporal Property using the Auto keyword
+  :emphasize-lines: 4
 
    from ngsildclient import Entity, Auto
 
    entity = Entity("AirQualityObserved", "Madrid-28079004-2016-03-15T11:00:00Z")
-   entity.tprop("dateObserved", Auto)
+   entity.tprop("dateObserved", Auto)  # We could omit Auto as it's the default
+
+.. note::
+   | ``Auto`` means the cached datetime if any else defaults to the current datetime ``utcnow()``.
+   | ``Auto`` is the default value for the **tprop()** primitive.
 
 The **obs()** alias can be used to set this very common **dateObserved** Temporal Property.
 
@@ -432,6 +439,7 @@ Relationship
 The Relationship Property points to one *or many* JSON-LD objects.
 
 .. code-block::
+   :emphasize-lines: 4
 
    from ngsildclient import Entity
 

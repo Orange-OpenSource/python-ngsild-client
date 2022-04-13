@@ -77,5 +77,7 @@ class Contexts:
 
     @rfc7807_error_handle
     def add(self, ctx: dict) -> bool:
+        if not ctx.get("@context"):
+            raise ValueError("Expect a JSON object that has a top-level field named @context.")
         r = self._session.post(f"{self.url}/", json=ctx)
         self._client.raise_for_status(r)
