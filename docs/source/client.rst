@@ -75,8 +75,8 @@ One could use the **with** statement. It will automatically close the client.
    The **is_connected()** method sends a dummy but compliant request to the Context Broker then returns True
    if the broker answered.
 
-Use the API
------------
+Consume the API resources
+-------------------------
 
 | The client wraps the following endpoints : **entities**, **entityOperations**, **types**, **jsonldContexts**, **subscriptions**.
 | Operations for each endpoint are available using the proper submodule.
@@ -111,8 +111,8 @@ Use the API
    +---------------+------------------+
 
 
-Handle Entities
-~~~~~~~~~~~~~~~
+Entities
+~~~~~~~~
 
 Entities operations handle **Entity** objects as defined in ``ngsildclient.model.entity``.
 
@@ -485,8 +485,8 @@ List available entity types.
       client.list_types()
 
 
-Handle Contexts
-~~~~~~~~~~~~~~~
+Contexts
+~~~~~~~~
 
 List contexts
 ^^^^^^^^^^^^^
@@ -587,8 +587,8 @@ Check whether a context exists
       if not client.contexts.exists(CORE_CONTEXT):
          print("Missing default context !!")
 
-Exception handling
-------------------
+Handle Errors
+-------------
 
 | The client at creation time and in subsequent methods calls may raise exceptions.
 | It is a good idea to catch them to get proper information about errors that occured.
