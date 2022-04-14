@@ -592,7 +592,7 @@ Subscriptions
 
 | Subscribe is a shortcut for : **subscribe to receive notifications of context changes** [NGSI_LD_tutorial]_.
 | It's the opposite of pooling. Actions are triggered on the broker side as in a pub/sub HTTP-based model.
-| In API terms it means : **create a Subscription** *that will POST a payload to a "well-known" URL whenever a value has changed [ETSI_GS_CIM_009_1.5.1]_*.
+| In API terms it means : **create a Subscription** *that will POST a payload to a "well-known" URL whenever a value has changed* [ETSI_GS_CIM_009_1.5.1]_.
 
 Model a Subscription payload
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
