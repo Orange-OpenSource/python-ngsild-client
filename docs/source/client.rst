@@ -75,8 +75,8 @@ One could use the **with** statement. It will automatically close the client.
    The **is_connected()** method sends a dummy but compliant request to the Context Broker then returns True
    if the broker answered.
 
-Consume the API resources
--------------------------
+Entities and contexts
+---------------------
 
 | The client wraps the following endpoints : **entities**, **entityOperations**, **types**, **jsonldContexts**, **subscriptions**.
 | Operations for each endpoint are available using the proper submodule.
@@ -587,6 +587,198 @@ Check whether a context exists
       if not client.contexts.exists(CORE_CONTEXT):
          print("Missing default context !!")
 
+Subscriptions
+-------------
+
+| Subscribe is a shortcut for : **subscribe to receive notifications of context changes** [NGSI_LD_tutorial]_.
+| It's the opposite of pooling. Actions are triggered on the broker side as in a pub/sub HTTP-based model.
+| In API terms it means : **create a Subscription** *that will POST a payload to a "well-known" URL whenever a value has changed [ETSI_GS_CIM_009_1.5.1]_*.
+
+Model a Subscription payload
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+| A Subscription resource is a JSON payload hence represented by a Python dictionary.
+| You can build this dictionary by yourself or use the **SubscriptionBuilder** class that will guide you through the creation process.
+| Refer to the doctrings for the complete list of methods provided by a **SubscriptionBuilder** object.
+
+A simple example
+^^^^^^^^^^^^^^^^
+
+.. code-block::
+   :caption: Use SubscriptionBuilder to model a simple subscription
+
+   from ngsilclient import SubscriptionBuilder
+
+   payload = SubscriptionBuilder("http://localhost:8000/air_quality_alerts")
+      .description("Notify me of high NO2 level")
+      .select_type("AirQualityObserved").watch(["NO2"]).query("NO2>200")
+      .build()
+
+.. code-block:: json-ld
+   :caption: Generated JSON subscription payload
+
+   {
+      "type": "Subscription",
+      "description": "Notify me of high NO2 level",
+      "entities": [
+         {
+               "type": "AirQualityObserved"
+         }
+      ],
+      "watchedAttributes": [
+         "NO2"
+      ],
+      "q": "NO2>200",
+      "isActive": true,
+      "notification": {
+         "format": "normalized",
+         "endpoint": {
+               "uri": "http://localhost:8000/air_quality_alerts",
+               "accept": "application/ld+json"
+         }
+      },
+      "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+   }
+
+A more complex example from the Fiware tutorial
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block::
+   :caption: Use SubscriptionBuilder to model a subscription
+
+   from ngsilclient import SubscriptionBuilder
+
+   payload = SubscriptionBuilder(NOTIF_URI)
+      .description("Notify me of low feedstock on Farm:001")
+      .select_type("FillingLevelSensor")
+      .watch(["filling"])
+      .query("filling>0.4;filling<0.6;controlledAsset==urn:ngsi-ld:Building:farm001")
+      .notif(["filling", "controlledAsset"])
+      .build()
+
+.. code-block:: json-ld
+   :caption: Generated JSON subscription payload
+
+   {
+      "type": "Subscription",
+      "description": "Notify me of low feedstock on Farm:001",
+      "entities": [
+         {
+               "type": "FillingLevelSensor"
+         }
+      ],
+      "watchedAttributes": [
+         "filling"
+      ],
+      "q": "filling>0.4;filling<0.6;controlledAsset==urn:ngsi-ld:Building:farm001",
+      "isActive": true,
+      "notification": {
+         "attributes": [
+               "filling",
+               "controlledAsset"
+         ],
+         "format": "normalized",
+         "endpoint": {
+               "uri": "http://tutorial:3000/subscription/low-stock-farm001-ngsild",
+               "accept": "application/ld+json"
+         }
+      },
+      "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+   }
+
+Subscribe (Create a Subscription)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block::
+   :caption: Create a subscription
+   :emphasize-lines: 9
+
+   from ngsilclient import Client
+
+   payload = SubscriptionBuilder("http://localhost:8000/air_quality_alerts")
+      .description("Notify me of high NO2 level")
+      .select_type("AirQualityObserved").watch(["NO2"]).query("NO2>200")
+      .build()
+
+   with Client() as client:
+      subscr_id = client.subscriptions.create(payload)
+
+.. note::
+   | Creating a subscription is subject to conflict.
+   | The new subscription may have the same criteria as an already existing one *but differ on the identifier or description or notification url*.
+   | The existing subscription may not be yours or yours but an old one.
+   | Conflicts are prone to happen especially because setting an identifier is not mandatory and the system generates one if not set.
+   | The risk is to have some duplicates and/or get unwanted notifications.
+   | To tackle these probabiblities of conflicts, the **create()** method takes the ``raise_on_conflict`` boolean argument.
+   | When set to true and conflicts are detected, the new subscription is not created and an Exception is raised, showing the subscriptions already doing the "same job".
+
+List subscriptions
+~~~~~~~~~~~~~~~~~~
+
+.. code-block::
+   :caption: List all subscriptions
+   :emphasize-lines: 4
+
+   from ngsilclient import Client
+
+   with Client() as client:
+      subscriptions = client.subscriptions.list()
+
+You can list only subscriptions whose name and description match a substring.
+
+.. code-block::
+   :caption: List subscriptions related to farms
+   :emphasize-lines: 4
+
+   from ngsilclient import Client
+
+   with Client() as client:
+      subscriptions = client.subscriptions.list(pattern="farm")
+
+.. note::
+   Matching is case insensitive.
+
+You can list subscriptions that use the same criteria as a given subscription payload.
+
+.. code-block::
+   :caption: List subscriptions related to farms
+   :emphasize-lines: 9
+
+   from ngsilclient import Client
+
+   payload = SubscriptionBuilder("http://localhost:8000/air_quality_alerts")
+      .description("Notify me of high NO2 level")
+      .select_type("AirQualityObserved").watch(["NO2"]).query("NO2>200")
+      .build()
+
+   with Client() as client:
+      subscriptions = client.subscriptions.conflicts(payload)
+
+Retrieve a subscription
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block::
+   :caption: Retrieve a subscription by its identifier
+   :emphasize-lines: 4
+
+   from ngsilclient import Client
+
+   with Client() as client:
+      subscriptions = client.subscriptions.get("urn:ngsi-ld:Subscription:622f5a9bb5a991ac07791d5a")
+
+Check whether a subscription exists
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block::
+   :emphasize-lines: 4
+
+   from ngsilclient import Client
+
+   with Client() as client:
+      if client.subscriptions.get("urn:ngsi-ld:Subscription:622f5a9bb5a991ac07791d5a"):
+         print("Subscription found !")
+   
+
 Handle Errors
 -------------
 
@@ -661,3 +853,6 @@ Nominal vs Unattended exceptions
 
 
 .. [2] IETF RFC 7807: Problem Details for HTTP APIs
+
+.. [ETSI_GS_CIM_009_1.5.1] Context Information Management (CIM) NGSI-LD API Guidelines for Modelling with NGSI-LD `ETSI Group Specification <https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.05.01_60/gs_cim009v010501p.pdf>`_
+.. [NGSI_LD_tutorial] NGSI-LD Subscriptions tutorial for the FIWARE system `NGSI-LD tutorial <https://ngsi-ld-tutorials.readthedocs.io/en/latest/subscriptions.html>`_
