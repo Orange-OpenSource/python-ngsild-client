@@ -778,7 +778,6 @@ Check whether a subscription exists
       if client.subscriptions.get("urn:ngsi-ld:Subscription:622f5a9bb5a991ac07791d5a"):
          print("Subscription found !")
    
-
 Handle Errors
 -------------
 
