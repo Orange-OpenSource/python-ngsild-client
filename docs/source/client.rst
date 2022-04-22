@@ -695,13 +695,45 @@ Subscribe (Create a Subscription)
 
    from ngsilclient import Client
 
-   payload = SubscriptionBuilder("http://localhost:8000/air_quality_alerts")
+   payload = SubscriptionBuilder("http://subscriber.docker.internal:8000/air_quality_alerts")
       .description("Notify me of high NO2 level")
       .select_type("AirQualityObserved").watch(["NO2"]).query("NO2>200")
       .build()
 
    with Client() as client:
       subscr_id = client.subscriptions.create(payload)
+
+.. note::
+   | Here is a sample `subscriber <https://github.com/Orange-OpenSource/python-ngsild-client/blob/master/simple_alert_receiver_server.py>`_ Python program that listens to these NO2 alerts.
+   | Run it with ``python simple_alert_receiver_server.py``.
+   | It should print expected entities each time the broker receives matching ones and triggers the notification.
+   | *For a dockerized broker to hit a non-dockerized subscriber, one can use docker hostname mappings to specify the IP host address.*
+
+.. code-block::
+   :caption: Trigger the notification
+   :emphasize-lines: 4,6
+
+   from ngsilclient import Client, Entity
+
+   e = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T09:00:00Z")
+      .prop("NO2", 300)
+   with Client() as client:
+      client.upsert(e)
+
+.. code-block:: yaml
+   :caption: Hostname mapping example in the docker-compose file
+   :emphasize-lines: 8,10
+
+   orion:
+      image: fiware/orion-ld:latest
+      links:
+      - mongo
+      ports:
+      - "1026:1026"
+      command: -dbhost mongo
+      extra_hosts:
+      # where 192.168.1.42 is the host IP address
+      - "subscriber.docker.internal:192.168.1.42"
 
 .. note::
    | Creating a subscription is subject to conflict.

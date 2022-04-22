@@ -1,3 +1,11 @@
+# ngsildclient 0.1.8
+## April 22, 2022
+
+- Added API documentation.
+- Refactored ``query`` methods.
+- Added batch ability to ``query_generator()``.
+- Added pagination support to ``delete_where()``, ``drop()``, ``purge()`` and ``flush_all()``.
+
 # ngsildclient 0.1.7
 ## March 23, 2022
 
