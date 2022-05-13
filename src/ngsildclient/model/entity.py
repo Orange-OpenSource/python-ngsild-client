@@ -310,41 +310,6 @@ class Entity:
         return cls(payload=payload)
 
     @classmethod
-    def load(cls, filename: str):
-        """Load an Entity from a JSON file, locally from the filesystem or remotely through HTTP.
-
-        For convenience some `SmartDataModels <https://smartdatamodels.org/>`_ examples are made available thanks to the Smart Data Models initiative.
-        You can benefit from autocompletion to navigate inside the available datamodels.
-
-        Parameters
-        ----------
-        filename : str
-            If filename corresponds to an URL, the JSON file is downloaded from HTTP.
-            Else it is retrieved locally from the filesystem.
-
-        Returns
-        -------
-        [Entity]
-            The Entity instance
-
-        See Also
-        --------
-        model.constants.SmartDataModels
-
-        Example:
-        --------
-        >>> from ngsildclient import *
-        >>> e = Entity.load(SmartDatamodels.SmartCities.Weather.WeatherObserved)
-        """
-        if url.isurl(filename):
-            resp = requests.get(filename)
-            d = resp.json()
-        else:
-            with open(filename, "r") as fp:
-                d = json.load(fp)
-        return cls.from_dict(d)
-
-    @classmethod
     def duplicate(cls, entity: Entity) -> Entity:
         """Duplicate a given entity.
 
@@ -545,9 +510,7 @@ class Entity:
             }
         }
         """
-        property = self._payload._build_property(
-            value, unitcode, observedat, datasetid, userdata, escape
-        )
+        property = self._payload._build_property(value, unitcode, observedat, datasetid, userdata, escape)
         self._update_entity(name, property, nested)
         return self
 
@@ -677,7 +640,7 @@ class Entity:
         nested: bool = False,
         *,
         observedat: Union[str, datetime] = None,
-        datasetid: str = None,        
+        datasetid: str = None,
         userdata: NgsiDict = NgsiDict(),
     ) -> Entity:
         """Build a Relationship Property.
@@ -758,9 +721,7 @@ class Entity:
         d = NgsiDict()
         for k, v in self._payload.items():
             if isinstance(v, dict):
-                if (
-                    v["type"] == AttrType.PROP.value
-                ):  # apply to Property and TemporalProperty
+                if v["type"] == AttrType.PROP.value:  # apply to Property and TemporalProperty
                     value = v["value"]
                     if isinstance(value, dict):
                         value = value.get("@value", value)  # for Temporal Property only
@@ -799,6 +760,68 @@ class Entity:
         """
         print(self.to_json(kv, indent=2, *args, **kwargs))
 
+    @classmethod
+    def load(cls, filename: str):
+        """Load an Entity from a JSON file, locally from the filesystem or remotely through HTTP.
+
+        For convenience some `SmartDataModels <https://smartdatamodels.org/>`_ examples are made available thanks to the Smart Data Models initiative.
+        You can benefit from autocompletion to navigate inside the available datamodels.
+
+        Parameters
+        ----------
+        filename : str
+            If filename corresponds to an URL, the JSON file is downloaded from HTTP.
+            Else it is retrieved locally from the filesystem.
+
+        Returns
+        -------
+        Entity
+            The Entity instance
+
+        See Also
+        --------
+        model.constants.SmartDataModels
+
+        Example:
+        --------
+        >>> from ngsildclient import *
+        >>> e = Entity.load(SmartDatamodels.SmartCities.Weather.WeatherObserved)
+        """
+        if url.isurl(filename):
+            resp = requests.get(filename)
+            payload = resp.json()
+        else:
+            with open(filename, "r") as fp:
+                payload = json.load(fp)
+        if isinstance(payload, List):
+            return [cls.from_dict(x) for x in payload]
+        return cls.from_dict(payload)
+
+    @classmethod
+    def load_batch(cls, filename: str):
+        """Load a batch of entities from a JSON file.
+
+        Parameters
+        ----------
+        filename : str
+            The input file must contain a JSON array
+
+        Returns
+        -------
+        List[Entity]
+            A list of entities
+
+        Example:
+        --------
+        >>> from ngsildclient import *
+        >>> rooms = Entity.load_batch("/tmp/rooms_all.jsonld")
+        """
+        with open(filename, "r") as fp:
+            payload = json.load(fp)
+        if not isinstance(payload, List):
+            raise ValueError("The JSON payload MUST be an array")
+        return [cls.from_dict(x) for x in payload]
+
     def save(self, filename: str, *, indent: int = 2):
         """Save the entity to a file.
 
@@ -811,3 +834,26 @@ class Entity:
         """
         with open(filename, "w") as fp:
             json.dump(self._payload, fp, default=str, ensure_ascii=False, indent=indent)
+
+    @classmethod
+    def save_batch(cls, entities: List[Entity], filename: str, *, indent: int = 2):
+        """Save a batch of entities to a JSON file.
+
+        Parameters
+        ----------
+        entities: List[Entity]
+            Batch of entities to be saved
+
+        filename : str
+            If filename corresponds to an URL, the JSON file is downloaded from HTTP.
+            Else it is retrieved locally from the filesystem.
+
+        Example:
+        --------
+        >>> from ngsildclient import *
+        >>> rooms = [Entity("Room", "Room1"), Entity("Room", "Room2")]
+        >>> Entity.save_batch(rooms, "/tmp/rooms_all.jsonld")
+        """
+        payload = [x._payload for x in entities]
+        with open(filename, "w") as fp:
+            json.dump(payload, fp, default=str, ensure_ascii=False, indent=indent)

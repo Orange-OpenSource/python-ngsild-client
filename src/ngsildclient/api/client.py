@@ -368,6 +368,17 @@ class Client:
             eid = eids
             return self.entities.delete(eid)
 
+    def delete_from_file(self, filename: str) -> Union[Entity, dict]:
+        """Delete in the broker all entities present in the JSON file.
+
+        Parameters
+        ----------
+        filename : str
+            Points to the JSON input file that contains entities.
+        """
+        entities = Entity.load(filename)
+        return self.delete(entities)
+
     def exists(self, eid: Union[EntityId, Entity]) -> bool:
         """Tests if an entity exists.
 
@@ -428,6 +439,17 @@ class Client:
             return self.entities.upsert(entity)
         else:
             return self.batch.upsert(entities)
+
+    def upsert_from_file(self, filename: str) -> Union[Entity, dict]:
+        """Upsert all entities from a JSON file.
+
+        Parameters
+        ----------
+        filename : str
+            Points to the JSON input file that contains entities.
+        """
+        entities = Entity.load(filename)
+        return self.upsert(entities)
 
     @overload
     def update(self, entity: Entity) -> Optional[Entity]:

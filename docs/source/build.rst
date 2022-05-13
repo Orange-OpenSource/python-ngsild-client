@@ -819,6 +819,14 @@ For convenience some datamodel example URLs of the `Smart Data Models Initiative
 
    beach = Entity.load(SmartDataModels.SmartCities.PointOfInterest.Beach)
 
+| If the input file contains a JSON array made of several entities, the result will be a list of entities.
+| Really useful to create batch of entities in the broker.
+
+.. code-block::
+
+   from ngsildclient import Entity, SmartDataModels
+
+   rooms: list[Entity] = Entity.load("/tmp/rooms_all.jsonld")
 
 Utils
 -----
