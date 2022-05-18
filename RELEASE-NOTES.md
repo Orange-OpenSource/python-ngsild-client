@@ -1,3 +1,10 @@
+# ngsildclient 0.1.9
+## May 18, 2022
+
+- Added load/save batch of entities from file to memory
+- Added bulk import entities from file to broker
+- Added pretty json printing
+
 # ngsildclient 0.1.8
 ## April 22, 2022
 
