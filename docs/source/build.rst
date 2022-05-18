@@ -779,6 +779,9 @@ The opposite operation converts your entity to a dictionary.
 File
 ~~~~
 
+Load/Save a single entity
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Import and Export from/to a file is a very useful feature that allows :
 
 - backup : just restore an entity you've previously saved
@@ -811,6 +814,9 @@ We can load a remote file through HTTP.
 
    battery = Entity.load("https://github.com/smart-data-models/dataModel.Battery/raw/master/Battery/examples/example-normalized.jsonld")
 
+Load sample entities
+^^^^^^^^^^^^^^^^^^^^
+
 For convenience some datamodel example URLs of the `Smart Data Models Initiative`_ are made available.
 
 .. code-block::
@@ -819,14 +825,31 @@ For convenience some datamodel example URLs of the `Smart Data Models Initiative
 
    beach = Entity.load(SmartDataModels.SmartCities.PointOfInterest.Beach)
 
+Batch Import
+^^^^^^^^^^^^
+
 | If the input file contains a JSON array made of several entities, the result will be a list of entities.
 | Really useful to create batch of entities in the broker.
 
 .. code-block::
 
-   from ngsildclient import Entity, SmartDataModels
+   from ngsildclient import Entity
 
    rooms: list[Entity] = Entity.load("/tmp/rooms_all.jsonld")
+
+.. note::
+   One could use explicitly the **load_batch()** method that expects a JSON array.
+
+Batch Export
+^^^^^^^^^^^^
+
+.. code-block::
+
+   from ngsildclient import Entity
+
+   rooms = [Entity("Room", "Room1"), Entity("Room", "Room2")]
+   Entity.save_batch(rooms, "/tmp/rooms_all.jsonld")
+
 
 Utils
 -----

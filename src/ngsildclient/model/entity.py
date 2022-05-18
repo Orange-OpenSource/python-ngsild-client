@@ -20,12 +20,13 @@ from functools import partialmethod
 from dataclasses import dataclass
 
 from datetime import datetime
-from typing import overload, Any, Union, List, Optional
+from typing import overload, Any, Union, List, Optional, Callable
+from rich import print_json
 
 from .exceptions import *
 from .constants import *
 from .ngsidict import NgsiDict
-from ngsildclient.utils import iso8601, url
+from ngsildclient.utils import iso8601, url, is_interactive
 from ngsildclient.utils.urn import Urn
 
 logger = logging.getLogger(__name__)
@@ -162,6 +163,7 @@ class Entity:
 
         strict: bool = False  # for future use
         autoescape: bool = True  # for future use
+        f_print: Callable = print_json if is_interactive() else print
 
     globalsettings: Settings = Settings()
 
@@ -758,7 +760,7 @@ class Entity:
         kv : bool, optional
             KeyValues format (aka simplified representation), by default False
         """
-        print(self.to_json(kv, indent=2, *args, **kwargs))
+        Entity.globalsettings.f_print(self.to_json(kv, indent=2, *args, **kwargs))
 
     @classmethod
     def load(cls, filename: str):
