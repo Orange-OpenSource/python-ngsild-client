@@ -440,7 +440,7 @@ class Client:
         else:
             return self.batch.upsert(entities)
 
-    def upsert_from_file(self, filename: str) -> Union[Entity, dict]:
+    def bulk_import(self, filename: str) -> Union[Entity, dict]:
         """Upsert all entities from a JSON file.
 
         Parameters
