@@ -53,7 +53,7 @@ One should use a virtual environment. For example with pyenv.
 
 ```sh
 mkdir myagent && cd myagent
-pyenv virtualenv 3.10.2 myagent
+pyenv virtualenv 3.10.4 myagent
 pyenv local myagent
 pip install ngsildclient
 ```
