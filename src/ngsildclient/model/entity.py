@@ -372,6 +372,19 @@ class Entity:
         self._payload._rmattr(key)
         return self
 
+    def last(self, name: str):
+        item = self[name]
+        if not isinstance(item, List):
+            raise ValueError("Item should be a list")
+        return deepcopy(item[-1])
+
+    def append(self, name: str, value: NgsiDict):
+        item = self[name]
+        if not isinstance(item, List):
+            raise ValueError("Item should be a list")
+        item.append(value)
+        return deepcopy(item[-1])
+
     def anchor(self):
         """Set an anchor.
 
@@ -461,7 +474,7 @@ class Entity:
 
         Build a property and attach it to the current entity.
         One can chain prop(),tprop(), gprop(), rel() methods to build nested properties.
-        
+
         Parameters
         ----------
         name : str
@@ -693,6 +706,21 @@ class Entity:
 
     def __repr__(self):
         return self._payload.__repr__()
+
+    def arrayify(self, name: str) -> NgsiDict:
+        prop = self[name]
+        if isinstance(prop, List):
+            return None
+        self[name] = [prop]
+        return deepcopy(prop)
+
+    def unarrayify(self, name: str) -> NgsiDict:
+        prop = self[name]
+        if not isinstance(prop, List):
+            return None
+        lastprop = prop[-1]
+        self[name] = lastprop
+        return lastprop
 
     def to_dict(self, kv=False) -> NgsiDict:
         """Returns the entity as a dictionary.
