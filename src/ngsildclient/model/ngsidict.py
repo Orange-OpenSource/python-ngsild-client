@@ -16,6 +16,7 @@ from functools import reduce
 from datetime import datetime
 from geojson import Point, LineString, Polygon, MultiPoint
 
+import ngsildclient.model.entity as entity
 from ..utils import iso8601, url
 from ..utils.urn import Urn
 from .constants import *
@@ -188,7 +189,6 @@ class NgsiDict(dict):
         return self[name]
 
     def _build_relationship(
-        # Multiple Relationship limitation : no metadata
         self,
         value: Union[str, List[str]],
         observedat: Union[str, datetime, type[Auto]] = None,
@@ -196,17 +196,42 @@ class NgsiDict(dict):
         userdata: NgsiDict = None,
     ) -> NgsiDict:
         property: NgsiDict = NgsiDict()
-        property["type"] = AttrType.REL.value  # set type
-        if isinstance(value, list):
-            property["object"] = [Urn.prefix(v) for v in value]
-        else:
-            property["object"] = Urn.prefix(value)  # set value
-            if observedat is not None:
-                property[META_ATTR_OBSERVED_AT] = self._process_observedat(observedat)
-            if datasetid is not None:
-                property[META_ATTR_DATASET_ID] = Urn.prefix(datasetid)                
+        property["type"] = AttrType.REL.value  # set types
+        property["object"] = Urn.prefix(value.id) if isinstance(value, entity.Entity) else Urn.prefix(value)
+        if observedat is not None:
+            property[META_ATTR_OBSERVED_AT] = self._process_observedat(observedat)
+        if datasetid is not None:
+            property[META_ATTR_DATASET_ID] = Urn.prefix(datasetid)
             if userdata:
                 property |= userdata
+        return property
+
+    def _m_build_relationship(
+        # Multiple Relationship limitation : no metadata
+        self,
+        value: List[str],
+        observedat: Union[str, datetime, type[Auto]] = None,
+        datasetid: str = None,
+        userdata: NgsiDict = None,
+    ) -> NgsiDict:
+        property: List[NgsiDict] = []
+        if isinstance(observedat, List):
+            if len(observedat) != len(value):
+                raise ValueError("Missing observedAt attributes")
+        else:
+            observedat = [observedat] * len(value)
+        if isinstance(datasetid, List):
+            if len(datasetid) != len(value):
+                raise ValueError("Missing datasetId attributes")
+        else:
+            datasetid = [datasetid] * len(value)
+        if isinstance(userdata, List):
+            if len(userdata) != len(value):
+                raise ValueError("Missing userdata attributes")
+        else:
+            userdata = [userdata] * len(value)
+        for x in zip(value, observedat, datasetid, userdata):
+            property.append(self._build_relationship(*x))
         return property
 
     def rel(self, name: str, value: str, **kwargs):

@@ -461,7 +461,7 @@ class Entity:
 
         Build a property and attach it to the current entity.
         One can chain prop(),tprop(), gprop(), rel() methods to build nested properties.
-
+        
         Parameters
         ----------
         name : str
@@ -469,9 +469,7 @@ class Entity:
         value : Any
             the property value
         observedat : Union[str, datetime], optional
-            observetAt metadata, timestamp, ISO8601, UTC, by default None
-        datasetid : str, optional
-            it allows identifying a set or group of property values, by default None
+            observetAt metadata, timestamp, ISO8601, UTC, by default Noneself._update_entity(name, property, nested)
         userdata : NgsiDict, optional
             a dict or NgsiDict containing user data, i.e. userdata={"reliability": 0.95}, by default NgsiDict()
         escape : bool, optional
@@ -541,7 +539,7 @@ class Entity:
 
         Returns
         -------
-        Entity
+        Entitydatasetid
             The updated entity
 
         Example:
@@ -561,15 +559,12 @@ class Entity:
                 "type": "Property",
                 "value": "Beach of RZ"
             },
-            "location": {
+            "location": {datasetid
                 "type": "GeoProperty",
                 "value": {
                 "type": "Point",
                 "coordinates": [
-                    -8,
-                    44
-                ]
-                }
+                    -8,datasetid
             }
         }
         """
@@ -587,7 +582,7 @@ class Entity:
         """Build a TemporalProperty.
 
         Build a TemporalProperty and attach it to the current entity.
-        One can chain prop(),tprop(), gprop(), rel() methods to build nested properties.
+        One can chain prop(),tprop(), gprop(), rel() methoddatasetids to build nested properties.
 
         Parameters
         ----------
@@ -609,7 +604,7 @@ class Entity:
         >>> e.tprop("dateObserved", datetime(2018, 8, 7, 12))
         >>> e.pprint()
         {
-            "@context": [
+            "@context": [datasetid
                 "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
             ],
             "id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
@@ -638,7 +633,7 @@ class Entity:
     def rel(
         self,
         name: Union[Rel, str],
-        value: Union[str, List[str]],
+        value: Union[str, List[str], Entity, List[Entity]],
         nested: bool = False,
         *,
         observedat: Union[str, datetime] = None,
@@ -654,7 +649,7 @@ class Entity:
         ----------
         name : str
             the property name
-        value : str | PredefinedRelationship
+        value : str
             the property value
 
         Returns
@@ -683,8 +678,12 @@ class Entity:
         if isinstance(name, Rel):
             name = name.value
 
-        property = self._payload._build_relationship(value, observedat, datasetid, userdata)
+        if isinstance(value, List):
+            property = self._payload._m_build_relationship(value, observedat, datasetid, userdata)
+        else:
+            property = self._payload._build_relationship(value, observedat, datasetid, userdata)
         self._update_entity(name, property, nested)
+
         return self
 
     def __eq__(self, other: Entity):
