@@ -363,13 +363,13 @@ class Entity:
         self._payload["@context"] = ctx
 
     def __getitem__(self, item):
-        return self._payload._attr(item)
+        return self._payload.__getitem__(item)
 
     def __setitem__(self, key, item):
-        self._payload._setattr(key, item)
+        self._payload.__setitem__(key, item)
 
     def __delitem__(self, key):
-        self._payload._rmattr(key)
+        self._payload.__delitem__(key)
         return self
 
     def last(self, name: str):

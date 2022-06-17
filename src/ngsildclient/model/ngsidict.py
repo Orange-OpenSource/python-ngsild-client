@@ -58,24 +58,24 @@ class NgsiDict(dict):
             self._dtcached = iso8601.utcnow()
         return self._dtcached
 
-    def _attr(self, element: str):
-        return reduce(operator.getitem, element.split("."), self)
+    def __getitem__(self, element: str):
+        return reduce(dict.__getitem__, element.split("."), self)
 
-    def _rmattr(self, element: str):
+    def __delitem__(self, element: str):
         try:
             nested, k = element.rsplit(".", 1)
         except ValueError:
-            del self[element]
+            dict.__delitem__(self, element)
         else:
-            del self._attr(nested)[k]
+            dict.__delitem__(self[nested], k)
 
-    def _setattr(self, element: str, value: Any):
+    def __setitem__(self, key: str, value: Any):
         try:
-            nested, k = element.rsplit(".", 1)
+            nested, k = key.rsplit(".", 1)
         except ValueError:
-            self[element] = value
+            dict.__setitem__(self, key, value)
         else:
-            self._attr(nested)[k] = value
+            dict.__setitem__(self[nested], k, value)
 
     @classmethod
     def _load(cls, filename: str):
@@ -120,9 +120,7 @@ class NgsiDict(dict):
         elif isinstance(value, str):
             v = url.escape(value) if escape else value
         else:
-            raise NgsiUnmatchedAttributeTypeError(
-                f"Cannot map {type(value)} to NGSI type. {value=}"
-            )
+            raise NgsiUnmatchedAttributeTypeError(f"Cannot map {type(value)} to NGSI type. {value=}")
         property["value"] = v  # set value
         if unitcode is not None:
             property[META_ATTR_UNITCODE] = unitcode
@@ -148,15 +146,11 @@ class NgsiDict(dict):
         property["type"] = AttrType.GEO.value  # set type
         if isinstance(value, (Point, LineString, Polygon, MultiPoint)):
             geometry = value
-        elif (
-            isinstance(value, tuple) and len(value) == 2
-        ):  # simple way for a location Point
+        elif isinstance(value, tuple) and len(value) == 2:  # simple way for a location Point
             lat, lon = value
             geometry = Point((lon, lat))
         else:
-            raise NgsiUnmatchedAttributeTypeError(
-                f"Cannot map {type(value)} to NGSI type. {value=}"
-            )
+            raise NgsiUnmatchedAttributeTypeError(f"Cannot map {type(value)} to NGSI type. {value=}")
         property["value"] = geometry  # set value
         if observedat is not None:
             property[META_ATTR_OBSERVED_AT] = self._process_observedat(observedat)
