@@ -1,3 +1,8 @@
+# ngsildclient 0.1.10
+## June 22, 2022
+
+- Added multiple-relationship support
+
 # ngsildclient 0.1.9
 ## May 18, 2022
 
