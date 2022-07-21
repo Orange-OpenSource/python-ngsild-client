@@ -11,6 +11,7 @@
 
 import logging
 import requests
+from requests.auth import AuthBase
 from dataclasses import dataclass
 from typing import Optional, Tuple, Generator, List, Union, overload
 from math import ceil
@@ -82,6 +83,7 @@ class Client:
         overwrite: bool = False,
         ignore_errors: bool = False,
         proxy: str = None,
+        custom_auth: AuthBase = None,
     ):
         """Create a Client instance to interact with the Context Broker.
 
@@ -128,6 +130,8 @@ class Client:
         self.proxy = proxy
 
         self.session = requests.Session()
+        if custom_auth:
+            self.session.auth = custom_auth
         self.session.headers = {
             "User-Agent": self.useragent,
             "Accept": "application/ld+json",
