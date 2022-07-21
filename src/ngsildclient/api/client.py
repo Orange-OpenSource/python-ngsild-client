@@ -568,7 +568,7 @@ class Client:
         """
 
         entities: list[Entity] = []
-        count = self.entities.count(type, q)
+        count = self.entities.count(type, q, ctx=ctx)
         if count > max:
             raise NgsiClientTooManyResultsError(f"{count} results exceed maximum {max}")
         for page in range(ceil(count / limit)):

@@ -165,7 +165,7 @@ class Entities:
         return [Entity.from_dict(entity) for entity in entities]
 
     @rfc7807_error_handle
-    def count(self, type: str = None, q: str = None, **kwargs) -> int:
+    def count(self, type: str = None, q: str = None, ctx: str = None, **kwargs) -> int:
         params = {"limit": 0, "count": "true"}
         if type is None and q is None:
             raise ValueError("Must indicate at least a type or a query string")
@@ -173,12 +173,18 @@ class Entities:
             params["type"] = type
         if q:
             params["q"] = q
+
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": None,
+        }  # overrides session headers
+        if ctx is not None:
+            headers[
+                "Link"
+            ] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
         r = self._session.get(
             self.url,
-            headers={
-                "Accept": "application/json",
-                "Content-Type": None,
-            },  # overrides session headers
+            headers=headers,
             params=params,
         )
         r.raise_for_status()
