@@ -46,3 +46,4 @@ def test_pipe():
     e.prop("wallCoeff", 72.4549, unitcode="RRC")
 
     assert e.to_dict() == expected_dict("pipe")
+    assert e.to_dict(kv=True) == expected_dict("pipe.kv")

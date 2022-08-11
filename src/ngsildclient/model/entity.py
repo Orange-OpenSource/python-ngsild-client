@@ -722,32 +722,72 @@ class Entity:
         self[name] = lastprop
         return lastprop
 
-    def to_dict(self) -> NgsiDict:
+    def to_dict(self, kv=False) -> NgsiDict:
         """Returns the entity as a dictionary.
 
         The returned type is NgsiDict, fully compatible with a native dict.
+
+        Parameters
+        ----------
+        kv : bool, optional
+            KeyValues format (aka simplified representation), by default False
 
         Returns
         -------
         NgsiDict
             The underlying native Python dictionary
         """
-        return self._payload.toDict()
+        return self._to_keyvalues() if kv else self._payload
 
-    def to_json(self, *args, **kwargs) -> str:
+    def _to_keyvalues(self) -> NgsiDict:
+        """Compute a NgsiDict that contains only the highest-level of information.
+
+        Returns
+        -------
+        NgsiDict
+            The simplified representation
+        """
+        d = NgsiDict()
+        for k, v in self._payload.items():
+            if isinstance(v, dict):
+                if v["type"] == AttrType.PROP.value:  # apply to Property and TemporalProperty
+                    value = v["value"]
+                    if isinstance(value, dict):
+                        value = value.get("@value", value)  # for Temporal Property only
+                    d[k] = value
+                elif v["type"] == AttrType.GEO.value:
+                    d[k] = v["value"]
+                elif v["type"] == AttrType.REL.value:
+                    d[k] = v["object"]
+            else:
+                d[k] = v
+        return d
+
+    def to_json(self, kv=False, *args, **kwargs) -> str:
         """Returns the entity as JSON.
+
+        Parameters
+        ----------
+        kv : bool, optional
+            KeyValues format (aka simplified representation), by default False
 
         Returns
         -------
         str
             The JSON content
         """
-        return self._payload.to_json(*args, **kwargs)
+        payload: NgsiDict = self.to_dict(kv)
+        return payload.to_json(*args, **kwargs)
 
-    def pprint(self, *args, **kwargs):
+    def pprint(self, kv=False, *args, **kwargs):
         """Pretty-print the entity to the standard ouput.
+
+        Parameters
+        ----------
+        kv : bool, optional
+            KeyValues format (aka simplified representation), by default False
         """
-        Entity.globalsettings.f_print(self.to_json(indent=2, *args, **kwargs))
+        Entity.globalsettings.f_print(self.to_json(kv, indent=2, *args, **kwargs))
 
     @classmethod
     def load(cls, filename: str):

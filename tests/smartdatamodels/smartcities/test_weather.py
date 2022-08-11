@@ -73,3 +73,4 @@ def test_weatherobserved():
     e.prop("uvIndexMax", 1.0)
 
     assert e.to_dict() == expected_dict("weather_observed")
+    assert e.to_dict(kv=True) == expected_dict("weather_observed.kv")

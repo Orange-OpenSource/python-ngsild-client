@@ -65,3 +65,4 @@ def test_building():
     e.prop("source", "http://www.example.com")
 
     assert e.to_dict() == expected_dict("building")
+    assert e.to_dict(kv=True) == expected_dict("building.kv")

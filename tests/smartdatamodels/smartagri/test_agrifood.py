@@ -92,6 +92,7 @@ def test_agricrop():
     )
 
     assert e.to_dict() == expected_dict("agri_crop")
+    assert e.to_dict(kv=True) == expected_dict("agri_crop.kv")
 
 
 def test_agrisoil():
@@ -135,3 +136,4 @@ def test_agrisoil():
     )
 
     assert e.to_dict() == expected_dict("agri_soil")
+    assert e.to_dict(kv=True) == expected_dict("agri_soil.kv")
