@@ -15,6 +15,7 @@ from typing import Any, Union, List
 from functools import reduce
 from datetime import datetime
 from geojson import Point, LineString, Polygon, MultiPoint
+from dotmap import DotMap
 
 import ngsildclient.model.entity as entity
 from ..utils import iso8601, url
@@ -29,7 +30,7 @@ import operator
 """
 
 
-class NgsiDict(dict):
+class NgsiDict(DotMap):
     """This class is a custom dictionary that backs an entity.
 
     NgsiDict is used to build and hold the entity properties, as well as the entity's root.
@@ -45,6 +46,20 @@ class NgsiDict(dict):
         super().__init__(*args, **kwargs)
         self._dtcached: datetime = dtcached if dtcached else iso8601.utcnow()
 
+    def __call_items(self, obj):
+        items = super().__call_items(obj)
+        return [x for x in items if x[0][0] != "_"]
+
+    def to_dict(self):
+        return self.toDict()
+
+    def __eq__(self, other):
+        if not isinstance(other, dict):
+            return False
+        if isinstance(other, NgsiDict):
+            other = other.to_dict()
+        return self.to_dict().__eq__(other)
+
     @classmethod
     def _from_json(cls, payload: str):
         d = json.loads(payload)
@@ -58,34 +73,15 @@ class NgsiDict(dict):
             self._dtcached = iso8601.utcnow()
         return self._dtcached
 
-    def __getitem__(self, element: str):
-        return reduce(dict.__getitem__, element.split("."), self)
-
-    def __delitem__(self, element: str):
-        try:
-            nested, k = element.rsplit(".", 1)
-        except ValueError:
-            dict.__delitem__(self, element)
-        else:
-            dict.__delitem__(self[nested], k)
-
-    def __setitem__(self, key: str, value: Any):
-        try:
-            nested, k = key.rsplit(".", 1)
-        except ValueError:
-            dict.__setitem__(self, key, value)
-        else:
-            dict.__setitem__(self[nested], k, value)
-
     @classmethod
     def _load(cls, filename: str):
         with open(filename, "r") as fp:
             d = json.load(fp)
             return cls(d)
-
+        
     def to_json(self, indent=None) -> str:
         """Returns the dict in json format"""
-        return json.dumps(self, default=str, ensure_ascii=False, indent=indent)
+        return json.dumps(self.to_dict(), default=str, ensure_ascii=False, indent=indent)
 
     def pprint(self, *args, **kwargs) -> None:
         """Returns the dict pretty-json-formatted"""

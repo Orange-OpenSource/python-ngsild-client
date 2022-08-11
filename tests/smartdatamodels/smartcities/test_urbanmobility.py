@@ -78,4 +78,3 @@ def test_transportstop():
     e.prop("openingHoursSpecification", openinghours)
 
     assert e.to_dict() == expected_dict("transport_stop")
-    assert e.to_dict(kv=True) == expected_dict("transport_stop.kv")

@@ -51,4 +51,3 @@ def test_poi():
     e.prop("source", "http://www.tourspain.es")
 
     assert e.to_dict() == expected_dict("poi")
-    assert e.to_dict(kv=True) == expected_dict("poi.kv")
