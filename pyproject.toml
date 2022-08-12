@@ -16,6 +16,7 @@ python = "^3.9"
 geojson = "^2.5.0"
 requests = "^2.26.0"
 rich = "^12.4.1"
+httpx = "^0.23.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
