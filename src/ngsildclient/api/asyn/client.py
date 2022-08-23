@@ -126,7 +126,7 @@ class AsyncClient:
         proxies = {proxy} if proxy else None
 
         logger.info("Connecting client ...")
-        self.client = httpx.Client(auth=custom_auth, headers=headers, proxies=proxies)
+        self.client = httpx.AsyncClient(auth=custom_auth, headers=headers, proxies=proxies)
         self._entities = Entities(self, f"{self.url}/{ENDPOINT_ENTITIES}")
 
     @property
@@ -138,7 +138,7 @@ class AsyncClient:
 
         Closes the underlying httpx.Client.
         """
-        self.client.close()
+        await self.client.aclose()
 
     async def get(
         self,

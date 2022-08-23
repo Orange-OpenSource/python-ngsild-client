@@ -20,15 +20,17 @@ if TYPE_CHECKING:
 from ..constants import EntityId, JSONLD_CONTEXT
 from ...model.entity import Entity
 
+from ..exceptions import rfc7807_error_handle_async
 
 logger = logging.getLogger(__name__)
 
 
 class Entities:
     def __init__(self, client: AsyncClient, url: str):
-        self._client = client
+        self._client = client.client
         self.url = url
 
+    @rfc7807_error_handle_async
     async def get(
         self,
         eid: Union[EntityId, Entity],
@@ -41,6 +43,6 @@ class Entities:
         if ctx is not None:
             headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
         logger.info(f"{headers=}")
-        r: Response = self._client.client.get(f"{self.url}/{eid}", headers=headers, **kwargs)
+        r: Response = await self._client.get(f"{self.url}/{eid}", headers=headers, **kwargs)
         r.raise_for_status()
         return r.json() if asdict else Entity.from_dict(r.json())

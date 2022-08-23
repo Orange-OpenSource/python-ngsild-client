@@ -16,6 +16,7 @@ and enriched thanks to the ProblemDetails added by the API.
 """
 
 import logging
+import httpx
 
 from dataclasses import dataclass
 
@@ -157,6 +158,48 @@ def rfc7807_error_handle(func):
             except HTTPError as e:
                 raise NgsiApiError(f"Error while requesting the broker API. Status code = {r.status_code}") from e
         except RequestException as e:
+            raise NgsiApiError("Error while requesting the broker API") from e
+
+    return inner_function
+
+
+def rfc7807_error_handle_async(func):
+    """A decorator function to handle enriched Exceptions that accept a ProblemDetails instance.
+
+    See Also
+    --------
+    api.entities.create
+    api.entities.retrieve
+    """
+
+    def inner_function(*args, **kwargs):
+        problemdetails: dict = {}
+        try:
+            return func(*args, **kwargs)
+        except httpx._exceptions.HTTPStatusError as e:
+            r: Response = e.response
+            try:
+                problemdetails = r.json()
+                logger.info(f"{problemdetails=}")
+            except httpx._exceptions.DecodingError:
+                raise NgsiHttpError(r.status_code) from e
+            try:
+                pd_type = problemdetails.pop("type").rstrip()
+                logger.info(f"{pd_type=}")
+                exception: NgsiContextBrokerError = ERRORTYPES.get(pd_type)
+                logger.info(f"{exception=}")
+                pd = ProblemDetails(
+                    pd_type,
+                    problemdetails.pop("title", None),
+                    r.status_code,
+                    problemdetails.pop("detail", None),
+                    problemdetails.pop("instance", None),
+                    problemdetails,  # extension
+                )
+                raise exception(pd)
+            except httpx._exceptions.HTTPStatusError as e:
+                raise NgsiApiError(f"Error while requesting the broker API. Status code = {r.status_code}") from e
+        except httpx._exceptions.RequestError as e:
             raise NgsiApiError("Error while requesting the broker API") from e
 
     return inner_function

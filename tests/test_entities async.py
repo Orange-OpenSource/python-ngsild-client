@@ -14,10 +14,11 @@ from pytest_httpx import HTTPXMock
 from ngsildclient.api.asyn.client import AsyncClient
 from .common import sample_entity
 
+
 @pytest.mark.asyncio
 async def test_api_retrieve(httpx_mock: HTTPXMock):
     httpx_mock.add_response(
-        url = "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+        url="http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
         match_headers={"Accept": "application/ld+json"},
         status_code=200,
         json=sample_entity.to_dict(),
