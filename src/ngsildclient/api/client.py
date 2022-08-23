@@ -108,7 +108,7 @@ class Client:
         overwrite : bool, optional
             if set create() will behave like upsert(), by default False
         ignore_errors : bool, optional
-            if set tests the connection at init time and raisesan exception if failed, by default False
+            if set tests the connection at init time and raises an exception if failed, by default False
         proxy : str, optional
             proxies all requests to the provided proxy string (for debugging purpose), by default None
 

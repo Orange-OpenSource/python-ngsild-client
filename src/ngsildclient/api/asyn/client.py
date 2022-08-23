@@ -136,7 +136,7 @@ class AsyncClient:
     async def close(self):
         """Terminates the client.
 
-        Closes the underlying httpx.Client.
+        Closes the underlying httpx.AsyncClient.
         """
         await self.client.aclose()
 
