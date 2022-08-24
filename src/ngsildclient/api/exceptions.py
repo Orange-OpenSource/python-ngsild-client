@@ -172,16 +172,16 @@ def rfc7807_error_handle_async(func):
     api.entities.retrieve
     """
 
-    def inner_function(*args, **kwargs):
+    async def inner_function(*args, **kwargs):
         problemdetails: dict = {}
         try:
-            return func(*args, **kwargs)
-        except httpx._exceptions.HTTPStatusError as e:
-            r: Response = e.response
+            return await func(*args, **kwargs)
+        except httpx.HTTPStatusError as e:
+            r: httpx.Response = e.response
             try:
                 problemdetails = r.json()
                 logger.info(f"{problemdetails=}")
-            except httpx._exceptions.DecodingError:
+            except httpx.DecodingError:
                 raise NgsiHttpError(r.status_code) from e
             try:
                 pd_type = problemdetails.pop("type").rstrip()
@@ -197,9 +197,9 @@ def rfc7807_error_handle_async(func):
                     problemdetails,  # extension
                 )
                 raise exception(pd)
-            except httpx._exceptions.HTTPStatusError as e:
+            except httpx.HTTPStatusError as e:
                 raise NgsiApiError(f"Error while requesting the broker API. Status code = {r.status_code}") from e
-        except httpx._exceptions.RequestError as e:
+        except httpx.RequestError as e:
             raise NgsiApiError("Error while requesting the broker API") from e
 
     return inner_function

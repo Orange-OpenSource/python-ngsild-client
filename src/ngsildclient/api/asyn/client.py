@@ -129,6 +129,17 @@ class AsyncClient:
         self.client = httpx.AsyncClient(auth=custom_auth, headers=headers, proxies=proxies)
         self._entities = Entities(self, f"{self.url}/{ENDPOINT_ENTITIES}")
 
+    def raise_for_status(self, r: httpx.Response):
+        """Raises an exception depending on the API response.
+
+        Parameters
+        ----------
+        r : Response
+            Response from the Context Broker
+        """
+        if not self.ignore_errors:
+            r.raise_for_status()
+
     @property
     def entities(self):
         return self._entities

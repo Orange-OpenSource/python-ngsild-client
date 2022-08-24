@@ -32,7 +32,8 @@ class Entities:
 
     @rfc7807_error_handle_async
     async def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> Optional[Entity]:
-        r: Response = await self._client.client.post(url=f"{self.url}/", json=entity._payload)
+        headers = {"Content-Type": "application/ld+json"}
+        r: Response = await self._client.client.post(url=f"{self.url}/", headers=headers, json=entity._payload)
 
         if r.status_code == 409:  # already exists
             if skip:
@@ -40,7 +41,7 @@ class Entities:
             elif overwrite or self._client.overwrite:
                 return self.update(entity, check_exists=False)
 
-        r.raise_for_status()
+        self._client.raise_for_status(r)
 
         location = r.headers.get("Location")
         if location is None:
@@ -128,9 +129,7 @@ class Entities:
             "Accept": "application/ld+json",
         }  # overrides session headers
         if ctx is not None:
-            headers[
-                "Link"
-            ] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
+            headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
         r: Response = await self._client.client.get(
             self.url,
             headers=headers,
@@ -155,9 +154,7 @@ class Entities:
             "Accept": "application/json",
         }  # overrides session headers
         if ctx is not None:
-            headers[
-                "Link"
-            ] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
+            headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
         r: Response = await self._client.client.get(
             self.url,
             headers=headers,
