@@ -19,7 +19,6 @@ from ngsildclient.api.exceptions import (
     NgsiResourceNotFoundError,
     ProblemDetails,
 )
-# from .common import sample_entity, mocked_connected
 from .common import sample_entity
 
 logger = logging.getLogger(__name__)
@@ -52,16 +51,10 @@ def test_api_create_error_already_exists(mocked_connected, requests_mock):
     with pytest.raises(NgsiAlreadyExistsError) as excinfo:
         client.entities.create(sample_entity)
     logger.info(f"{type(excinfo.value)=}")
-    assert (
-        excinfo.value.problemdetails.type
-        == "https://uri.etsi.org/ngsi-ld/errors/AlreadyExists"
-    )
+    assert excinfo.value.problemdetails.type == "https://uri.etsi.org/ngsi-ld/errors/AlreadyExists"
     assert excinfo.value.problemdetails.title == "Entity already exists"
     assert excinfo.value.problemdetails.status == 409
-    assert (
-        excinfo.value.problemdetails.detail
-        == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"
-    )
+    assert excinfo.value.problemdetails.detail == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"
     assert excinfo.value.problemdetails.instance is None
     assert excinfo.value.problemdetails.extension == {}
 
@@ -92,14 +85,10 @@ def test_api_retrieve_error_not_found(mocked_connected, requests_mock):
     client = Client()
     with pytest.raises(NgsiResourceNotFoundError) as excinfo:
         client.entities.get("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568")
-    assert (
-        excinfo.value.problemdetails.type == "https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound"
-    )
+    assert excinfo.value.problemdetails.type == "https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound"
     assert excinfo.value.problemdetails.title == "Entity Not Found"
     assert excinfo.value.problemdetails.status == 404
-    assert (
-        excinfo.value.problemdetails.detail == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
-    )
+    assert excinfo.value.problemdetails.detail == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     assert excinfo.value.problemdetails.instance is None
     assert excinfo.value.problemdetails.extension == {}
 
@@ -139,16 +128,10 @@ def test_api_delete_error_not_found(mocked_connected, requests_mock):
     client = Client()
     with pytest.raises(NgsiResourceNotFoundError) as excinfo:
         client._entities.delete("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568")
-    assert (
-        excinfo.value.problemdetails.type
-        == "https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound"
-    )
+    assert excinfo.value.problemdetails.type == "https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound"
     assert excinfo.value.problemdetails.title == "Entity Not Found"
     assert excinfo.value.problemdetails.status == 404
-    assert (
-        excinfo.value.problemdetails.detail
-        == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
-    )
+    assert excinfo.value.problemdetails.detail == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     assert excinfo.value.problemdetails.instance is None
     assert excinfo.value.problemdetails.extension == {}
 
@@ -175,9 +158,7 @@ def test_api_upsert_existent_entity(mocked_connected, mocker: MockerFixture):
 
 def test_api_upsert_nonexistent_entity(mocked_connected, mocker: MockerFixture):
     client = Client()
-    mocked_create = mocker.patch.object(
-        client._entities, "create", return_value=sample_entity
-    )
+    mocked_create = mocker.patch.object(client._entities, "create", return_value=sample_entity)
     mocked_delete = mocker.patch.object(client._entities, "delete", return_value=True)
     res = client._entities.upsert(sample_entity)
     assert mocked_create.call_count == 1

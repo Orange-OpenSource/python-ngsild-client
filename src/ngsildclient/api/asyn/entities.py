@@ -86,8 +86,11 @@ class Entities:
     @rfc7807_error_handle_async
     async def exists(self, eid: Union[EntityId, Entity]) -> bool:
         eid = eid.id if isinstance(eid, Entity) else eid
-        entity = await self._client.get(f"{self.url}/{eid}")
-        return entity is not None
+        r: Response = await self._client.client.get(f"{self.url}/{eid}")
+        if r:
+            payload = r.json()
+            return "@context" in payload
+        return False
 
     @rfc7807_error_handle_async
     async def upsert(self, entity: Entity) -> Entity:
