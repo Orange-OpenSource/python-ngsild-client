@@ -20,6 +20,10 @@ from ...model.entity import Entity
 from ..constants import *
 from ..exceptions import *
 from .entities import Entities
+from .batch import BatchOp
+from .types import Types
+from .contexts import Contexts
+from .subscriptions import Subscriptions
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +132,10 @@ class AsyncClient:
         logger.info("Connecting client ...")
         self.client = httpx.AsyncClient(auth=custom_auth, headers=headers, proxies=proxies)
         self._entities = Entities(self, f"{self.url}/{ENDPOINT_ENTITIES}")
+        self._batch = BatchOp(self, f"{self.url}/{ENDPOINT_BATCH}")
+        self._types = Types(self, f"{self.url}/{ENDPOINT_TYPES}")
+        self._contexts = Contexts(self, f"{self.url}/{ENDPOINT_CONTEXTS}")
+        self._subscriptions = Subscriptions(self, f"{self.url}/{ENDPOINT_SUBSCRIPTIONS}")
 
     def raise_for_status(self, r: httpx.Response):
         """Raises an exception depending on the API response.
@@ -143,6 +151,22 @@ class AsyncClient:
     @property
     def entities(self):
         return self._entities
+
+    @property
+    def batch(self):
+        return self._batch
+
+    @property
+    def types(self):
+        return self._types
+
+    @property
+    def contexts(self):
+        return self._contexts
+
+    @property
+    def subscriptions(self):
+        return self._subscriptions
 
     async def close(self):
         """Terminates the client.

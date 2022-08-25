@@ -33,6 +33,7 @@ from .model.constants import (
 )
 from .model.mock import MockerNgsi
 from .api.client import Client
+from .api.asyn.client import AsyncClient
 from .api.helper.subscription import SubscriptionBuilder
 from .exceptions import NgsiError
 from .model.exceptions import NgsiModelError
@@ -55,6 +56,7 @@ __all__ = [
     "TZ_FET",
     "MockerNgsi",
     "Client",
+    "AsyncClient",
     "SubscriptionBuilder",
     "SmartDataModels",
     "NgsiError",
