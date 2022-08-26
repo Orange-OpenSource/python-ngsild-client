@@ -473,7 +473,7 @@ class Client:
         Optional[Entity]
             The entity successfully updated (or None if not found)
         """
-        return self.entities.update(entity)
+        ...
 
     @overload
     def update(self, entities: List[Entity]) -> dict:

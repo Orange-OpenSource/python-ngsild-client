@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import json
 import requests
+import httpx
+import aiofiles
 import logging
 
 from copy import deepcopy
@@ -552,7 +554,7 @@ class Entity:
 
         Returns
         -------
-        Entitydatasetid
+        Entity datasetid
             The updated entity
 
         Example:
@@ -814,7 +816,7 @@ class Entity:
         Example:
         --------
         >>> from ngsildclient import *
-        >>> e = Entity.load(SmartDatamodels.SmartCities.Weather.WeatherObserved)
+        >>> e = Entity.load(SmartDataModels.SmartCities.Weather.WeatherObserved)
         """
         if url.isurl(filename):
             resp = requests.get(filename)
@@ -822,6 +824,44 @@ class Entity:
         else:
             with open(filename, "r") as fp:
                 payload = json.load(fp)
+        if isinstance(payload, List):
+            return [cls.from_dict(x) for x in payload]
+        return cls.from_dict(payload)
+
+    @classmethod
+    async def load_async(cls, filename: str):
+        """Load an Entity from a JSON file, locally from the filesystem or remotely through HTTP.
+
+        For convenience some `SmartDataModels <https://smartdatamodels.org/>`_ examples are made available thanks to the Smart Data Models initiative.
+        You can benefit from autocompletion to navigate inside the available datamodels.
+
+        Parameters
+        ----------
+        filename : str
+            If filename corresponds to an URL, the JSON file is downloaded from HTTP.
+            Else it is retrieved locally from the filesystem.
+
+        Returns
+        -------
+        Entity
+            The Entity instance
+
+        See Also
+        --------
+        model.constants.SmartDataModels
+
+        Example:
+        --------
+        >>> from ngsildclient import *
+        >>> e = await Entity.load_async(SmartDataModels.SmartCities.Weather.WeatherObserved)
+        """
+        if url.isurl(filename):
+            resp = httpx.get(filename)
+            payload = resp.json()
+        else:
+            async with aiofiles.open(filename, "r") as fp:
+                contents = await fp.read()
+                payload = json.loads(contents)
         if isinstance(payload, List):
             return [cls.from_dict(x) for x in payload]
         return cls.from_dict(payload)
@@ -851,6 +891,32 @@ class Entity:
             raise ValueError("The JSON payload MUST be an array")
         return [cls.from_dict(x) for x in payload]
 
+    @classmethod
+    async def load_batch_async(cls, filename: str):
+        """Load a batch of entities from a JSON file.
+
+        Parameters
+        ----------
+        filename : str
+            The input file must contain a JSON array
+
+        Returns
+        -------
+        List[Entity]
+            A list of entities
+
+        Example:
+        --------
+        >>> from ngsildclient import *
+        >>> rooms = await Entity.load_batch_async("/tmp/rooms_all.jsonld")
+        """
+        async with aiofiles.open(filename, "r") as fp:
+            contents = await fp.read()
+            payload = json.loads(contents)
+        if not isinstance(payload, List):
+            raise ValueError("The JSON payload MUST be an array")
+        return [cls.from_dict(x) for x in payload]
+
     def save(self, filename: str, *, indent: int = 2):
         """Save the entity to a file.
 
@@ -863,6 +929,20 @@ class Entity:
         """
         with open(filename, "w") as fp:
             json.dump(self._payload, fp, default=str, ensure_ascii=False, indent=indent)
+
+    async def save_async(self, filename: str, *, indent: int = 2):
+        """Save the entity to a file.
+
+        Parameters
+        ----------
+        filename : str
+            Name of the output file
+        indent : int, optional
+            identation size (number of spaces), by default 2
+        """
+        async with aiofiles.open(filename, "w") as fp:
+            payload = json.dumps(self._payload, default=str, ensure_ascii=False, indent=indent)
+            await fp.write(payload)
 
     @classmethod
     def save_batch(cls, entities: List[Entity], filename: str, *, indent: int = 2):
@@ -886,3 +966,27 @@ class Entity:
         payload = [x._payload for x in entities]
         with open(filename, "w") as fp:
             json.dump(payload, fp, default=str, ensure_ascii=False, indent=indent)
+
+    @classmethod
+    async def save_batch_async(cls, entities: List[Entity], filename: str, *, indent: int = 2):
+        """Save a batch of entities to a JSON file.
+
+        Parameters
+        ----------
+        entities: List[Entity]
+            Batch of entities to be saved
+
+        filename : str
+            If filename corresponds to an URL, the JSON file is downloaded from HTTP.
+            Else it is retrieved locally from the filesystem.
+
+        Example:
+        --------
+        >>> from ngsildclient import *
+        >>> rooms = [Entity("Room", "Room1"), Entity("Room", "Room2")]
+        >>> await Entity.save_batch_async(rooms, "/tmp/rooms_all.jsonld")
+        """
+        payload = [x._payload for x in entities]
+        async with aiofiles.open(filename, "w") as fp:
+            payload = json.dumps(payload, default=str, ensure_ascii=False, indent=indent)
+            await fp.write(payload)
