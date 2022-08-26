@@ -143,6 +143,7 @@ class Entities:
         logger.debug(f"{entities=}")
         return [Entity.from_dict(entity) for entity in entities]
 
+
     @rfc7807_error_handle_async
     async def count(self, type: str = None, q: str = None, ctx: str = None, **kwargs) -> int:
         params = {"limit": 0, "count": "true"}

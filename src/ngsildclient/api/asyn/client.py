@@ -430,6 +430,189 @@ class AsyncClient:
         else:
             return await self.batch.update(entities)
 
+    async def query_head(self, type: str = None, q: str = None, ctx: str = None, n: int = 5, **kwargs) -> List[Entity]:
+        """Retrieve entities given its type and/or query string.
+
+        Retrieve up to PAGINATION_LIMIT_MAX entities.
+        Use query_all() to retrieve all entities.
+        Use entities.query() to deal with limit and offset on your own.
+
+        Parameters
+        ----------
+        etype : str
+            The entity's type
+        q: str
+            The query string (NGSI-LD Query Language)
+        ctx: str
+            The context
+        n: int
+            The first n entities to be retrieved
+        Returns
+        -------
+        list[Entity]
+            Retrieved entities matching the given type and/or query string
+
+        Example:
+        --------
+        >>> with AsyncClient() as client:
+        >>>     await client.query(type="AgriFarm") # match a given type
+
+        >>> with AsyncClient() as client:
+        >>>     await client.query(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
+        """
+        return await self.entities.query(type, q, ctx, limit=n)
+
+    async def query_all(
+        self,
+        type: str = None,
+        q: str = None,
+        ctx: str = None,
+        limit: int = PAGINATION_LIMIT_MAX,
+        max: int = 1_000_000,
+        **kwargs,
+    ) -> List[Entity]:
+        """Retrieve entities given its type and/or query string.
+
+        Retrieve all entities by sending as many requests as needed, using pagination.
+        Assume data hold in memory. Should not be an issue except for very large datasets.
+
+        Parameters
+        ----------
+        etype : str
+            The entity's type
+        q: str
+            The query string (NGSI-LD Query Language)
+        ctx: str
+            The context
+        limit: int
+            The number of entities retrieved in each request
+
+        Returns
+        -------
+        list[Entity]
+            Retrieved entities matching the given type and/or query string
+
+        Example:
+        --------
+        >>> with AsyncClient() as client:
+        >>>     await client.query_all(type="AgriFarm") # match a given type
+
+        >>> with AsyncClient() as client:
+        >>>     await client.query_all(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
+        """
+
+        entities: list[Entity] = []
+        count = await self.entities.count(type, q, ctx=ctx)
+        if count > max:
+            raise NgsiClientTooManyResultsError(f"{count} results exceed maximum {max}")
+        for page in range(ceil(count / limit)):
+            entities.extend(await self.entities.query(type, q, ctx, limit, page * limit))
+        return entities
+
+    async def query_generator(
+        self,
+        type: str = None,
+        q: str = None,
+        ctx: str = None,
+        limit: int = PAGINATION_LIMIT_MAX,
+        batch: bool = False,
+        **kwargs,
+    ) -> Generator[Entity, None, None]:
+        count = await self.entities.count(type, q)
+        for page in range(ceil(count / limit)):
+            entities = await self.entities.query(type, q, ctx, limit, page * limit)
+            if batch:
+                yield entities
+            else:
+                for entity in entities:
+                    yield entity
+
+    async def count(self, type: str = None, q: str = None, **kwargs) -> int:
+        """Return number of entities matching type and/or query string.
+
+        Facade method for Entities.count().
+
+        Parameters
+        ----------
+        etype : str
+            The entity's type
+        query: str
+            The query string (NGSI-LD Query Language)
+
+        Returns
+        -------
+        int
+            The number of matching entities
+
+        Example:
+        --------
+        >>> with AsyncClient() as client:
+        >>>     await client.count(type="AgriFarm") # match a given type
+
+        >>> with AsyncClient() as client:
+        >>>     await client.count(type="AgriFarm", query='contactPoint[email]=="wheatfarm@email.com"') # match type and query
+        """
+        return await self.entities.count(type, q)
+
+    async def delete_where(self, type: str = None, q: str = None, **kwargs):
+        """Batch delete entities matching type and/or query string.
+
+        Parameters
+        ----------
+        etype : str
+            The entity's type
+        query: str
+            The query string (NGSI-LD Query Language)
+
+        Example:
+        --------
+        >>> with AsyncClient() as client:
+        >>>     await client.delete_where(type="AgriFarm", query='contactPoint[email]=="wheatfarm@email.com"') # match type and query
+        """
+        g = self.query_generator(type, q, batch=True, **kwargs)
+        async for batch in g:
+            await self.batch.delete(batch)
+
+    async def drop(self, type: str) -> None:
+        """Batch delete entities matching the given type.
+
+        Parameters
+        ----------
+        type : str
+            The entity's type
+
+        Example:
+        --------
+        >>> with AsyncClient() as client:
+        >>>     await client.drop("AgriFarm")
+        """
+        await self.delete_where(type=type)
+
+    async def list_types(self) -> Optional[dict]:
+        return await self.types.list()
+
+    async def purge(self) -> None:
+        """Batch delete all entities.
+
+        Example:
+        --------
+        >>> with AsyncClient() as client:
+        >>>     await client.purge()
+        """
+        for type in await self.types.list():
+            await self.drop(type)
+
+    async def flush_all(self) -> None:
+        """Batch delete all entities and remove all contexts.
+
+        Example:
+        --------
+        >>> with AsyncClient() as client:
+        >>>     await client.purge()
+        """
+        await self.purge(type)
+        await self.contexts.cleanup()
+
     # below the context manager methods
 
     async def __aenter__(self):
