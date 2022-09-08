@@ -67,7 +67,7 @@ from ngsildclient import Entity, Client
 
 e = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T09:00:00Z")
 e.tprop("dateObserved").gprop("location", (44.84044, -0.5805))
-e.prop("PM2.5", 12, unitcode="GP").prop("PM10", 18, unitcode="GP")
+e.prop("PM25", 12, unitcode="GP").prop("PM10", 18, unitcode="GP")
 e.prop("NO2", 8, unitcode="GP").prop("O3", 83, unitcode="GP")
 e.rel("refDevice", "Device:AirProbe42")
 with Client() as client:
@@ -75,6 +75,18 @@ with Client() as client:
 ```
 
 The corresponding JSON-LD [payload](https://github.com/Orange-OpenSource/python-ngsild-client/blob/master/samples/gettingstarted.json) has been generated.
+
+## Async Client
+
+Alternatively you can prefer the Asynchronous Client, typically when you user interactivity is not needed and seeking for performance - i.e. writing a real-time NGSI-LD agent.
+
+
+```python
+from ngsildclient import AsyncClient
+
+async with AsyncClient() as client:
+    await client.upsert(e)
+```
 
 ## Documentation
 

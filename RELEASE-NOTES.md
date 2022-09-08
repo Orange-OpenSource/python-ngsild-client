@@ -1,3 +1,10 @@
+# ngsildclient 0.2.0
+## September 18, 2022
+
+- Added Asynchronous Client
+- Added support for custom authentication (Pull Request #2)
+- Fixed "Count does not send the context" (Pull Request #3)
+
 # ngsildclient 0.1.10
 ## June 22, 2022
 

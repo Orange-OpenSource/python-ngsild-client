@@ -882,6 +882,27 @@ Nominal vs Unattended exceptions
 .. note::
    The library provides advanced methods to tackle intricacies of entity creation, such as an ``upsert()`` method.
 
+Asynchronous Client
+-------------------
+
+| Alternatively it's possible to interact with the broker by using ``AsyncClient`` instead of ``Client``.
+
+| The ``AsyncClient`` class provides the same methods but in an asynchronous mode, 
+| allowing better performances by optimizing IO between the broker and your client.
+
+| It's probably a better choice when interactivity is not needed and targetting real-time data exchange.
+
+Example
+~~~~~~~
+
+.. code-block::
+   :emphasize-lines: 5
+
+   from ngsilclient import AsyncClient, Entity
+
+   entity = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T09:00:00Z").prop("NO2", 8)
+   async with AsyncClient() as client:
+      await client.upsert(entity)
 
 .. [2] IETF RFC 7807: Problem Details for HTTP APIs
 
