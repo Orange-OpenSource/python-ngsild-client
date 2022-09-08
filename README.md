@@ -76,9 +76,9 @@ with Client() as client:
 
 The corresponding JSON-LD [payload](https://github.com/Orange-OpenSource/python-ngsild-client/blob/master/samples/gettingstarted.json) has been generated.
 
-## Async Client
+## Asynchronous Client
 
-Alternatively you can prefer the Asynchronous Client, typically when you user interactivity is not needed and seeking for performance - i.e. writing a real-time NGSI-LD agent.
+Alternatively you can prefer the Asynchronous Client, typically when user interactivity is not needed and seeking for performance - i.e. writing a real-time NGSI-LD agent.
 
 
 ```python
