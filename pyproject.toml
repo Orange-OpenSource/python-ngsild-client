@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ngsildclient"
-version = "0.2.0"
+version = "0.2.1"
 description = "A Python library that helps building NGSI-LD entities and interacting with a NGSI-LD Context Broker"
 license = "Apache-2.0"
 readme="README.md"
@@ -33,6 +33,7 @@ sphinx-rtd-theme = "^1.0.0"
 flakehell = "^0.9.0"
 pytest-httpx = "^0.21.0"
 pytest-asyncio = "^0.19.0"
+ipykernel = "^6.15.2"
 
 [tool.flakehell]
 exclude = ["README.md"]

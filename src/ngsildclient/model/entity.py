@@ -314,6 +314,26 @@ class Entity:
         return cls(payload=payload)
 
     @classmethod
+    def from_json(cls, content: str):
+        """Create a NGSI-LD entity from JSON content.
+
+        The JSON content must at least contain the "id", "type" and "@context".
+        This method assumes that the input JSON content matches a valid NGSI-LD structure.
+
+        Parameters
+        ----------
+        payload : str
+            The given JSON content.
+
+        Returns
+        -------
+        Entity
+            The result Entity instance
+        """
+        payload: dict = json.loads(content)
+        return cls(payload=payload)
+
+    @classmethod
     def duplicate(cls, entity: Entity) -> Entity:
         """Duplicate a given entity.
 

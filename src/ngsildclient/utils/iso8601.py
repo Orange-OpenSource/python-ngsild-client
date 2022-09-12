@@ -69,7 +69,7 @@ def utcnow() -> str:
     str
         The current UTC datetime, ISO8601-formatted
     """
-    return datetime.now(timezone.utc)
+    return from_datetime(datetime.utcnow())
 
 
 def from_date(value: date) -> str:
@@ -159,9 +159,7 @@ def _from_string(value: str) -> tuple[str, TemporalType, datetime]:
     raise ValueError(f"Bad date format : {value}")
 
 
-def parse(
-    value: Union[datetime, date, time, str]
-) -> tuple[str, TemporalType, datetime]:
+def parse(value: Union[datetime, date, time, str]) -> tuple[str, TemporalType, datetime]:
     """Guess the temporal date type from a given argument carrying a temporal information.
 
     This function is typically used to build a NGSI-LD Temporal Property or temporal metadata such as `observedAt`.
