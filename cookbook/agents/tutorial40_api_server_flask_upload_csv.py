@@ -9,14 +9,14 @@
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
-# TODO
+# Requires : flask
+# Usage : flask --app tutorial40_api_server_flask_upload_csv run
+# Usage : curl -v -F "file=@data/room.csv" http://127.0.0.1:5000
 
 import io
 
-from ngsildclient import Entity, Client, iso8601, Auto
-
-from flask import Flask, flash, request, redirect, url_for, Response
-from werkzeug.utils import secure_filename
+from flask import Flask, request, Response
+from ngsildclient import Entity, Client, iso8601
 
 app = Flask(__name__)
 client = Client()

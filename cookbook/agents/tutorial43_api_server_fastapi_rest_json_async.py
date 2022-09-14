@@ -9,10 +9,15 @@
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
-import asyncio
-import aiofiles
-import json
+# Requires : flask
+# Usage : uvicorn tutorial43_api_server_fastapi_rest_json_async:app
+# Usage : curl -X POST -H "Content-Type: application/json" -d "@data/room.json" http://127.0.0.1:8000/rooms
+
+from fastapi import FastAPI, Request
 from ngsildclient import Entity, AsyncClient, iso8601
+
+app = FastAPI()
+client = AsyncClient()
 
 
 def build_entity(room: dict) -> Entity:
@@ -23,15 +28,10 @@ def build_entity(room: dict) -> Entity:
     return e
 
 
-async def main():
-    client = AsyncClient()
-    async with aiofiles.open("data/room.json") as f:
-        contents = await f.read()
-        payload: dict = json.loads(contents)
-    for room in payload["rooms"]:
-        entity = build_entity(room)
-        await client.upsert(entity)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+@app.post("/rooms")
+async def post_room(request: Request):
+    payload = await request.json()
+    rooms = payload["rooms"]
+    entities = [build_entity(room) for room in rooms]
+    await client.upsert(entities)
+    return "CSV file processed"

@@ -9,17 +9,17 @@
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
-# TODO
+# Requires : fastapi, uvicorn
+# Usage : uvicorn tutorial41_api_server_fastapi_upload_csv_async:app
+# Usage : curl -v -F "file=@data/room.csv" http://127.0.0.1:8000
 
 import io
 
-from ngsildclient import Entity, Client, iso8601, Auto
+from fastapi import FastAPI, UploadFile
+from ngsildclient import Entity, AsyncClient, iso8601
 
-from flask import Flask, flash, request, redirect, url_for, Response
-from werkzeug.utils import secure_filename
-
-app = Flask(__name__)
-client = Client()
+app = FastAPI()
+client = AsyncClient()
 
 
 def build_entity(csvline: str) -> Entity:
@@ -31,10 +31,10 @@ def build_entity(csvline: str) -> Entity:
     return e
 
 
-@app.route("/", methods=["POST"])
-def upload_file():
-    file = request.files["file"]
+@app.post("/")
+async def upload_file(file: UploadFile):
+    file = file.file._file
     csvlines = io.TextIOWrapper(file).readlines()
     entities = [build_entity(csvline) for csvline in csvlines]
-    client.upsert(entities)
-    return Response("CSV file processed", status=200)
+    await client.upsert(entities)
+    return "CSV file processed"
