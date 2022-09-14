@@ -25,7 +25,7 @@ def build_entity(csvline: str) -> Entity:
 
 async def main():
     client = AsyncClient()
-    async with aiofiles.open("data/room.csv", "r") as f:
+    async with aiofiles.open("data/rooms.csv", "r") as f:
         async for csvline in f:
             entity = build_entity(csvline)
             await client.upsert(entity)

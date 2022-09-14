@@ -17,7 +17,7 @@ import logging
 if TYPE_CHECKING:
     from .client import AsyncClient
 
-from ..constants import EntityId, JSONLD_CONTEXT
+from ..constants import EntityId, JSONLD_CONTEXT, ENDPOINT_ENTITIES
 from ...model.entity import Entity
 
 from ..exceptions import rfc7807_error_handle_async, NgsiApiError, NgsiAlreadyExistsError
@@ -29,6 +29,10 @@ class Entities:
     def __init__(self, client: AsyncClient, url: str):
         self._client = client
         self.url = url
+
+    def to_broker_url(self, eid: Union[EntityId, Entity]) -> str:
+        eid = eid.id if isinstance(eid, Entity) else eid
+        return f"http://{self._client.hostname}:{self._client.port}/{ENDPOINT_ENTITIES}/{eid}"
 
     @rfc7807_error_handle_async
     async def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> Optional[Entity]:
@@ -142,7 +146,6 @@ class Entities:
         entities = r.json()
         logger.debug(f"{entities=}")
         return [Entity.from_dict(entity) for entity in entities]
-
 
     @rfc7807_error_handle_async
     async def count(self, type: str = None, q: str = None, ctx: str = None, **kwargs) -> int:

@@ -23,7 +23,7 @@ def build_entity(csvline: str) -> Entity:
 
 def main():
     client = Client()
-    with open("data/room.csv") as f:
+    with open("data/rooms.csv") as f:
         for csvline in f:
             entity = build_entity(csvline)
             client.upsert(entity)

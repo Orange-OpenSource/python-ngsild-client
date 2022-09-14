@@ -14,6 +14,7 @@
 # Usage : curl -X POST -H "Content-Type: application/json" -d "@data/room.json" http://127.0.0.1:8000/rooms
 
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from ngsildclient import Entity, AsyncClient, iso8601
 
 app = FastAPI()
@@ -31,7 +32,6 @@ def build_entity(room: dict) -> Entity:
 @app.post("/rooms")
 async def post_room(request: Request):
     payload = await request.json()
-    rooms = payload["rooms"]
-    entities = [build_entity(room) for room in rooms]
-    await client.upsert(entities)
-    return "CSV file processed"
+    entity = build_entity(payload)
+    await client.upsert(entity)
+    return JSONResponse(status_code=201, content=entity.to_dict(), headers={"Content-Location": client.entities.to_broker_url(entity)})

@@ -23,7 +23,7 @@ def build_entity(room: dict) -> Entity:
 
 def main():
     client = Client()
-    with open("data/room.json") as f:
+    with open("data/rooms.json") as f:
         payload: dict = json.load(f)
         rooms = payload["rooms"]
         entities = [build_entity(room) for room in rooms]

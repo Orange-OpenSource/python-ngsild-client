@@ -22,6 +22,7 @@ import re
 import logging
 
 from typing import overload, Optional
+from ngsildclient.api.constants import ENDPOINT_ENTITIES
 
 NID_PATTERN = re.compile(r"^[0-9a-zA-Z\-]+$")
 """Regex pattern that matches a valid namespace identifier (`regex.Pattern`).
@@ -75,9 +76,7 @@ class Urn:
         """
         ...
 
-    def __init__(
-        self, fqn: str = None, *, nss: str = None, nid: str = DEFAULT_NID
-    ) -> None:
+    def __init__(self, fqn: str = None, *, nss: str = None, nid: str = DEFAULT_NID) -> None:
         self.scheme = "urn"
         if nss and nid:
             self.nss = nss

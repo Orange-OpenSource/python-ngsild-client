@@ -10,19 +10,15 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union, List
 
 import logging
 
 if TYPE_CHECKING:
     from .client import Client
 
-from .constants import *
-from .exceptions import (
-    NgsiAlreadyExistsError,
-    NgsiApiError,
-    rfc7807_error_handle
-)
+from .constants import ENDPOINT_ENTITIES, EntityId, JSONLD_CONTEXT
+from .exceptions import NgsiAlreadyExistsError, NgsiApiError, rfc7807_error_handle
 from ..model.entity import Entity
 
 
@@ -35,13 +31,12 @@ class Entities:
         self._session = client.session
         self.url = url
 
+    def to_broker_url(self, eid: Union[EntityId, Entity]) -> str:
+        eid = eid.id if isinstance(eid, Entity) else eid
+        return f"http://{self._client.hostname}:{self._client.port}/{ENDPOINT_ENTITIES}/{eid}"
+
     @rfc7807_error_handle
-    def create(
-        self,
-        entity: Entity,
-        skip: bool = False,
-        overwrite: bool = False
-    ) -> Optional[Entity]:
+    def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> Optional[Entity]:
         r = self._session.post(
             f"{self.url}/",
             json=entity._payload,
@@ -64,9 +59,7 @@ class Entities:
         logger.info(f"{location=}")
         id_returned_from_broker = location.rsplit("/", 1)[-1]
         if entity.id != id_returned_from_broker:
-            raise NgsiApiError(
-                f"Broker returned wrong id. Expected={entity.id} Returned={id_returned_from_broker}"
-            )
+            raise NgsiApiError(f"Broker returned wrong id. Expected={entity.id} Returned={id_returned_from_broker}")
         return entity
 
     @rfc7807_error_handle
@@ -83,9 +76,7 @@ class Entities:
             "Content-Type": None,
         }  # overrides session headers
         if ctx is not None:
-            headers[
-                "Link"
-            ] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
+            headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
         r = self._session.get(f"{self.url}/{eid}", headers=headers, **kwargs)
         self._client.raise_for_status(r)
         return r.json() if asdict else Entity.from_dict(r.json())
@@ -150,9 +141,7 @@ class Entities:
             "Content-Type": None,
         }  # overrides session headers
         if ctx is not None:
-            headers[
-                "Link"
-            ] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
+            headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
         r = self._session.get(
             self.url,
             headers=headers,
@@ -179,9 +168,7 @@ class Entities:
             "Content-Type": None,
         }  # overrides session headers
         if ctx is not None:
-            headers[
-                "Link"
-            ] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
+            headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
         r = self._session.get(
             self.url,
             headers=headers,

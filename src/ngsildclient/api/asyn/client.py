@@ -136,7 +136,7 @@ class AsyncClient:
         self._types = Types(self, f"{self.url}/{ENDPOINT_TYPES}")
         self._contexts = Contexts(self, f"{self.url}/{ENDPOINT_CONTEXTS}")
         self._subscriptions = Subscriptions(self, f"{self.url}/{ENDPOINT_SUBSCRIPTIONS}")
-
+        
     def raise_for_status(self, r: httpx.Response):
         """Raises an exception depending on the API response.
 
