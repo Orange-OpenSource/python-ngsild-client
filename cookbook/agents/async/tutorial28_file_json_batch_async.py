@@ -10,24 +10,24 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 import asyncio
-import aiofiles
+import json
 from ngsildclient import Entity, AsyncClient, iso8601
 
 
-def build_entity(csvline: str) -> Entity:
-    room = csvline.rstrip().split(";")
-    e = Entity("RoomObserved", f"{room[0]}:{iso8601.utcnow()}")
+def build_entity(room: dict) -> Entity:
+    e = Entity("RoomObserved", f"{room['id']}:{iso8601.utcnow()}")
     e.obs()
-    e.prop("temperature", room[1])
-    e.prop("pressure", float(room[1]))
+    e.prop("temperature", room["temperature"])
+    e.prop("pressure", room["pressure"])
     return e
 
 
 async def main():
     client = AsyncClient()
-    async with aiofiles.open("data/rooms.csv", "r") as f:
-        csvlines = await f.readlines()
-        entities = [build_entity(csvline) for csvline in csvlines]
+    with open("../data/rooms.json") as f:
+        payload: dict = json.load(f)
+        rooms = payload["rooms"]
+        entities = [build_entity(room) for room in rooms]
         await client.upsert(entities)
 
 

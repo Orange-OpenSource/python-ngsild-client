@@ -9,17 +9,7 @@
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
-# Requires : flask
-# Usage : flask --app tutorial40_api_server_flask_upload_csv run
-# Usage : curl -v -F "file=@data/room.csv" http://127.0.0.1:5000
-
-import io
-
-from flask import Flask, request, Response
 from ngsildclient import Entity, Client, iso8601
-
-app = Flask(__name__)
-client = Client()
 
 
 def build_entity(csvline: str) -> Entity:
@@ -31,10 +21,13 @@ def build_entity(csvline: str) -> Entity:
     return e
 
 
-@app.route("/", methods=["POST"])
-def upload_file():
-    file = request.files["file"]
-    csvlines = io.TextIOWrapper(file).readlines()
-    entities = [build_entity(csvline) for csvline in csvlines]
-    client.upsert(entities)
-    return Response("CSV file processed", status=200)
+def main():
+    client = Client()
+    with open("../data/rooms.csv") as f:
+        for csvline in f:
+            entity = build_entity(csvline)
+            client.upsert(entity)
+
+
+if __name__ == "__main__":
+    main()

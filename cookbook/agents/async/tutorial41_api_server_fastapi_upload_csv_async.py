@@ -9,9 +9,17 @@
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
-import asyncio
-import aiofiles
+# Requires : fastapi, uvicorn
+# Usage : uvicorn tutorial41_api_server_fastapi_upload_csv_async:app
+# Usage : curl -v -F "file=@room.csv" http://127.0.0.1:8000
+
+import io
+
+from fastapi import FastAPI, UploadFile
 from ngsildclient import Entity, AsyncClient, iso8601
+
+app = FastAPI()
+client = AsyncClient()
 
 
 def build_entity(csvline: str) -> Entity:
@@ -23,13 +31,10 @@ def build_entity(csvline: str) -> Entity:
     return e
 
 
-async def main():
-    client = AsyncClient()
-    async with aiofiles.open("data/rooms.csv", "r") as f:
-        async for csvline in f:
-            entity = build_entity(csvline)
-            await client.upsert(entity)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+@app.post("/")
+async def upload_file(file: UploadFile):
+    file = file.file._file
+    csvlines = io.TextIOWrapper(file).readlines()
+    entities = [build_entity(csvline) for csvline in csvlines]
+    await client.upsert(entities)
+    return "CSV file processed"

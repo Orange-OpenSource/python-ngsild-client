@@ -11,7 +11,7 @@
 
 # Requires : flask
 # Usage : flask --app tutorial42_api_server_flask_rest_json run
-# Usage : curl -X POST -H "Content-Type: application/json" -d "@data/room.json" http://127.0.0.1:5000/rooms
+# Usage : curl -X POST -H "Content-Type: application/json" -d "@room.json" http://127.0.0.1:5000/rooms
 
 from flask import Flask, request, jsonify
 from ngsildclient import Entity, Client, iso8601

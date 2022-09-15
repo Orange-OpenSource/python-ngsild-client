@@ -9,7 +9,9 @@
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
-from ngsildclient import Entity, Client, iso8601
+import asyncio
+import aiofiles
+from ngsildclient import Entity, AsyncClient, iso8601
 
 
 def build_entity(csvline: str) -> Entity:
@@ -21,13 +23,13 @@ def build_entity(csvline: str) -> Entity:
     return e
 
 
-def main():
-    client = Client()
-    with open("data/rooms.csv") as f:
-        for csvline in f:
+async def main():
+    client = AsyncClient()
+    async with aiofiles.open("../data/rooms.csv", "r") as f:
+        async for csvline in f:
             entity = build_entity(csvline)
-            client.upsert(entity)
+            await client.upsert(entity)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

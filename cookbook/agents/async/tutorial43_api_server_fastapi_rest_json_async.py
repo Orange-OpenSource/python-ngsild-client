@@ -11,7 +11,7 @@
 
 # Requires : flask
 # Usage : uvicorn tutorial43_api_server_fastapi_rest_json_async:app
-# Usage : curl -X POST -H "Content-Type: application/json" -d "@data/room.json" http://127.0.0.1:8000/rooms
+# Usage : curl -X POST -H "Content-Type: application/json" -d "@room.json" http://127.0.0.1:8000/rooms
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -34,4 +34,6 @@ async def post_room(request: Request):
     payload = await request.json()
     entity = build_entity(payload)
     await client.upsert(entity)
-    return JSONResponse(status_code=201, content=entity.to_dict(), headers={"Content-Location": client.entities.to_broker_url(entity)})
+    return JSONResponse(
+        status_code=201, content=entity.to_dict(), headers={"Content-Location": client.entities.to_broker_url(entity)}
+    )

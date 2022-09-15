@@ -33,7 +33,7 @@ The ngsildclient Python library has two main objectives.
    Get Started <started>
    Build Entities <build>
    Interact with the Broker <client>
-   Annex <annex>
+   Cookbook <cookbook>
    License <license>
    API Reference <_autosummary/ngsildclient>
 

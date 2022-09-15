@@ -25,7 +25,7 @@ def build_entity(room: dict) -> Entity:
 
 async def main():
     client = AsyncClient()
-    async with aiofiles.open("data/rooms.json") as f:
+    async with aiofiles.open("../data/rooms.json") as f:
         content = await f.read()
         payload: dict = json.loads(content)
     for room in payload["rooms"]:

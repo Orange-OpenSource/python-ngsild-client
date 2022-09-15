@@ -9,26 +9,25 @@
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
-import json
-from ngsildclient import Entity, Client, iso8601
+import asyncio
+
+from ngsildclient import Entity, AsyncClient
 
 
 def build_entity(room: dict) -> Entity:
-    e = Entity("RoomObserved", f"{room['id']}:{iso8601.utcnow()}")
-    e.obs()
-    e.prop("temperature", room["temperature"])
+    e = Entity("RoomObserved", room["name"])
+    e.prop("temperature", room["temp"])
     e.prop("pressure", room["pressure"])
     return e
 
 
-def main():
-    client = Client()
-    with open("data/rooms.json") as f:
-        payload: dict = json.load(f)
-        rooms = payload["rooms"]
-        entities = [build_entity(room) for room in rooms]
-        client.upsert(entities)
+async def main():
+    client = AsyncClient()
+    rooms = [{"name": "Room1", "temp": 23.1, "pressure": 720}, {"name": "Room2", "temp": 21.8, "pressure": 711}]
+    for room in rooms:
+        entity = build_entity(room)
+        await client.upsert(entity)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
