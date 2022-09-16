@@ -15,7 +15,7 @@
 
  **ngsildclient** is a Python library that helps building NGSI-LD entities and allows to interact with a NGSI-LD Context Broker.
 
- The library primary purpose is to **ease and speed up the development of a NGSI Agent** and is also **useful for Data Modeling in the design stage**.
+ The library primary purpose is to ease and **speed up the development of a NGSI Agent** and is also useful to **design Datamodels**.
 
 ## Key Features
 
@@ -76,6 +76,8 @@ with Client() as client:
 
 The corresponding JSON-LD [payload](https://github.com/Orange-OpenSource/python-ngsild-client/blob/master/samples/gettingstarted.json) has been generated.
 
+Already have a NGSI-LD entity available in JSON format ? Simply use `Entity.load()`.
+
 ## Asynchronous Client
 
 Alternatively you can prefer the Asynchronous Client, typically when user interactivity is not needed and seeking for performance - i.e. writing a real-time NGSI-LD agent.
@@ -91,6 +93,11 @@ async with AsyncClient() as client:
 ## Documentation
 
 User guide is available on [Read the Docs](https://ngsildclient.readthedocs.io/en/latest/index.html).
+
+Please refer to the [Cookbook chapter](https://ngsildclient.readthedocs.io/en/latest/cookbook.html) that provides many HOWTOs to :
+
+- develop various NGSI-LD Agents collecting data from heterogeneous datasources
+- forge "official" NGSI-LD Entities from the Smart Data Models initiative
 
 ## License
 

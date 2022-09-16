@@ -2,13 +2,13 @@
     "rooms": [
         {
             "id": "Room1",
-            "temperature": 23,
-            "pressure": 720.0
+            "temperature": 23.1,
+            "pressure": 720
         },
         {
             "id": "Room2",
-            "temperature": 21,
-            "pressure": 711.0
+            "temperature": 21.8,
+            "pressure": 711
         }
     ]
 }

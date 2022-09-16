@@ -4,7 +4,7 @@ Cookbook
 How to forge entities
 ---------------------
 
-Some realistic entities from the Smart Data Models Initiative built with the library.
+Some official entities from the Smart Data Models Initiative built with the library.
 
 PointOfInterest
 ~~~~~~~~~~~~~~~
@@ -86,6 +86,8 @@ This chapter shows how to develop NGSI-LD Agents that implement the whole pipeli
 - Convert incoming data into NGSI-LD entities : here goes your business logic
 - Send outgoing entities to the NGSI-LD broker
 
+Various heterogeneous datasources have been selected to showcase the **ngsildclient** library at work.
+
 Prefer synchronous agent if you need interactivity (i.e. inside Jupyter Notebooks), aim at simplicity and performance is not an issue.
 
 Prefer asynchronous agent when interactivity is not required and seeking for performance, i.e. a real-time agent that collects data and sends entities to the broker at a high frequency rate.
@@ -94,6 +96,12 @@ Combine batch upserts and Asynchronous IO to achieve best performances.
 
 Read in-memory tuples
 ~~~~~~~~~~~~~~~~~~~~~
+
+In the examples below tuples are composed of 3 values :
+
+- the room name *(string)*
+- the temperature *(float, degrees Celsius)*
+- the pressure *(integer, mmHg)*
 
 .. code-block::
    :caption: Base mode
@@ -189,6 +197,12 @@ Read in-memory tuples
 
 Read in-memory dataclasses instances
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In the examples below a Room object is composed of 3 attributes :
+
+- the room name *(string)*
+- the temperature *(float, degrees Celsius)*
+- the pressure *(integer, mmHg)*
 
 .. code-block::
    :caption: Base mode
@@ -307,6 +321,12 @@ Read in-memory dataclasses instances
 Read in-memory dictionaries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+In the examples below dictionaries are composed of 3 entries :
+
+- the room name *(string)*
+- the temperature *(float, degrees Celsius)*
+- the pressure *(integer, mmHg)*
+
 .. code-block::
    :caption: Base mode
 
@@ -393,6 +413,9 @@ Read in-memory dictionaries
 
 Read in-memory pandas dataframes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+| pandas_ is required to run below examples.
+| The `DataFrame sample`_ is taken from the pandas documentation.
 
 .. code-block::
    :caption: Base mode
@@ -509,6 +532,15 @@ Read in-memory pandas dataframes
 Read CSV files
 ~~~~~~~~~~~~~~
 
+Here is the `sample CSV file <https://github.com/Orange-OpenSource/python-ngsild-client/blob/master/cookbook/agents/data/rooms.csv>`_ used in the following examples.
+
+Each line is composed of 3 values, delimited by the semicolon character :
+
+- the room name *(string)*
+- the temperature *(float, degrees Celsius)*
+- the pressure *(integer, mmHg)*
+
+
 .. code-block::
    :caption: Base mode
 
@@ -518,8 +550,8 @@ Read CSV files
       room = csvline.rstrip().split(";")
       e = Entity("RoomObserved", f"{room[0]}:{iso8601.utcnow()}")
       e.obs()
-      e.prop("temperature", room[1])
-      e.prop("pressure", float(room[1]))
+      e.prop("temperature", float(room[1]))
+      e.prop("pressure", int(room[2]))
       return e
 
    def main():
@@ -541,8 +573,8 @@ Read CSV files
       room = csvline.rstrip().split(";")
       e = Entity("RoomObserved", f"{room[0]}:{iso8601.utcnow()}")
       e.obs()
-      e.prop("temperature", room[1])
-      e.prop("pressure", float(room[1]))
+      e.prop("temperature", float(room[1]))
+      e.prop("pressure", int(room[2]))
       return e
 
    def main():
@@ -566,8 +598,8 @@ Read CSV files
       room = csvline.rstrip().split(";")
       e = Entity("RoomObserved", f"{room[0]}:{iso8601.utcnow()}")
       e.obs()
-      e.prop("temperature", room[1])
-      e.prop("pressure", float(room[1]))
+      e.prop("temperature", float(room[1]))
+      e.prop("pressure", int(room[2]))
       return e
 
    async def main():
@@ -591,8 +623,8 @@ Read CSV files
       room = csvline.rstrip().split(";")
       e = Entity("RoomObserved", f"{room[0]}:{iso8601.utcnow()}")
       e.obs()
-      e.prop("temperature", room[1])
-      e.prop("pressure", float(room[1]))
+      e.prop("temperature", float(room[1]))
+      e.prop("pressure", int(room[2]))
       return e
 
    async def main():
@@ -608,6 +640,14 @@ Read CSV files
 Read JSON files
 ~~~~~~~~~~~~~~~
 
+Here is the `sample JSON file <https://github.com/Orange-OpenSource/python-ngsild-client/blob/master/cookbook/agents/data/rooms.json>`_ used in the following examples.
+
+The upper `rooms` JSON array contains JSON objects, each one composed of 3 values :
+
+- the room name *(string)*
+- the temperature *(float, degrees Celsius)*
+- the pressure *(integer, mmHg)*
+  
 .. code-block::
    :caption: Base mode
 
@@ -711,6 +751,15 @@ Read JSON files
 Request an API
 ~~~~~~~~~~~~~~
 
+| Examples below use the CoinGecko_ API that delivers crypto data.
+| Here a public endpoint is requested that sends back information about companies that hold bitcoins and their amount.
+| Outgoing NGSI-LD entities are created using a custom DataModel named BitcoinCapitalization.
+| Fore the sake of the anecdote Tesla got dropped off the list in 2022, after it has sold 75% of its bitcoin holdings.
+| The synchronous examples are based on the requests_ library.
+| The asynchronous examples are based on the httpx_ library.
+
+| requests_ is required to run the example below.
+
 .. code-block::
    :caption: Base mode
 
@@ -745,6 +794,8 @@ Request an API
    if __name__ == "__main__":
       main()
 
+| requests_ is required to run the example below.
+
 .. code-block::
    :caption: Batch variant
    
@@ -777,6 +828,8 @@ Request an API
 
    if __name__ == "__main__":
       main()
+
+| httpx_ is required to run the example below.
 
 .. code-block::
    :caption: Asynchronous variant
@@ -813,6 +866,8 @@ Request an API
    if __name__ == "__main__":
       asyncio.run(main())
 
+| httpx_ is required to run the example below.
+
 .. code-block::
    :caption: Asynchronous batch variant
    
@@ -847,8 +902,17 @@ Request an API
    if __name__ == "__main__":
       asyncio.run(main())      
 
-HTTP server : accept uploaded CSV files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+HTTP server
+~~~~~~~~~~~
+
+| Sometimes NGSI-LD agents act as daemons.
+| Here in fact it's an HTTP server that **waits for CSV files to be uploaded**.
+| When triggered it consumes the CSV file and produces NGSI-LD entities.
+| Here is the `sample CSV file <https://github.com/Orange-OpenSource/python-ngsild-client/blob/master/cookbook/agents/data/rooms.csv>`_ used in the following examples.
+| The synchronous example relies on the Flask_ framework.
+| The asynchronous example relies on the FastAPI_ framework.
+
+| Flask_ is required to run the example below.
 
 .. code-block::
    :caption: Synchronous mode
@@ -864,8 +928,8 @@ HTTP server : accept uploaded CSV files
       room = csvline.rstrip().split(";")
       e = Entity("RoomObserved", f"{room[0]}:{iso8601.utcnow()}")
       e.obs()
-      e.prop("temperature", room[1])
-      e.prop("pressure", float(room[1]))
+      e.prop("temperature", float(room[1]))
+      e.prop("pressure", int(room[2]))
       return e
 
    @app.route("/", methods=["POST"])
@@ -875,6 +939,8 @@ HTTP server : accept uploaded CSV files
       entities = [build_entity(csvline) for csvline in csvlines]
       client.upsert(entities)
       return Response("CSV file processed", status=200)
+
+| FastAPI_ is required to run the example below.
 
 .. code-block::
    :caption: Asynchronous mode
@@ -890,8 +956,8 @@ HTTP server : accept uploaded CSV files
       room = csvline.rstrip().split(";")
       e = Entity("RoomObserved", f"{room[0]}:{iso8601.utcnow()}")
       e.obs()
-      e.prop("temperature", room[1])
-      e.prop("pressure", float(room[1]))
+      e.prop("temperature", float(room[1]))
+      e.prop("pressure", int(room[2]))
       return e
 
    @app.post("/")
@@ -902,8 +968,18 @@ HTTP server : accept uploaded CSV files
       await client.upsert(entities)
       return "CSV file processed"
 
-HTTP REST server : collect JSON data on a dedicated endpoint
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+HTTP REST server
+~~~~~~~~~~~~~~~~
+
+| Sometimes NGSI-LD agents act as daemons.
+| Here in fact it's an HTTP REST server that **exposes a dedicated endpoint** which **accepts a JSON payload**.
+| This endpoint is named ``/rooms`` and the expected payload is a JSON object describing a room.
+| When triggered it processes the JSON payload and produces NGSI-LD entities.
+| Here is the `sample JSON file <https://github.com/Orange-OpenSource/python-ngsild-client/blob/master/cookbook/agents/data/room.json>`_ used in the following examples.
+| The synchronous example relies on the Flask_ framework.
+| The asynchronous example relies on the FastAPI_ framework.
+
+| Flask_ is required to run the example below.
 
 .. code-block::
    :caption: Synchronous mode
@@ -933,6 +1009,8 @@ HTTP REST server : collect JSON data on a dedicated endpoint
       resp.status_code = 201
       return resp
 
+| FastAPI_ is required to run the example below.
+
 .. code-block::
    :caption: Asynchronous mode
 
@@ -958,3 +1036,10 @@ HTTP REST server : collect JSON data on a dedicated endpoint
          return JSONResponse(status_code=201, content=entity.to_dict(), headers={"Content-Location": client.entities.to_broker_url(entity)})         
 
 .. _PointOfInterest: https://github.com/smart-data-models/dataModel.PointOfInterest
+.. _pandas : https://pypi.org/project/pandas/
+.. _DataFrame sample : https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sample.html
+.. _CoinGecko : https://www.coingecko.com/
+.. _Flask : https://flask.palletsprojects.com
+.. _FastAPI : https://fastapi.tiangolo.com/
+.. _requests : https://requests.readthedocs.io/en/latest/
+.. _httpx : https://www.python-httpx.org/

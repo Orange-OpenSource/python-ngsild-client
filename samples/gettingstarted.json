@@ -21,7 +21,7 @@
       ]
     }
   },
-  "PM2.5": {
+  "PM25": {
     "type": "Property",
     "value": 12,
     "unitCode": "GP"
