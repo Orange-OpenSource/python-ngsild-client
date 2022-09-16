@@ -15,7 +15,12 @@
 
  **ngsildclient** is a Python library that helps building NGSI-LD entities and allows to interact with a NGSI-LD Context Broker.
 
- The library primary purpose is to ease and **speed up the development of a NGSI Agent** and is also useful to **design Datamodels**.
+ The library primary purpose is to ease and **speed up the development of a NGSI Agent**.
+ 
+ It can be of interest *especially in a Jupyter notebook or in an interactive interpreter* :
+ - to **design new DataModels**
+ - to **explore and operate entities stored in a broker**
+ - for **demos**, quick **proofs of concept** or **eductional purposes**
 
 ## Key Features
 
@@ -49,12 +54,7 @@ pip install ngsildclient
 
 **ngsildclient** requires Python 3.9+.
 
-One should use a virtual environment. For example with pyenv.
-
 ```sh
-mkdir myagent && cd myagent
-pyenv virtualenv 3.10.4 myagent
-pyenv local myagent
 pip install ngsildclient
 ```
 
