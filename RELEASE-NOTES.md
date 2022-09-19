@@ -1,5 +1,12 @@
+# ngsildclient 0.2.1
+## September 19, 2022
+
+- Added Cookbook
+- Added ``Entity.from_json()``
+- Fixed bug in ``iso8601.utcnow()``
+
 # ngsildclient 0.2.0
-## September 18, 2022
+## September 8, 2022
 
 - Added Asynchronous Client
 - Added support for custom authentication (Pull Request #2)
