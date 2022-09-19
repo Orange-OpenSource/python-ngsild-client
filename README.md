@@ -17,9 +17,9 @@
 
  The library primary purpose is to ease and **speed up the development of a NGSI Agent**.
  
- It can be of interest *especially in a Jupyter notebook or in an interactive interpreter* :
+ It also can be of interest *especially in a Jupyter notebook or in an interactive interpreter* :
  - to **design new DataModels**
- - to **explore and operate entities stored in a broker**
+ - to **explore and manipulate entities stored in a broker**
  - for **demos**, quick **proofs of concept** or **eductional purposes**
 
 ## Key Features
@@ -45,10 +45,6 @@ https://github.com/Orange-OpenSource/python-ngsild-client
 
 Binary installer for the latest released version is available at the [Python
 package index](https://pypi.org/project/ngsildclient).
-
-```sh
-pip install ngsildclient
-```
 
 ## Installation
 
@@ -97,7 +93,7 @@ User guide is available on [Read the Docs](https://ngsildclient.readthedocs.io/e
 Please refer to the [Cookbook chapter](https://ngsildclient.readthedocs.io/en/latest/cookbook.html) that provides many HOWTOs to :
 
 - develop various NGSI-LD Agents collecting data from heterogeneous datasources
-- forge "official" NGSI-LD Entities from the Smart Data Models initiative
+- forge official NGSI-LD Entities from the Smart Data Models initiative
 
 ## License
 
