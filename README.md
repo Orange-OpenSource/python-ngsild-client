@@ -90,7 +90,7 @@ async with AsyncClient() as client:
 
 User guide is available on [Read the Docs](https://ngsildclient.readthedocs.io/en/latest/index.html).
 
-Please refer to the [Cookbook chapter](https://ngsildclient.readthedocs.io/en/latest/cookbook.html) that provides many HOWTOs to :
+Please refer to the [Cookbook](https://ngsildclient.readthedocs.io/en/latest/cookbook.html) chapter that provides many HOWTOs to :
 
 - develop various NGSI-LD Agents collecting data from heterogeneous datasources
 - forge official NGSI-LD Entities from the Smart Data Models initiative
