@@ -52,6 +52,13 @@ class LogLevel(Enum):
     DEBUG = "DEBUG"
 
 
+@unique
+class TimeProperty(Enum):
+    OBSERVED_AT = "observedAt"
+    MODIFIED_AT = "modifiedAt"
+    CREATED_AT = "createdAt"
+
+
 UA = f"ngsildclient v{__version__}"
 
 NGSILD_PATH = "ngsi-ld"

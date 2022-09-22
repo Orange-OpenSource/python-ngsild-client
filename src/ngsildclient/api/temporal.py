@@ -10,18 +10,26 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union, List
 
 import logging
 
 if TYPE_CHECKING:
     from .client import Client
 
-from .constants import EntityId, JSONLD_CONTEXT
+from .constants import EntityId, JSONLD_CONTEXT, TimeProperty
+from .helper.temporal import TemporalQuery
 from ..model.entity import Entity
 
 
 logger = logging.getLogger(__name__)
+
+
+def addopt(params: dict, newopt: str):
+    if params.get("options", "") == "":
+        params["options"] = newopt
+    else:
+        params["options"] += f",{newopt}"
 
 
 class Temporal:
@@ -34,6 +42,7 @@ class Temporal:
         self,
         eid: Union[EntityId, Entity],
         ctx: str = None,
+        verbose: bool = False,
         **kwargs,
     ) -> dict:
         eid = eid.id if isinstance(eid, Entity) else eid
@@ -43,6 +52,53 @@ class Temporal:
         }  # overrides session headers
         if ctx is not None:
             headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
-        r = self._session.get(f"{self.url}/{eid}", headers=headers, **kwargs)
+        params = {}
+        if not verbose:
+            addopt(params, "temporalValue")
+        r = self._session.get(f"{self.url}/{eid}", headers=headers, params=params, **kwargs)
         self._client.raise_for_status(r)
+        return r.json()
+
+    def query(
+        self,
+        type: str = None,
+        q: str = None,
+        ctx: str = None,
+        verbose: bool = False,
+        tq: TemporalQuery = None,
+        lastn: int = 0,
+        pagesize: int = 0,
+        count: bool = True,
+        **kwargs,
+    ) -> List[dict]:
+        params = {}
+        if count:
+            addopt(params, "count")
+        if not verbose:
+            addopt(params, "temporalValue")
+        if tq is None:
+            tq = TemporalQuery().before()
+        params |= tq
+        if lastn > 0:
+            params["lastN"] = lastn
+        if pagesize > 0:
+            params["pageSize"] = pagesize
+        if type:
+            params["type"] = type
+        if q:
+            params["q"] = q
+        headers = {
+            "Accept": "application/ld+json",
+            "Content-Type": None,
+        }  # overrides session headers
+        if ctx is not None:
+            headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
+        r = self._session.get(
+            self.url,
+            headers=headers,
+            params=params,
+        )
+        self._client.raise_for_status(r)
+        count = int(r.headers["NGSILD-Results-Count"])
+        print(f"{count=}")
         return r.json()
