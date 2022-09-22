@@ -1,0 +1,67 @@
+version: "3.3"
+services:
+  mongo:
+    image: mongo:4.4
+    command: --nojournal
+    networks:
+      orionld:
+        ipv4_address: 172.29.1.100
+  orion:
+    image: fiware/orion-ld:1.0.1
+    environment:
+      - ORIONLD_TROE=TRUE
+      - ORIONLD_TROE_USER=orion
+      - ORIONLD_TROE_PWD=orion
+      - ORIONLD_TROE_HOST=timescale
+      - ORIONLD_MONGO_HOST=mongo
+    depends_on:
+      - mongo
+      - timescale
+    command: -dbhost mongo -logLevel DEBUG  -forwarding
+    networks:
+      orionld:
+        ipv4_address: 172.29.1.101
+    ports:
+      - "8026:1026"
+  timescale:
+    image: timescale/timescaledb-postgis:latest-pg12
+    hostname: timescale
+    container_name: timescale
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orion"]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+      start_period: 60s
+    environment:
+      - POSTGRES_USER=orion
+      - POSTGRES_PASSWORD=orion
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    networks:
+      orionld:
+        ipv4_address: 172.29.1.102
+  mintaka:
+    image: fiware/mintaka:0.5.9
+    hostname: mintaka
+    container_name: mintaka
+    environment:
+      - DATASOURCES_DEFAULT_HOST=timescale
+      - DATASOURCES_DEFAULT_USERNAME=orion
+      - DATASOURCES_DEFAULT_PASSWORD=orion
+      - DATASOURCES_DEFAULT_DATABSE=orion
+      - ENDPOINTS_ALL_PORT=8081
+      - MICRONAUT_SERVER_PORT=8082
+    depends_on:
+      - orion
+      - timescale
+    networks:
+      orionld:
+        ipv4_address: 172.29.1.103
+    ports:
+      - "8027:8082"
+      - "8028:8081"          
+networks:
+  orionld:
+    ipam:
+      config:
+        - subnet: 172.29.1.0/24

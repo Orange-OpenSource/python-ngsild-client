@@ -24,6 +24,7 @@ from .batch import BatchOp
 from .types import Types
 from .contexts import Contexts
 from .subscriptions import Subscriptions
+from .temporal import Temporal
 from .exceptions import *
 
 logger = logging.getLogger(__name__)
@@ -77,6 +78,7 @@ class Client:
         self,
         hostname: str = "localhost",
         port: int = NGSILD_DEFAULT_PORT,
+        port_temporal: int = NGSILD_TEMPORAL_PORT,
         secure: bool = False,
         useragent: str = UA,
         tenant: str = None,
@@ -119,6 +121,7 @@ class Client:
         """
         self.hostname = hostname
         self.port = port
+        self.port_temporal = port_temporal
         self.secure = secure
         self.scheme = "https" if secure else "http"
         self.url = f"{self.scheme}://{hostname}:{port}"
@@ -149,7 +152,13 @@ class Client:
         self._types = Types(self, f"{self.url}/{ENDPOINT_TYPES}")
         self._contexts = Contexts(self, f"{self.url}/{ENDPOINT_CONTEXTS}")
         self._subscriptions = Subscriptions(self, f"{self.url}/{ENDPOINT_SUBSCRIPTIONS}")
-
+        url_temporal = f"{self.scheme}://{hostname}:{port_temporal}"
+        temporal_path = (
+            f"{url_temporal}/{NGSILD_BASEPATH}/temporal/entities"
+            if port_temporal == port  # temporal share the same port and basepath
+            else f"{url_temporal}/temporal/entities"
+        )
+        self._temporal = Temporal(self, temporal_path)
         self.broker = Broker(Vendor.UNKNOWN, "N/A")
 
         # get status and retrieve Context Broker information
@@ -237,6 +246,10 @@ class Client:
     @property
     def subscriptions(self):
         return self._subscriptions
+
+    @property
+    def temporal(self):
+        return self._temporal
 
     def close(self):
         """Terminates the client.
