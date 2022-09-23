@@ -58,6 +58,17 @@ class TimeProperty(Enum):
     MODIFIED_AT = "modifiedAt"
     CREATED_AT = "createdAt"
 
+@unique
+class AggrMethod(Enum):
+    TOTAL_COUNT = "totalCount"
+    DISTINCT_COUNT = "distinctCount"
+    SUM = "sum"  
+    AVERAGE = "avg"
+    MINIMUM = "min"
+    MAXIMUM = "max"
+    STANDARD_DEVIATION = "stddev"
+    SUM_SQUARES = "sumsq"
+
 
 UA = f"ngsildclient v{__version__}"
 

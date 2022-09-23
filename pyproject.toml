@@ -18,6 +18,7 @@ requests = "^2.26.0"
 rich = "^12.4.1"
 httpx = "^0.23.0"
 aiofiles = "^0.8.0"
+isodate = "^0.6.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"

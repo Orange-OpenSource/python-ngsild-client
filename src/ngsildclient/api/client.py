@@ -513,7 +513,7 @@ class Client:
         else:
             return self.batch.update(entities)
 
-    def query_head(self, type: str = None, q: str = None, gq: str = None, ctx: str = None, n: int = 5, **kwargs) -> List[Entity]:
+    def query_head(self, type: str = None, q: str = None, gq: str = None, ctx: str = None, n: int = 5) -> List[Entity]:
         """Retrieve entities given its type and/or query string.
 
         Retrieve up to PAGINATION_LIMIT_MAX entities.
@@ -545,7 +545,7 @@ class Client:
         >>> with Client() as client:
         >>>     client.query(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
-        return self.entities.query(type, q, geoq, ctx, limit=n)
+        return self.entities.query(type, q, gq, ctx, limit=n)
 
     def query_all(
         self,
@@ -555,7 +555,6 @@ class Client:
         ctx: str = None,
         limit: int = PAGINATION_LIMIT_MAX,
         max: int = 1_000_000,
-        **kwargs,
     ) -> List[Entity]:
         """Retrieve entities given its type and/or query string.
 
@@ -604,8 +603,7 @@ class Client:
         gq: str = None,
         ctx: str = None,
         limit: int = PAGINATION_LIMIT_MAX,
-        batch: bool = False,
-        **kwargs,
+        batch: bool = False
     ) -> Generator[Entity, None, None]:
         count = self.entities.count(type, q)
         for page in range(ceil(count / limit)):
@@ -614,7 +612,7 @@ class Client:
             else:
                 yield from self.entities.query(type, q, gq, ctx, limit, page * limit)
 
-    def count(self, type: str = None, q: str = None, gq: str = None, **kwargs) -> int:
+    def count(self, type: str = None, q: str = None, gq: str = None) -> int:
         """Return number of entities matching type and/or query string.
 
         Facade method for Entities.count().
@@ -643,7 +641,7 @@ class Client:
         """
         return self.entities.count(type, q, gq)
 
-    def delete_where(self, type: str = None, q: str = None, gq: str = None, **kwargs):
+    def delete_where(self, type: str = None, q: str = None, gq: str = None):
         """Batch delete entities matching type and/or query string.
 
         Parameters
@@ -660,7 +658,7 @@ class Client:
         >>> with Client() as client:
         >>>     client.delete_where(type="AgriFarm", query='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
-        g = self.query_generator(type, q, gq, batch=True, **kwargs)
+        g = self.query_generator(type, q, gq, batch=True)
         for batch in g:
             self.batch.delete(batch)
 

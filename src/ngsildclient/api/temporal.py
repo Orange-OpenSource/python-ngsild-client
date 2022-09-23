@@ -11,13 +11,15 @@
 
 from __future__ import annotations
 from typing import TYPE_CHECKING, Union, List
+from datetime import timedelta
+from isodate import duration_isoformat
 
 import logging
 
 if TYPE_CHECKING:
     from .client import Client
 
-from .constants import EntityId, JSONLD_CONTEXT
+from .constants import EntityId, JSONLD_CONTEXT, AggrMethod
 from .helper.temporal import TemporalQuery
 from ..model.entity import Entity
 
@@ -31,6 +33,7 @@ def addopt(params: dict, newopt: str):
     else:
         params["options"] += f",{newopt}"
 
+# TODO : Pagination Support (206 Partial Content + follow Next-Page)
 
 class Temporal:
     def __init__(self, client: Client, url: str):
@@ -62,6 +65,7 @@ class Temporal:
     def query(
         self,
         type: str = None,
+        attrs: List[str] = None,
         q: str = None,
         gq: str = None,
         ctx: str = None,
@@ -70,9 +74,16 @@ class Temporal:
         lastn: int = 0,
         pagesize: int = 0,  # default broker pageSize
         count: bool = True,
-        **kwargs,
     ) -> List[dict]:
         params = {}
+        if type:
+            params["type"] = type
+        if attrs:
+            params["attrs"] = ",".join(attrs)
+        if q:
+            params["q"] = q
+        if gq:
+            params["georel"] = gq                 
         if count:
             addopt(params, "count")
         if not verbose:
@@ -84,12 +95,6 @@ class Temporal:
             params["lastN"] = lastn
         if pagesize > 0:
             params["pageSize"] = pagesize
-        if type:
-            params["type"] = type
-        if q:
-            params["q"] = q
-        if gq:
-            params["georel"] = gq 
         headers = {
             "Accept": "application/ld+json",
             "Content-Type": None,
@@ -105,3 +110,54 @@ class Temporal:
         count = int(r.headers["NGSILD-Results-Count"])
         print(f"{count=}")
         return r.json()
+
+    def query_aggr(
+        self,
+        type: str = None,
+        attrs: List[str] = None,
+        q: str = None,
+        gq: str = None,
+        ctx: str = None,
+        tq: TemporalQuery = None,
+        lastn: int = 0,
+        pagesize: int = 0,  # default broker pageSize
+        count: bool = False,
+        methods: List[AggrMethod] = [AggrMethod.AVERAGE],
+        period: timedelta = timedelta(days=1),
+    ) -> List[dict]:
+        params = {}
+        if type:
+            params["type"] = type
+        if attrs:
+            params["attrs"] = ",".join(attrs)            
+        if q:
+            params["q"] = q
+        if gq:
+            params["georel"] = gq        
+        addopt(params, "aggregatedValues")
+        if count:
+            addopt(params, "count")
+        if tq is None:
+            tq = TemporalQuery().before()
+        params |= tq
+        if lastn > 0:
+            params["lastN"] = lastn
+        if pagesize > 0:
+            params["pageSize"] = pagesize
+        params["aggrMethods"] = ",".join([m.value for m in methods])
+        params["aggrPeriodDuration"] = duration_isoformat(period)
+        headers = {
+            "Accept": "application/ld+json",
+            "Content-Type": None,
+        }  # overrides session headers
+        if ctx is not None:
+            headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
+        r = self._session.get(
+            self.url,
+            headers=headers,
+            params=params,
+        )
+        self._client.raise_for_status(r)
+        count = int(r.headers["NGSILD-Results-Count"])
+        print(f"{count=}")
+        return r.json()        

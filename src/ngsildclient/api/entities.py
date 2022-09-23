@@ -123,8 +123,7 @@ class Entities:
         gq: str = None,
         ctx: str = None,
         limit: int = 0,
-        offset: int = 0,
-        **kwargs,
+        offset: int = 0
     ) -> List[Entity]:
         params = {}
         if limit != 0:
@@ -138,7 +137,7 @@ class Entities:
         if q:
             params["q"] = q
         if gq:
-            params["georel"] = gq
+            params["geoQ"] = gq
         headers = {
             "Accept": "application/ld+json",
             "Content-Type": None,
@@ -156,7 +155,7 @@ class Entities:
         return [Entity.from_dict(entity) for entity in entities]
 
     @rfc7807_error_handle
-    def count(self, type: str = None, q: str = None, gq: str = None, ctx: str = None, **kwargs) -> int:
+    def count(self, type: str = None, q: str = None, gq: str = None, ctx: str = None) -> int:
         params = {"limit": 0, "count": "true"}
         if type is None and q is None:
             raise ValueError("Must indicate at least a type or a query string")
@@ -165,7 +164,7 @@ class Entities:
         if q:
             params["q"] = q
         if gq:
-            params["georel"] = gq
+            params["geoQ"] = gq
         headers = {
             "Accept": "application/json",
             "Content-Type": None,
