@@ -17,7 +17,7 @@ import logging
 if TYPE_CHECKING:
     from .client import Client
 
-from .constants import EntityId, JSONLD_CONTEXT, TimeProperty
+from .constants import EntityId, JSONLD_CONTEXT
 from .helper.temporal import TemporalQuery
 from ..model.entity import Entity
 
@@ -63,11 +63,12 @@ class Temporal:
         self,
         type: str = None,
         q: str = None,
+        gq: str = None,
         ctx: str = None,
         verbose: bool = False,
         tq: TemporalQuery = None,
         lastn: int = 0,
-        pagesize: int = 0,
+        pagesize: int = 0,  # default broker pageSize
         count: bool = True,
         **kwargs,
     ) -> List[dict]:
@@ -87,6 +88,8 @@ class Temporal:
             params["type"] = type
         if q:
             params["q"] = q
+        if gq:
+            params["georel"] = gq 
         headers = {
             "Accept": "application/ld+json",
             "Content-Type": None,

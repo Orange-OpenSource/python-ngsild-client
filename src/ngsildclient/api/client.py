@@ -513,7 +513,7 @@ class Client:
         else:
             return self.batch.update(entities)
 
-    def query_head(self, type: str = None, q: str = None, geoq: str = None, ctx: str = None, n: int = 5, **kwargs) -> List[Entity]:
+    def query_head(self, type: str = None, q: str = None, gq: str = None, ctx: str = None, n: int = 5, **kwargs) -> List[Entity]:
         """Retrieve entities given its type and/or query string.
 
         Retrieve up to PAGINATION_LIMIT_MAX entities.
@@ -526,6 +526,8 @@ class Client:
             The entity's type
         q: str
             The query string (NGSI-LD Query Language)
+        gq: str
+            The geoquery string (NGSI-LD Geoquery Language)            
         ctx: str
             The context
         n: int
@@ -549,7 +551,7 @@ class Client:
         self,
         type: str = None,
         q: str = None,
-        geoq: str = None,
+        gq: str = None,
         ctx: str = None,
         limit: int = PAGINATION_LIMIT_MAX,
         max: int = 1_000_000,
@@ -566,6 +568,8 @@ class Client:
             The entity's type
         q: str
             The query string (NGSI-LD Query Language)
+        gq: str
+            The geoquery string (NGSI-LD Geoquery Language)            
         ctx: str
             The context
         limit: int
@@ -586,18 +590,18 @@ class Client:
         """
 
         entities: list[Entity] = []
-        count = self.entities.count(type, q, geoq, ctx=ctx)
+        count = self.entities.count(type, q, gq, ctx=ctx)
         if count > max:
             raise NgsiClientTooManyResultsError(f"{count} results exceed maximum {max}")
         for page in range(ceil(count / limit)):
-            entities.extend(self.entities.query(type, q, geoq, ctx, limit, page * limit))
+            entities.extend(self.entities.query(type, q, gq, ctx, limit, page * limit))
         return entities
 
     def query_generator(
         self,
         type: str = None,
         q: str = None,
-        geoq: str = None,
+        gq: str = None,
         ctx: str = None,
         limit: int = PAGINATION_LIMIT_MAX,
         batch: bool = False,
@@ -606,11 +610,11 @@ class Client:
         count = self.entities.count(type, q)
         for page in range(ceil(count / limit)):
             if batch:
-                yield self.entities.query(type, q, geoq, ctx, limit, page * limit)
+                yield self.entities.query(type, q, gq, ctx, limit, page * limit)
             else:
-                yield from self.entities.query(type, q, geoq, ctx, limit, page * limit)
+                yield from self.entities.query(type, q, gq, ctx, limit, page * limit)
 
-    def count(self, type: str = None, q: str = None, geoq: str = None, **kwargs) -> int:
+    def count(self, type: str = None, q: str = None, gq: str = None, **kwargs) -> int:
         """Return number of entities matching type and/or query string.
 
         Facade method for Entities.count().
@@ -619,8 +623,10 @@ class Client:
         ----------
         etype : str
             The entity's type
-        query: str
+        q: str
             The query string (NGSI-LD Query Language)
+        gq: str
+            The geoquery string (NGSI-LD Geoquery Language)            
 
         Returns
         -------
@@ -635,24 +641,26 @@ class Client:
         >>> with Client() as client:
         >>>     client.count(type="AgriFarm", query='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
-        return self.entities.count(type, q, geoq)
+        return self.entities.count(type, q, gq)
 
-    def delete_where(self, type: str = None, q: str = None, geoq: str = None, **kwargs):
+    def delete_where(self, type: str = None, q: str = None, gq: str = None, **kwargs):
         """Batch delete entities matching type and/or query string.
 
         Parameters
         ----------
         etype : str
             The entity's type
-        query: str
+        q: str
             The query string (NGSI-LD Query Language)
+        gq: str
+            The geoquery string (NGSI-LD Geoquery Language)            
 
         Example:
         --------
         >>> with Client() as client:
         >>>     client.delete_where(type="AgriFarm", query='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
-        g = self.query_generator(type, q, geoq, batch=True, **kwargs)
+        g = self.query_generator(type, q, gq, batch=True, **kwargs)
         for batch in g:
             self.batch.delete(batch)
 

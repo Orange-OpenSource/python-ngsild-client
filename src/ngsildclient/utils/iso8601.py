@@ -172,7 +172,7 @@ def parse(value: Union[datetime, date, time, str]) -> tuple[str, TemporalType, d
 
     Returns
     -------
-    tuple[str, TemporalType]
+    tuple[str, TemporalType, datetime]
         A tuple composed of a ISO8601 string representation of the date and the TemporalType that has been identified
 
     Raises

@@ -31,13 +31,13 @@ from ngsildclient.utils.iso8601 import from_datetime
 
 
 class TemporalQuery(dict):
-    def __init__(self, *args, **kwargs):
-        pass
+    def __init__(self):
+        super().__init__()
 
     def after(
         self, start: Union[datetime, timedelta, str] = timedelta(days=30), timeprop: Optional[TimeProperty] = None
     ) -> dict:
-        super().__init__({"timerel": "after"})
+        self["timerel"] = "after"
         if isinstance(start, timedelta):
             self["timeAt"] = from_datetime(datetime.utcnow()-start)
         elif isinstance(start, datetime):
@@ -45,22 +45,22 @@ class TemporalQuery(dict):
         else:
             self["timeAt"] = start
         if timeprop is not None:
-            self["timeproprety"] = timeprop.value
+            self["timeproperty"] = timeprop.value
         return self
 
     def before(self, end: Union[datetime, str] = datetime.utcnow(), timeprop: Optional[TimeProperty] = None) -> dict:
-        super().__init__({"timerel": "before"})
+        self["timerel"] = "before"
         self["timeAt"] = from_datetime(end) if isinstance(end, datetime) else end
         if timeprop is not None:
-            self["timeproprety"] = timeprop.value
+            self["timeproperty"] = timeprop.value
         return self
 
     def between(
         self, start: Union[datetime, str], end: Union[datetime, str], timeprop: Optional[TimeProperty] = None
     ) -> dict:
-        super().__init__({"timerel": "between"})
+        self["timerel"] = "between"
         self["timeAt"] = from_datetime(start) if isinstance(start, datetime) else start
         self["endTimeAt"] = from_datetime(end) if isinstance(end, datetime) else end
         if timeprop is not None:
-            self["timeproprety"] = timeprop.value
+            self["timeproperty"] = timeprop.value
         return self
