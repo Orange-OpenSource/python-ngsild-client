@@ -120,6 +120,7 @@ class Entities:
         self,
         type: str = None,
         q: str = None,
+        geoq: str = None,
         ctx: str = None,
         limit: int = 0,
         offset: int = 0,
@@ -136,6 +137,8 @@ class Entities:
             params["type"] = type
         if q:
             params["q"] = q
+        if geoq:
+            params["georel"] = geoq
         headers = {
             "Accept": "application/ld+json",
             "Content-Type": None,
@@ -147,14 +150,13 @@ class Entities:
             headers=headers,
             params=params,
         )
-        r.raise_for_status()
         self._client.raise_for_status(r)
         entities = r.json()
         logger.debug(f"{entities=}")
         return [Entity.from_dict(entity) for entity in entities]
 
     @rfc7807_error_handle
-    def count(self, type: str = None, q: str = None, ctx: str = None, **kwargs) -> int:
+    def count(self, type: str = None, q: str = None, geoq: str = None, ctx: str = None, **kwargs) -> int:
         params = {"limit": 0, "count": "true"}
         if type is None and q is None:
             raise ValueError("Must indicate at least a type or a query string")
@@ -162,7 +164,8 @@ class Entities:
             params["type"] = type
         if q:
             params["q"] = q
-
+        if geoq:
+            params["georel"] = geoq
         headers = {
             "Accept": "application/json",
             "Content-Type": None,
