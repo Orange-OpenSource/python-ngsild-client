@@ -10,7 +10,8 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Union, List
+from typing import TYPE_CHECKING, Union, List, Optional
+from dataclasses import dataclass
 from datetime import timedelta
 from isodate import duration_isoformat
 
@@ -33,7 +34,32 @@ def addopt(params: dict, newopt: str):
     else:
         params["options"] += f",{newopt}"
 
-# TODO : Pagination Support (206 Partial Content + follow Next-Page)
+
+# TODO : Pagination Support (206 Partial Content + follow Next-Page / Previous-Page & Content-Range & pageAnchor & Page-Size)
+# TODO : @see Wednesday Webinar [33:29] : NGSI-LD Temporal Interfaces (Jason Fox, Fiware)
+
+
+@dataclass
+class Pagination:
+    count: int = 0
+    pagesize: int = 0
+    next_url: Optional[str] = None
+    prev_url: Optional[str] = None
+
+    @classmethod
+    def from_headers(cls, headers: dict):
+        count = int(headers.get("NGSILD-Results-Count", 0))
+        pagesize = int(headers.get("Page-Size", 0))
+        next_url = headers.get("Next-Page")
+        prev_url = headers.get("Previous-Page")
+        return cls(count, pagesize, next_url, prev_url)
+
+
+@dataclass
+class TemporalResult:
+    result: List[dict]
+    pagination: Optional[Pagination] = None
+
 
 class Temporal:
     def __init__(self, client: Client, url: str):
@@ -46,8 +72,11 @@ class Temporal:
         eid: Union[EntityId, Entity],
         ctx: str = None,
         verbose: bool = False,
-        **kwargs,
-    ) -> dict:
+        lastn: int = 0,
+        pagesize: int = 0,  # default broker pageSize
+        pageanchor: str = None,
+        count: bool = True,        
+    ) -> TemporalResult:
         eid = eid.id if isinstance(eid, Entity) else eid
         headers = {
             "Accept": "application/ld+json",
@@ -55,12 +84,24 @@ class Temporal:
         }  # overrides session headers
         if ctx is not None:
             headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
+        if count:
+            addopt(params, "count")            
         params = {}
+        if lastn > 0:
+            params["lastN"] = lastn
+        if pagesize > 0:
+            params["pageSize"] = pagesize
+        if pageanchor is not None:
+            params["pageAnchor"] = pageanchor        
         if not verbose:
             addopt(params, "temporalValue")
-        r = self._session.get(f"{self.url}/{eid}", headers=headers, params=params, **kwargs)
+        r = self._session.get(f"{self.url}/{eid}", headers=headers, params=params)
         self._client.raise_for_status(r)
-        return r.json()
+        return TemporalResult(r.json(), Pagination.from_headers(r.headers))
+
+    def to_broker_url(self, eid: Union[EntityId, Entity]) -> str:
+        eid = eid.id if isinstance(eid, Entity) else eid
+        return f"{self.url}/{eid}"
 
     def query(
         self,
@@ -73,8 +114,9 @@ class Temporal:
         tq: TemporalQuery = None,
         lastn: int = 0,
         pagesize: int = 0,  # default broker pageSize
+        pageanchor: str = None,
         count: bool = True,
-    ) -> List[dict]:
+    ) -> TemporalResult:
         params = {}
         if type:
             params["type"] = type
@@ -83,7 +125,7 @@ class Temporal:
         if q:
             params["q"] = q
         if gq:
-            params["georel"] = gq                 
+            params["georel"] = gq
         if count:
             addopt(params, "count")
         if not verbose:
@@ -95,6 +137,8 @@ class Temporal:
             params["lastN"] = lastn
         if pagesize > 0:
             params["pageSize"] = pagesize
+        if pageanchor is not None:
+            params["pageAnchor"] = pageanchor
         headers = {
             "Accept": "application/ld+json",
             "Content-Type": None,
@@ -107,9 +151,7 @@ class Temporal:
             params=params,
         )
         self._client.raise_for_status(r)
-        count = int(r.headers["NGSILD-Results-Count"])
-        print(f"{count=}")
-        return r.json()
+        return TemporalResult(r.json(), Pagination.from_headers(r.headers))
 
     def query_aggr(
         self,
@@ -121,19 +163,20 @@ class Temporal:
         tq: TemporalQuery = None,
         lastn: int = 0,
         pagesize: int = 0,  # default broker pageSize
+        pageanchor: str = None,
         count: bool = False,
         methods: List[AggrMethod] = [AggrMethod.AVERAGE],
         period: timedelta = timedelta(days=1),
-    ) -> List[dict]:
+    ) -> TemporalResult:
         params = {}
         if type:
             params["type"] = type
         if attrs:
-            params["attrs"] = ",".join(attrs)            
+            params["attrs"] = ",".join(attrs)
         if q:
             params["q"] = q
         if gq:
-            params["georel"] = gq        
+            params["georel"] = gq
         addopt(params, "aggregatedValues")
         if count:
             addopt(params, "count")
@@ -144,6 +187,8 @@ class Temporal:
             params["lastN"] = lastn
         if pagesize > 0:
             params["pageSize"] = pagesize
+        if pageanchor is not None:
+            params["pageAnchor"] = pageanchor            
         params["aggrMethods"] = ",".join([m.value for m in methods])
         params["aggrPeriodDuration"] = duration_isoformat(period)
         headers = {
@@ -158,6 +203,4 @@ class Temporal:
             params=params,
         )
         self._client.raise_for_status(r)
-        count = int(r.headers["NGSILD-Results-Count"])
-        print(f"{count=}")
-        return r.json()        
+        return TemporalResult(r.json(), Pagination.from_headers(r.headers))

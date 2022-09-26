@@ -24,8 +24,9 @@ from .batch import BatchOp
 from .types import Types
 from .contexts import Contexts
 from .subscriptions import Subscriptions
-from .temporal import Temporal
+from .temporal import Temporal, TemporalResult, Pagination
 from .exceptions import *
+from .helper.temporal import TemporalQuery
 
 logger = logging.getLogger(__name__)
 
@@ -527,7 +528,7 @@ class Client:
         q: str
             The query string (NGSI-LD Query Language)
         gq: str
-            The geoquery string (NGSI-LD Geoquery Language)            
+            The geoquery string (NGSI-LD Geoquery Language)
         ctx: str
             The context
         n: int
@@ -568,7 +569,7 @@ class Client:
         q: str
             The query string (NGSI-LD Query Language)
         gq: str
-            The geoquery string (NGSI-LD Geoquery Language)            
+            The geoquery string (NGSI-LD Geoquery Language)
         ctx: str
             The context
         limit: int
@@ -603,7 +604,7 @@ class Client:
         gq: str = None,
         ctx: str = None,
         limit: int = PAGINATION_LIMIT_MAX,
-        batch: bool = False
+        batch: bool = False,
     ) -> Generator[Entity, None, None]:
         count = self.entities.count(type, q)
         for page in range(ceil(count / limit)):
@@ -624,7 +625,7 @@ class Client:
         q: str
             The query string (NGSI-LD Query Language)
         gq: str
-            The geoquery string (NGSI-LD Geoquery Language)            
+            The geoquery string (NGSI-LD Geoquery Language)
 
         Returns
         -------
@@ -641,6 +642,55 @@ class Client:
         """
         return self.entities.count(type, q, gq)
 
+    def temporal_query_head(
+        self,
+        type: str = None,
+        attrs: List[str] = None,
+        q: str = None,
+        gq: str = None,
+        ctx: str = None,
+        verbose: bool = False,
+        tq: TemporalQuery = None,
+        limit: int = 10,
+    ) -> List[dict]:
+        return self.temporal.query(type, attrs, q, gq, ctx, verbose, tq, lastn=limit, pagesize=limit).result
+
+    def temporal_query_all(
+        self,
+        type: str = None,
+        attrs: List[str] = None,
+        q: str = None,
+        gq: str = None,
+        ctx: str = None,
+        verbose: bool = False,
+        tq: TemporalQuery = None,
+        pagesize: int = 0,
+    ) -> List[dict]:
+        r: TemporalResult = self.temporal.query(type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize)
+        troes: List[dict] = r.result
+        while r.pagination.next_url is not None:
+            r: TemporalResult = self.temporal.query(type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize, pageanchor=r.pagination.next_url)
+            troes.extend(r.result)
+        return troes
+
+    def temporal_query_generator(
+        self,
+        type: str = None,
+        attrs: List[str] = None,
+        q: str = None,
+        gq: str = None,
+        ctx: str = None,
+        verbose: bool = False,
+        tq: TemporalQuery = None,
+        pagesize: int = 0,
+    ) -> Generator[List[dict], None, None]:
+        r: TemporalResult = self.temporal.query(type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize)
+        yield r.result
+        while r.pagination.next_url is not None:
+            r: TemporalResult = self.temporal.query(type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize, pageanchor=r.pagination.next_url)
+            yield r.result
+        return
+
     def delete_where(self, type: str = None, q: str = None, gq: str = None):
         """Batch delete entities matching type and/or query string.
 
@@ -651,7 +701,7 @@ class Client:
         q: str
             The query string (NGSI-LD Query Language)
         gq: str
-            The geoquery string (NGSI-LD Geoquery Language)            
+            The geoquery string (NGSI-LD Geoquery Language)
 
         Example:
         --------
