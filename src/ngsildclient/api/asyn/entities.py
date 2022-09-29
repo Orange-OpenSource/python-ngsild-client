@@ -116,6 +116,7 @@ class Entities:
         self,
         type: str = None,
         q: str = None,
+        gq: str = None,        
         ctx: str = None,
         limit: int = 0,
         offset: int = 0,
@@ -132,6 +133,8 @@ class Entities:
             params["type"] = type
         if q:
             params["q"] = q
+        if gq:
+            params["geoQ"] = gq            
         headers = {
             "Accept": "application/ld+json",
         }  # overrides session headers
@@ -148,7 +151,7 @@ class Entities:
         return [Entity.from_dict(entity) for entity in entities]
 
     @rfc7807_error_handle_async
-    async def count(self, type: str = None, q: str = None, ctx: str = None, **kwargs) -> int:
+    async def count(self, type: str = None, q: str = None, gq: str = None, ctx: str = None, **kwargs) -> int:
         params = {"limit": 0, "count": "true"}
         if type is None and q is None:
             raise ValueError("Must indicate at least a type or a query string")
@@ -156,7 +159,8 @@ class Entities:
             params["type"] = type
         if q:
             params["q"] = q
-
+        if gq:
+            params["geoQ"] = gq
         headers = {
             "Accept": "application/json",
         }  # overrides session headers

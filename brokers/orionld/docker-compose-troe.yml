@@ -41,7 +41,7 @@ services:
       orionld:
         ipv4_address: 172.29.1.102
   mintaka:
-    image: fiware/mintaka:0.5.9
+    image: fiware/mintaka:latest
     hostname: mintaka
     container_name: mintaka
     environment:

@@ -13,7 +13,7 @@ import logging
 import requests
 from requests.auth import AuthBase
 from dataclasses import dataclass
-from typing import Optional, Tuple, Generator, List, Union, overload
+from typing import Optional, Tuple, Generator, List, Union, overload, Callable
 from math import ceil
 
 from ..utils import is_interactive
@@ -24,7 +24,7 @@ from .batch import BatchOp
 from .types import Types
 from .contexts import Contexts
 from .subscriptions import Subscriptions
-from .temporal import Temporal, TemporalResult, Pagination
+from .temporal import Temporal, TemporalResult
 from .exceptions import *
 from .helper.temporal import TemporalQuery
 
@@ -613,6 +613,19 @@ class Client:
             else:
                 yield from self.entities.query(type, q, gq, ctx, limit, page * limit)
 
+    def query_handle(
+        self,
+        type: str = None,
+        q: str = None,
+        gq: str = None,
+        ctx: str = None,
+        limit: int = PAGINATION_LIMIT_MAX,
+        *,
+        callback: Callable[[Entity], None],
+    ) -> None:
+        for entity in self.query_generator(type, q, gq, ctx, limit, False):
+            callback(entity)
+
     def count(self, type: str = None, q: str = None, gq: str = None) -> int:
         """Return number of entities matching type and/or query string.
 
@@ -642,55 +655,6 @@ class Client:
         """
         return self.entities.count(type, q, gq)
 
-    def temporal_query_head(
-        self,
-        type: str = None,
-        attrs: List[str] = None,
-        q: str = None,
-        gq: str = None,
-        ctx: str = None,
-        verbose: bool = False,
-        tq: TemporalQuery = None,
-        limit: int = 10,
-    ) -> List[dict]:
-        return self.temporal.query(type, attrs, q, gq, ctx, verbose, tq, lastn=limit, pagesize=limit).result
-
-    def temporal_query_all(
-        self,
-        type: str = None,
-        attrs: List[str] = None,
-        q: str = None,
-        gq: str = None,
-        ctx: str = None,
-        verbose: bool = False,
-        tq: TemporalQuery = None,
-        pagesize: int = 0,
-    ) -> List[dict]:
-        r: TemporalResult = self.temporal.query(type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize)
-        troes: List[dict] = r.result
-        while r.pagination.next_url is not None:
-            r: TemporalResult = self.temporal.query(type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize, pageanchor=r.pagination.next_url)
-            troes.extend(r.result)
-        return troes
-
-    def temporal_query_generator(
-        self,
-        type: str = None,
-        attrs: List[str] = None,
-        q: str = None,
-        gq: str = None,
-        ctx: str = None,
-        verbose: bool = False,
-        tq: TemporalQuery = None,
-        pagesize: int = 0,
-    ) -> Generator[List[dict], None, None]:
-        r: TemporalResult = self.temporal.query(type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize)
-        yield r.result
-        while r.pagination.next_url is not None:
-            r: TemporalResult = self.temporal.query(type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize, pageanchor=r.pagination.next_url)
-            yield r.result
-        return
-
     def delete_where(self, type: str = None, q: str = None, gq: str = None):
         """Batch delete entities matching type and/or query string.
 
@@ -712,7 +676,7 @@ class Client:
         for batch in g:
             self.batch.delete(batch)
 
-    def drop(self, type: str) -> None:
+    def drop(self, *types: str) -> None:
         """Batch delete entities matching the given type.
 
         Parameters
@@ -725,10 +689,8 @@ class Client:
         >>> with Client() as client:
         >>>     client.drop("AgriFarm")
         """
-        self.delete_where(type=type)
-
-    def list_types(self) -> Optional[dict]:
-        return self.types.list()
+        for t in types:
+            self.delete_where(type=t)
 
     def purge(self) -> None:
         """Batch delete all entities.

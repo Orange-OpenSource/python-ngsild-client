@@ -13,7 +13,7 @@ import logging
 import httpx
 from httpx._types import AuthTypes
 from dataclasses import dataclass
-from typing import Optional, Tuple, Generator, List, Union, overload
+from typing import Optional, Tuple, Generator, List, Union, overload, Callable
 from math import ceil
 
 from ...model.entity import Entity
@@ -24,6 +24,8 @@ from .batch import BatchOp
 from .types import Types
 from .contexts import Contexts
 from .subscriptions import Subscriptions
+from .temporal import Temporal, TemporalResult
+from ..helper.temporal import TemporalQuery
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +70,7 @@ class AsyncClient:
         self,
         hostname: str = "localhost",
         port: int = NGSILD_DEFAULT_PORT,
+        port_temporal: int = NGSILD_TEMPORAL_PORT,        
         secure: bool = False,
         useragent: str = UA,
         tenant: str = None,
@@ -110,6 +113,7 @@ class AsyncClient:
         """
         self.hostname = hostname
         self.port = port
+        self.port_temporal = port_temporal        
         self.secure = secure
         self.scheme = "https" if secure else "http"
         self.url = f"{self.scheme}://{hostname}:{port}"
@@ -136,6 +140,13 @@ class AsyncClient:
         self._types = Types(self, f"{self.url}/{ENDPOINT_TYPES}")
         self._contexts = Contexts(self, f"{self.url}/{ENDPOINT_CONTEXTS}")
         self._subscriptions = Subscriptions(self, f"{self.url}/{ENDPOINT_SUBSCRIPTIONS}")
+        url_temporal = f"{self.scheme}://{hostname}:{port_temporal}"
+        temporal_path = (
+            f"{url_temporal}/{NGSILD_BASEPATH}/temporal/entities"
+            if port_temporal == port  # temporal share the same port and basepath
+            else f"{url_temporal}/temporal/entities"
+        )
+        self._temporal = Temporal(self, temporal_path)        
         
     def raise_for_status(self, r: httpx.Response):
         """Raises an exception depending on the API response.
@@ -167,6 +178,10 @@ class AsyncClient:
     @property
     def subscriptions(self):
         return self._subscriptions
+
+    @property
+    def temporal(self):
+        return self._temporal        
 
     async def close(self):
         """Terminates the client.
@@ -430,7 +445,7 @@ class AsyncClient:
         else:
             return await self.batch.update(entities)
 
-    async def query_head(self, type: str = None, q: str = None, ctx: str = None, n: int = 5, **kwargs) -> List[Entity]:
+    async def query_head(self, type: str = None, q: str = None, gq: str = None, ctx: str = None, n: int = 5) -> List[Entity]:
         """Retrieve entities given its type and/or query string.
 
         Retrieve up to PAGINATION_LIMIT_MAX entities.
@@ -443,6 +458,8 @@ class AsyncClient:
             The entity's type
         q: str
             The query string (NGSI-LD Query Language)
+        gq: str
+            The geoquery string (NGSI-LD Geoquery Language)            
         ctx: str
             The context
         n: int
@@ -460,16 +477,16 @@ class AsyncClient:
         >>> with AsyncClient() as client:
         >>>     await client.query(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
-        return await self.entities.query(type, q, ctx, limit=n)
+        return await self.entities.query(type, q, gq, ctx, limit=n)
 
     async def query_all(
         self,
         type: str = None,
         q: str = None,
+        gq: str = None,
         ctx: str = None,
         limit: int = PAGINATION_LIMIT_MAX,
         max: int = 1_000_000,
-        **kwargs,
     ) -> List[Entity]:
         """Retrieve entities given its type and/or query string.
 
@@ -482,6 +499,8 @@ class AsyncClient:
             The entity's type
         q: str
             The query string (NGSI-LD Query Language)
+        gq: str
+            The geoquery string (NGSI-LD Geoquery Language)            
         ctx: str
             The context
         limit: int
@@ -502,32 +521,45 @@ class AsyncClient:
         """
 
         entities: list[Entity] = []
-        count = await self.entities.count(type, q, ctx=ctx)
+        count = await self.entities.count(type, q, gq, ctx=ctx)
         if count > max:
             raise NgsiClientTooManyResultsError(f"{count} results exceed maximum {max}")
         for page in range(ceil(count / limit)):
-            entities.extend(await self.entities.query(type, q, ctx, limit, page * limit))
+            entities.extend(await self.entities.query(type, q, gq, ctx, limit, page * limit))
         return entities
 
     async def query_generator(
         self,
         type: str = None,
         q: str = None,
+        gq: str = None,
         ctx: str = None,
         limit: int = PAGINATION_LIMIT_MAX,
         batch: bool = False,
-        **kwargs,
     ) -> Generator[Entity, None, None]:
-        count = await self.entities.count(type, q)
+        count = await self.entities.count(type, q, gq)
         for page in range(ceil(count / limit)):
-            entities = await self.entities.query(type, q, ctx, limit, page * limit)
+            entities = await self.entities.query(type, q, gq, ctx, limit, page * limit)
             if batch:
                 yield entities
             else:
                 for entity in entities:
                     yield entity
 
-    async def count(self, type: str = None, q: str = None, **kwargs) -> int:
+    async def query_handle(
+        self,
+        type: str = None,
+        q: str = None,
+        gq: str = None,
+        ctx: str = None,
+        limit: int = PAGINATION_LIMIT_MAX,
+        *,
+        callback: Callable[[Entity], None],
+    ) -> None:
+        async for entity in self.query_generator(type, q, gq, ctx, limit, False):
+            callback(entity)
+
+    async def count(self, type: str = None, q: str = None, gq: str = None) -> int:
         """Return number of entities matching type and/or query string.
 
         Facade method for Entities.count().
@@ -536,8 +568,10 @@ class AsyncClient:
         ----------
         etype : str
             The entity's type
-        query: str
+        q: str
             The query string (NGSI-LD Query Language)
+        gq: str
+            The geoquery string (NGSI-LD Geoquery Language)            
 
         Returns
         -------
@@ -573,7 +607,7 @@ class AsyncClient:
         async for batch in g:
             await self.batch.delete(batch)
 
-    async def drop(self, type: str) -> None:
+    async def drop(self, *types: str) -> None:
         """Batch delete entities matching the given type.
 
         Parameters
@@ -586,10 +620,8 @@ class AsyncClient:
         >>> with AsyncClient() as client:
         >>>     await client.drop("AgriFarm")
         """
-        await self.delete_where(type=type)
-
-    async def list_types(self) -> Optional[dict]:
-        return await self.types.list()
+        for t in types:
+            await self.delete_where(type=t)
 
     async def purge(self) -> None:
         """Batch delete all entities.

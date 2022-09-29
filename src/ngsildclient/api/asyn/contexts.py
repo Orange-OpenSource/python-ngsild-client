@@ -12,6 +12,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 import re
+import json
+import aiofiles
 import logging
 
 if TYPE_CHECKING:
@@ -76,8 +78,15 @@ class Contexts:
                 await self.delete(ctx)
 
     @rfc7807_error_handle_async
-    async def add(self, ctx: dict) -> bool:
+    async def add(self, ctx: dict):
         if not ctx.get("@context"):
             raise ValueError("Expect a JSON object that has a top-level field named @context.")
         r = await self._session.post(f"{self.url}/", json=ctx)
         self._client.raise_for_status(r)
+
+    @rfc7807_error_handle_async
+    async def add_file(self, ctxfilename: str):
+        async with aiofiles.open(ctxfilename, "r") as fp:
+            contents = await fp.read()
+            ctx = json.loads(contents)
+        await self.add(ctx)
