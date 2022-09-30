@@ -14,10 +14,11 @@ from typing import TYPE_CHECKING, Union, List, Optional, Generator, Callable
 from dataclasses import dataclass
 from datetime import timedelta
 from isodate import duration_isoformat
-from ngsildclient.utils import iso8601
+from functools import reduce
+from operator import iconcat
+
 
 import logging
-import operator
 
 if TYPE_CHECKING:
     from .client import Client
@@ -25,7 +26,7 @@ if TYPE_CHECKING:
 from .constants import EntityId, JSONLD_CONTEXT, AggrMethod
 from .helper.temporal import TemporalQuery
 from ..model.entity import Entity
-
+from ngsildclient.utils import iso8601, is_pandas_installed
 
 logger = logging.getLogger(__name__)
 
@@ -37,28 +38,38 @@ def addopt(params: dict, newopt: str):
         params["options"] += f",{newopt}"
 
 
-def troes_to_dict(troes: dict):
+def _troes_to_dfdict(troes: dict):
+    # the result dictionary is independant of the number of attributes !
     d = {}
     if not isinstance(troes, List):
         troes = [troes]
     troe: dict = troes[0]
+    nentities = len(troes)
     attrs = [str(k) for k in troe.keys() if k not in ("id", "type", "@context")]
     attr0 = attrs[0]
-    n = len(troe[attr0])
     datetimes = [x[1] for x in troe[attr0]["values"]]
-    if len(attrs) > 1:
-        for attr in attrs[1:]:
-            if [x[1] for x in troe[attr]["values"]] != datetimes:
-                raise ValueError("Cannot pack result : attributes have distinct observedAt values.")
+    nmeasures: int = len(datetimes)
+    for attr in attrs[1:]:
+        if [x[1] for x in troe[attr]["values"]] != datetimes:
+            raise ValueError("Cannot pack result : attributes have distinct observedAt values.")
     etype = troe["type"]
-    d[etype] = operator.iconcat(*[[troe["id"].rsplit(":")[-1]] * n for troe in troes])
-    d["observed"] = [iso8601.parse(x)[2] for x in datetimes] * n
+    d[etype] = reduce(iconcat, [[troe["id"].rsplit(":")[-1]] * nmeasures for troe in troes], [])
+    d["observed"] = [iso8601.parse(x)[2] for x in datetimes] * nentities
     for attr in attrs:
         d[attr] = []
         for troe in troes:
             for value in troe[attr]["values"]:
                 d[attr].append(value[0])
     return d
+
+
+def troes_to_dataframe(troes: dict):
+    d = _troes_to_dfdict(troes)
+    try:
+        import pandas
+    except ImportError:
+        raise ValueError("Cannot export to dataframe : pandas not installed.")
+    return pandas.DataFrame(d)
 
 
 @dataclass
@@ -133,15 +144,19 @@ class Temporal:
         ctx: str = None,
         verbose: bool = False,
         pagesize: int = 0,
-        packed: bool = False,
+        as_dataframe: bool = False,
     ) -> List[dict]:
-        verbose = False if packed else verbose
+        if as_dataframe:
+            if is_pandas_installed():
+                verbose = False  # force simplified representation
+            else:
+                raise ValueError("Cannot export to dataframe : pandas not installed.")
         r: TemporalResult = self._get(eid, attrs, ctx, verbose, pagesize=pagesize)
         troes: List[dict] = r.result
         while r.pagination.next_url is not None:
             r: TemporalResult = self._get(eid, attrs, ctx, verbose, pagesize=pagesize, pageanchor=r.pagination.next_url)
             troes.extend(r.result)
-        return troes_to_dict(troes) if packed else troes
+        return troes_to_dataframe(troes) if as_dataframe else troes
 
     def _query(
         self,
@@ -208,11 +223,15 @@ class Temporal:
         verbose: bool = False,
         tq: TemporalQuery = None,
         limit: int = 5,
-        packed: bool = False,
+        as_dataframe: bool = False,
     ) -> List[dict]:
-        verbose = False if packed else verbose
+        if as_dataframe:
+            if is_pandas_installed():
+                verbose = False  # force simplified representation
+            else:
+                raise ValueError("Cannot export to dataframe : pandas not installed.")
         troes = self._query(eid, type, attrs, q, gq, ctx, verbose, tq, lastn=limit, pagesize=limit).result
-        return troes_to_dict(troes) if packed else troes
+        return troes_to_dataframe(troes) if as_dataframe else troes
 
     def query_all(
         self,
@@ -226,9 +245,13 @@ class Temporal:
         verbose: bool = False,
         tq: TemporalQuery = None,
         pagesize: int = 0,
-        packed: bool = False,
+        as_dataframe: bool = False,
     ) -> List[dict]:
-        verbose = False if packed else verbose
+        if as_dataframe:
+            if is_pandas_installed():
+                verbose = False  # force simplified representation
+            else:
+                raise ValueError("Cannot export to dataframe : pandas not installed.")
         r: TemporalResult = self._query(eid, type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize)
         troes: List[dict] = r.result
         while r.pagination.next_url is not None:
@@ -236,7 +259,7 @@ class Temporal:
                 eid, type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize, pageanchor=r.pagination.next_url
             )
             troes.extend(r.result)
-        return troes_to_dict(troes) if packed else troes
+        return troes_to_dataframe(troes) if as_dataframe else troes
 
     def query_generator(
         self,
@@ -273,10 +296,9 @@ class Temporal:
         verbose: bool = False,
         tq: TemporalQuery = None,
         pagesize: int = 0,
-        packed: bool = False,
         callback: Callable[[Entity], None],
     ) -> None:
-        for troe in self.query_generator(eid, type, attrs, q, gq, ctx, verbose, tq, pagesize, packed):
+        for troe in self.query_generator(eid, type, attrs, q, gq, ctx, verbose, tq, pagesize):
             callback(troe)
 
     def aggregate(

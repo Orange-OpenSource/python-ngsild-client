@@ -66,9 +66,7 @@ __all__ = [
     "NgsiAlreadyExistsError",
 ]
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 if is_interactive():
     logging.disable(logging.CRITICAL)
     sys.tracebacklimit = 0

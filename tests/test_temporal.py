@@ -10,9 +10,31 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from datetime import datetime
-from ngsildclient.api.temporal import troes_to_dict
+from ngsildclient.api.temporal import _troes_to_dfdict
 
-troes1 = [
+troes_1entity_1attr_2measures = [
+    {
+        "id": "urn:ngsi-ld:RoomObserved:Room1",
+        "type": "RoomObserved",
+        "temperature": {"type": "Property", "values": [[21.7, "2022-09-29T04:16:10Z"], [21.6, "2022-09-29T06:16:10Z"]]},
+        "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+    }
+]
+
+troes_1entity_2attrs_2measures = [
+    {
+        "id": "urn:ngsi-ld:RoomObserved:Room1",
+        "type": "RoomObserved",
+        "temperature": {"type": "Property", "values": [[21.7, "2022-09-29T04:16:10Z"], [21.6, "2022-09-29T06:16:10Z"]]},
+        "pressure": {
+            "type": "Property",
+            "values": [[721, "2022-09-29T04:16:10Z"], [720, "2022-09-29T06:16:10Z"]],
+        },
+        "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+    }
+]
+
+troes_2entities_1attr_2measures = [
     {
         "id": "urn:ngsi-ld:RoomObserved:Room1",
         "type": "RoomObserved",
@@ -20,6 +42,7 @@ troes1 = [
             "type": "Property",
             "values": [[21.7, "2022-09-29T04:16:10Z"], [21.6, "2022-09-29T06:16:10Z"]],
         },
+        "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
     },
     {
         "id": "urn:ngsi-ld:RoomObserved:Room2",
@@ -28,10 +51,11 @@ troes1 = [
             "type": "Property",
             "values": [[22.7, "2022-09-29T04:16:10Z"], [22.6, "2022-09-29T06:16:10Z"]],
         },
+        "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
     },
 ]
 
-troes2 = [
+troes_2entities_2attrs_2measures = [
     {
         "id": "urn:ngsi-ld:RoomObserved:Room1",
         "type": "RoomObserved",
@@ -43,6 +67,7 @@ troes2 = [
             "type": "Property",
             "values": [[721, "2022-09-29T04:16:10Z"], [720, "2022-09-29T06:16:10Z"]],
         },
+        "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
     },
     {
         "id": "urn:ngsi-ld:RoomObserved:Room2",
@@ -55,13 +80,39 @@ troes2 = [
             "type": "Property",
             "values": [[731, "2022-09-29T04:16:10Z"], [730, "2022-09-29T06:16:10Z"]],
         },
+        "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
     },
 ]
 
 
-def test_to_tuples_two_entities():
-    packed = troes_to_dict(troes2)
-    assert packed == {
+def test_to_dfdict_1entity_1attr_2measures():
+    dfdict = _troes_to_dfdict(troes_1entity_1attr_2measures)
+    assert dfdict == {
+        "RoomObserved": ["Room1", "Room1"],
+        "observed": [
+            datetime(2022, 9, 29, 4, 16, 10),
+            datetime(2022, 9, 29, 6, 16, 10),
+        ],
+        "temperature": [21.7, 21.6],
+    }
+
+
+def test_to_dfdict_1entity_2attrs_2measures():
+    dfdict = _troes_to_dfdict(troes_1entity_2attrs_2measures)
+    assert dfdict == {
+        "RoomObserved": ["Room1", "Room1"],
+        "observed": [
+            datetime(2022, 9, 29, 4, 16, 10),
+            datetime(2022, 9, 29, 6, 16, 10),
+        ],
+        "temperature": [21.7, 21.6],
+        "pressure": [721, 720],
+    }
+
+
+def test_to_dfdict_2entities_2attrs_2measures():
+    dfdict = _troes_to_dfdict(troes_2entities_2attrs_2measures)
+    assert dfdict == {
         "RoomObserved": ["Room1", "Room1", "Room2", "Room2"],
         "observed": [
             datetime(2022, 9, 29, 4, 16, 10),
