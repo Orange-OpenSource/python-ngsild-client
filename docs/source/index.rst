@@ -35,7 +35,7 @@ The ngsildclient Python library has two main objectives.
    Interact with the Broker <client>
    Cookbook <cookbook>
    License <license>
-   API Reference <_autosummary/ngsildclient>
+   API Reference <_api>
 
 Indices and tables
 ==================
