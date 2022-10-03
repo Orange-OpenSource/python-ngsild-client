@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class Entities:
+    """A wrapper for the NGSI-LD API entities endpoint."""
     def __init__(self, client: Client, url: str):
         self._client = client
         self._session = client.session
@@ -116,7 +117,7 @@ class Entities:
         return None
 
     @rfc7807_error_handle
-    def query(
+    def _query(
         self,
         type: str = None,
         q: str = None,

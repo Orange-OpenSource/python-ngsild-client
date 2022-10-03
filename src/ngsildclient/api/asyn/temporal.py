@@ -10,7 +10,7 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Union, List, Optional, Generator, Callable
+from typing import TYPE_CHECKING, Union, List, Generator, Callable, Awaitable
 from dataclasses import dataclass
 from datetime import timedelta
 from isodate import duration_isoformat
@@ -24,38 +24,10 @@ if TYPE_CHECKING:
 from ..constants import EntityId, JSONLD_CONTEXT, AggrMethod
 from ..helper.temporal import TemporalQuery
 from ...model.entity import Entity
-
+from ..temporal import _addopt, Pagination, TemporalResult, troes_to_dataframe
+from ngsildclient.utils import is_pandas_installed
 
 logger = logging.getLogger(__name__)
-
-
-def addopt(params: dict, newopt: str):
-    if params.get("options", "") == "":
-        params["options"] = newopt
-    else:
-        params["options"] += f",{newopt}"
-
-
-@dataclass
-class Pagination:
-    count: int = 0
-    pagesize: int = 0
-    next_url: Optional[str] = None
-    prev_url: Optional[str] = None
-
-    @classmethod
-    def from_headers(cls, headers: dict):
-        count = int(headers.get("NGSILD-Results-Count", 0))
-        pagesize = int(headers.get("Page-Size", 0))
-        next_url = headers.get("Next-Page")
-        prev_url = headers.get("Previous-Page")
-        return cls(count, pagesize, next_url, prev_url)
-
-
-@dataclass
-class TemporalResult:
-    result: List[dict]
-    pagination: Optional[Pagination] = None
 
 
 class Temporal:
@@ -64,9 +36,10 @@ class Temporal:
         self._session = client.client
         self.url = url
 
-    async def get(
+    async def _get(
         self,
         eid: Union[EntityId, Entity],
+        attrs: List[str] = None,
         ctx: str = None,
         verbose: bool = False,
         lastn: int = 0,
@@ -76,15 +49,14 @@ class Temporal:
     ) -> TemporalResult:
         eid = eid.id if isinstance(eid, Entity) else eid
         params = {}
-        headers = {
-            "Accept": "application/ld+json",
-            "Content-Type": None,
-        }  # overrides session headers
+        headers = {"Accept": "application/ld+json"}
         if ctx is not None:
             headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
         if count:
-            addopt(params, "count")
+            _addopt(params, "count")
         params = {}
+        if attrs:
+            params["attrs"] = ",".join(attrs)
         if lastn > 0:
             params["lastN"] = lastn
         if pagesize > 0:
@@ -92,13 +64,36 @@ class Temporal:
         if pageanchor is not None:
             params["pageAnchor"] = pageanchor
         if not verbose:
-            addopt(params, "temporalValue")
+            _addopt(params, "temporalValues")
         r: Response = await self._session.get(f"{self.url}/{eid}", headers=headers, params=params)
         self._client.raise_for_status(r)
         return TemporalResult(r.json(), Pagination.from_headers(r.headers))
 
+    #  equivalent to get_all()
+    async def get(
+        self,
+        eid: Union[EntityId, Entity],
+        attrs: List[str] = None,
+        ctx: str = None,
+        verbose: bool = False,
+        pagesize: int = 0,
+        as_dataframe: bool = False,
+    ) -> List[dict]:
+        if as_dataframe:
+            if is_pandas_installed():
+                verbose = False  # force simplified representation
+            else:
+                raise ValueError("Cannot export to dataframe : pandas not installed.")
+        r: TemporalResult = await self._get(eid, attrs, ctx, verbose, pagesize=pagesize)
+        troes: List[dict] = r.result
+        while r.pagination.next_url is not None:
+            r: TemporalResult = await self._get(eid, attrs, ctx, verbose, pagesize=pagesize, pageanchor=r.pagination.next_url)
+            troes.extend(r.result)
+        return troes_to_dataframe(troes) if as_dataframe else troes
+
     async def _query(
         self,
+        eid: Union[EntityId, Entity] = None,
         type: str = None,
         attrs: List[str] = None,
         q: str = None,
@@ -112,6 +107,8 @@ class Temporal:
         count: bool = True,
     ) -> TemporalResult:
         params = {}
+        if eid:
+            params["id"] = eid
         if type:
             params["type"] = type
         if attrs:
@@ -121,9 +118,9 @@ class Temporal:
         if gq:
             params["georel"] = gq
         if count:
-            addopt(params, "count")
+            _addopt(params, "count")
         if not verbose:
-            addopt(params, "temporalValue")
+            _addopt(params, "temporalValues")
         if tq is None:
             tq = TemporalQuery().before()
         params |= tq
@@ -133,9 +130,7 @@ class Temporal:
             params["pageSize"] = pagesize
         if pageanchor is not None:
             params["pageAnchor"] = pageanchor
-        headers = {
-            "Accept": "application/ld+json",
-        }  # overrides session headers
+        headers = {"Accept": "application/ld+json"}
         if ctx is not None:
             headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
         r: Response = await self._session.get(
@@ -148,6 +143,8 @@ class Temporal:
 
     async def query_head(
         self,
+        *,
+        eid: Union[EntityId, Entity] = None,
         type: str = None,
         attrs: List[str] = None,
         q: str = None,
@@ -156,12 +153,20 @@ class Temporal:
         verbose: bool = False,
         tq: TemporalQuery = None,
         limit: int = 5,
+        as_dataframe: bool = False,
     ) -> List[dict]:
-        r = await self._query(type, attrs, q, gq, ctx, verbose, tq, lastn=limit, pagesize=limit)
-        return r.result
+        if as_dataframe:
+            if is_pandas_installed():
+                verbose = False  # force simplified representation
+            else:
+                raise ValueError("Cannot export to dataframe : pandas not installed.")
+        troes = await self._query(eid, type, attrs, q, gq, ctx, verbose, tq, lastn=limit, pagesize=limit).result
+        return troes_to_dataframe(troes) if as_dataframe else troes
 
     async def query_all(
         self,
+        *,
+        eid: Union[EntityId, Entity] = None,
         type: str = None,
         attrs: List[str] = None,
         q: str = None,
@@ -170,16 +175,26 @@ class Temporal:
         verbose: bool = False,
         tq: TemporalQuery = None,
         pagesize: int = 0,
+        as_dataframe: bool = False,
     ) -> List[dict]:
-        r: TemporalResult = await self._query(type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize)
+        if as_dataframe:
+            if is_pandas_installed():
+                verbose = False  # force simplified representation
+            else:
+                raise ValueError("Cannot export to dataframe : pandas not installed.")
+        r: TemporalResult = await self._query(eid, type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize)
         troes: List[dict] = r.result
         while r.pagination.next_url is not None:
-            r: TemporalResult = await self._query(type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize, pageanchor=r.pagination.next_url)
+            r: TemporalResult = await self._query(
+                eid, type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize, pageanchor=r.pagination.next_url
+            )
             troes.extend(r.result)
-        return troes
+        return troes_to_dataframe(troes) if as_dataframe else troes
 
     async def query_generator(
         self,
+        *,
+        eid: Union[EntityId, Entity] = None,
         type: str = None,
         attrs: List[str] = None,
         q: str = None,
@@ -188,18 +203,22 @@ class Temporal:
         verbose: bool = False,
         tq: TemporalQuery = None,
         pagesize: int = 0,
-    ) -> Generator[List[dict], None, None]:
-        r: TemporalResult = await self._query(type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize)
-        for x in r.result:
-            yield x
+    ) -> Awaitable[Generator[List[dict], None, None]]:
+        r: TemporalResult = await self._query(eid, type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize)
+        troes = r.result
+        for troe in troes:
+            yield troe
         while r.pagination.next_url is not None:
-            r: TemporalResult = await self._query(type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize, pageanchor=r.pagination.next_url)
-            for x in r.result:
-                yield x
-        return
+            r: TemporalResult = await self._query(
+                eid, type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize, pageanchor=r.pagination.next_url
+            )
+        for troe in troes:
+            yield troe
 
     async def query_handle(
         self,
+        *,
+        eid: Union[EntityId, Entity] = None,
         type: str = None,
         attrs: List[str] = None,
         q: str = None,
@@ -207,14 +226,23 @@ class Temporal:
         ctx: str = None,
         verbose: bool = False,
         tq: TemporalQuery = None,
-        *,
-        callback: Callable[[Entity], None],
+        pagesize: int = 0,
+        callback: Callable[[Awaitable[Entity]], None],
     ) -> None:
-        async for troe in self.query_generator(type, attrs, q, gq, ctx, verbose, tq):
+        async for troe in self.query_generator(eid=eid, 
+            type=type,
+            attrs=attrs,
+            q = q,
+            gq = gq, 
+            ctx = ctx, 
+            verbose = verbose,
+            tq = tq,
+            pagesize = pagesize):
             callback(troe)
 
     async def aggregate(
         self,
+        *,
         type: str = None,
         attrs: List[str] = None,
         q: str = None,
@@ -237,9 +265,9 @@ class Temporal:
             params["q"] = q
         if gq:
             params["georel"] = gq
-        addopt(params, "aggregatedValues")
+        _addopt(params, "aggregatedValues")
         if count:
-            addopt(params, "count")
+            _addopt(params, "count")
         if tq is None:
             tq = TemporalQuery().before()
         params |= tq
@@ -251,9 +279,7 @@ class Temporal:
             params["pageAnchor"] = pageanchor
         params["aggrMethods"] = ",".join([m.value for m in methods])
         params["aggrPeriodDuration"] = duration_isoformat(period)
-        headers = {
-            "Accept": "application/ld+json",
-        }  # overrides session headers
+        headers = {"Accept": "application/ld+json"} 
         if ctx is not None:
             headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
         r: Response = await self._session.get(

@@ -31,7 +31,7 @@ from ngsildclient.utils import iso8601, is_pandas_installed
 logger = logging.getLogger(__name__)
 
 
-def addopt(params: dict, newopt: str):
+def _addopt(params: dict, newopt: str):
     if params.get("options", "") == "":
         params["options"] = newopt
     else:
@@ -95,6 +95,7 @@ class TemporalResult:
 
 
 class Temporal:
+    """A wrapper for the NGSI-LD API temporal endpoint."""
     def __init__(self, client: Client, url: str):
         self._client = client
         self._session = client.session
@@ -120,7 +121,7 @@ class Temporal:
         if ctx is not None:
             headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
         if count:
-            addopt(params, "count")
+            _addopt(params, "count")
         params = {}
         if attrs:
             params["attrs"] = ",".join(attrs)
@@ -131,7 +132,7 @@ class Temporal:
         if pageanchor is not None:
             params["pageAnchor"] = pageanchor
         if not verbose:
-            addopt(params, "temporalValues")
+            _addopt(params, "temporalValues")
         r = self._session.get(f"{self.url}/{eid}", headers=headers, params=params)
         self._client.raise_for_status(r)
         return TemporalResult(r.json(), Pagination.from_headers(r.headers))
@@ -146,6 +147,30 @@ class Temporal:
         pagesize: int = 0,
         as_dataframe: bool = False,
     ) -> List[dict]:
+        """Retrieve the Temporal Representation of (an) Entity (TRoE) given its id.
+
+        If already dealing with an entity instance one can provide the entity itself instead of its id.
+
+        Parameters
+        ----------
+        eid : Union[EntityId, Entity]
+            The entity identifier or the entity instance
+        attrs : List[str]
+            The list of the attributes (changing over time) you're interested in
+        ctx : str
+            The context
+        verbose: bool
+            Default is False, meaning the result is formatted as simplified TRoE.
+        as_dataframe : bool
+            Default is false, meaning it returns JSON TRoE.
+            If set returns a pandas dataframe. Requires pandas.
+
+        Returns
+        -------
+        dict
+            A dict equivalent to the Temporal Representation of the Entity
+        """
+
         if as_dataframe:
             if is_pandas_installed():
                 verbose = False  # force simplified representation
@@ -185,9 +210,9 @@ class Temporal:
         if gq:
             params["georel"] = gq
         if count:
-            addopt(params, "count")
+            _addopt(params, "count")
         if not verbose:
-            addopt(params, "temporalValues")
+            _addopt(params, "temporalValues")
         if tq is None:
             tq = TemporalQuery().before()
         params |= tq
@@ -244,19 +269,65 @@ class Temporal:
         ctx: str = None,
         verbose: bool = False,
         tq: TemporalQuery = None,
+        lastn: int = 0,
         pagesize: int = 0,
         as_dataframe: bool = False,
     ) -> List[dict]:
+        """Retrieve Temporal Representation of Entities (TRoE) given id, or type and/or query string.
+
+        Retrieve all TRoEs matching the criteria.
+        Do the dirty pagination job for you, sending under the wood as many requests as needed.
+        Assume data hold in memory. Should not be an issue except for very large datasets.
+
+        Parameters
+        ----------
+        eid : Union[EntityId, Entity]
+            The entity identifier or the entity instance     
+        etype : str
+            The entity's type
+        attrs : List[str]
+            The list of the attributes (changing over time) you're interested in
+        ctx : str
+            The context
+        q: str
+            The query string (NGSI-LD Query Language)
+        gq: str
+            The geoquery string (NGSI-LD Geoquery Language)
+        verbose: bool
+            Default is False, meaning the result is formatted as simplified TRoE.
+        tq: TemporalQuery
+            The temporal query as a py:class:: TemporalQuery instance
+        lastn: int
+            Among the temporal values, limit the result to the latest <lastn> values.
+            By default returns all values.
+        pagesize: int
+            By default the broker pagesize default.
+        as_dataframe : bool
+            Default is false, meaning it returns JSON TRoE.
+            If set returns a pandas dataframe. Requires pandas.            
+        limit: int
+            The number of entities retrieved in each request
+
+        Returns
+        -------
+        list[dict]
+            The Temporal Representation of the Entities matching the given criteria
+
+        Example:
+        --------
+        >>> with Client() as client:
+        >>>     troe = client.temporal.query_all(type="RoomObserved")
+        """    
         if as_dataframe:
             if is_pandas_installed():
                 verbose = False  # force simplified representation
             else:
                 raise ValueError("Cannot export to dataframe : pandas not installed.")
-        r: TemporalResult = self._query(eid, type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize)
+        r: TemporalResult = self._query(eid, type, attrs, q, gq, ctx, verbose, tq, lastn=lastn, pagesize=pagesize)
         troes: List[dict] = r.result
         while r.pagination.next_url is not None:
             r: TemporalResult = self._query(
-                eid, type, attrs, q, gq, ctx, verbose, tq, pagesize=pagesize, pageanchor=r.pagination.next_url
+                eid, type, attrs, q, gq, ctx, verbose, tq, lastn=lastn, pagesize=pagesize, pageanchor=r.pagination.next_url
             )
             troes.extend(r.result)
         return troes_to_dataframe(troes) if as_dataframe else troes
@@ -326,9 +397,9 @@ class Temporal:
             params["q"] = q
         if gq:
             params["georel"] = gq
-        addopt(params, "aggregatedValues")
+        _addopt(params, "aggregatedValues")
         if count:
-            addopt(params, "count")
+            _addopt(params, "count")
         if tq is None:
             tq = TemporalQuery().before()
         params |= tq

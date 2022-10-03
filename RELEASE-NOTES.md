@@ -1,3 +1,8 @@
+# ngsildclient 0.3.0
+## October 3, 2022
+
+- Added temporal query support
+
 # ngsildclient 0.2.1
 ## September 19, 2022
 

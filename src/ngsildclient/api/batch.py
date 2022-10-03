@@ -26,6 +26,8 @@ logger = logging.getLogger(__name__)
 
 
 class BatchOp:
+    """A wrapper for the NGSI-LD API batch endpoint."""    
+
     def __init__(self, client: Client, url: str):
         self._client = client
         self._session = client.session

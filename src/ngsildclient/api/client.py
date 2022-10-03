@@ -546,9 +546,9 @@ class Client:
         >>> with Client() as client:
         >>>     client.query(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
-        return self.entities.query(type, q, gq, ctx, limit=n)
+        return self.entities._query(type, q, gq, ctx, limit=n)
 
-    def query_all(
+    def query(
         self,
         type: str = None,
         q: str = None,
@@ -583,10 +583,10 @@ class Client:
         Example:
         --------
         >>> with Client() as client:
-        >>>     client.query_all(type="AgriFarm") # match a given type
+        >>>     client.query(type="AgriFarm") # match a given type
 
         >>> with Client() as client:
-        >>>     client.query_all(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
+        >>>     client.query(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
 
         entities: list[Entity] = []
@@ -594,7 +594,7 @@ class Client:
         if count > max:
             raise NgsiClientTooManyResultsError(f"{count} results exceed maximum {max}")
         for page in range(ceil(count / limit)):
-            entities.extend(self.entities.query(type, q, gq, ctx, limit, page * limit))
+            entities.extend(self.entities._query(type, q, gq, ctx, limit, page * limit))
         return entities
 
     def query_generator(
@@ -637,9 +637,9 @@ class Client:
         count = self.entities.count(type, q)
         for page in range(ceil(count / limit)):
             if batch:
-                yield self.entities.query(type, q, gq, ctx, limit, page * limit)
+                yield self.entities._query(type, q, gq, ctx, limit, page * limit)
             else:
-                yield from self.entities.query(type, q, gq, ctx, limit, page * limit)
+                yield from self.entities._query(type, q, gq, ctx, limit, page * limit)
 
     def query_handle(
         self,

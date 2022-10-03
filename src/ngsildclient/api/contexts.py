@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class Contexts:
+    """A wrapper for the NGSI-LD API context endpoint."""
     def __init__(self, client: Client, url: str):
         self._client = client
         self._session = client.session

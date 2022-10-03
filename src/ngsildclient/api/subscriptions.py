@@ -26,6 +26,7 @@ from .exceptions import NgsiResourceNotFoundError, rfc7807_error_handle
 
 
 class Subscriptions:
+    """A wrapper for the NGSI-LD API subscriptions endpoint."""
     def __init__(self, client: Client, url: str):
         self._client = client
         self._session = client.session
