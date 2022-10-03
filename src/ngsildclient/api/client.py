@@ -606,6 +606,34 @@ class Client:
         limit: int = PAGINATION_LIMIT_MAX,
         batch: bool = False,
     ) -> Generator[Entity, None, None]:
+        """Retrieve (as a generator) entities given its type and/or query string.
+
+        By returning a generator it allows to process entities on the fly without any risk of exhausting memory.
+
+        Parameters
+        ----------
+        etype : str
+            The entity's type
+        q: str
+            The query string (NGSI-LD Query Language)
+        gq: str
+            The geoquery string (NGSI-LD Geoquery Language)
+        ctx: str
+            The context
+        limit: int
+            The number of entities retrieved in each request
+
+        Returns
+        -------
+        list[Entity]
+            Retrieved a generator of entities (matching the given type and/or query string)
+
+        Example:
+        --------
+        >>> with Client() as client:
+        >>>     for entity in client.query_handle(type="AgriFarm"):
+                    print(entity)
+        """
         count = self.entities.count(type, q)
         for page in range(ceil(count / limit)):
             if batch:
@@ -623,6 +651,28 @@ class Client:
         *,
         callback: Callable[[Entity], None],
     ) -> None:
+        """Apply a callback function on entity of the query result.
+
+        Parameters
+        ----------
+        etype : str
+            The entity's type
+        q: str
+            The query string (NGSI-LD Query Language)
+        gq: str
+            The geoquery string (NGSI-LD Geoquery Language)
+        ctx: str
+            The context
+        limit: int
+            The number of entities retrieved in each request
+        callback: Callable[Entity]
+            The function to be called on each entity of the result
+
+        Example:
+        --------
+        >>> with Client() as client:
+        >>>     client.query_handle(type="AgriFarm", lambda e: print(e))
+        """
         for entity in self.query_generator(type, q, gq, ctx, limit, False):
             callback(entity)
 

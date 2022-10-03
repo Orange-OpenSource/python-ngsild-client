@@ -70,7 +70,7 @@ class AsyncClient:
         self,
         hostname: str = "localhost",
         port: int = NGSILD_DEFAULT_PORT,
-        port_temporal: int = NGSILD_TEMPORAL_PORT,        
+        port_temporal: int = NGSILD_TEMPORAL_PORT,
         secure: bool = False,
         useragent: str = UA,
         tenant: str = None,
@@ -113,7 +113,7 @@ class AsyncClient:
         """
         self.hostname = hostname
         self.port = port
-        self.port_temporal = port_temporal        
+        self.port_temporal = port_temporal
         self.secure = secure
         self.scheme = "https" if secure else "http"
         self.url = f"{self.scheme}://{hostname}:{port}"
@@ -146,8 +146,8 @@ class AsyncClient:
             if port_temporal == port  # temporal share the same port and basepath
             else f"{url_temporal}/temporal/entities"
         )
-        self._temporal = Temporal(self, temporal_path)        
-        
+        self._temporal = Temporal(self, temporal_path)
+
     def raise_for_status(self, r: httpx.Response):
         """Raises an exception depending on the API response.
 
@@ -181,7 +181,7 @@ class AsyncClient:
 
     @property
     def temporal(self):
-        return self._temporal        
+        return self._temporal
 
     async def close(self):
         """Terminates the client.
@@ -445,7 +445,9 @@ class AsyncClient:
         else:
             return await self.batch.update(entities)
 
-    async def query_head(self, type: str = None, q: str = None, gq: str = None, ctx: str = None, n: int = 5) -> List[Entity]:
+    async def query_head(
+        self, type: str = None, q: str = None, gq: str = None, ctx: str = None, n: int = 5
+    ) -> List[Entity]:
         """Retrieve entities given its type and/or query string.
 
         Retrieve up to PAGINATION_LIMIT_MAX entities.
@@ -459,7 +461,7 @@ class AsyncClient:
         q: str
             The query string (NGSI-LD Query Language)
         gq: str
-            The geoquery string (NGSI-LD Geoquery Language)            
+            The geoquery string (NGSI-LD Geoquery Language)
         ctx: str
             The context
         n: int
@@ -500,7 +502,7 @@ class AsyncClient:
         q: str
             The query string (NGSI-LD Query Language)
         gq: str
-            The geoquery string (NGSI-LD Geoquery Language)            
+            The geoquery string (NGSI-LD Geoquery Language)
         ctx: str
             The context
         limit: int
@@ -537,6 +539,34 @@ class AsyncClient:
         limit: int = PAGINATION_LIMIT_MAX,
         batch: bool = False,
     ) -> Generator[Entity, None, None]:
+        """Retrieve (as a generator) entities given its type and/or query string.
+
+        By returning a generator it allows to process entities on the fly without any risk of exhausting memory.
+
+        Parameters
+        ----------
+        etype : str
+            The entity's type
+        q: str
+            The query string (NGSI-LD Query Language)
+        gq: str
+            The geoquery string (NGSI-LD Geoquery Language)
+        ctx: str
+            The context
+        limit: int
+            The number of entities retrieved in each request
+
+        Returns
+        -------
+        list[Entity]
+            Retrieved a generator of entities (matching the given type and/or query string)
+
+        Example:
+        --------
+        >>> with AsyncClient() as client:
+        >>>     async for entity in await client.query_handle(type="AgriFarm"):
+                    print(entity)
+        """
         count = await self.entities.count(type, q, gq)
         for page in range(ceil(count / limit)):
             entities = await self.entities.query(type, q, gq, ctx, limit, page * limit)
@@ -556,6 +586,28 @@ class AsyncClient:
         *,
         callback: Callable[[Entity], None],
     ) -> None:
+        """Apply a callback function on entity of the query result.
+
+        Parameters
+        ----------
+        etype : str
+            The entity's type
+        q: str
+            The query string (NGSI-LD Query Language)
+        gq: str
+            The geoquery string (NGSI-LD Geoquery Language)
+        ctx: str
+            The context
+        limit: int
+            The number of entities retrieved in each request
+        callback: Callable[Entity]
+            The function to be called on each entity of the result
+
+        Example:
+        --------
+        >>> with AsyncClient() as client:
+        >>>     await client.query_handle(type="AgriFarm", lambda e: print(e))
+        """
         async for entity in self.query_generator(type, q, gq, ctx, limit, False):
             callback(entity)
 
@@ -571,7 +623,7 @@ class AsyncClient:
         q: str
             The query string (NGSI-LD Query Language)
         gq: str
-            The geoquery string (NGSI-LD Geoquery Language)            
+            The geoquery string (NGSI-LD Geoquery Language)
 
         Returns
         -------
