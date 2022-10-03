@@ -479,9 +479,9 @@ class AsyncClient:
         >>> with AsyncClient() as client:
         >>>     await client.query(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
-        return await self.entities.query(type, q, gq, ctx, limit=n)
+        return await self.entities._query(type, q, gq, ctx, limit=n)
 
-    async def query_all(
+    async def query(
         self,
         type: str = None,
         q: str = None,
@@ -516,10 +516,10 @@ class AsyncClient:
         Example:
         --------
         >>> with AsyncClient() as client:
-        >>>     await client.query_all(type="AgriFarm") # match a given type
+        >>>     await client.query(type="AgriFarm") # match a given type
 
         >>> with AsyncClient() as client:
-        >>>     await client.query_all(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
+        >>>     await client.query(type="AgriFarm", q='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
 
         entities: list[Entity] = []
@@ -527,7 +527,7 @@ class AsyncClient:
         if count > max:
             raise NgsiClientTooManyResultsError(f"{count} results exceed maximum {max}")
         for page in range(ceil(count / limit)):
-            entities.extend(await self.entities.query(type, q, gq, ctx, limit, page * limit))
+            entities.extend(await self.entities._query(type, q, gq, ctx, limit, page * limit))
         return entities
 
     async def query_generator(
@@ -569,7 +569,7 @@ class AsyncClient:
         """
         count = await self.entities.count(type, q, gq)
         for page in range(ceil(count / limit)):
-            entities = await self.entities.query(type, q, gq, ctx, limit, page * limit)
+            entities = await self.entities._query(type, q, gq, ctx, limit, page * limit)
             if batch:
                 yield entities
             else:

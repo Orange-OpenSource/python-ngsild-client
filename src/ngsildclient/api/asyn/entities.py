@@ -112,7 +112,7 @@ class Entities:
         return None
 
     @rfc7807_error_handle_async
-    async def query(
+    async def _query(
         self,
         type: str = None,
         q: str = None,

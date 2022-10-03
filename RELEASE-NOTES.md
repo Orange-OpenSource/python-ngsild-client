@@ -1,4 +1,10 @@
-# ngsildclient 0.3.0
+# ngsildclient 0.3.2
+## October 4, 2022
+
+- Fixed sphinx autosummary in documentation
+- Renamed query_all() to query() in all classes
+
+# ngsildclient 0.3.1
 ## October 3, 2022
 
 - Added temporal query support

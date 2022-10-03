@@ -10,10 +10,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../../src"))
+sys.path.insert(0, "../../src")
 
 
 # -- Project information -----------------------------------------------------
@@ -42,7 +41,7 @@ extensions = [
 
 autosummary_generate = True
 autoclass_content = "both"
-add_module_names = False
+add_module_names = True
 
 # napoleon_google_doctsring = False
 # napoleon_numpy_doctsring = True
@@ -50,7 +49,7 @@ add_module_names = False
 # napoleon_use_ivar = True
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
+# templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

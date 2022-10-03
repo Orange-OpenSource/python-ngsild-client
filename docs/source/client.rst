@@ -325,6 +325,20 @@ The **query()** method returns a list of matching entities.
    | Assume the whole dataset fits in memory.
    | It should not be an issue except for very large datasets.
 
+Query Handle
+^^^^^^^^^^^^
+
+| The **query_handle()** method takes a callback function and applies it to each entity of the query result.
+
+.. code-block::
+   :caption: Print all AirQualityObserved entities
+   :emphasize-lines: 4
+
+   from ngsilclient import Client, Entity
+
+   with Client() as client:
+      client.query_handle(type="AirQualityObserved", lambda x: print(x))
+
 Query Generator
 ^^^^^^^^^^^^^^^
 
@@ -358,12 +372,6 @@ Query Generator
    | By default it **yields** entities one by one.
    | When the **batch** boolean argument is set it **yields** batch of entities.
    | Batch size is currently defined by the constant **PAGINATION_LIMIT_MAX**.
-
-Low-Level Query
-^^^^^^^^^^^^^^^
-
-| Above query methods are advanced methods that handle pagination for you.
-| If you want to handle pagination by yourself, you can use **client.entities.query()** that basically wraps the API endpoint and allows to specify the **offset** and **limit** arguments.
 
 Count
 ^^^^^

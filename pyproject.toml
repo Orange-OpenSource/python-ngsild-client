@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ngsildclient"
-version = "0.3.0"
+version = "0.3.1"
 description = "A Python library that helps building NGSI-LD entities and interacting with a NGSI-LD Context Broker"
 license = "Apache-2.0"
 readme="README.md"

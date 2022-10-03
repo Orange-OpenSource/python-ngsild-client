@@ -3,7 +3,7 @@ Build Entities
 
 This chapter explains how to build NGSI-LD compliant entities.
 
-:ref:`Cookbook<How to forge entities>` shows realistic examples - taken from the `Smart Data Models Initiative`_ - built with **ngsildclient**.
+:ref:`Cookbook<how to forge ngsi-ld entities>` shows realistic examples - taken from the `Smart Data Models Initiative`_ - built with **ngsildclient**.
 
 Create an entity
 ----------------
