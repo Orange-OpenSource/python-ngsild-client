@@ -304,7 +304,7 @@ Query Head
 Query All
 ^^^^^^^^^
 
-The **query_all()** method returns a list of matching entities.
+The **query()** method returns a list of matching entities.
 
 .. code-block::
    :caption: Print top ten NO2 worst levels
@@ -313,12 +313,12 @@ The **query_all()** method returns a list of matching entities.
    from ngsilclient import Client, Entity
 
    with Client() as client:
-      entities = client.query_all(type="AirQualityObserved", q="NO2>40")
+      entities = client.query(type="AirQualityObserved", q="NO2>40")
       top10 = sorted(entities, reverse=True, key=lambda x: x["NO2.value"])[:10]
       print(top10)
 
 .. note::
-   | The **query_all()** method retrieves at once **ALL** the matching entities *by enabling pagination and sending behind the curtain as many requests as needed*.
+   | The **query()** method retrieves at once **ALL** the matching entities *by enabling pagination and sending under the wood as many requests as needed*.
    | **NgsiClientTooManyResultsError** is raised if more than 1 million entities (configurable thanks to the **max** argument).
 
 .. warning:: 
@@ -484,6 +484,34 @@ List available entity types.
    with Client() as client:
       client.list_types()
 
+Temporal Queries
+~~~~~~~~~~~~~~~~
+
+Temporal queries return entities attributes whose value changes over time.
+You have to provide temporal criteria, in addition to criteria already provided to select the entities by themselves ((query and geoquery).
+For example you'd like to retrieve *for the past two hours* the measures of some TemperatureSensor(s).
+The result by default is JSON-formatted as TRoE = Temporal Representation of Entities.
+For convenience it can be returned as a pandas dataframe.
+
+Temporal Query
+^^^^^^^^^^^^^^
+
+The **query()** method returns a list of matching entities along with timeseries data : attributes values over the time.
+
+.. code-block::
+   :emphasize-lines: 4
+
+   from ngsilclient import Client, Entity
+
+   with Client() as client:
+      entities = client.temporal.query(type="TemperatureSensor", attrs=["temperature"])
+
+.. note::
+   | If **attrs** is not specified, all the varying attributes are returned.
+
+.. warning:: 
+   | Assume the whole dataset fits in memory.
+   | It should not be an issue except for very large datasets.
 
 Contexts
 ~~~~~~~~
