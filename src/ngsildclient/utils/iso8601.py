@@ -47,8 +47,8 @@ def from_datetime(value: datetime) -> str:
     str
         ISO8601-formatted string
 
-    Examples
-    --------
+    Example
+    -------
     >>> from datetime import datetime
     >>> from ngsildclient import iso8601
     >>> d = datetime(2021, 10, 13, 9, 29)
@@ -85,8 +85,8 @@ def from_date(value: date) -> str:
     str
         ISO8601-formatted string
 
-    Examples
-    --------
+    Example
+    -------
     >>> from datetime import date
     >>> from ngsildclient import iso8601
     >>> d = date(2021, 10, 13)
@@ -109,8 +109,8 @@ def from_time(value: time) -> str:
     str
         ISO8601-formatted string
 
-    Examples
-    --------
+    Example
+    -------
     >>> from datetime import time
     >>> from ngsildclient import iso8601
     >>> d = time(9, 29)
@@ -140,8 +140,8 @@ def _from_string(value: str) -> tuple[str, TemporalType, datetime]:
     ValueError
         The date format does not match datetime, date or time
 
-    Examples
-    --------
+    Example
+    -------
     >>> from ngsildclient import iso8601
     >>> print(iso8601._from_string("2021-10-13"))
     ('2021-10-13', <TemporalType.DATE: 'Date'>)
@@ -184,8 +184,8 @@ def parse(value: Union[datetime, date, time, str]) -> tuple[str, TemporalType, d
     --------
     ngsildclient.attribute
 
-    Examples
-    --------
+    Example
+    -------
     >>> from ngsildclient import iso8601
     >>> print(iso8601.parse(date(2021,9,13)))
     ('2021-10-13', <TemporalType.DATE: 'Date'>)
@@ -214,8 +214,8 @@ def extract(value: str) -> Optional[datetime]:
     datetime
         the extracted datetime if found, else None
 
-    Examples
-    --------
+    Example
+    -------
     >>> from ngsildclient.utils import iso8601
     >>> iso8601.extract("urn:ngsi-ld:WeatherObserved:Spain-WeatherObserved-Valladolid-2016-11-30T07:00:00Z")
     datetime.datetime(2016, 11, 30, 7, 0)

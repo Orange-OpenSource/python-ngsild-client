@@ -35,8 +35,8 @@ def escape(value: str) -> str:
     str
         The encoded URL as a string
 
-    Examples
-    --------
+    Example
+    -------
     >>> from ngsildclient.utils import url
     >>> print(url.escape("https://example.com?query=dummy&limit=5"))
     https%3A//example.com%3Fquery%3Ddummy%26limit%3D5
@@ -61,8 +61,8 @@ def unescape(value: str) -> str:
     str
         The encoded URL as a string
 
-    Examples
-    --------
+    Example
+    -------
     >>> from ngsildclient.utils import url
     >>> print(url.escape("https%3A//example.com%3Fquery%3Ddummy%26limit%3D5"))
     https://example.com?query=dummy&limit=5
@@ -89,8 +89,8 @@ def isurl(value: str) -> bool:
     bool
         True if the string looks like an URL
 
-    Examples
-    --------
+    Example
+    -------
     >>> from ngsildclient.utils import url
     >>> print(url.isurl("https://example.com?query=dummy&limit=5"))
     True

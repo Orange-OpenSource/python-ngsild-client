@@ -313,8 +313,8 @@ class Temporal:
         list[dict]
             The Temporal Representation of the Entities matching the given criteria
 
-        Example:
-        --------
+        Example
+        -------
         >>> with Client() as client:
         >>>     troe = client.temporal.query(type="RoomObserved")
         """

@@ -48,8 +48,8 @@ class PostalAddress:
 class PostalAddressBuilder:
     """A helper class that allows to easily build a PostalAddress property.
 
-    Example:
-    --------
+    Example
+    -------
     >>> from ngsildclient import *
     >>> builder = PostalAddressBuilder()
     >>> address = builder.street("C/ La Pereda 14")

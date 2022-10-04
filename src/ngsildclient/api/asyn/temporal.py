@@ -219,8 +219,8 @@ class Temporal:
         list[dict]
             The Temporal Representation of the Entities matching the given criteria
 
-        Example:
-        --------
+        Example
+        -------
         >>> with AsyncClient() as client:
         >>>     troe = await client.temporal.query(type="RoomObserved")
         """

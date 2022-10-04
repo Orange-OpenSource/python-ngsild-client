@@ -53,8 +53,8 @@ class OpeningHoursBuilder:
 
     Simplified. Support a single open timeslot per day.
 
-    Example:
-    --------
+    Example
+    -------
     >>> from ngsildclient import *
     >>> builder = OpeningHoursBuilder()
     >>> openinghours = builder.businessdays("10:00", "17:30").saturday("10:00", "14:00").build()

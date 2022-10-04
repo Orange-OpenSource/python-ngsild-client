@@ -34,8 +34,8 @@ def uuidshortener(uuid: uuid.UUID) -> str:
     str
         Its string representation, 22 characters
 
-    Example:
-    --------
+    Example
+    -------
     >>> from uuid import uuid4
     >>> from ngsildclient.utils.uuid import uuidshortener
     >>> uuid = uuid4()
@@ -67,8 +67,8 @@ def shortuuid(random: bool = False) -> str:
     str
         A short unique identifier, 22 characters longs.
 
-    Example:
-    --------
+    Example
+    -------
     >>> from ngsildclient import *
     >>> crop = Entity("AgriCrop", shortuuid())
     >>> crop.pprint()

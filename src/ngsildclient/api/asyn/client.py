@@ -50,8 +50,8 @@ class AsyncClient:
     When encountering errors the Client throws enriched
     Exceptions, as NGSI-LD API supports ProblemDetails [IETF RFC 7807].
 
-    Example:
-    --------
+    Example
+    -------
     >>> from ngsildclient import *
 
     >>> # Here we don't build our own NGSI-LD entity, but grab an example from SmartDatamodels
@@ -471,8 +471,8 @@ class AsyncClient:
         list[Entity]
             Retrieved entities matching the given type and/or query string
 
-        Example:
-        --------
+        Example
+        -------
         >>> with AsyncClient() as client:
         >>>     await client.query(type="AgriFarm") # match a given type
 
@@ -513,8 +513,8 @@ class AsyncClient:
         list[Entity]
             Retrieved entities matching the given type and/or query string
 
-        Example:
-        --------
+        Example
+        -------
         >>> with AsyncClient() as client:
         >>>     await client.query(type="AgriFarm") # match a given type
 
@@ -561,8 +561,8 @@ class AsyncClient:
         list[Entity]
             Retrieved a generator of entities (matching the given type and/or query string)
 
-        Example:
-        --------
+        Example
+        -------
         >>> with AsyncClient() as client:
         >>>     async for entity in await client.query_handle(type="AgriFarm"):
                     print(entity)
@@ -603,8 +603,8 @@ class AsyncClient:
         callback: Callable[Entity]
             The function to be called on each entity of the result
 
-        Example:
-        --------
+        Example
+        -------
         >>> with AsyncClient() as client:
         >>>     await client.query_handle(type="AgriFarm", lambda e: print(e))
         """
@@ -630,8 +630,8 @@ class AsyncClient:
         int
             The number of matching entities
 
-        Example:
-        --------
+        Example
+        -------
         >>> with AsyncClient() as client:
         >>>     await client.count(type="AgriFarm") # match a given type
 
@@ -650,8 +650,8 @@ class AsyncClient:
         query: str
             The query string (NGSI-LD Query Language)
 
-        Example:
-        --------
+        Example
+        -------
         >>> with AsyncClient() as client:
         >>>     await client.delete_where(type="AgriFarm", query='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
@@ -667,8 +667,8 @@ class AsyncClient:
         type : str
             The entity's type
 
-        Example:
-        --------
+        Example
+        -------
         >>> with AsyncClient() as client:
         >>>     await client.drop("AgriFarm")
         """
@@ -678,8 +678,8 @@ class AsyncClient:
     async def purge(self) -> None:
         """Batch delete all entities.
 
-        Example:
-        --------
+        Example
+        -------
         >>> with AsyncClient() as client:
         >>>     await client.purge()
         """
@@ -689,8 +689,8 @@ class AsyncClient:
     async def flush_all(self) -> None:
         """Batch delete all entities and remove all contexts.
 
-        Example:
-        --------
+        Example
+        -------
         >>> with AsyncClient() as client:
         >>>     await client.purge()
         """

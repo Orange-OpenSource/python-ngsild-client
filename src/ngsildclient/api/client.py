@@ -59,8 +59,8 @@ class Client:
     When encountering errors the Client throws enriched
     Exceptions, as NGSI-LD API supports ProblemDetails [IETF RFC 7807].
 
-    Example:
-    --------
+    Example
+    -------
     >>> from ngsildclient import *
 
     >>> # Here we don't build our own NGSI-LD entity, but grab an example from SmartDatamodels
@@ -538,8 +538,8 @@ class Client:
         list[Entity]
             Retrieved entities matching the given type and/or query string
 
-        Example:
-        --------
+        Example
+        -------
         >>> with Client() as client:
         >>>     client.query(type="AgriFarm") # match a given type
 
@@ -580,8 +580,8 @@ class Client:
         list[Entity]
             Retrieved entities matching the given type and/or query string
 
-        Example:
-        --------
+        Example
+        -------
         >>> with Client() as client:
         >>>     client.query(type="AgriFarm") # match a given type
 
@@ -628,8 +628,8 @@ class Client:
         list[Entity]
             Retrieved a generator of entities (matching the given type and/or query string)
 
-        Example:
-        --------
+        Example
+        -------
         >>> with Client() as client:
         >>>     for entity in client.query_handle(type="AgriFarm"):
                     print(entity)
@@ -668,8 +668,8 @@ class Client:
         callback: Callable[Entity]
             The function to be called on each entity of the result
 
-        Example:
-        --------
+        Example
+        -------
         >>> with Client() as client:
         >>>     client.query_handle(type="AgriFarm", lambda e: print(e))
         """
@@ -695,8 +695,8 @@ class Client:
         int
             The number of matching entities
 
-        Example:
-        --------
+        Example
+        -------
         >>> with Client() as client:
         >>>     client.count(type="AgriFarm") # match a given type
 
@@ -717,8 +717,8 @@ class Client:
         gq: str
             The geoquery string (NGSI-LD Geoquery Language)
 
-        Example:
-        --------
+        Example
+        -------
         >>> with Client() as client:
         >>>     client.delete_where(type="AgriFarm", query='contactPoint[email]=="wheatfarm@email.com"') # match type and query
         """
@@ -734,8 +734,8 @@ class Client:
         type : str
             The entity's type
 
-        Example:
-        --------
+        Example
+        -------
         >>> with Client() as client:
         >>>     client.drop("AgriFarm")
         """
@@ -745,8 +745,8 @@ class Client:
     def purge(self) -> None:
         """Batch delete all entities.
 
-        Example:
-        --------
+        Example
+        -------
         >>> with Client() as client:
         >>>     client.purge()
         """
@@ -756,8 +756,8 @@ class Client:
     def flush_all(self) -> None:
         """Batch delete all entities and remove all contexts.
 
-        Example:
-        --------
+        Example
+        -------
         >>> with Client() as client:
         >>>     client.purge()
         """
@@ -774,8 +774,8 @@ class Client:
         tuple[Vendor, Version]
             A tuple composed of the Vendor (if identified) and the version.
 
-        Example:
-        --------
+        Example
+        -------
         >>> with Client() as client:
         >>>     print(client.guess_vendor())
         (<Vendor.ORIONLD: 'Orion-LD'>, 'post-v0.8.1')

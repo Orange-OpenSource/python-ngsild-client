@@ -100,8 +100,8 @@ class Urn:
         str
             the fully qualified name
 
-        Examples
-        --------
+        Example
+        -------
         >>> from ngsildclient.utils.urn import Urn
         >>> urn = Urn(nss="AirQualityObserved:RZ:Obsv4567")
         >>> print(urn.fqn)
@@ -144,8 +144,8 @@ class Urn:
         bool
             True if if the nid is valid
 
-        Examples
-        --------
+        Example
+        -------
         >>> from ngsildclient.utils.urn import Urn
         >>> print(Urn.is_valid_nid("ngsi-ld"))
         True
@@ -169,8 +169,8 @@ class Urn:
         bool
             True if the string value starts with the NGSI-LD u`urn:ngsi-ld:`
 
-        Examples
-        --------
+        Example
+        -------
         >>> from ngsildclient.utils.urn import Urn
         >>> print(Urn.is_prefixed("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"))
         True
@@ -191,8 +191,8 @@ class Urn:
         str
             the string prefixed (if not already prefixed)
 
-        Examples
-        --------
+        Example
+        -------
         >>> from ngsildclient.utils.urn import Urn
         >>> print(Urn.prefix("AirQualityObserved:RZ:Obsv4567"))
         urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567
@@ -215,8 +215,8 @@ class Urn:
         str
             the string without the prefix
 
-        Examples
-        --------
+        Example
+        -------
         >>> from ngsildclient.utils.urn import Urn
         >>> print(Urn.unprefix("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"))
         AirQualityObserved:RZ:Obsv4567

@@ -94,8 +94,8 @@ class Entity:
     model.NgsiDict : a custom dictionary that inherits from the native dict and provides primitives to build attributes
     api.client.Client : the NGSI-LD Context Broker client to interact with a Context Broker
 
-    Example:
-    --------
+    Example
+    -------
     >>> from datetime import datetime
     >>> from ngsildclient import *
 
@@ -190,8 +190,8 @@ class Entity:
         ctx : list, optional
             the NGSI-LD context, by default the NGSI-LD Core Context
 
-        Example:
-        --------
+        Example
+        -------
         >>> from ngsildclient.model.entity import Entity
         >>> e1 = Entity("AirQualityObserved", "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567") # long form
         >>> e2 = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567") # omit scheme + nss
@@ -223,8 +223,8 @@ class Entity:
         context : list, optional
             the NGSI-LD context, by default the NGSI-LD Core Context
 
-        Example:
-        --------
+        Example
+        -------
         >>> from ngsildclient.model.entity import Entity
         >>> e = Entity("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
         >>> e.pprint()
@@ -423,8 +423,8 @@ class Entity:
         Entity
             The output entity
 
-        Example:
-        --------
+        Example
+        -------
         Here an anchor is set at the "availableSpotNumber" property.
         Hence the "reliability" and "providedBy" properties are attached to (nested in) the "availableSpotNumber" property.
         Without anchoring, the "reliability" and "providedBy" properties would apply to the entity's root.
@@ -515,8 +515,8 @@ class Entity:
         Entity
             The updated entity
 
-        Example:
-        --------
+        Example
+        -------
         >>> from ngsildclient.model.entity import Entity
         >>> e = Entity("AirQualityObserved", "RZ:Obsv4567")
         >>> e.prop("NO2", 22, unitcode="GP") # basic property
@@ -577,8 +577,8 @@ class Entity:
         Entity datasetid
             The updated entity
 
-        Example:
-        --------
+        Example
+        -------
         >>> from ngsildclient.model.entity import Entity
         >>> e = Entity("PointOfInterest", "RZ:MainSquare")
         >>> e.prop("description", "Beach of RZ")
@@ -631,8 +631,8 @@ class Entity:
         Entity
             The updated entity
 
-        Example:
-        --------
+        Example
+        -------
         >>> from datetime import datetime
         >>> from ngsildclient.model.entity import Entity
         >>> e = Entity("AirQualityObserved", "RZ:Obsv4567")
@@ -692,8 +692,8 @@ class Entity:
         Entity
             The updated entity
 
-        Example:
-        --------
+        Example
+        -------
         >>> from ngsildclient.model.entity import Entity
         >>> e = Entity("AirQualityObserved", "RZ:Obsv4567")
         >>> e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
@@ -833,8 +833,8 @@ class Entity:
         --------
         model.constants.SmartDataModels
 
-        Example:
-        --------
+        Example
+        -------
         >>> from ngsildclient import *
         >>> e = Entity.load(SmartDataModels.SmartCities.Weather.WeatherObserved)
         """
@@ -870,8 +870,8 @@ class Entity:
         --------
         model.constants.SmartDataModels
 
-        Example:
-        --------
+        Example
+        -------
         >>> from ngsildclient import *
         >>> e = await Entity.load_async(SmartDataModels.SmartCities.Weather.WeatherObserved)
         """
@@ -900,8 +900,8 @@ class Entity:
         List[Entity]
             A list of entities
 
-        Example:
-        --------
+        Example
+        -------
         >>> from ngsildclient import *
         >>> rooms = Entity.load_batch("/tmp/rooms_all.jsonld")
         """
@@ -925,8 +925,8 @@ class Entity:
         List[Entity]
             A list of entities
 
-        Example:
-        --------
+        Example
+        -------
         >>> from ngsildclient import *
         >>> rooms = await Entity.load_batch_async("/tmp/rooms_all.jsonld")
         """
@@ -977,8 +977,8 @@ class Entity:
             If filename corresponds to an URL, the JSON file is downloaded from HTTP.
             Else it is retrieved locally from the filesystem.
 
-        Example:
-        --------
+        Example
+        -------
         >>> from ngsildclient import *
         >>> rooms = [Entity("Room", "Room1"), Entity("Room", "Room2")]
         >>> Entity.save_batch(rooms, "/tmp/rooms_all.jsonld")
@@ -1000,8 +1000,8 @@ class Entity:
             If filename corresponds to an URL, the JSON file is downloaded from HTTP.
             Else it is retrieved locally from the filesystem.
 
-        Example:
-        --------
+        Example
+        -------
         >>> from ngsildclient import *
         >>> rooms = [Entity("Room", "Room1"), Entity("Room", "Room2")]
         >>> await Entity.save_batch_async(rooms, "/tmp/rooms_all.jsonld")
