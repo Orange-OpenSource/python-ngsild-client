@@ -87,7 +87,9 @@ class Temporal:
         r: TemporalResult = await self._get(eid, attrs, ctx, verbose, pagesize=pagesize)
         troes: List[dict] = r.result
         while r.pagination.next_url is not None:
-            r: TemporalResult = await self._get(eid, attrs, ctx, verbose, pagesize=pagesize, pageanchor=r.pagination.next_url)
+            r: TemporalResult = await self._get(
+                eid, attrs, ctx, verbose, pagesize=pagesize, pageanchor=r.pagination.next_url
+            )
             troes.extend(r.result)
         return troes_to_dataframe(troes) if as_dataframe else troes
 
@@ -163,7 +165,7 @@ class Temporal:
         troes = await self._query(eid, type, attrs, q, gq, ctx, verbose, tq, lastn=limit, pagesize=limit).result
         return troes_to_dataframe(troes) if as_dataframe else troes
 
-    async def query_all(
+    async def query(
         self,
         *,
         eid: Union[EntityId, Entity] = None,
@@ -177,6 +179,51 @@ class Temporal:
         pagesize: int = 0,
         as_dataframe: bool = False,
     ) -> List[dict]:
+        """Retrieve Temporal Representation of Entities (TRoE) given id, or type and/or query string.
+
+        Retrieve all TRoEs matching the criteria.
+        Do the dirty pagination job for you, sending under the wood as many requests as needed.
+        Assume data hold in memory. Should not be an issue except for very large datasets.
+
+        Parameters
+        ----------
+        eid : Union[EntityId, Entity]
+            The entity identifier or the entity instance
+        etype : str
+            The entity's type
+        attrs : List[str]
+            The list of the attributes (changing over time) you're interested in
+        ctx : str
+            The context
+        q: str
+            The query string (NGSI-LD Query Language)
+        gq: str
+            The geoquery string (NGSI-LD Geoquery Language)
+        verbose: bool
+            Default is False, meaning the result is formatted as simplified TRoE.
+        tq: TemporalQuery
+            The temporal query as a py:class:: TemporalQuery instance
+        lastn: int
+            Among the temporal values, limit the result to the latest <lastn> values.
+            By default returns all values.
+        pagesize: int
+            By default the broker pagesize default.
+        as_dataframe : bool
+            Default is false, meaning it returns JSON TRoE.
+            If set returns a pandas dataframe. Requires pandas.
+        limit: int
+            The number of entities retrieved in each request
+
+        Returns
+        -------
+        list[dict]
+            The Temporal Representation of the Entities matching the given criteria
+
+        Example:
+        --------
+        >>> with AsyncClient() as client:
+        >>>     troe = await client.temporal.query(type="RoomObserved")
+        """
         if as_dataframe:
             if is_pandas_installed():
                 verbose = False  # force simplified representation
@@ -229,15 +276,9 @@ class Temporal:
         pagesize: int = 0,
         callback: Callable[[Awaitable[Entity]], None],
     ) -> None:
-        async for troe in self.query_generator(eid=eid, 
-            type=type,
-            attrs=attrs,
-            q = q,
-            gq = gq, 
-            ctx = ctx, 
-            verbose = verbose,
-            tq = tq,
-            pagesize = pagesize):
+        async for troe in self.query_generator(
+            eid=eid, type=type, attrs=attrs, q=q, gq=gq, ctx=ctx, verbose=verbose, tq=tq, pagesize=pagesize
+        ):
             callback(troe)
 
     async def aggregate(
@@ -279,7 +320,7 @@ class Temporal:
             params["pageAnchor"] = pageanchor
         params["aggrMethods"] = ",".join([m.value for m in methods])
         params["aggrPeriodDuration"] = duration_isoformat(period)
-        headers = {"Accept": "application/ld+json"} 
+        headers = {"Accept": "application/ld+json"}
         if ctx is not None:
             headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
         r: Response = await self._session.get(

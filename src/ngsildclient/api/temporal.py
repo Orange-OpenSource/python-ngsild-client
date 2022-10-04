@@ -258,7 +258,7 @@ class Temporal:
         troes = self._query(eid, type, attrs, q, gq, ctx, verbose, tq, lastn=limit, pagesize=limit).result
         return troes_to_dataframe(troes) if as_dataframe else troes
 
-    def query_all(
+    def query(
         self,
         *,
         eid: Union[EntityId, Entity] = None,
@@ -316,8 +316,8 @@ class Temporal:
         Example:
         --------
         >>> with Client() as client:
-        >>>     troe = client.temporal.query_all(type="RoomObserved")
-        """    
+        >>>     troe = client.temporal.query(type="RoomObserved")
+        """
         if as_dataframe:
             if is_pandas_installed():
                 verbose = False  # force simplified representation
