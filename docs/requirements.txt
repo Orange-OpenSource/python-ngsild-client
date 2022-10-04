@@ -5,3 +5,4 @@ sphinx-autodoc-typehints
 geojson
 httpx
 aiofiles
+rich
