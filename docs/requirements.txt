@@ -4,3 +4,4 @@ pydata-sphinx-theme
 sphinx-autodoc-typehints
 geojson
 httpx
+aiofiles
