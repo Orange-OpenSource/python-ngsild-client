@@ -311,9 +311,9 @@ class Client:
     ) -> Optional[Entity]:
         if isinstance(_entities, Entity):
             entity = _entities
-            return self.entities.create(entity, skip, overwrite)
+            return self.entities.create(entity)
         else:
-            return self.batch.create(_entities, skip, overwrite)
+            return self.batch._create(_entities)
 
     def get(
         self,

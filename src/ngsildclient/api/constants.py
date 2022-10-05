@@ -96,6 +96,7 @@ ENDPOINT_CONTEXTS = f"{NGSILD_BASEPATH}/jsonldContexts"
 ENDPOINT_SUBSCRIPTIONS = f"{NGSILD_BASEPATH}/subscriptions"
 
 PAGINATION_LIMIT_MAX = 100  # pagination
+BATCHSIZE = 100  # maximum number of entities sent per batch operation
 
 DEFAULT_ATTR_FORMAT = None  # Let Orion default value => AttrsFormat.NORMALIZED
 DEFAULT_LOGLEVEL = LogLevel.WARN

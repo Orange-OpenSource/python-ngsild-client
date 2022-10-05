@@ -10,19 +10,50 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple, List
+from dataclasses import dataclass, field
 
 import logging
+
+from rich.console import Console
+from rich.text import Text
 
 if TYPE_CHECKING:
     from .client import Client
 
-from .constants import *
+from .constants import BATCHSIZE
+from ngsildclient.utils import is_interactive
 from .exceptions import NgsiApiError, rfc7807_error_handle
 from ..model.entity import Entity
 
 
 logger = logging.getLogger(__name__)
+
+@dataclass
+class BatchResult:
+    success: List = field(default_factory=list)
+    errors: List = field(default_factory=list)
+
+    @property
+    def ok(self) -> bool:
+        return self.errors == []
+
+    @property
+    def n_ok(self) -> int:
+        return len(self.success)
+
+    @property
+    def n_err(self) -> int:
+        return len(self.errors)
+
+    @property
+    def ratio(self) -> float:
+        r = self.n_ok / (self.n_ok + self.n_err)
+        return round(r, 2)
+
+    def __iadd__(self, r: BatchResult):
+        self.success.extend(r.success)
+        self.errors.extend(r.errors)
 
 
 class BatchOp:
@@ -34,8 +65,8 @@ class BatchOp:
         self.url = url
 
     @rfc7807_error_handle
-    def create(
-        self, entities: List[Entity]) -> tuple[bool, dict]:
+    def _create(
+        self, entities: List[Entity]) -> BatchResult:
         r = self._session.post(
             f"{self.url}/create/", json=[entity._payload for entity in entities]
         )
@@ -47,8 +78,24 @@ class BatchOp:
             success, errors = content["success"], content["errors"]
         else:
             raise NgsiApiError("Batch Create : Unkown HTTP response code {}", r.status_code)
-        return success, errors
+        return BatchResult(success, errors)
 
+    @rfc7807_error_handle
+    def create(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+        r = BatchResult()
+        if is_interactive():
+            print("Creating entities :", end = " ")
+        for i in range(0, len(entities), batchsize):
+            if is_interactive():            
+                print(".", end="")
+            r += self._create(entities[i:i+batchsize])
+        if is_interactive():
+            console = Console()
+            text = Text(f"Entities created : {r.n_ok}/{r.n_err} [{r.ratio:.2f}]")
+            text.stylize("green")
+            console.print(text)
+        return r
+    
     @rfc7807_error_handle
     def upsert(self, entities: List[Entity]) -> tuple[bool, dict]:
         r = self._session.post(

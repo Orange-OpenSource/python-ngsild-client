@@ -13,7 +13,7 @@ import http.client
 import logging
 import sys
 
-__version__ = "0.3.2"
+__version__ = "0.4.0"
 
 from .utils import iso8601, is_interactive
 from .utils.uuid import shortuuid
