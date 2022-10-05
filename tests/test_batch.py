@@ -13,13 +13,13 @@ import logging
 import pytest
 from pytest_mock.plugin import MockerFixture
 
-from ngsildclient.api.client import Client
+from ngsildclient.api.client import Client, Entity
 from .common import sample_entity
 
 logger = logging.getLogger(__name__)
 
 
-def test_api_batch_create(mocked_connected, requests_mock):
+def test_api_batch_create_ok(mocked_connected, requests_mock):
     requests_mock.post(
         "http://localhost:1026/ngsi-ld/v1/entityOperations/create/",
         request_headers={"Content-Type": "application/ld+json"},
@@ -36,14 +36,36 @@ def test_api_batch_create(mocked_connected, requests_mock):
     sample2.id = "AirQualityObserved:RZ:Obsv4568"
     sample3.id = "AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]
-    success, response = client.batch.create(batch)
-    assert success
-    assert response == [
+    success, errors = client.batch.create(batch)
+    assert success == [
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
     ]
+    assert errors == []
 
+def test_api_batch_create_nok(mocked_connected, requests_mock):
+    requests_mock.post(
+        "http://localhost:1026/ngsi-ld/v1/entityOperations/create/",
+        request_headers={"Content-Type": "application/ld+json"},
+        status_code=207,
+        json={"success": [], 
+            "errors": [
+                {"entityId": "urn:ngsi-ld:RoomObserved:Room1", "error": {"type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData", "title": "entity already exists", "status": 400}}, 
+                {'entityId': 'urn:ngsi-ld:RoomObserved:Room2', 'error': {'type': 'https://uri.etsi.org/ngsi-ld/errors/BadRequestData', 'title': 'entity already exists', 'status': 400}}
+            ]
+        }
+    )
+    client = Client()
+    room1 = Entity("RoomObserved", "Room1").prop("temperature", 21.7)
+    room2 = Entity("RoomObserved", "Room2").prop("temperature", 22.8)
+    batch = [room1, room2]
+    success, response = client.batch.create(batch)
+    assert success == []
+    assert response == [
+        {"entityId": "urn:ngsi-ld:RoomObserved:Room1", "error": {"type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData", "title": "entity already exists", "status": 400}}, 
+        {'entityId': 'urn:ngsi-ld:RoomObserved:Room2', 'error': {'type': 'https://uri.etsi.org/ngsi-ld/errors/BadRequestData', 'title': 'entity already exists', 'status': 400}}
+    ]
 
 def test_api_batch_upsert(mocked_connected, requests_mock):
     requests_mock.post(

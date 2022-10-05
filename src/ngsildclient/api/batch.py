@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from .client import Client
 
 from .constants import *
-from .exceptions import rfc7807_error_handle
+from .exceptions import NgsiApiError, rfc7807_error_handle
 from ..model.entity import Entity
 
 
@@ -35,15 +35,19 @@ class BatchOp:
 
     @rfc7807_error_handle
     def create(
-        self, entities: List[Entity], skip: bool = False, overwrite: bool = False
-    ) -> tuple[bool, dict]:
+        self, entities: List[Entity]) -> tuple[bool, dict]:
         r = self._session.post(
             f"{self.url}/create/", json=[entity._payload for entity in entities]
         )
+        self._client.raise_for_status(r)
         if r.status_code == 201:
-            return True, r.json()
+            success, errors = r.json(), []
+        elif r.status_code == 207:
+            content = r.json()
+            success, errors = content["success"], content["errors"]
         else:
-            return False, r.json()
+            raise NgsiApiError("Batch Create : Unkown HTTP response code {}", r.status_code)
+        return success, errors
 
     @rfc7807_error_handle
     def upsert(self, entities: List[Entity]) -> tuple[bool, dict]:
