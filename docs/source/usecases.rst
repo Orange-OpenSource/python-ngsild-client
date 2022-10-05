@@ -1,4 +1,4 @@
-Four practical use cases
+Five practical use cases
 ========================
 
 ngsildclient can be useful in practice to :
@@ -24,8 +24,13 @@ ngsildclient can be useful in practice to :
    - collects incoming domain-specific data
    - converts data to NGSI-LD compliant entities
    - feed the NGSI-LD broker
-  
 
+- **create a digital twin simulation**
+   by mocking hundreds of NGSI-LD entities :
+
+   - representative of the real world
+   - using Python to drive their behaviour
+  
 - **administrate the broker**
    allow admin tasks in interactive mode :
 

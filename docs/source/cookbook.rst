@@ -1052,7 +1052,7 @@ This last example adds body validation, thanks to pydantic_.
 How to forge NGSI-LD entities
 -----------------------------
 
-| Some official entities from the Smart Data Models Initiative built with the library.
+| Some entities from the Smart Data Models Initiative built with the library.
 | Code samples are available in the github repository under the folder `cookbook/entities <https://github.com/Orange-OpenSource/python-ngsild-client/tree/master/cookbook/entities>`_.
 
 PointOfInterest

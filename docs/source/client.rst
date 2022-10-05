@@ -940,6 +940,12 @@ Example
    async with AsyncClient() as client:
       await client.upsert(entity)
 
+Opinionated approach
+--------------------
+
+| The ngsildclient library operates at the Entity level, meaning you interact with a broker by sending and receiving Entities.
+| As a consequence you can't work with the broker at a sublevel, i.e. ask just for an attribute ou update just an attribute.
+
 .. [2] IETF RFC 7807: Problem Details for HTTP APIs
 
 .. [ETSI_GS_CIM_009_1.5.1] Context Information Management (CIM) NGSI-LD API Guidelines for Modelling with NGSI-LD `ETSI Group Specification <https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.05.01_60/gs_cim009v010501p.pdf>`_
