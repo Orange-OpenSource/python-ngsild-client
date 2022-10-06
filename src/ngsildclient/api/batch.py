@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from .client import Client
 
 from .constants import BATCHSIZE
-from ngsildclient.utils import is_interactive
+from ngsildclient.utils.console import Console
 from .exceptions import NgsiApiError, rfc7807_error_handle
 from ..model.entity import Entity
 
@@ -51,9 +51,19 @@ class BatchResult:
         r = self.n_ok / (self.n_ok + self.n_err)
         return round(r, 2)
 
+    @property
+    def level(self) -> str:
+        if self.ratio == 0.0:
+            return "error"
+        elif self.ratio < 1.0:
+            return "warning"
+        else:
+            return "success"
+
     def __iadd__(self, r: BatchResult):
         self.success.extend(r.success)
         self.errors.extend(r.errors)
+        return self
 
 
 class BatchOp:
@@ -63,6 +73,7 @@ class BatchOp:
         self._client = client
         self._session = client.session
         self.url = url
+        self.console = Console()
 
     @rfc7807_error_handle
     def _create(
@@ -83,51 +94,78 @@ class BatchOp:
     @rfc7807_error_handle
     def create(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
         r = BatchResult()
-        if is_interactive():
-            print("Creating entities :", end = " ")
         for i in range(0, len(entities), batchsize):
-            if is_interactive():            
-                print(".", end="")
             r += self._create(entities[i:i+batchsize])
-        if is_interactive():
-            console = Console()
-            text = Text(f"Entities created : {r.n_ok}/{r.n_err} [{r.ratio:.2f}]")
-            text.stylize("green")
-            console.print(text)
+        self.console.message(f"Entities created : {r.n_ok}/{r.n_err} [{r.ratio:.2f}]", level=r.level)
         return r
     
     @rfc7807_error_handle
-    def upsert(self, entities: List[Entity]) -> tuple[bool, dict]:
+    def _upsert(self, entities: List[Entity]) -> BatchResult:
         r = self._session.post(
             f"{self.url}/upsert/", json=[entity._payload for entity in entities]
         )
+        self._client.raise_for_status(r)
         if r.status_code == 201:
-            return True, r.json()
+            success, errors = r.json(), []
         elif r.status_code == 204:
-            return True, {
-                "success": "all entities already existed and are successfully updated"
-            }
+            success, errors = [e.id for e in entities], []
+        elif r.status_code == 207:
+            content = r.json()
+            success, errors = content["success"], content["errors"]
         else:
-            return False, r.json()
+            raise NgsiApiError("Batch Upsert : Unkown HTTP response code {}", r.status_code)
+        return BatchResult(success, errors)
 
     @rfc7807_error_handle
-    def update(self, entities: List[Entity]) -> tuple[bool, dict]:
+    def upsert(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+        r = BatchResult()
+        for i in range(0, len(entities), batchsize):
+            r += self._upsert(entities[i:i+batchsize]) 
+        self.console.message(f"Entities upserted : {r.n_ok}/{r.n_err} [{r.ratio:.2f}]", level=r.level)
+        return r
+
+    @rfc7807_error_handle
+    def _update(self, entities: List[Entity]) -> tuple[bool, dict]:
         r = self._session.post(
             f"{self.url}/update/", json=[entity._payload for entity in entities]
         )
+        self._client.raise_for_status(r)
         if r.status_code == 204:
-            return True, {"success": "all entities have been successfully updated"}
+            success, errors = [e.id for e in entities], []
+        elif r.status_code == 207:
+            content = r.json()
+            success, errors = content["success"], content["errors"]
         else:
-            return False, r.json()
+            raise NgsiApiError("Batch Update : Unkown HTTP response code {}", r.status_code)
+        return BatchResult(success, errors)
 
     @rfc7807_error_handle
-    def delete(self, entities: List[Entity]) -> tuple[bool, dict]:
+    def update(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+        r = BatchResult()
+        for i in range(0, len(entities), batchsize):
+            r += self._update(entities[i:i+batchsize]) 
+        self.console.message(f"Entities updated : {r.n_ok}/{r.n_err} [{r.ratio:.2f}]", level=r.level)
+        return r
+
+    @rfc7807_error_handle
+    def _delete(self, entities: List[Entity]) -> tuple[bool, dict]:
         r = self._session.post(
             f"{self.url}/delete/", json=[entity.id for entity in entities]
         )
+        self._client.raise_for_status(r)
         if r.status_code == 204:
-            return True, {
-                "success": "all entities existed and have been successfully deleted"
-            }
+            success, errors = [e.id for e in entities], []
+        elif r.status_code == 207:
+            content = r.json()
+            success, errors = content["success"], content["errors"]
         else:
-            return False, r.json()
+            raise NgsiApiError("Batch Delete : Unkown HTTP response code {}", r.status_code)
+        return BatchResult(success, errors)
+
+    @rfc7807_error_handle
+    def delete(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+        r = BatchResult()
+        for i in range(0, len(entities), batchsize):
+            r += self._delete(entities[i:i+batchsize]) 
+        self.console.message(f"Entities deleted : {r.n_ok}/{r.n_err} [{r.ratio:.2f}]", level=r.level)
+        return r

@@ -299,7 +299,6 @@ class Client:
         Returns
         -------
         BatchOperationResult
-            TODO
         """
         ...
 
@@ -313,7 +312,7 @@ class Client:
             entity = _entities
             return self.entities.create(entity)
         else:
-            return self.batch._create(_entities)
+            return self.batch.create(_entities)
 
     def get(
         self,
