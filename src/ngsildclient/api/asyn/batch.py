@@ -10,66 +10,115 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 import logging
 
 if TYPE_CHECKING:
     from .client import AsyncClient
 
-from ..constants import *
-from ..exceptions import rfc7807_error_handle_async
+from ..constants import BATCHSIZE
+from ..exceptions import NgsiApiError, rfc7807_error_handle_async
+from ..batch import BatchResult
 from ...model.entity import Entity
-
 
 logger = logging.getLogger(__name__)
 
-
 class BatchOp:
+    """A wrapper for the NGSI-LD API batch endpoint."""    
+
     def __init__(self, client: AsyncClient, url: str):
         self._client = client
         self._session = client.client
         self.url = url
 
     @rfc7807_error_handle_async
-    async def create(self, entities: List[Entity], skip: bool = False, overwrite: bool = False) -> tuple[bool, dict]:
-        headers = {"Content-Type": "application/ld+json"}  # overrides session headers
+    async def _create(
+        self, entities: List[Entity]) -> BatchResult:
         r = await self._session.post(
-            url=f"{self.url}/create/", headers=headers, json=[entity._payload for entity in entities]
+            f"{self.url}/create/", json=[entity._payload for entity in entities]
         )
+        self._client.raise_for_status(r)
         if r.status_code == 201:
-            return True, r.json()
+            success, errors = r.json(), []
+        elif r.status_code == 207:
+            content = r.json()
+            success, errors = content["success"], content["errors"]
         else:
-            return False, r.json()
+            raise NgsiApiError("Batch Create : Unkown HTTP response code {}", r.status_code)
+        return BatchResult(success, errors)
 
     @rfc7807_error_handle_async
-    async def upsert(self, entities: List[Entity]) -> tuple[bool, dict]:
-        headers = {"Content-Type": "application/ld+json"}  # overrides session headers
+    async def create(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+        r = BatchResult()
+        for i in range(0, len(entities), batchsize):
+            r += await self._create(entities[i:i+batchsize])
+        return r
+    
+    @rfc7807_error_handle_async
+    async def _upsert(self, entities: List[Entity]) -> BatchResult:
         r = await self._session.post(
-            f"{self.url}/upsert/", headers=headers, json=[entity._payload for entity in entities]
+            f"{self.url}/upsert/", json=[entity._payload for entity in entities]
         )
+        self._client.raise_for_status(r)
         if r.status_code == 201:
-            return True, r.json()
+            success, errors = r.json(), []
         elif r.status_code == 204:
-            return True, {"success": "all entities already existed and are successfully updated"}
+            success, errors = [e.id for e in entities], []
+        elif r.status_code == 207:
+            content = r.json()
+            success, errors = content["success"], content["errors"]
         else:
-            return False, r.json()
+            raise NgsiApiError("Batch Upsert : Unkown HTTP response code {}", r.status_code)
+        return BatchResult(success, errors)
 
     @rfc7807_error_handle_async
-    async def update(self, entities: List[Entity]) -> tuple[bool, dict]:
-        headers = {"Content-Type": "application/ld+json"}  # overrides session headers
+    async def upsert(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+        r = BatchResult()
+        for i in range(0, len(entities), batchsize):
+            r += await self._upsert(entities[i:i+batchsize]) 
+        return r
+
+    @rfc7807_error_handle_async
+    async def _update(self, entities: List[Entity]) -> tuple[bool, dict]:
         r = await self._session.post(
-            f"{self.url}/update/", headers=headers, json=[entity._payload for entity in entities]
+            f"{self.url}/update/", json=[entity._payload for entity in entities]
         )
+        self._client.raise_for_status(r)
         if r.status_code == 204:
-            return True, {"success": "all entities have been successfully updated"}
+            success, errors = [e.id for e in entities], []
+        elif r.status_code == 207:
+            content = r.json()
+            success, errors = content["success"], content["errors"]
         else:
-            return False, r.json()
+            raise NgsiApiError("Batch Update : Unkown HTTP response code {}", r.status_code)
+        return BatchResult(success, errors)
 
     @rfc7807_error_handle_async
-    async def delete(self, entities: List[Entity]) -> tuple[bool, dict]:
-        r = await self._session.post(f"{self.url}/delete/", json=[entity.id for entity in entities])
+    async def update(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+        r = BatchResult()
+        for i in range(0, len(entities), batchsize):
+            r += await self._update(entities[i:i+batchsize]) 
+        return r
+
+    @rfc7807_error_handle_async
+    async def _delete(self, entities: List[Entity]) -> tuple[bool, dict]:
+        r = await self._session.post(
+            f"{self.url}/delete/", json=[entity.id for entity in entities]
+        )
+        self._client.raise_for_status(r)
         if r.status_code == 204:
-            return True, {"success": "all entities existed and have been successfully deleted"}
+            success, errors = [e.id for e in entities], []
+        elif r.status_code == 207:
+            content = r.json()
+            success, errors = content["success"], content["errors"]
         else:
-            return False, r.json()
+            raise NgsiApiError("Batch Delete : Unkown HTTP response code {}", r.status_code)
+        return BatchResult(success, errors)
+
+    @rfc7807_error_handle_async
+    async def delete(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+        r = BatchResult()
+        for i in range(0, len(entities), batchsize):
+            r += await self._delete(entities[i:i+batchsize]) 
+        return r

@@ -1,4 +1,4 @@
-ngsildclient.utils
+﻿ngsildclient.utils
 ==================
 
 .. automodule:: ngsildclient.utils
@@ -34,6 +34,7 @@ ngsildclient.utils
    :toctree:
    :recursive:
 
+   ngsildclient.utils.console
    ngsildclient.utils.iso8601
    ngsildclient.utils.sentinel
    ngsildclient.utils.url

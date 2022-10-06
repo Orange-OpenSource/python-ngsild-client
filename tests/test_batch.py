@@ -35,8 +35,8 @@ def test_api_batch_single_create_ok(mocked_connected, requests_mock: Mocker):
     client = Client()
     sample2 = sample_entity.copy()
     sample3 = sample_entity.copy()
-    sample2.id = "AirQualityObserved:RZ:Obsv4568"
-    sample3.id = "AirQualityObserved:RZ:Obsv4569"
+    sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
+    sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]
     r: BatchResult = client.batch._create(batch)
     assert r.ok

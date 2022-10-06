@@ -14,18 +14,19 @@ import pytest
 
 from pytest_httpx import HTTPXMock
 
+from ngsildclient.model.entity import Entity
 from ngsildclient.api.asyn.client import AsyncClient
+from ngsildclient.api.batch import BatchResult
 from .common import sample_entity
 
 logger = logging.getLogger(__name__)
 
-
 @pytest.mark.asyncio
-async def test_api_batch_create(httpx_mock: HTTPXMock):
+async def test_api_batch_single_create_ok(mocked_connected, httpx_mock: HTTPXMock):
     httpx_mock.add_response(
         method="POST",
         url="http://localhost:1026/ngsi-ld/v1/entityOperations/create/",
-        match_headers={"Content-Type": "application/ld+json"},
+        headers = {"Content-Type": "application/ld+json"},
         status_code=201,
         json=[
             "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
@@ -36,80 +37,73 @@ async def test_api_batch_create(httpx_mock: HTTPXMock):
     client = AsyncClient()
     sample2 = sample_entity.copy()
     sample3 = sample_entity.copy()
-    sample2.id = "AirQualityObserved:RZ:Obsv4568"
-    sample3.id = "AirQualityObserved:RZ:Obsv4569"
+    sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
+    sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]
-    success, response = await client.batch.create(batch)
-    assert success
-    assert response == [
-        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
-        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
-        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
-    ]
-
+    r: BatchResult = await client.batch._create(batch)
+    assert r.ok
+    assert r.n_ok == 3
+    assert r.n_err == 0
+    assert r.ratio == 1.0
 
 @pytest.mark.asyncio
-async def test_api_batch_upsert(httpx_mock: HTTPXMock):
+async def test_api_batch_single_create_nok(mocked_connected, httpx_mock: HTTPXMock):
     httpx_mock.add_response(
         method="POST",
-        url="http://localhost:1026/ngsi-ld/v1/entityOperations/upsert/",
-        match_headers={"Content-Type": "application/ld+json"},
+        url="http://localhost:1026/ngsi-ld/v1/entityOperations/create/",
+        headers = {"Content-Type": "application/ld+json"},
+        status_code=207,
+        json={"success": [], 
+            "errors": [
+                {"entityId": "urn:ngsi-ld:RoomObserved:Room1", "error": {"type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData", "title": "entity already exists", "status": 400}}, 
+                {'entityId': 'urn:ngsi-ld:RoomObserved:Room2', 'error': {'type': 'https://uri.etsi.org/ngsi-ld/errors/BadRequestData', 'title': 'entity already exists', 'status': 400}}
+            ]
+        }
+    )
+    client = AsyncClient()
+    room1 = Entity("RoomObserved", "Room1").prop("temperature", 21.7)
+    room2 = Entity("RoomObserved", "Room2").prop("temperature", 22.8)
+    batch = [room1, room2]
+    r: BatchResult = await client.batch._create(batch)
+    assert not r.ok
+    assert r.n_ok == 0
+    assert r.n_err == 2
+    assert r.ratio == 0.0
+    assert r.errors == [
+        {"entityId": "urn:ngsi-ld:RoomObserved:Room1", "error": {"type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData", "title": "entity already exists", "status": 400}}, 
+        {'entityId': 'urn:ngsi-ld:RoomObserved:Room2', 'error': {'type': 'https://uri.etsi.org/ngsi-ld/errors/BadRequestData', 'title': 'entity already exists', 'status': 400}}
+    ]
+
+@pytest.mark.asyncio
+async def test_api_batch_create_multi_ok(mocked_connected, httpx_mock: HTTPXMock):
+    httpx_mock.add_response(
+        method="POST",
+        url="http://localhost:1026/ngsi-ld/v1/entityOperations/create/",
+        headers = {"Content-Type": "application/ld+json"},
         status_code=201,
         json=[
             "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
             "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
+        ]
+    )
+    httpx_mock.add_response(
+        method="POST",
+        url="http://localhost:1026/ngsi-ld/v1/entityOperations/create/",
+        headers = {"Content-Type": "application/ld+json"},
+        status_code=201,
+        json=[
             "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
-        ],
+        ]
     )
     client = AsyncClient()
     sample2 = sample_entity.copy()
     sample3 = sample_entity.copy()
-    sample2.id = "AirQualityObserved:RZ:Obsv4568"
-    sample3.id = "AirQualityObserved:RZ:Obsv4569"
+    sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
+    sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]
-    success, response = await client.batch.upsert(batch)
-    assert success
-    assert response == [
-        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
-        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
-        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
-    ]
-
-
-@pytest.mark.asyncio
-async def test_api_batch_update(httpx_mock: HTTPXMock):
-    httpx_mock.add_response(
-        method="POST",
-        url="http://localhost:1026/ngsi-ld/v1/entityOperations/update/",
-        match_headers={"Content-Type": "application/ld+json"},
-        status_code=204,
-        json={"success": "all entities have been successfully updated"},
-    )
-    client = AsyncClient()
-    sample2 = sample_entity.copy()
-    sample3 = sample_entity.copy()
-    sample2.id = "AirQualityObserved:RZ:Obsv4568"
-    sample3.id = "AirQualityObserved:RZ:Obsv4569"
-    batch = [sample_entity, sample2, sample3]
-    success, response = await client.batch.update(batch)
-    assert success
-    assert response == {"success": "all entities have been successfully updated"}
-
-
-@pytest.mark.asyncio
-async def test_api_batch_delete(httpx_mock: HTTPXMock):
-    httpx_mock.add_response(
-        method="POST",
-        url="http://localhost:1026/ngsi-ld/v1/entityOperations/delete/",
-        status_code=204,
-        json={"success": "all entities existed and have been successfully deleted"},
-    )
-    client = AsyncClient()
-    sample2 = sample_entity.copy()
-    sample3 = sample_entity.copy()
-    sample2.id = "AirQualityObserved:RZ:Obsv4568"
-    sample3.id = "AirQualityObserved:RZ:Obsv4569"
-    batch = [sample_entity, sample2, sample3]
-    success, response = await client.batch.delete(batch)
-    assert success
-    assert response == {"success": "all entities existed and have been successfully deleted"}
+    r: BatchResult = await client.batch.create(batch, batchsize=2)
+    assert r.ok
+    assert r.n_ok == 3
+    assert r.n_err == 0
+    assert r.ratio == 1.0
+    assert r.errors == []
