@@ -107,3 +107,122 @@ async def test_api_batch_create_multi_ok(mocked_connected, httpx_mock: HTTPXMock
     assert r.n_err == 0
     assert r.ratio == 1.0
     assert r.errors == []
+
+@pytest.mark.asyncio
+async def test_api_batch_upsert_ok_201(mocked_connected, httpx_mock: HTTPXMock):
+    httpx_mock.add_response(
+        method="POST",
+        url="http://localhost:1026/ngsi-ld/v1/entityOperations/upsert/",
+        headers = {"Content-Type": "application/ld+json"},
+        status_code=201,
+        json=[
+            "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+            "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
+            "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
+        ],
+    )
+    client = AsyncClient()
+    sample2 = sample_entity.copy()
+    sample3 = sample_entity.copy()
+    sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
+    sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
+    batch = [sample_entity, sample2, sample3]
+    r: BatchResult = await client.batch.upsert(batch)
+    assert r.ok
+    assert r.n_ok == 3
+    assert r.n_err == 0
+    assert r.ratio == 1.0
+    assert r.errors == []
+    assert r.success == [
+        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
+        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
+    ]
+
+@pytest.mark.asyncio
+async def test_api_batch_upsert_ok_204(mocked_connected, httpx_mock: HTTPXMock):
+    httpx_mock.add_response(
+        method="POST",
+        url="http://localhost:1026/ngsi-ld/v1/entityOperations/upsert/",
+        headers = {"Content-Type": "application/ld+json"},
+        status_code=204
+    )    
+    client = AsyncClient()
+    sample2 = sample_entity.copy()
+    sample3 = sample_entity.copy()
+    sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
+    sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
+    batch = [sample_entity, sample2, sample3]
+    r: BatchResult = await client.batch.upsert(batch)
+    assert r.ok
+    assert r.n_ok == 3
+    assert r.n_err == 0
+    assert r.ratio == 1.0
+    assert r.errors == []
+    assert r.success == [
+        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
+        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
+    ]
+
+@pytest.mark.asyncio
+async def test_api_batch_update_ok_204(mocked_connected, httpx_mock: HTTPXMock):
+    httpx_mock.add_response(
+        method="POST",
+        url="http://localhost:1026/ngsi-ld/v1/entityOperations/update/",
+        headers = {"Content-Type": "application/ld+json"},
+        status_code=204,
+        json=[
+            "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+            "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
+            "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
+        ],
+    )
+    client = AsyncClient()
+    sample2 = sample_entity.copy()
+    sample3 = sample_entity.copy()
+    sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
+    sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
+    batch = [sample_entity, sample2, sample3]
+    r: BatchResult = await client.batch.update(batch)
+    assert r.ok
+    assert r.n_ok == 3
+    assert r.n_err == 0
+    assert r.ratio == 1.0
+    assert r.errors == []
+    assert r.success == [
+        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
+        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
+    ]
+
+@pytest.mark.asyncio
+async def test_api_batch_delete_ok_204(mocked_connected, httpx_mock: HTTPXMock):
+    httpx_mock.add_response(
+        method="POST",
+        url="http://localhost:1026/ngsi-ld/v1/entityOperations/delete/",
+        headers = {"Content-Type": "application/ld+json"},
+        status_code=204,
+        json=[
+            "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+            "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
+            "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
+        ],
+    )    
+    client = AsyncClient()
+    sample2 = sample_entity.copy()
+    sample3 = sample_entity.copy()
+    sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
+    sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
+    batch = [sample_entity, sample2, sample3]
+    r: BatchResult = await client.batch.delete(batch)
+    assert r.ok
+    assert r.n_ok == 3
+    assert r.n_err == 0
+    assert r.ratio == 1.0
+    assert r.errors == []
+    assert r.success == [
+        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
+        "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
+    ]    
