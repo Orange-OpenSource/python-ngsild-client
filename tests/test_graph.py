@@ -9,40 +9,30 @@
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
-from pytest import fixture
-from pytest_mock import MockerFixture
 from typing import List
 from ngsildclient import Client, Entity
 
-broker_impl: dict[str, Entity] = {}
+class MockedClient(Client):
+    def __init__(self):
+        self._broker_impl: dict[str, Entity] = {}
 
-def broker_get(eid: str) -> Entity:
-    if not eid.startswith("urn:ngsi-ld"):
-        eid = "urn:ngsi-ld:" + eid
-    return broker_impl[eid]
+    def get(self, eid: str) -> Entity:
+        if not eid.startswith("urn:ngsi-ld"):
+            eid = "urn:ngsi-ld:" + eid
+        return self._broker_impl[eid]
 
-def broker_upsert(entities: List[Entity]):
-    global broker_impl
-    broker_impl |= {e.id: e for e in entities}
-
-@fixture()
-def mocked_get(mocker: MockerFixture):
-    mocker.patch.object(Client, "get", side_effect=broker_get)
-
-@fixture()
-def mocked_upsert(mocker: MockerFixture):
-    mocker.patch.object(Client, "upsert", side_effect=broker_upsert) 
+    def upsert(self, entities: List[Entity]):
+        self._broker_impl |= {e.id: e for e in entities}
 
 def build_adjmat(client: Client, root: Entity, source: List[str]=[], target: List[str]=[]):
-    for edge, node in root.relationships:
-        source.append(edge)
+    for _, node in root.relationships: # edges are ignored
+        source.append(root.id)
         target.append(node)
         entity = client.get(node)
         source, target = build_adjmat(client, entity, source, target)
     return source, target
 
-def test_broker_impl(mocked_connected, mocked_get, mocked_upsert):
-    global broker_impl
+def test_broker_impl():
     a1 = Entity("A", "A1")
     b1 = Entity("B", "B1")
     c1 = Entity("C", "C1")
@@ -50,22 +40,27 @@ def test_broker_impl(mocked_connected, mocked_get, mocked_upsert):
     b1.rel("hasC", c1)
     assert a1.relationships == [("hasB", "urn:ngsi-ld:B:B1")]
     assert b1.relationships == [("hasC", "urn:ngsi-ld:C:C1")]
-    client = Client()
+    client = MockedClient()
     client.upsert([a1, b1, c1])
     x = client.get("urn:ngsi-ld:A:A1")
     y = client.get("urn:ngsi-ld:B:B1")
     z = client.get("urn:ngsi-ld:C:C1")
     assert (x,y,z) == (a1,b1,c1)
 
-def test_graph_1(mocked_connected, mocked_get, mocked_upsert):
-    global broker_impl
+def test_graph_1():
     a1 = Entity("A", "A1")
     b1 = Entity("B", "B1")
     c1 = Entity("C", "C1")
     a1.rel("hasB", b1)
     b1.rel("hasC", c1)    
-    client = Client()
+    client = MockedClient()
+    client.upsert([a1, b1, c1])
     a1 = client.get("A:A1")
-    source, target = build_adjmat(client, a1, [], [])
-    assert source is not None
+    source, target = client.build_adjmat(a1, [], [])
+    assert len(source) == 2
+    assert len(target) == 2
+    assert source[0] == "A:A1"
+    assert target[0] == "B:B1"
+    assert source[1] == "B:B1"
+    assert target[1] == "C:C1"    
     

@@ -18,6 +18,7 @@ from math import ceil
 
 from ngsildclient import __version__ as __version__
 from ..utils import is_interactive
+from ..utils.urn import Urn
 from ..model.entity import Entity
 from .constants import *
 from .entities import Entities
@@ -854,6 +855,14 @@ class Client:
 
     def _warn_spring_message(self) -> str:
         return "Java-Spring based Context Broker detected. Info endpoint disabled."
+
+    def build_adjmat(self, root: Entity, source: List[str]=[], target: List[str]=[]):
+        for edge, node in root.relationships:
+            source.append(Urn.unprefix(root.id))
+            target.append(Urn.unprefix(node))
+            entity = self.get(node)
+            source, target = self.build_adjmat(entity, source, target)
+        return source, target
 
     # below the context manager methods
 
