@@ -17,6 +17,7 @@ import logging
 if TYPE_CHECKING:
     from .client import AsyncClient
 
+from ...utils.urn import Urn
 from ..constants import EntityId, JSONLD_CONTEXT, ENDPOINT_ENTITIES
 from ...model.entity import Entity
 
@@ -31,7 +32,7 @@ class Entities:
         self.url = url
 
     def to_broker_url(self, eid: Union[EntityId, Entity]) -> str:
-        eid = eid.id if isinstance(eid, Entity) else eid
+        eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
         return f"http://{self._client.hostname}:{self._client.port}/{ENDPOINT_ENTITIES}/{eid}"
 
     @rfc7807_error_handle_async
@@ -68,7 +69,7 @@ class Entities:
         asdict: bool = False,
         **kwargs,
     ) -> Entity:
-        eid = eid.id if isinstance(eid, Entity) else eid
+        eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
         headers = {"Accept": "application/ld+json"}  # overrides session headers
         if ctx is not None:
             headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
@@ -79,7 +80,7 @@ class Entities:
 
     @rfc7807_error_handle_async
     async def delete(self, eid: Union[EntityId, Entity]) -> bool:
-        eid = eid.id if isinstance(eid, Entity) else eid
+        eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
         logger.info(f"{eid=}")
         logger.info(f"url={self.url}/{eid}")
         r: Response = await self._client.client.delete(f"{self.url}/{eid}")
@@ -89,7 +90,7 @@ class Entities:
 
     @rfc7807_error_handle_async
     async def exists(self, eid: Union[EntityId, Entity]) -> bool:
-        eid = eid.id if isinstance(eid, Entity) else eid
+        eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
         r: Response = await self._client.client.get(f"{self.url}/{eid}")
         if r:
             payload = r.json()

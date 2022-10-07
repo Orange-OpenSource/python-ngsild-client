@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from .client import AsyncClient
 
 from ..constants import EntityId, JSONLD_CONTEXT, AggrMethod
+from ...utils.urn import Urn
 from ..helper.temporal import TemporalQuery
 from ...model.entity import Entity
 from ..temporal import _addopt, Pagination, TemporalResult, troes_to_dataframe
@@ -47,7 +48,7 @@ class Temporal:
         pageanchor: str = None,
         count: bool = True,
     ) -> TemporalResult:
-        eid = eid.id if isinstance(eid, Entity) else eid
+        eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
         params = {}
         headers = {"Accept": "application/ld+json"}
         if ctx is not None:
@@ -110,7 +111,7 @@ class Temporal:
     ) -> TemporalResult:
         params = {}
         if eid:
-            params["id"] = eid
+            params["id"] = Urn.prefix(eid)
         if type:
             params["type"] = type
         if attrs:

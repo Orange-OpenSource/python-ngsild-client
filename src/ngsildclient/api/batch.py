@@ -10,7 +10,7 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Tuple, List, Literal
+from typing import TYPE_CHECKING, List, Literal
 from dataclasses import dataclass, field
 
 import logging
@@ -59,7 +59,7 @@ class BatchResult:
         else:
             return "success"
 
-    def raise_on_status(self):
+    def raise_for_status(self):
         if not self.ok:
             raise NgsiApiError(f"Error while processing batch {self.op} operation", self)
 

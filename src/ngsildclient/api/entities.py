@@ -17,6 +17,7 @@ import logging
 if TYPE_CHECKING:
     from .client import Client
 
+from ..utils.urn import Urn
 from .constants import ENDPOINT_ENTITIES, EntityId, JSONLD_CONTEXT
 from .exceptions import NgsiAlreadyExistsError, NgsiApiError, rfc7807_error_handle
 from ..model.entity import Entity
@@ -33,7 +34,7 @@ class Entities:
         self.url = url
 
     def to_broker_url(self, eid: Union[EntityId, Entity]) -> str:
-        eid = eid.id if isinstance(eid, Entity) else eid
+        eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
         return f"http://{self._client.hostname}:{self._client.port}/{ENDPOINT_ENTITIES}/{eid}"
 
     @rfc7807_error_handle
@@ -71,7 +72,7 @@ class Entities:
         asdict: bool = False,
         **kwargs,
     ) -> Entity:
-        eid = eid.id if isinstance(eid, Entity) else eid
+        eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
         headers = {
             "Accept": "application/ld+json",
             "Content-Type": None,
@@ -84,7 +85,7 @@ class Entities:
 
     @rfc7807_error_handle
     def delete(self, eid: Union[EntityId, Entity]) -> bool:
-        eid = eid.id if isinstance(eid, Entity) else eid
+        eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
         logger.info(f"{eid=}")
         logger.info(f"url={self.url}/{eid}")
         r = self._session.delete(f"{self.url}/{eid}")
@@ -94,7 +95,7 @@ class Entities:
 
     @rfc7807_error_handle
     def exists(self, eid: Union[EntityId, Entity]) -> bool:
-        eid = eid.id if isinstance(eid, Entity) else eid
+        eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
         r = self._session.get(f"{self.url}/{eid}")
         if r:
             payload = r.json()

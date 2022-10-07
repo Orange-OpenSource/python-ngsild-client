@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from typing import Optional, Tuple, Generator, List, Union, overload, Callable
 from math import ceil
 
+from ngsildclient import __version__ as __version__
 from ..utils import is_interactive
 from ..model.entity import Entity
 from .constants import *
