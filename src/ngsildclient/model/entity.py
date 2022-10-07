@@ -384,8 +384,16 @@ class Entity:
         self._payload["@context"] = ctx
 
     @property
-    def relationships(self) -> Tuple[str, str]:
-        return [(k, v["object"]) for k, v in self._payload.items() if isinstance(v, dict) and v.get("type") == "Relationship"]
+    def relationships(self) -> List[Tuple[str, str]]:
+        r: List[Tuple[str, str]] = []
+        for k, v in self._payload.items():
+            if isinstance(v, dict) and v.get("type") == "Relationship":
+                r.append((k, v.get("object")))
+            elif isinstance(v, List):
+                for x in v:
+                    if isinstance(x, dict) and x.get("type") == "Relationship":
+                        r.append((k, x.get("object")))
+        return r
 
     def __getitem__(self, item):
         return self._payload.__getitem__(item)

@@ -13,12 +13,13 @@ import logging
 import requests
 from requests.auth import AuthBase
 from dataclasses import dataclass
-from typing import Optional, Tuple, Generator, List, Union, overload, Callable
+from typing import Optional, Tuple, Generator, List, Union, overload, Callable, Set
 from math import ceil
 
 from ngsildclient import __version__ as __version__
 from ..utils import is_interactive
 from ..utils.urn import Urn
+from ..utils.graph import CacheArc
 from ..model.entity import Entity
 from .constants import *
 from .entities import Entities
@@ -856,13 +857,18 @@ class Client:
     def _warn_spring_message(self) -> str:
         return "Java-Spring based Context Broker detected. Info endpoint disabled."
 
-    def build_adjmat(self, root: Entity, source: List[str]=[], target: List[str]=[]):
-        for edge, node in root.relationships:
-            source.append(Urn.unprefix(root.id))
-            target.append(Urn.unprefix(node))
+    def build_adjmat(self, root: Entity, sources: List[str]=[], targets: List[str]=[], cache: Set = set()):
+        source: str = Urn.unprefix(root.id)
+        for _, node in root.relationships: # edges are ignored
+            target: str = Urn.unprefix(node)
+            if (source,target) in cache or (target,source) in cache:
+                continue
+            cache.add((source, target))
+            sources.append(source)
+            targets.append(target)
             entity = self.get(node)
-            source, target = self.build_adjmat(entity, source, target)
-        return source, target
+            sources, targets = self.build_adjmat(entity, sources, targets, cache)
+        return sources, targets
 
     # below the context manager methods
 
