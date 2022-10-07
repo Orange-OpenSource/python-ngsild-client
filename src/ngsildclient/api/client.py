@@ -857,7 +857,7 @@ class Client:
     def _warn_spring_message(self) -> str:
         return "Java-Spring based Context Broker detected. Info endpoint disabled."
 
-    def build_adjmat(self, root: Entity, sources: List[str]=[], targets: List[str]=[], cache: Set = set()):
+    def _to_graph_vectors(self, root: Entity, sources: List[str], targets: List[str], cache: Set):
         source: str = Urn.unprefix(root.id)
         for _, node in root.relationships: # edges are ignored
             target: str = Urn.unprefix(node)
@@ -867,8 +867,14 @@ class Client:
             sources.append(source)
             targets.append(target)
             entity = self.get(node)
-            sources, targets = self.build_adjmat(entity, sources, targets, cache)
+            sources, targets = self._to_graph_vectors(entity, sources, targets, cache)
         return sources, targets
+
+    def to_graph_vectors(self, root: Entity):
+        sources = []
+        targets = []
+        cache: Set[Tuple[str,str]] = set()
+        return self._to_graph_vectors(root, sources, targets, cache)
 
     # below the context manager methods
 

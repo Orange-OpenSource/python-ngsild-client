@@ -72,7 +72,7 @@ def test_graph_1():
     client = MockedClient()
     client.upsert([a1, b1, c1])
     a1 = client.get("A:A1")
-    source, target = client.build_adjmat(a1, [], [])
+    source, target = client.to_graph_vectors(a1)
     assert len(source) == 2
     assert len(target) == 2
     assert source[0] == "A:A1"
@@ -90,7 +90,7 @@ def test_graph_2():
     client = MockedClient()
     client.upsert([a1, b1, c1])
     a1 = client.get("A:A1")
-    source, target = client.build_adjmat(a1, [], [], set())
+    source, target = client.to_graph_vectors(a1)
     assert len(source) == 3
     assert len(target) == 3
     assert source[0] == "A:A1"
@@ -113,7 +113,7 @@ def test_graph_3():
     client = MockedClient()
     client.upsert([a1, b1, c1, d1, d2])
     a1 = client.get("A:A1")
-    source, target = client.build_adjmat(a1, [], [], set())
+    source, target = client.to_graph_vectors(a1)
     assert len(source) == 5
     assert len(target) == 5
     assert source[0] == "A:A1"
@@ -141,7 +141,7 @@ def test_graph_4():
     client = MockedClient()
     client.upsert([a1, b1, c1, d1, d2])
     a1 = client.get("A:A1")
-    source, target = client.build_adjmat(a1, [], [], set())
+    source, target = client.to_graph_vectors(a1)
     assert len(source) == 5
     assert len(target) == 5
     assert source[0] == "A:A1"
