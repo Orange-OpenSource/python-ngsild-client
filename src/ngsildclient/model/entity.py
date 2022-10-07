@@ -22,7 +22,7 @@ from functools import partialmethod
 from dataclasses import dataclass
 
 from datetime import datetime
-from typing import overload, Any, Union, List, Optional, Callable
+from typing import overload, Any, Union, List, Tuple, Optional, Callable
 from rich import print_json
 
 from .exceptions import *
@@ -35,7 +35,6 @@ logger = logging.getLogger(__name__)
 
 """This module contains the definition of the Entity class.
 """
-
 
 class Entity:
     """The main goal of this class is to build, manipulate and represent a NGSI-LD compliant entity.
@@ -384,6 +383,10 @@ class Entity:
     def context(self, ctx: list):
         self._payload["@context"] = ctx
 
+    @property
+    def relationships(self) -> Tuple[str, str]:
+        return [(k, v["object"]) for k, v in self._payload.items() if isinstance(v, dict) and v.get("type") == "Relationship"]
+
     def __getitem__(self, item):
         return self._payload.__getitem__(item)
 
@@ -393,19 +396,6 @@ class Entity:
     def __delitem__(self, key):
         self._payload.__delitem__(key)
         return self
-
-    def last(self, name: str):
-        item = self[name]
-        if not isinstance(item, List):
-            raise ValueError("Item should be a list")
-        return deepcopy(item[-1])
-
-    def append(self, name: str, value: NgsiDict):
-        item = self[name]
-        if not isinstance(item, List):
-            raise ValueError("Item should be a list")
-        item.append(value)
-        return deepcopy(item[-1])
 
     def anchor(self):
         """Set an anchor.
@@ -728,21 +718,6 @@ class Entity:
 
     def __repr__(self):
         return self._payload.__repr__()
-
-    def arrayify(self, name: str) -> NgsiDict:
-        prop = self[name]
-        if isinstance(prop, List):
-            return None
-        self[name] = [prop]
-        return deepcopy(prop)
-
-    def unarrayify(self, name: str) -> NgsiDict:
-        prop = self[name]
-        if not isinstance(prop, List):
-            return None
-        lastprop = prop[-1]
-        self[name] = lastprop
-        return lastprop
 
     def to_dict(self, kv=False) -> NgsiDict:
         """Returns the entity as a dictionary.
