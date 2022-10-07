@@ -17,7 +17,7 @@
 
    .. autosummary::
    
-      BatchOp
+      Batch
       BatchResult
    
    

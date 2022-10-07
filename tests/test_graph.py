@@ -107,7 +107,7 @@ def test_graph_3():
     d1 = Entity("D", "D1")
     d2 = Entity("D", "D2")
     a1.rel("hasB", b1)
-    a1.rel("hasD", [d1, d2])
+    a1.rel("hasD", [d1, d2]) # TODO : do multiple relationships now require datasetId ?
     b1.rel("hasC", c1)
     c1.rel("hasA", a1)    
     client = MockedClient()

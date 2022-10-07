@@ -1,4 +1,4 @@
-ngsildclient.api.asyn.batch
+﻿ngsildclient.api.asyn.batch
 ===========================
 
 .. automodule:: ngsildclient.api.asyn.batch
@@ -17,7 +17,7 @@ ngsildclient.api.asyn.batch
 
    .. autosummary::
    
-      BatchOp
+      Batch
    
    
 
