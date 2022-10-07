@@ -20,7 +20,7 @@ from ...model.entity import Entity
 from ..constants import *
 from ..exceptions import *
 from .entities import Entities
-from .batch import BatchOp
+from .batch import Batch
 from .types import Types
 from .contexts import Contexts
 from .subscriptions import Subscriptions
@@ -136,7 +136,7 @@ class AsyncClient:
         logger.info("Connecting client ...")
         self.client = httpx.AsyncClient(auth=custom_auth, headers=headers, proxies=proxies)
         self._entities = Entities(self, f"{self.url}/{ENDPOINT_ENTITIES}")
-        self._batch = BatchOp(self, f"{self.url}/{ENDPOINT_BATCH}")
+        self._batch = Batch(self, f"{self.url}/{ENDPOINT_BATCH}")
         self._types = Types(self, f"{self.url}/{ENDPOINT_TYPES}")
         self._contexts = Contexts(self, f"{self.url}/{ENDPOINT_CONTEXTS}")
         self._subscriptions = Subscriptions(self, f"{self.url}/{ENDPOINT_SUBSCRIPTIONS}")

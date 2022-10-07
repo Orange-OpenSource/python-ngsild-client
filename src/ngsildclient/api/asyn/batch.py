@@ -24,7 +24,7 @@ from ...model.entity import Entity
 
 logger = logging.getLogger(__name__)
 
-class BatchOp:
+class Batch:
     """A wrapper for the NGSI-LD API batch endpoint."""    
 
     def __init__(self, client: AsyncClient, url: str):
@@ -46,11 +46,11 @@ class BatchOp:
             success, errors = content["success"], content["errors"]
         else:
             raise NgsiApiError("Batch Create : Unkown HTTP response code {}", r.status_code)
-        return BatchResult(success, errors)
+        return BatchResult("create", success, errors)
 
     @rfc7807_error_handle_async
     async def create(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
-        r = BatchResult()
+        r = BatchResult("create")
         for i in range(0, len(entities), batchsize):
             r += await self._create(entities[i:i+batchsize])
         return r
@@ -70,11 +70,11 @@ class BatchOp:
             success, errors = content["success"], content["errors"]
         else:
             raise NgsiApiError("Batch Upsert : Unkown HTTP response code {}", r.status_code)
-        return BatchResult(success, errors)
+        return BatchResult("upsert", success, errors)
 
     @rfc7807_error_handle_async
     async def upsert(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
-        r = BatchResult()
+        r = BatchResult("upsert")
         for i in range(0, len(entities), batchsize):
             r += await self._upsert(entities[i:i+batchsize]) 
         return r
@@ -92,11 +92,11 @@ class BatchOp:
             success, errors = content["success"], content["errors"]
         else:
             raise NgsiApiError("Batch Update : Unkown HTTP response code {}", r.status_code)
-        return BatchResult(success, errors)
+        return BatchResult("update", success, errors)
 
     @rfc7807_error_handle_async
     async def update(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
-        r = BatchResult()
+        r = BatchResult("update")
         for i in range(0, len(entities), batchsize):
             r += await self._update(entities[i:i+batchsize]) 
         return r
@@ -114,11 +114,11 @@ class BatchOp:
             success, errors = content["success"], content["errors"]
         else:
             raise NgsiApiError("Batch Delete : Unkown HTTP response code {}", r.status_code)
-        return BatchResult(success, errors)
+        return BatchResult("delete", success, errors)
 
     @rfc7807_error_handle_async
     async def delete(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
-        r = BatchResult()
+        r = BatchResult("delete")
         for i in range(0, len(entities), batchsize):
             r += await self._delete(entities[i:i+batchsize]) 
         return r

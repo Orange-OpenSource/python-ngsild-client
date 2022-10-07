@@ -11,6 +11,7 @@
 
 import rich.console as console
 from rich.text import Text
+from typing import Literal
 
 from ngsildclient.utils import is_interactive
 
@@ -19,14 +20,17 @@ from ngsildclient.utils import is_interactive
 This module contains functions to print to the console in interactive mode
 """
 
+MsgLvl = Literal["info", "success", "warning", "error"]
+
 MAP_LEVEL_COLOR = {"info": None, "success": "green", "warning": "orange3", "error": "red3"}
+
 
 class Console:
 
     def __init__(self):
         self.console = console.Console() if is_interactive() else None
 
-    def message(self, msg: str, *, color: str = None, level: str = "INFO"):
+    def message(self, msg: str, *, color: str = None, level: MsgLvl = "info"):
         if self.console is None:
             return
         text = Text(msg)

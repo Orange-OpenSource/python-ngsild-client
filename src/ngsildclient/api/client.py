@@ -20,7 +20,7 @@ from ..utils import is_interactive
 from ..model.entity import Entity
 from .constants import *
 from .entities import Entities
-from .batch import BatchOp
+from .batch import Batch
 from .types import Types
 from .contexts import Contexts
 from .subscriptions import Subscriptions
@@ -149,7 +149,7 @@ class Client:
         logger.info("Connecting client ...")
 
         self._entities = Entities(self, f"{self.url}/{ENDPOINT_ENTITIES}")
-        self._batch = BatchOp(self, f"{self.url}/{ENDPOINT_BATCH}")
+        self._batch = Batch(self, f"{self.url}/{ENDPOINT_BATCH}")
         self._types = Types(self, f"{self.url}/{ENDPOINT_TYPES}")
         self._contexts = Contexts(self, f"{self.url}/{ENDPOINT_CONTEXTS}")
         self._subscriptions = Subscriptions(self, f"{self.url}/{ENDPOINT_SUBSCRIPTIONS}")
