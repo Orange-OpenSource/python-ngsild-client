@@ -10,7 +10,7 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Union, List, Generator, Callable, Awaitable
+from typing import TYPE_CHECKING, Union, List, Sequence, Generator, Callable, Awaitable
 from dataclasses import dataclass
 from datetime import timedelta
 from isodate import duration_isoformat
@@ -40,7 +40,7 @@ class Temporal:
     async def _get(
         self,
         eid: Union[EntityId, Entity],
-        attrs: List[str] = None,
+        attrs: Sequence[str] = None,
         ctx: str = None,
         verbose: bool = False,
         lastn: int = 0,
@@ -74,7 +74,7 @@ class Temporal:
     async def get(
         self,
         eid: Union[EntityId, Entity],
-        attrs: List[str] = None,
+        attrs: Sequence[str] = None,
         ctx: str = None,
         verbose: bool = False,
         pagesize: int = 0,
@@ -98,7 +98,7 @@ class Temporal:
         self,
         eid: Union[EntityId, Entity] = None,
         type: str = None,
-        attrs: List[str] = None,
+        attrs: Sequence[str] = None,
         q: str = None,
         gq: str = None,
         ctx: str = None,
@@ -149,7 +149,7 @@ class Temporal:
         *,
         eid: Union[EntityId, Entity] = None,
         type: str = None,
-        attrs: List[str] = None,
+        attrs: Sequence[str] = None,
         q: str = None,
         gq: str = None,
         ctx: str = None,
@@ -192,7 +192,7 @@ class Temporal:
             The entity identifier or the entity instance
         etype : str
             The entity's type
-        attrs : List[str]
+        attrs : Sequence[str]
             The list of the attributes (changing over time) you're interested in
         ctx : str
             The context
@@ -244,7 +244,7 @@ class Temporal:
         *,
         eid: Union[EntityId, Entity] = None,
         type: str = None,
-        attrs: List[str] = None,
+        attrs: Sequence[str] = None,
         q: str = None,
         gq: str = None,
         ctx: str = None,
@@ -295,7 +295,7 @@ class Temporal:
         pagesize: int = 0,  # default broker pageSize
         pageanchor: str = None,
         count: bool = False,
-        methods: List[AggrMethod] = [AggrMethod.AVERAGE],
+        methods: Sequence[AggrMethod] = [AggrMethod.AVERAGE],
         period: timedelta = timedelta(days=1),
     ) -> TemporalResult:
         params = {}

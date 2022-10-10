@@ -11,15 +11,14 @@
 
 from typing import List
 from ngsildclient import Client, Entity
+from ngsildclient.utils.urn import Urn
 
 class MockedClient(Client):
     def __init__(self):
         self._broker_impl: dict[str, Entity] = {}
 
     def get(self, eid: str) -> Entity:
-        if not eid.startswith("urn:ngsi-ld"):
-            eid = "urn:ngsi-ld:" + eid
-        return self._broker_impl[eid]
+        return self._broker_impl[Urn.prefix(eid)]
 
     def upsert(self, entities: List[Entity]):
         self._broker_impl |= {e.id: e for e in entities}
@@ -72,7 +71,7 @@ def test_graph_1():
     client = MockedClient()
     client.upsert([a1, b1, c1])
     a1 = client.get("A:A1")
-    source, target = client.to_graph_vectors(a1)
+    source, target = client.adjvec(a1)
     assert len(source) == 2
     assert len(target) == 2
     assert source[0] == "A:A1"
@@ -90,7 +89,7 @@ def test_graph_2():
     client = MockedClient()
     client.upsert([a1, b1, c1])
     a1 = client.get("A:A1")
-    source, target = client.to_graph_vectors(a1)
+    source, target = client.adjvec(a1)
     assert len(source) == 3
     assert len(target) == 3
     assert source[0] == "A:A1"
@@ -113,7 +112,7 @@ def test_graph_3():
     client = MockedClient()
     client.upsert([a1, b1, c1, d1, d2])
     a1 = client.get("A:A1")
-    source, target = client.to_graph_vectors(a1)
+    source, target = client.adjvec(a1)
     assert len(source) == 5
     assert len(target) == 5
     assert source[0] == "A:A1"
@@ -141,7 +140,7 @@ def test_graph_4():
     client = MockedClient()
     client.upsert([a1, b1, c1, d1, d2])
     a1 = client.get("A:A1")
-    source, target = client.to_graph_vectors(a1)
+    source, target = client.adjvec(a1)
     assert len(source) == 5
     assert len(target) == 5
     assert source[0] == "A:A1"

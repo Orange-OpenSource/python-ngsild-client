@@ -21,7 +21,7 @@ References
 import re
 import logging
 
-from typing import overload, Optional
+from typing import overload, Optional, Tuple
 from ngsildclient.api.constants import ENDPOINT_ENTITIES
 
 NID_PATTERN = re.compile(r"^[0-9a-zA-Z\-]+$")
@@ -202,7 +202,7 @@ class Urn:
         return value if Urn.is_prefixed(value) else f"urn:ngsi-ld:{value}"
 
     @staticmethod
-    def unprefix(value: str) -> str:
+    def shorten(value: str) -> str:
         """Remove the prefix (URN scheme+NID)
 
         Parameters
@@ -224,3 +224,20 @@ class Urn:
         if value is None:
             return None
         return Urn(value).nss if Urn.is_prefixed(value) else value
+
+    @staticmethod
+    def split(value: str) -> Tuple[str, str]:
+        """Return 
+
+        Parameters
+        ----------
+        value : str
+            _description_
+
+        Returns
+        -------
+        Tuple[str, str]
+            the type of the entity, and the entity id
+        """
+        type, shortid = value[12:].split(":", 1)
+        return type, f"{type}:{shortid}"

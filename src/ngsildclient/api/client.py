@@ -13,8 +13,9 @@ import logging
 import requests
 from requests.auth import AuthBase
 from dataclasses import dataclass
-from typing import Optional, Tuple, Generator, List, Union, overload, Callable, Set
+from typing import Optional, Tuple, Generator, List, Sequence, Union, overload, Callable, Set
 from math import ceil
+import networkx as nx
 
 from ngsildclient import __version__ as __version__
 from ..utils import is_interactive
@@ -285,14 +286,14 @@ class Client:
         ...
 
     @overload
-    def create(self, entities: List[Entity], skip: bool = False, overwrite: bool = False):
+    def create(self, entities: Sequence[Entity], skip: bool = False, overwrite: bool = False):
         """Create a batch of entities.
 
         Facade method for Batch.create().
 
         Parameters
         ----------
-        entities : List[Entity]
+        entities : Sequence[Entity]
             the entity to be created by the Context Broker
         skip : bool, optional
             if set, skips creation (do nothing) if already exists, by default False
@@ -307,11 +308,11 @@ class Client:
 
     def create(
         self,
-        _entities: Union[Entity, List[Entity]],
+        _entities: Union[Entity, Sequence[Entity]],
         skip: bool = False,
         overwrite: bool = False,
     ) -> Optional[Entity]:
-        if isinstance(_entities, Entity):
+        if isinstance(_entities, Sequence):
             entity = _entities
             return self.entities.create(entity)
         else:
@@ -365,7 +366,7 @@ class Client:
         ...
 
     @overload
-    def delete(self, eids: List[Union[EntityId, Entity]]) -> bool:
+    def delete(self, eids: Sequence[Union[EntityId, Entity]]) -> bool:
         """Delete entities given its id.
 
         Facade method for Batch.delete().
@@ -373,7 +374,7 @@ class Client:
 
         Parameters
         ----------
-        eids : List[Union[EntityId, Entity]]
+        eids : Sequence[Union[EntityId, Entity]]
             The entities ids or instances
 
         Returns
@@ -383,8 +384,8 @@ class Client:
         """
         ...
 
-    def delete(self, eids: Union[Union[EntityId, Entity], List[Union[EntityId, Entity]]]) -> bool:
-        if isinstance(eids, list):
+    def delete(self, eids: Union[Union[EntityId, Entity], Sequence[Union[EntityId, Entity]]]) -> bool:
+        if isinstance(eids, Sequence):
             return self.batch.delete(eids)
         else:
             eid = eids
@@ -438,7 +439,7 @@ class Client:
         ...
 
     @overload
-    def upsert(self, entities: List[Entity]) -> dict:
+    def upsert(self, entities: Sequence[Entity]) -> dict:
         """Upsert a batch of entities.
 
         Facade method for Batch.upsert().
@@ -455,7 +456,7 @@ class Client:
         """
         ...
 
-    def upsert(self, entities: Union[Entity, List[Entity]]) -> Union[Entity, dict]:
+    def upsert(self, entities: Union[Entity, Sequence[Entity]]) -> Union[Entity, dict]:
         if isinstance(entities, Entity):
             entity = entities
             return self.entities.upsert(entity)
@@ -492,14 +493,14 @@ class Client:
         ...
 
     @overload
-    def update(self, entities: List[Entity]) -> dict:
+    def update(self, entities: Sequence[Entity]) -> dict:
         """Update a batch of entities.
 
         Facade method for Batch.update().
 
         Parameters
         ----------
-        entities : List[Entity]
+        entities : Sequence[Entity]
             The entities to be updated by the Context Broker
 
         Returns
@@ -509,7 +510,7 @@ class Client:
         """
         ...
 
-    def update(self, entities: Union[Entity, List[Entity]]) -> Union[Optional[Entity], dict]:
+    def update(self, entities: Union[Entity, Sequence[Entity]]) -> Union[Optional[Entity], dict]:
         if isinstance(entities, Entity):
             entity = entities
             return self.entities.update(entity)
@@ -857,24 +858,57 @@ class Client:
     def _warn_spring_message(self) -> str:
         return "Java-Spring based Context Broker detected. Info endpoint disabled."
 
-    def _to_graph_vectors(self, root: Entity, sources: List[str], targets: List[str], cache: Set):
-        source: str = Urn.unprefix(root.id)
+    def _ajdvec(self, root: Entity, sources: List[str], targets: List[str], cache: Set):
+        source: str = Urn.shorten(root.id)
         for _, node in root.relationships: # edges are ignored
-            target: str = Urn.unprefix(node)
+            target: str = Urn.shorten(node)
             if (source,target) in cache or (target,source) in cache:
                 continue
             cache.add((source, target))
             sources.append(source)
             targets.append(target)
             entity = self.get(node)
-            sources, targets = self._to_graph_vectors(entity, sources, targets, cache)
+            sources, targets = self._ajdvec(entity, sources, targets, cache)
         return sources, targets
 
-    def to_graph_vectors(self, root: Entity):
+    def adjvec(self, root: Entity):
         sources = []
         targets = []
         cache: Set[Tuple[str,str]] = set()
-        return self._to_graph_vectors(root, sources, targets, cache)
+        return self._ajdvec(root, sources, targets, cache)
+
+    def _create_network_BAK(self, root: Entity, G: nx.Graph, edgecache: Set):
+        source: str = Urn.shorten(root.id)
+       #  G.add_node(source) # added if not already in the graph
+        for _, node in root.relationships: # edges are ignored
+            target: str = Urn.shorten(node)
+            # G.add_node(target) # added if not already in the graph
+            if (source,target) in edgecache or (target,source) in edgecache:
+                continue
+            edgecache.add((source, target))
+            G.add_edge(source, target)
+            entity = self.get(node)
+            G = self._create_network(entity, G, edgecache)
+        return G
+
+    def _create_network(self, root: Entity, G: nx.Graph, edgecache: Set):
+        source: Tuple = Urn.split(root.id)
+       #  G.add_node(source) # added if not already in the graph
+        for _, node in root.relationships:
+            target: Tuple = Urn.split(node)
+            # G.add_node(target) # added if not already in the graph
+            if (source,target) in edgecache or (target,source) in edgecache:
+                continue
+            edgecache.add((source, target))
+            G.add_edge(source, target)
+            entity = self.get(node)
+            G = self._create_network(entity, G, edgecache)
+        return G
+
+    def network(self, root: Entity):
+        G = nx.Graph()
+        edgecache: Set[Tuple[str,str]] = set()
+        return self._create_network(root, G, edgecache)
 
     # below the context manager methods
 

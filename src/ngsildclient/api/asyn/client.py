@@ -213,14 +213,14 @@ class AsyncClient:
         ...
 
     @overload
-    async def create(self, entities: List[Entity], skip: bool = False, overwrite: bool = False):
+    async def create(self, entities: Sequence[Entity], skip: bool = False, overwrite: bool = False):
         """Create a batch of entities.
 
         Facade method for Batch.create().
 
         Parameters
         ----------
-        entities : List[Entity]
+        entities : Sequence[Entity]
             the entity to be created by the Context Broker
         skip : bool, optional
             if set, skips creation (do nothing) if already exists, by default False
@@ -236,7 +236,7 @@ class AsyncClient:
 
     async def create(
         self,
-        _entities: Union[Entity, List[Entity]],
+        _entities: Union[Entity, Sequence[Entity]],
         skip: bool = False,
         overwrite: bool = False,
     ) -> Optional[Entity]:
@@ -294,7 +294,7 @@ class AsyncClient:
         ...
 
     @overload
-    async def delete(self, eids: List[Union[EntityId, Entity]]) -> bool:
+    async def delete(self, eids: Sequence[Union[EntityId, Entity]]) -> bool:
         """Delete entities given its id.
 
         Facade method for Batch.delete().
@@ -302,7 +302,7 @@ class AsyncClient:
 
         Parameters
         ----------
-        eids : List[Union[EntityId, Entity]]
+        eids : Sequence[Union[EntityId, Entity]]
             The entities ids or instances
 
         Returns
@@ -312,7 +312,7 @@ class AsyncClient:
         """
         ...
 
-    async def delete(self, eids: Union[Union[EntityId, Entity], List[Union[EntityId, Entity]]]) -> bool:
+    async def delete(self, eids: Union[Union[EntityId, Entity], Sequence[Union[EntityId, Entity]]]) -> bool:
         if isinstance(eids, list):
             return await self.batch.delete(eids)
         else:
@@ -367,7 +367,7 @@ class AsyncClient:
         ...
 
     @overload
-    async def upsert(self, entities: List[Entity]) -> dict:
+    async def upsert(self, entities: Sequence[Entity]) -> dict:
         """Upsert a batch of entities.
 
         Facade method for Batch.upsert().
@@ -384,7 +384,7 @@ class AsyncClient:
         """
         ...
 
-    async def upsert(self, entities: Union[Entity, List[Entity]]) -> Union[Entity, dict]:
+    async def upsert(self, entities: Union[Entity, Sequence[Entity]]) -> Union[Entity, dict]:
         if isinstance(entities, Entity):
             entity = entities
             return await self.entities.upsert(entity)
@@ -421,14 +421,14 @@ class AsyncClient:
         ...
 
     @overload
-    async def update(self, entities: List[Entity]) -> dict:
+    async def update(self, entities: Sequence[Entity]) -> dict:
         """Update a batch of entities.
 
         Facade method for Batch.update().
 
         Parameters
         ----------
-        entities : List[Entity]
+        entities : Sequence[Entity]
             The entities to be updated by the Context Broker
 
         Returns
@@ -438,7 +438,7 @@ class AsyncClient:
         """
         ...
 
-    async def update(self, entities: Union[Entity, List[Entity]]) -> Union[Optional[Entity], dict]:
+    async def update(self, entities: Union[Entity, Sequence[Entity]]) -> Union[Optional[Entity], dict]:
         if isinstance(entities, Entity):
             entity = entities
             return await self.entities.update(entity)

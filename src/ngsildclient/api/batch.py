@@ -10,7 +10,7 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, List, Literal
+from typing import TYPE_CHECKING, List, Literal, Sequence
 from dataclasses import dataclass, field
 
 import logging
@@ -80,7 +80,7 @@ class Batch:
 
     @rfc7807_error_handle
     def _create(
-        self, entities: List[Entity]) -> BatchResult:
+        self, entities: Sequence[Entity]) -> BatchResult:
         r = self._session.post(
             f"{self.url}/create/", json=[entity._payload for entity in entities]
         )
@@ -95,7 +95,7 @@ class Batch:
         return BatchResult("create", success, errors)
 
     @rfc7807_error_handle
-    def create(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+    def create(self, entities: Sequence[Entity], *, batchsize: int = BATCHSIZE) -> BatchResult:
         r = BatchResult("create")
         for i in range(0, len(entities), batchsize):
             r += self._create(entities[i:i+batchsize])
@@ -103,7 +103,7 @@ class Batch:
         return r
     
     @rfc7807_error_handle
-    def _upsert(self, entities: List[Entity]) -> BatchResult:
+    def _upsert(self, entities: Sequence[Entity]) -> BatchResult:
         r = self._session.post(
             f"{self.url}/upsert/", json=[entity._payload for entity in entities]
         )
@@ -120,7 +120,7 @@ class Batch:
         return BatchResult("upsert", success, errors)
 
     @rfc7807_error_handle
-    def upsert(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+    def upsert(self, entities: Sequence[Entity], *, batchsize: int = BATCHSIZE) -> BatchResult:
         r = BatchResult("upsert")
         for i in range(0, len(entities), batchsize):
             r += self._upsert(entities[i:i+batchsize]) 
@@ -128,7 +128,7 @@ class Batch:
         return r
 
     @rfc7807_error_handle
-    def _update(self, entities: List[Entity]) -> tuple[bool, dict]:
+    def _update(self, entities: Sequence[Entity]) -> tuple[bool, dict]:
         r = self._session.post(
             f"{self.url}/update/", json=[entity._payload for entity in entities]
         )
@@ -143,7 +143,7 @@ class Batch:
         return BatchResult("update", success, errors)
 
     @rfc7807_error_handle
-    def update(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+    def update(self, entities: Sequence[Entity], *, batchsize: int = BATCHSIZE) -> BatchResult:
         r = BatchResult("update")
         for i in range(0, len(entities), batchsize):
             r += self._update(entities[i:i+batchsize]) 
@@ -151,7 +151,7 @@ class Batch:
         return r
 
     @rfc7807_error_handle
-    def _delete(self, entities: List[Entity]) -> tuple[bool, dict]:
+    def _delete(self, entities: Sequence[Entity]) -> tuple[bool, dict]:
         r = self._session.post(
             f"{self.url}/delete/", json=[entity.id for entity in entities]
         )
@@ -166,7 +166,7 @@ class Batch:
         return BatchResult("delete", success, errors)
 
     @rfc7807_error_handle
-    def delete(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+    def delete(self, entities: Sequence[Entity], *, batchsize: int = BATCHSIZE) -> BatchResult:
         r = BatchResult("delete")
         for i in range(0, len(entities), batchsize):
             r += self._delete(entities[i:i+batchsize]) 

@@ -10,7 +10,7 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional, Union, List
+from typing import TYPE_CHECKING, Optional, Union, Sequence
 
 import logging
 
@@ -126,7 +126,7 @@ class Entities:
         ctx: str = None,
         limit: int = 0,
         offset: int = 0
-    ) -> List[Entity]:
+    ) -> Sequence[Entity]:
         params = {}
         if limit != 0:
             params |= {"limit": limit}

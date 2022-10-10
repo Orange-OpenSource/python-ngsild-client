@@ -281,7 +281,7 @@ class Entity:
         else:  # type is not None
             autoprefix &= not Urn.is_prefixed(id)
             if autoprefix:
-                bareid = Urn.unprefix(id)
+                bareid = Urn.shorten(id)
                 prefix = f"{type}:"
                 if not bareid.startswith(prefix):
                     id = prefix + bareid
