@@ -9,6 +9,8 @@
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
+import networkx as nx
+
 from typing import List
 from ngsildclient import Client, Entity
 from ngsildclient.utils.urn import Urn
@@ -18,6 +20,7 @@ class MockedClient(Client):
         self._broker_impl: dict[str, Entity] = {}
 
     def get(self, eid: str) -> Entity:
+        eid = eid.id if isinstance(eid, Entity) else eid
         return self._broker_impl[Urn.prefix(eid)]
 
     def upsert(self, entities: List[Entity]):
@@ -70,14 +73,17 @@ def test_graph_1():
     b1.rel("hasC", c1)    
     client = MockedClient()
     client.upsert([a1, b1, c1])
-    a1 = client.get("A:A1")
-    source, target = client.adjvec(a1)
-    assert len(source) == 2
-    assert len(target) == 2
-    assert source[0] == "A:A1"
-    assert target[0] == "B:B1"
-    assert source[1] == "B:B1"
-    assert target[1] == "C:C1"
+    root = client.get("A:A1")
+    G: nx.Graph = client.network(root)
+    assert len(G.nodes) == 3
+    assert len(G.edges) == 2
+    nodes = [*G.nodes]
+    assert nodes[0] == ('A', 'A:A1')
+    assert nodes[1] == ('B', 'B:B1')
+    assert nodes[2] == ('C', 'C:C1')
+    edges = [*G.edges]
+    assert edges[0] == (('A', 'A:A1'), ('B', 'B:B1'))
+    assert edges[1] == (('B', 'B:B1'), ('C', 'C:C1'))
 
 def test_graph_2():
     a1 = Entity("A", "A1")
@@ -88,16 +94,18 @@ def test_graph_2():
     c1.rel("hasA", a1)    
     client = MockedClient()
     client.upsert([a1, b1, c1])
-    a1 = client.get("A:A1")
-    source, target = client.adjvec(a1)
-    assert len(source) == 3
-    assert len(target) == 3
-    assert source[0] == "A:A1"
-    assert target[0] == "B:B1"
-    assert source[1] == "B:B1"
-    assert target[1] == "C:C1"
-    assert source[2] == "C:C1"
-    assert target[2] == "A:A1"    
+    root = client.get(a1)
+    G: nx.Graph = client.network(root)
+    assert len(G.nodes) == 3
+    assert len(G.edges) == 3
+    nodes = [*G.nodes]
+    assert nodes[0] == ('A', 'A:A1')
+    assert nodes[1] == ('B', 'B:B1')
+    assert nodes[2] == ('C', 'C:C1')
+    edges = [*G.edges]
+    assert edges[0] == (('A', 'A:A1'), ('B', 'B:B1'))
+    assert edges[1] == (('A', 'A:A1'), ('C', 'C:C1'))
+    assert edges[2] == (('B', 'B:B1'), ('C', 'C:C1'))
 
 def test_graph_3():
     a1 = Entity("A", "A1")
@@ -111,45 +119,43 @@ def test_graph_3():
     c1.rel("hasA", a1)    
     client = MockedClient()
     client.upsert([a1, b1, c1, d1, d2])
-    a1 = client.get("A:A1")
-    source, target = client.adjvec(a1)
-    assert len(source) == 5
-    assert len(target) == 5
-    assert source[0] == "A:A1"
-    assert target[0] == "B:B1"
-    assert source[1] == "B:B1"
-    assert target[1] == "C:C1"
-    assert source[2] == "C:C1"
-    assert target[2] == "A:A1"
-    assert source[3] == "A:A1"
-    assert target[3] == "D:D1"
-    assert source[4] == "A:A1"
-    assert target[4] == "D:D2"
+    root = client.get("A:A1")
+    G: nx.Graph = client.network(root)
+    assert len(G.nodes) == 5
+    assert len(G.edges) == 3
+    nodes = [*G.nodes]
+    assert nodes[0] == ('A', 'A:A1')
+    assert nodes[1] == ('B', 'B:B1')
+    assert nodes[2] == ('C', 'C:C1')
+    edges = [*G.edges]
+    assert edges[0] == (('A', 'A:A1'), ('B', 'B:B1'))
+    assert edges[1] == (('A', 'A:A1'), ('C', 'C:C1'))
+    assert edges[2] == (('B', 'B:B1'), ('C', 'C:C1'))
 
-def test_graph_4():
-    a1 = Entity("A", "A1")
-    b1 = Entity("B", "B1")
-    c1 = Entity("C", "C1")
-    d1 = Entity("D", "D1")
-    d2 = Entity("D", "D2")
-    a1.rel("hasB", b1)
-    a1.rel("hasD", [d1, d2])
-    a1.rel("hasC", c1)
-    b1.rel("hasC", c1)
-    c1.rel("hasA", a1)    
-    client = MockedClient()
-    client.upsert([a1, b1, c1, d1, d2])
-    a1 = client.get("A:A1")
-    source, target = client.adjvec(a1)
-    assert len(source) == 5
-    assert len(target) == 5
-    assert source[0] == "A:A1"
-    assert target[0] == "B:B1"
-    assert source[1] == "B:B1"
-    assert target[1] == "C:C1"
-    assert source[2] == "C:C1"
-    assert target[2] == "A:A1"
-    assert source[3] == "A:A1"
-    assert target[3] == "D:D1"
-    assert source[4] == "A:A1"
-    assert target[4] == "D:D2"    
+# def test_graph_4():
+#     a1 = Entity("A", "A1")
+#     b1 = Entity("B", "B1")
+#     c1 = Entity("C", "C1")
+#     d1 = Entity("D", "D1")
+#     d2 = Entity("D", "D2")
+#     a1.rel("hasB", b1)
+#     a1.rel("hasD", [d1, d2])
+#     a1.rel("hasC", c1)
+#     b1.rel("hasC", c1)
+#     c1.rel("hasA", a1)    
+#     client = MockedClient()
+#     client.upsert([a1, b1, c1, d1, d2])
+#     a1 = client.get("A:A1")
+#     source, target = client.adjvec(a1)
+#     assert len(source) == 5
+#     assert len(target) == 5
+#     assert source[0] == "A:A1"
+#     assert target[0] == "B:B1"
+#     assert source[1] == "B:B1"
+#     assert target[1] == "C:C1"
+#     assert source[2] == "C:C1"
+#     assert target[2] == "A:A1"
+#     assert source[3] == "A:A1"
+#     assert target[3] == "D:D1"
+#     assert source[4] == "A:A1"
+#     assert target[4] == "D:D2"    
