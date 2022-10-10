@@ -860,24 +860,31 @@ class Client:
     def _warn_spring_message(self) -> str:
         return "Java-Spring based Context Broker detected. Info endpoint disabled."
 
-    def _create_network(self, root: Entity, G: nx.Graph, edgecache: Set):
+    def _create_network(self, root: Entity, G: nx.Graph, nodecache: dict, edgecache: Set):
         source: Tuple = Urn.split(root.id)
-        # G.add_node(source) # added if not already in the graph
-        for _, node in root.relationships:
-            target: Tuple = Urn.split(node)
-            # G.add_node(target) # added if not already in the graph
+        for _, nodeid in root.relationships:
+            target: Tuple = Urn.split(nodeid)
             if (source,target) in edgecache or (target,source) in edgecache:
                 continue
             edgecache.add((source, target))
             G.add_edge(source, target)
-            entity = self.get(node)
-            G = self._create_network(entity, G, edgecache)
+            logger.debug(f"cache lookup : {nodeid}")
+            entity = nodecache.get(nodeid)
+            logger.debug(f"{entity=}")
+            if entity is None: # cache miss
+                try:
+                    entity = self.get(nodeid)
+                    nodecache[nodeid] = entity
+                except NgsiResourceNotFoundError:
+                    pass
+            G = self._create_network(entity, G, nodecache, edgecache)
         return G
 
     def network(self, root: Entity):
         G = nx.Graph()
-        edgecache: Set[Tuple[str,str]] = set()
-        return self._create_network(root, G, edgecache)
+        nodecache: dict[str, Entity] = {} # hash table
+        edgecache: Set[Tuple[str,str]] = set() # membership testing
+        return self._create_network(root, G, nodecache, edgecache)
 
     # below the context manager methods
 
