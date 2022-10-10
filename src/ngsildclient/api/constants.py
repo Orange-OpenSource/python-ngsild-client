@@ -12,15 +12,10 @@
 """This module contains constants used in the api package.
 """
 
-from ngsildclient import __version__
-
 from typing import TYPE_CHECKING, Union, Sequence
 from enum import Enum, unique
 
-if TYPE_CHECKING:
-    from .entities import Entity
-
-    OneOrManyEntities = Union[Entity, Sequence[Entity]]
+from ngsildclient import __version__
 
 Version = str
 

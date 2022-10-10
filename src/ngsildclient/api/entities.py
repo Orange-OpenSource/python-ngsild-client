@@ -10,12 +10,14 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING, Optional, Union, Sequence
 
 import logging
 
 if TYPE_CHECKING:
     from .client import Client
+    from ..model.constants import EntityOrId
 
 from ..utils.urn import Urn
 from .constants import ENDPOINT_ENTITIES, JSONLD_CONTEXT
@@ -33,8 +35,8 @@ class Entities:
         self._session = client.session
         self.url = url
 
-    def to_broker_url(self, eid: Union[str, Entity]) -> str:
-        eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
+    def to_broker_url(self, entity: EntityOrId) -> str:
+        eid = entity.id if isinstance(entity, Entity) else Urn.prefix(entity)
         return f"http://{self._client.hostname}:{self._client.port}/{ENDPOINT_ENTITIES}/{eid}"
 
     @rfc7807_error_handle
@@ -67,12 +69,12 @@ class Entities:
     @rfc7807_error_handle
     def get(
         self,
-        eid: Union[str, Entity],
+        entity: EntityOrId,
         ctx: str = None,
         asdict: bool = False,
         **kwargs,
     ) -> Entity:
-        eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
+        eid = entity.id if isinstance(entity, Entity) else Urn.prefix(entity)
         headers = {
             "Accept": "application/ld+json",
             "Content-Type": None,
@@ -84,8 +86,8 @@ class Entities:
         return r.json() if asdict else Entity.from_dict(r.json())
 
     @rfc7807_error_handle
-    def delete(self, eid: Union[str, Entity]) -> bool:
-        eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
+    def delete(self, entity: EntityOrId) -> bool:
+        eid = entity.id if isinstance(entity, Entity) else Urn.prefix(entity)
         logger.info(f"{eid=}")
         logger.info(f"url={self.url}/{eid}")
         r = self._session.delete(f"{self.url}/{eid}")
@@ -94,8 +96,8 @@ class Entities:
         return bool(r)
 
     @rfc7807_error_handle
-    def exists(self, eid: Union[str, Entity]) -> bool:
-        eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
+    def exists(self, entity: EntityOrId) -> bool:
+        eid = entity.id if isinstance(entity, Entity) else Urn.prefix(entity)
         r = self._session.get(f"{self.url}/{eid}")
         if r:
             payload = r.json()

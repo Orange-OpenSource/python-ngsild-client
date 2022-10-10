@@ -13,7 +13,8 @@ import pkg_resources
 import json
 
 from geojson import MultiPoint
-from ngsildclient.model.entity import Entity, NESTED, Rel
+from ngsildclient.model.entity import Entity
+from ngsildclient.model.constants import NESTED, Rel
 
 def expected_dict(basename: str) -> dict:
     filename: str = pkg_resources.resource_filename(

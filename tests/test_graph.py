@@ -107,30 +107,30 @@ def test_graph_2():
     assert edges[1] == (('A', 'A:A1'), ('C', 'C:C1'))
     assert edges[2] == (('B', 'B:B1'), ('C', 'C:C1'))
 
-# def test_graph_3():
-#     a1 = Entity("A", "A1")
-#     b1 = Entity("B", "B1")
-#     c1 = Entity("C", "C1")
-#     d1 = Entity("D", "D1")
-#     d2 = Entity("D", "D2")
-#     a1.rel("hasB", b1)
-#     a1.rel("hasD", [d1, d2]) # TODO : do multiple relationships now require datasetId ?
-#     b1.rel("hasC", c1)
-#     c1.rel("hasA", a1)    
-#     client = MockedClient()
-#     client.upsert([a1, b1, c1, d1, d2])
-#     root = client.get("A:A1")
-#     G: nx.Graph = client.network(root)
-#     assert len(G.nodes) == 5
-#     assert len(G.edges) == 3
-#     nodes = [*G.nodes]
-#     assert nodes[0] == ('A', 'A:A1')
-#     assert nodes[1] == ('B', 'B:B1')
-#     assert nodes[2] == ('C', 'C:C1')
-#     edges = [*G.edges]
-#     assert edges[0] == (('A', 'A:A1'), ('B', 'B:B1'))
-#     assert edges[1] == (('A', 'A:A1'), ('C', 'C:C1'))
-#     assert edges[2] == (('B', 'B:B1'), ('C', 'C:C1'))
+def test_graph_3():
+    a1 = Entity("A", "A1")
+    b1 = Entity("B", "B1")
+    c1 = Entity("C", "C1")
+    d1 = Entity("D", "D1")
+    d2 = Entity("D", "D2")
+    a1.rel("hasB", b1)
+    a1.rel("hasD", [d1, d2]) # TODO : do multiple relationships now require datasetId ?
+    b1.rel("hasC", c1)
+    c1.rel("hasA", a1)    
+    client = MockedClient()
+    client.upsert([a1, b1, c1, d1, d2])
+    root = client.get("A:A1")
+    G: nx.Graph = client.network(root)
+    assert len(G.nodes) == 5
+    assert len(G.edges) == 5
+    # nodes = [*G.nodes]
+    # assert nodes[0] == ('A', 'A:A1')
+    # assert nodes[1] == ('B', 'B:B1')
+    # assert nodes[2] == ('C', 'C:C1')
+    # edges = [*G.edges]
+    # assert edges[0] == (('A', 'A:A1'), ('B', 'B:B1'))
+    # assert edges[1] == (('A', 'A:A1'), ('C', 'C:C1'))
+    # assert edges[2] == (('B', 'B:B1'), ('C', 'C:C1'))
 
 # def test_graph_4():
 #     a1 = Entity("A", "A1")

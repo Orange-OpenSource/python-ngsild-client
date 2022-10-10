@@ -9,11 +9,13 @@
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
+from __future__ import annotations
+
 import logging
 import httpx
 from httpx._types import AuthTypes
 from dataclasses import dataclass
-from typing import Optional, Tuple, Generator, List, Union, overload, Callable
+from typing import TYPE_CHECKING, Optional, Generator, List, Union, overload, Callable
 from math import ceil
 
 from ...model.entity import Entity
@@ -24,8 +26,10 @@ from .batch import Batch
 from .types import Types
 from .contexts import Contexts
 from .subscriptions import Subscriptions
-from .temporal import Temporal, TemporalResult
-from ..helper.temporal import TemporalQuery
+from .temporal import Temporal
+
+if TYPE_CHECKING:
+    from ngsildclient.model.constants import EntityOrId
 
 logger = logging.getLogger(__name__)
 
@@ -236,19 +240,18 @@ class AsyncClient:
 
     async def create(
         self,
-        _entities: Union[Entity, Sequence[Entity]],
+        entities: Union[Entity, Sequence[Entity]],
         skip: bool = False,
         overwrite: bool = False,
     ) -> Optional[Entity]:
-        if isinstance(_entities, Entity):
-            entity = _entities
-            return await self.entities.create(entity, skip, overwrite)
+        if isinstance(entities, Entity):
+            return await self.entities.create(entities, skip, overwrite) # single one
         else:
-            return await self.batch.create(_entities, skip, overwrite)
+            return await self.batch.create(entities, skip, overwrite)
 
     async def get(
         self,
-        eid: Union[str, Entity],
+        entity: EntityOrId,
         ctx: str = None,
         asdict: bool = False,
         **kwargs,
@@ -260,7 +263,7 @@ class AsyncClient:
 
         Parameters
         ----------
-        eid : Union[str, Entity]
+        entity : EntityOrId
             The entity identifier or the entity instance
         ctx : str
             The context
@@ -272,10 +275,10 @@ class AsyncClient:
         Entity
             The retrieved entity
         """
-        return await self.entities.get(eid, ctx, asdict, **kwargs)
+        return await self.entities.get(entity, ctx, asdict, **kwargs)
 
     @overload
-    async def delete(self, eid: Union[str, Entity]) -> bool:
+    async def delete(self, entity: EntityOrId) -> bool:
         """Delete an entity given its id.
 
         Facade method for Entities.delete().
@@ -283,7 +286,7 @@ class AsyncClient:
 
         Parameters
         ----------
-        eid : Union[str, Entity]
+        entity : EntityOrId
             The entity identifier or the entity instance
 
         Returns
@@ -294,7 +297,7 @@ class AsyncClient:
         ...
 
     @overload
-    async def delete(self, eids: Sequence[Union[str, Entity]]) -> bool:
+    async def delete(self, entities: Sequence[EntityOrId]) -> bool:
         """Delete entities given its id.
 
         Facade method for Batch.delete().
@@ -302,7 +305,7 @@ class AsyncClient:
 
         Parameters
         ----------
-        eids : Sequence[Union[str, Entity]]
+        entities : Sequence[EntityOrId]
             The entities ids or instances
 
         Returns
@@ -312,12 +315,12 @@ class AsyncClient:
         """
         ...
 
-    async def delete(self, eids: Union[Union[str, Entity], Sequence[Union[str, Entity]]]) -> bool:
-        if isinstance(eids, list):
-            return await self.batch.delete(eids)
+    async def delete(self, entities: Union[EntityOrId, Sequence[EntityOrId]]) -> bool:
+        if isinstance(entities, EntityOrId):
+            return await self.entities.delete(entities) # single one
         else:
-            eid = eids
-            return await self.entities.delete(eid)
+            return await self.batch.delete(entities)
+            
 
     async def delete_from_file(self, filename: str) -> Union[Entity, dict]:
         """Delete in the broker all entities present in the JSON file.
@@ -330,7 +333,7 @@ class AsyncClient:
         entities = await Entity.load_async(filename)
         return await self.delete(entities)
 
-    async def exists(self, eid: Union[str, Entity]) -> bool:
+    async def exists(self, entity: EntityOrId) -> bool:
         """Tests if an entity exists.
 
         Facade method for Entities.exists().
@@ -338,7 +341,7 @@ class AsyncClient:
 
         Parameters
         ----------
-        eid : Union[str, Entity]
+        entity : EntityOrId
             The entity identifier or the entity instance
 
         Returns
@@ -346,7 +349,7 @@ class AsyncClient:
         bool
             True if the entity exists
         """
-        return await self.entities.exists(eid)
+        return await self.entities.exists(entity)
 
     @overload
     async def upsert(self, entity: Entity) -> Entity:
@@ -386,8 +389,7 @@ class AsyncClient:
 
     async def upsert(self, entities: Union[Entity, Sequence[Entity]]) -> Union[Entity, dict]:
         if isinstance(entities, Entity):
-            entity = entities
-            return await self.entities.upsert(entity)
+            return await self.entities.upsert(entities) # single one
         else:
             return await self.batch.upsert(entities)
 

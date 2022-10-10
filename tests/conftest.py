@@ -9,11 +9,13 @@
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
+from __future__ import annotations
+
 from pytest import fixture
 from pytest_mock import MockerFixture
-from ngsildclient.api.client import Client
 
+import ngsildclient.api.client
 
 @fixture()
 def mocked_connected(mocker: MockerFixture):
-    mocker.patch.object(Client, "is_connected", return_value=True)
+    mocker.patch.object(ngsildclient.api.client.Client, "is_connected", return_value=True)

@@ -12,13 +12,20 @@
 """This module contains constants used in the model package.
 """
 
+from __future__ import annotations
+
 from enum import Enum
-from typing import Union
+from typing import Union, Sequence, TYPE_CHECKING
 from datetime import datetime, date, time, timezone
 from zoneinfo import ZoneInfo
 from geojson import Point, LineString, Polygon
 
 from ..utils.sentinel import Sentinel
+
+if TYPE_CHECKING:
+    import ngsildclient.model.entity as entity
+    EntityOrId = Union[str, entity.Entity]
+    OneOrManyEntities = Union[entity.Entity, Sequence[entity.Entity]]
 
 NgsiLocation = Union[tuple[int, int], Point]
 """A user type : either a tuple of two ints (lat, lon) or a GeoJson Point.

@@ -9,28 +9,32 @@
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional, Tuple, Generator, List, Sequence, Union, overload, Callable, Set
+
+if TYPE_CHECKING:
+    from ngsildclient.model.constants import EntityOrId
+
 import logging
 import requests
 from requests.auth import AuthBase
 from dataclasses import dataclass
-from typing import Optional, Tuple, Generator, List, Sequence, Union, overload, Callable, Set
 from math import ceil
 import networkx as nx
 
 from ngsildclient import __version__ as __version__
 from ..utils import is_interactive
 from ..utils.urn import Urn
-from ..utils.graph import CacheArc
 from ..model.entity import Entity
 from .constants import *
 from .entities import Entities
-from .batch import Batch
+from .batch import Batch, BatchResult
 from .types import Types
 from .contexts import Contexts
 from .subscriptions import Subscriptions
-from .temporal import Temporal, TemporalResult
+from .temporal import Temporal
 from .exceptions import *
-from .helper.temporal import TemporalQuery
 
 logger = logging.getLogger(__name__)
 
@@ -308,19 +312,20 @@ class Client:
 
     def create(
         self,
-        _entities: Union[Entity, Sequence[Entity]],
+        entities: Union[Entity, Sequence[Entity]],
+        *,
         skip: bool = False,
         overwrite: bool = False,
     ) -> Optional[Entity]:
-        if isinstance(_entities, Sequence):
-            entity = _entities
-            return self.entities.create(entity)
+        if isinstance(entities, Entity):
+            return self.entities.create(entities) # single one
         else:
-            return self.batch.create(_entities)
+            return self.batch.create(entities)
+
 
     def get(
         self,
-        eid: Union[str, Entity],
+        entity: EntityOrId,
         ctx: str = None,
         asdict: bool = False,
         **kwargs,
@@ -332,7 +337,7 @@ class Client:
 
         Parameters
         ----------
-        eid : Union[str, Entity]
+        entity : EntityOrId
             The entity identifier or the entity instance
         ctx : str
             The context
@@ -344,10 +349,10 @@ class Client:
         Entity
             The retrieved entity
         """
-        return self.entities.get(eid, ctx, asdict, **kwargs)
+        return self.entities.get(entity, ctx, asdict, **kwargs)
 
     @overload
-    def delete(self, eid: Union[str, Entity]) -> bool:
+    def delete(self, entity: EntityOrId) -> bool:
         """Delete an entity given its id.
 
         Facade method for Entities.delete().
@@ -355,7 +360,7 @@ class Client:
 
         Parameters
         ----------
-        eid : Union[str, Entity]
+        entity: EntityOrId
             The entity identifier or the entity instance
 
         Returns
@@ -366,7 +371,7 @@ class Client:
         ...
 
     @overload
-    def delete(self, eids: Sequence[Union[str, Entity]]) -> bool:
+    def delete(self, entities: Sequence[EntityOrId]) -> bool:
         """Delete entities given its id.
 
         Facade method for Batch.delete().
@@ -374,22 +379,21 @@ class Client:
 
         Parameters
         ----------
-        eids : Sequence[Union[str, Entity]]
+        entities : Sequence[EntityOrId]
             The entities ids or instances
 
         Returns
         -------
         bool
-            True if the entity has been succefully deleted
+            True if the entities has been succefully deleted
         """
         ...
 
-    def delete(self, eids: Union[Union[str, Entity], Sequence[Union[str, Entity]]]) -> bool:
-        if isinstance(eids, Sequence):
-            return self.batch.delete(eids)
+    def delete(self, entities: Union[EntityOrId, Sequence[EntityOrId]]) -> bool:
+        if isinstance(entities, EntityOrId):
+            return self.entities.delete(entities) # single one
         else:
-            eid = eids
-            return self.entities.delete(eid)
+            return self.batch.delete(entities)
 
     def delete_from_file(self, filename: str) -> Union[Entity, dict]:
         """Delete in the broker all entities present in the JSON file.
@@ -402,7 +406,7 @@ class Client:
         entities = Entity.load(filename)
         return self.delete(entities)
 
-    def exists(self, eid: Union[str, Entity]) -> bool:
+    def exists(self, entity: EntityOrId) -> bool:
         """Tests if an entity exists.
 
         Facade method for Entities.exists().
@@ -410,7 +414,7 @@ class Client:
 
         Parameters
         ----------
-        eid : Union[str, Entity]
+        entity : EntityOrId
             The entity identifier or the entity instance
 
         Returns
@@ -418,7 +422,7 @@ class Client:
         bool
             True if the entity exists
         """
-        return self.entities.exists(eid)
+        return self.entities.exists(entity)
 
     @overload
     def upsert(self, entity: Entity) -> Entity:
@@ -458,8 +462,7 @@ class Client:
 
     def upsert(self, entities: Union[Entity, Sequence[Entity]]) -> Union[Entity, dict]:
         if isinstance(entities, Entity):
-            entity = entities
-            return self.entities.upsert(entity)
+            return self.entities.upsert(entities) # single one
         else:
             return self.batch.upsert(entities)
 
@@ -510,10 +513,9 @@ class Client:
         """
         ...
 
-    def update(self, entities: Union[Entity, Sequence[Entity]]) -> Union[Optional[Entity], dict]:
+    def update(self, entities: Union[Entity, Sequence[Entity]]) -> Union[Optional[Entity], BatchResult]:
         if isinstance(entities, Entity):
-            entity = entities
-            return self.entities.update(entity)
+            return self.entities.update(entities) # single one
         else:
             return self.batch.update(entities)
 
@@ -860,7 +862,7 @@ class Client:
 
     def _create_network(self, root: Entity, G: nx.Graph, edgecache: Set):
         source: Tuple = Urn.split(root.id)
-       #  G.add_node(source) # added if not already in the graph
+        # G.add_node(source) # added if not already in the graph
         for _, node in root.relationships:
             target: Tuple = Urn.split(node)
             # G.add_node(target) # added if not already in the graph

@@ -26,10 +26,11 @@ from typing import overload, Any, Union, List, Tuple, Optional, Callable
 from rich import print_json
 
 from .exceptions import *
-from .constants import *
 from .ngsidict import NgsiDict
 from ngsildclient.utils import iso8601, url, is_interactive
 from ngsildclient.utils.urn import Urn
+
+from ngsildclient.model.constants import CORE_CONTEXT, Rel, AttrType, Auto, NESTED
 
 logger = logging.getLogger(__name__)
 

@@ -23,12 +23,13 @@ References
     ETSI GS CIM 009 V1.4.2, pp. 41-42, 2021-04.
 """
 
+from __future__ import annotations
+
 import re
 
-from typing import Union, Optional
+from typing import TYPE_CHECKING, Union, Optional
 from datetime import datetime, date, time, timezone
 from contextlib import suppress
-
 from ngsildclient.model.constants import TemporalType
 
 ISO8601_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
