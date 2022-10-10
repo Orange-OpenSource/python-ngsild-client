@@ -23,7 +23,7 @@ import logging
 if TYPE_CHECKING:
     from .client import Client
 
-from .constants import EntityId, JSONLD_CONTEXT, AggrMethod
+from .constants import JSONLD_CONTEXT, AggrMethod
 from ..utils.urn import Urn
 from .helper.temporal import TemporalQuery
 from ..model.entity import Entity
@@ -104,7 +104,7 @@ class Temporal:
 
     def _get(
         self,
-        eid: Union[EntityId, Entity],
+        eid: Union[str, Entity],
         attrs: List[str] = None,
         ctx: str = None,
         verbose: bool = False,
@@ -141,7 +141,7 @@ class Temporal:
     #  equivalent to get_all()
     def get(
         self,
-        eid: Union[EntityId, Entity],
+        eid: Union[str, Entity],
         attrs: List[str] = None,
         ctx: str = None,
         verbose: bool = False,
@@ -154,7 +154,7 @@ class Temporal:
 
         Parameters
         ----------
-        eid : Union[EntityId, Entity]
+        eid : Union[str, Entity]
             The entity identifier or the entity instance
         attrs : List[str]
             The list of the attributes (changing over time) you're interested in
@@ -186,7 +186,7 @@ class Temporal:
 
     def _query(
         self,
-        eid: Union[EntityId, Entity] = None,
+        eid: Union[str, Entity] = None,
         type: str = None,
         attrs: List[str] = None,
         q: str = None,
@@ -240,7 +240,7 @@ class Temporal:
     def query_head(
         self,
         *,
-        eid: Union[EntityId, Entity] = None,
+        eid: Union[str, Entity] = None,
         type: str = None,
         attrs: List[str] = None,
         q: str = None,
@@ -262,7 +262,7 @@ class Temporal:
     def query(
         self,
         *,
-        eid: Union[EntityId, Entity] = None,
+        eid: Union[str, Entity] = None,
         type: str = None,
         attrs: List[str] = None,
         q: str = None,
@@ -282,7 +282,7 @@ class Temporal:
 
         Parameters
         ----------
-        eid : Union[EntityId, Entity]
+        eid : Union[str, Entity]
             The entity identifier or the entity instance     
         etype : str
             The entity's type
@@ -336,7 +336,7 @@ class Temporal:
     def query_generator(
         self,
         *,
-        eid: Union[EntityId, Entity] = None,
+        eid: Union[str, Entity] = None,
         type: str = None,
         attrs: List[str] = None,
         q: str = None,
@@ -359,7 +359,7 @@ class Temporal:
     def query_handle(
         self,
         *,
-        eid: Union[EntityId, Entity] = None,
+        eid: Union[str, Entity] = None,
         type: str = None,
         attrs: List[str] = None,
         q: str = None,

@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from .client import AsyncClient
 
 from ...utils.urn import Urn
-from ..constants import EntityId, JSONLD_CONTEXT, ENDPOINT_ENTITIES
+from ..constants import JSONLD_CONTEXT, ENDPOINT_ENTITIES
 from ...model.entity import Entity
 
 from ..exceptions import rfc7807_error_handle_async, NgsiApiError, NgsiAlreadyExistsError
@@ -31,7 +31,7 @@ class Entities:
         self._client = client
         self.url = url
 
-    def to_broker_url(self, eid: Union[EntityId, Entity]) -> str:
+    def to_broker_url(self, eid: Union[str, Entity]) -> str:
         eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
         return f"http://{self._client.hostname}:{self._client.port}/{ENDPOINT_ENTITIES}/{eid}"
 
@@ -64,7 +64,7 @@ class Entities:
     @rfc7807_error_handle_async
     async def get(
         self,
-        eid: Union[EntityId, Entity],
+        eid: Union[str, Entity],
         ctx: str = None,
         asdict: bool = False,
         **kwargs,
@@ -79,7 +79,7 @@ class Entities:
         return r.json() if asdict else Entity.from_dict(r.json())
 
     @rfc7807_error_handle_async
-    async def delete(self, eid: Union[EntityId, Entity]) -> bool:
+    async def delete(self, eid: Union[str, Entity]) -> bool:
         eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
         logger.info(f"{eid=}")
         logger.info(f"url={self.url}/{eid}")
@@ -89,7 +89,7 @@ class Entities:
         return bool(r)
 
     @rfc7807_error_handle_async
-    async def exists(self, eid: Union[EntityId, Entity]) -> bool:
+    async def exists(self, eid: Union[str, Entity]) -> bool:
         eid = eid.id if isinstance(eid, Entity) else Urn.prefix(eid)
         r: Response = await self._client.client.get(f"{self.url}/{eid}")
         if r:

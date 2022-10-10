@@ -21,7 +21,7 @@ import logging
 if TYPE_CHECKING:
     from .client import AsyncClient
 
-from ..constants import EntityId, JSONLD_CONTEXT, AggrMethod
+from ..constants import JSONLD_CONTEXT, AggrMethod
 from ...utils.urn import Urn
 from ..helper.temporal import TemporalQuery
 from ...model.entity import Entity
@@ -39,7 +39,7 @@ class Temporal:
 
     async def _get(
         self,
-        eid: Union[EntityId, Entity],
+        eid: Union[str, Entity],
         attrs: Sequence[str] = None,
         ctx: str = None,
         verbose: bool = False,
@@ -73,7 +73,7 @@ class Temporal:
     #  equivalent to get_all()
     async def get(
         self,
-        eid: Union[EntityId, Entity],
+        eid: Union[str, Entity],
         attrs: Sequence[str] = None,
         ctx: str = None,
         verbose: bool = False,
@@ -96,7 +96,7 @@ class Temporal:
 
     async def _query(
         self,
-        eid: Union[EntityId, Entity] = None,
+        eid: Union[str, Entity] = None,
         type: str = None,
         attrs: Sequence[str] = None,
         q: str = None,
@@ -147,7 +147,7 @@ class Temporal:
     async def query_head(
         self,
         *,
-        eid: Union[EntityId, Entity] = None,
+        eid: Union[str, Entity] = None,
         type: str = None,
         attrs: Sequence[str] = None,
         q: str = None,
@@ -169,7 +169,7 @@ class Temporal:
     async def query(
         self,
         *,
-        eid: Union[EntityId, Entity] = None,
+        eid: Union[str, Entity] = None,
         type: str = None,
         attrs: List[str] = None,
         q: str = None,
@@ -188,7 +188,7 @@ class Temporal:
 
         Parameters
         ----------
-        eid : Union[EntityId, Entity]
+        eid : Union[str, Entity]
             The entity identifier or the entity instance
         etype : str
             The entity's type
@@ -242,7 +242,7 @@ class Temporal:
     async def query_generator(
         self,
         *,
-        eid: Union[EntityId, Entity] = None,
+        eid: Union[str, Entity] = None,
         type: str = None,
         attrs: Sequence[str] = None,
         q: str = None,
@@ -266,7 +266,7 @@ class Temporal:
     async def query_handle(
         self,
         *,
-        eid: Union[EntityId, Entity] = None,
+        eid: Union[str, Entity] = None,
         type: str = None,
         attrs: List[str] = None,
         q: str = None,

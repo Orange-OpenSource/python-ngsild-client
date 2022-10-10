@@ -248,7 +248,7 @@ class AsyncClient:
 
     async def get(
         self,
-        eid: Union[EntityId, Entity],
+        eid: Union[str, Entity],
         ctx: str = None,
         asdict: bool = False,
         **kwargs,
@@ -260,7 +260,7 @@ class AsyncClient:
 
         Parameters
         ----------
-        eid : Union[EntityId, Entity]
+        eid : Union[str, Entity]
             The entity identifier or the entity instance
         ctx : str
             The context
@@ -275,7 +275,7 @@ class AsyncClient:
         return await self.entities.get(eid, ctx, asdict, **kwargs)
 
     @overload
-    async def delete(self, eid: Union[EntityId, Entity]) -> bool:
+    async def delete(self, eid: Union[str, Entity]) -> bool:
         """Delete an entity given its id.
 
         Facade method for Entities.delete().
@@ -283,7 +283,7 @@ class AsyncClient:
 
         Parameters
         ----------
-        eid : Union[EntityId, Entity]
+        eid : Union[str, Entity]
             The entity identifier or the entity instance
 
         Returns
@@ -294,7 +294,7 @@ class AsyncClient:
         ...
 
     @overload
-    async def delete(self, eids: Sequence[Union[EntityId, Entity]]) -> bool:
+    async def delete(self, eids: Sequence[Union[str, Entity]]) -> bool:
         """Delete entities given its id.
 
         Facade method for Batch.delete().
@@ -302,7 +302,7 @@ class AsyncClient:
 
         Parameters
         ----------
-        eids : Sequence[Union[EntityId, Entity]]
+        eids : Sequence[Union[str, Entity]]
             The entities ids or instances
 
         Returns
@@ -312,7 +312,7 @@ class AsyncClient:
         """
         ...
 
-    async def delete(self, eids: Union[Union[EntityId, Entity], Sequence[Union[EntityId, Entity]]]) -> bool:
+    async def delete(self, eids: Union[Union[str, Entity], Sequence[Union[str, Entity]]]) -> bool:
         if isinstance(eids, list):
             return await self.batch.delete(eids)
         else:
@@ -330,7 +330,7 @@ class AsyncClient:
         entities = await Entity.load_async(filename)
         return await self.delete(entities)
 
-    async def exists(self, eid: Union[EntityId, Entity]) -> bool:
+    async def exists(self, eid: Union[str, Entity]) -> bool:
         """Tests if an entity exists.
 
         Facade method for Entities.exists().
@@ -338,7 +338,7 @@ class AsyncClient:
 
         Parameters
         ----------
-        eid : Union[EntityId, Entity]
+        eid : Union[str, Entity]
             The entity identifier or the entity instance
 
         Returns

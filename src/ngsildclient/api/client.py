@@ -320,7 +320,7 @@ class Client:
 
     def get(
         self,
-        eid: Union[EntityId, Entity],
+        eid: Union[str, Entity],
         ctx: str = None,
         asdict: bool = False,
         **kwargs,
@@ -332,7 +332,7 @@ class Client:
 
         Parameters
         ----------
-        eid : Union[EntityId, Entity]
+        eid : Union[str, Entity]
             The entity identifier or the entity instance
         ctx : str
             The context
@@ -347,7 +347,7 @@ class Client:
         return self.entities.get(eid, ctx, asdict, **kwargs)
 
     @overload
-    def delete(self, eid: Union[EntityId, Entity]) -> bool:
+    def delete(self, eid: Union[str, Entity]) -> bool:
         """Delete an entity given its id.
 
         Facade method for Entities.delete().
@@ -355,7 +355,7 @@ class Client:
 
         Parameters
         ----------
-        eid : Union[EntityId, Entity]
+        eid : Union[str, Entity]
             The entity identifier or the entity instance
 
         Returns
@@ -366,7 +366,7 @@ class Client:
         ...
 
     @overload
-    def delete(self, eids: Sequence[Union[EntityId, Entity]]) -> bool:
+    def delete(self, eids: Sequence[Union[str, Entity]]) -> bool:
         """Delete entities given its id.
 
         Facade method for Batch.delete().
@@ -374,7 +374,7 @@ class Client:
 
         Parameters
         ----------
-        eids : Sequence[Union[EntityId, Entity]]
+        eids : Sequence[Union[str, Entity]]
             The entities ids or instances
 
         Returns
@@ -384,7 +384,7 @@ class Client:
         """
         ...
 
-    def delete(self, eids: Union[Union[EntityId, Entity], Sequence[Union[EntityId, Entity]]]) -> bool:
+    def delete(self, eids: Union[Union[str, Entity], Sequence[Union[str, Entity]]]) -> bool:
         if isinstance(eids, Sequence):
             return self.batch.delete(eids)
         else:
@@ -402,7 +402,7 @@ class Client:
         entities = Entity.load(filename)
         return self.delete(entities)
 
-    def exists(self, eid: Union[EntityId, Entity]) -> bool:
+    def exists(self, eid: Union[str, Entity]) -> bool:
         """Tests if an entity exists.
 
         Facade method for Entities.exists().
@@ -410,7 +410,7 @@ class Client:
 
         Parameters
         ----------
-        eid : Union[EntityId, Entity]
+        eid : Union[str, Entity]
             The entity identifier or the entity instance
 
         Returns
@@ -857,39 +857,6 @@ class Client:
 
     def _warn_spring_message(self) -> str:
         return "Java-Spring based Context Broker detected. Info endpoint disabled."
-
-    def _ajdvec(self, root: Entity, sources: List[str], targets: List[str], cache: Set):
-        source: str = Urn.shorten(root.id)
-        for _, node in root.relationships: # edges are ignored
-            target: str = Urn.shorten(node)
-            if (source,target) in cache or (target,source) in cache:
-                continue
-            cache.add((source, target))
-            sources.append(source)
-            targets.append(target)
-            entity = self.get(node)
-            sources, targets = self._ajdvec(entity, sources, targets, cache)
-        return sources, targets
-
-    def adjvec(self, root: Entity):
-        sources = []
-        targets = []
-        cache: Set[Tuple[str,str]] = set()
-        return self._ajdvec(root, sources, targets, cache)
-
-    def _create_network_BAK(self, root: Entity, G: nx.Graph, edgecache: Set):
-        source: str = Urn.shorten(root.id)
-       #  G.add_node(source) # added if not already in the graph
-        for _, node in root.relationships: # edges are ignored
-            target: str = Urn.shorten(node)
-            # G.add_node(target) # added if not already in the graph
-            if (source,target) in edgecache or (target,source) in edgecache:
-                continue
-            edgecache.add((source, target))
-            G.add_edge(source, target)
-            entity = self.get(node)
-            G = self._create_network(entity, G, edgecache)
-        return G
 
     def _create_network(self, root: Entity, G: nx.Graph, edgecache: Set):
         source: Tuple = Urn.split(root.id)

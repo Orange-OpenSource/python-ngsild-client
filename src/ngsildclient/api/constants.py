@@ -23,8 +23,6 @@ if TYPE_CHECKING:
     OneOrManyEntities = Union[Entity, Sequence[Entity]]
 
 Version = str
-EntityId = str
-
 
 @unique
 class Vendor(Enum):
