@@ -11,20 +11,8 @@
 
 import networkx as nx
 
-from typing import List
-from ngsildclient import Client, Entity
-from ngsildclient.utils.urn import Urn
-
-class MockedClient(Client):
-    def __init__(self):
-        self._broker_impl: dict[str, Entity] = {}
-
-    def get(self, eid: str) -> Entity:
-        eid = eid.id if isinstance(eid, Entity) else eid
-        return self._broker_impl[Urn.prefix(eid)]
-
-    def upsert(self, entities: List[Entity]):
-        self._broker_impl |= {e.id: e for e in entities}
+from ngsildclient import Entity
+from .common import MockedClient
 
 def test_relationships():
     a1 = Entity("A", "A1")

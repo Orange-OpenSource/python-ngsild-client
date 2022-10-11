@@ -11,7 +11,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Tuple, Generator, List, Sequence, Union, overload, Callable, Set
+from typing import TYPE_CHECKING, Optional, Tuple, Generator, List, Sequence, Union, Callable, Set
 
 if TYPE_CHECKING:
     from ngsildclient.model.constants import EntityOrId
@@ -267,60 +267,29 @@ class Client:
         """
         self.session.close()
 
-    @overload
-    def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> Entity:
-        """Create an entity.
+    def create(self, *entities) -> Union[Entity, BatchResult]:
+        """Create one or many entities.
 
-        Facade method for Entities.create().
+        Facade method backed by Batch.create() or Entities.create()
 
         Parameters
         ----------
-        entity : Entity
-            the entity to be created by the Context Broker
-        skip : bool, optional
-            if set, skips creation (do nothing) if already exists, by default False
-        overwrite : bool, optional
-            if set, force upsert the entity if already exists, by default False
+        entities : 
+            Entities to be created by the Context Broker
+            Either a single Entity, or a list of entities, or comma-separated entities
 
         Returns
         -------
         Entity
-            the entity succesfully created
-        """
-        ...
-
-    @overload
-    def create(self, entities: Sequence[Entity], skip: bool = False, overwrite: bool = False):
-        """Create a batch of entities.
-
-        Facade method for Batch.create().
-
-        Parameters
-        ----------
-        entities : Sequence[Entity]
-            the entity to be created by the Context Broker
-        skip : bool, optional
-            if set, skips creation (do nothing) if already exists, by default False
-        overwrite : bool, optional
-            if set, force upsert the entity if already exists, by default False
-
-        Returns
-        -------
-        BatchOperationResult
-        """
-        ...
-
-    def create(
-        self,
-        entities: Union[Entity, Sequence[Entity]],
-        *,
-        skip: bool = False,
-        overwrite: bool = False,
-    ) -> Optional[Entity]:
-        if isinstance(entities, Entity):
-            return self.entities.create(entities) # single one
-        else:
-            return self.batch.create(entities)
+            The entities successfully upserted
+        """        
+        if len(entities) == 1:
+            if isinstance(entities[0], Entity):
+                entity = entities[0]
+                return self.entities.create(entity)
+            else:
+                entities = entities[0]
+        return self.batch.create(entities)
 
 
     def get(
@@ -351,49 +320,29 @@ class Client:
         """
         return self.entities.get(entity, ctx, asdict, **kwargs)
 
-    @overload
-    def delete(self, entity: EntityOrId) -> bool:
-        """Delete an entity given its id.
+    def delete(self, *entities) -> Union[bool, BatchResult]:
+        """Delete one or many entities.
 
-        Facade method for Entities.delete().
-        If already dealing with an entity instance one can provide the entity itself instead of its id.
+        Facade method backed by Batch.delete() or Entities.delete()
 
         Parameters
         ----------
-        entity: EntityOrId
-            The entity identifier or the entity instance
+        entities : 
+            Entities to be deleted by the Context Broker
+            Either a single Entity, or a list of entities, or comma-separated entities
 
         Returns
         -------
-        bool
-            True if the entity has been succefully deleted
-        """
-        ...
-
-    @overload
-    def delete(self, entities: Sequence[EntityOrId]) -> bool:
-        """Delete entities given its id.
-
-        Facade method for Batch.delete().
-        If already dealing with entity instances one can provide the entities instead of ids.
-
-        Parameters
-        ----------
-        entities : Sequence[EntityOrId]
-            The entities ids or instances
-
-        Returns
-        -------
-        bool
-            True if the entities has been succefully deleted
-        """
-        ...
-
-    def delete(self, entities: Union[EntityOrId, Sequence[EntityOrId]]) -> bool:
-        if isinstance(entities, EntityOrId):
-            return self.entities.delete(entities) # single one
-        else:
-            return self.batch.delete(entities)
+        Entity
+            The entities successfully upserted
+        """        
+        if len(entities) == 1:
+            if isinstance(entities[0], Entity):
+                entity = entities[0]
+                return self.entities.delete(entity)
+            else:
+                entities = entities[0]
+        return self.batch.delete(entities)            
 
     def delete_from_file(self, filename: str) -> Union[Entity, dict]:
         """Delete in the broker all entities present in the JSON file.
@@ -424,47 +373,29 @@ class Client:
         """
         return self.entities.exists(entity)
 
-    @overload
-    def upsert(self, entity: Entity) -> Entity:
-        """Upsert the entity or update it if already exists.
+    def upsert(self, *entities) -> Union[Entity, BatchResult]:
+        """Upsert one or many entities.
 
-        Facade method for Entities.upsert().
-
-        Parameters
-        ----------
-        entity : Entity
-            The entity to be upserted by the Context Broker
-
-        Returns
-        -------
-        Entity
-            The entity successfully upserted
-        """
-        ...
-
-    @overload
-    def upsert(self, entities: Sequence[Entity]) -> dict:
-        """Upsert a batch of entities.
-
-        Facade method for Batch.upsert().
+        Facade method backed by Batch.upsert() or Entities.upsert()
 
         Parameters
         ----------
-        entity : Entity
-            The entity to be upserted by the Context Broker
+        entities : 
+            Entities to be upserted by the Context Broker
+            Either a single Entity, or a list of entities, or comma-separated entities
 
         Returns
         -------
         Entity
             The entities successfully upserted
-        """
-        ...
-
-    def upsert(self, entities: Union[Entity, Sequence[Entity]]) -> Union[Entity, dict]:
-        if isinstance(entities, Entity):
-            return self.entities.upsert(entities) # single one
-        else:
-            return self.batch.upsert(entities)
+        """        
+        if len(entities) == 1:
+            if isinstance(entities[0], Entity):
+                entity = entities[0]
+                return self.entities.upsert(entity)
+            else:
+                entities = entities[0]
+        return self.batch.upsert(entities)
 
     def bulk_import(self, filename: str) -> Union[Entity, dict]:
         """Upsert all entities from a JSON file.
@@ -477,47 +408,29 @@ class Client:
         entities = Entity.load(filename)
         return self.upsert(entities)
 
-    @overload
-    def update(self, entity: Entity) -> Optional[Entity]:
-        """Update the entity.
+    def update(self, *entities) -> Union[Entity, BatchResult]:
+        """Upsert one or many entities.
 
-        Facade method for Entities.update().
-
-        Parameters
-        ----------
-        entity : Entity
-            The entity to be updated by the Context Broker
-
-        Returns
-        -------
-        Optional[Entity]
-            The entity successfully updated (or None if not found)
-        """
-        ...
-
-    @overload
-    def update(self, entities: Sequence[Entity]) -> dict:
-        """Update a batch of entities.
-
-        Facade method for Batch.update().
+        Facade method backed by Batch.update() or Entities.updatet()
 
         Parameters
         ----------
-        entities : Sequence[Entity]
-            The entities to be updated by the Context Broker
+        entities : 
+            Entities to be upserted by the Context Broker
+            Either a single Entity, or a list of entities, or comma-separated entities
 
         Returns
         -------
-        Optional[Entity]
-            The entity successfully updated (or None if not found)
-        """
-        ...
-
-    def update(self, entities: Union[Entity, Sequence[Entity]]) -> Union[Optional[Entity], BatchResult]:
-        if isinstance(entities, Entity):
-            return self.entities.update(entities) # single one
-        else:
-            return self.batch.update(entities)
+        Entity
+            The entities successfully updated
+        """        
+        if len(entities) == 1:
+            if isinstance(entities[0], Entity):
+                entity = entities[0]
+                return self.entities.update(entity)
+            else:
+                entities = entities[0]
+        return self.batch.update(entities)
 
     def query_head(self, type: str = None, q: str = None, gq: str = None, ctx: str = None, n: int = 5) -> List[Entity]:
         """Retrieve entities given its type and/or query string.

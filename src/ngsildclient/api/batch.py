@@ -132,7 +132,7 @@ class Batch:
         return r
 
     @rfc7807_error_handle
-    def _update(self, entities: Sequence[Entity]) -> tuple[bool, dict]:
+    def _update(self, entities: Sequence[Entity]) -> BatchResult:
         r = self._session.post(
             f"{self.url}/update/", json=[entity._payload for entity in entities]
         )
@@ -155,7 +155,7 @@ class Batch:
         return r
 
     @rfc7807_error_handle
-    def _delete(self, entities: Sequence[EntityOrId]) -> tuple[bool, dict]:
+    def _delete(self, entities: Sequence[EntityOrId]) -> BatchResult:
         r = self._session.post(
             f"{self.url}/delete/", json=[e.id if isinstance(e, Entity) else e for e in entities]
         )

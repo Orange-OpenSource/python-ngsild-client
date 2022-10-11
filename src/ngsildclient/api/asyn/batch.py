@@ -80,7 +80,7 @@ class Batch:
         return r
 
     @rfc7807_error_handle_async
-    async def _update(self, entities: Sequence[Entity]) -> tuple[bool, dict]:
+    async def _update(self, entities: Sequence[Entity]) -> BatchResult:
         r = await self._session.post(
             f"{self.url}/update/", json=[entity._payload for entity in entities]
         )
