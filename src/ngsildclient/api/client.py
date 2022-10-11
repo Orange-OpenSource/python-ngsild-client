@@ -411,7 +411,7 @@ class Client:
     def update(self, *entities) -> Union[Entity, BatchResult]:
         """Upsert one or many entities.
 
-        Facade method backed by Batch.update() or Entities.updatet()
+        Facade method backed by Batch.update() or Entities.update()
 
         Parameters
         ----------

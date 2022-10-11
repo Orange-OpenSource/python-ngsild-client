@@ -15,14 +15,14 @@ import logging
 import httpx
 from httpx._types import AuthTypes
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Generator, List, Union, overload, Callable
+from typing import TYPE_CHECKING, Optional, Generator, List, Union, Callable
 from math import ceil
 
 from ...model.entity import Entity
 from ..constants import *
 from ..exceptions import *
 from .entities import Entities
-from .batch import Batch
+from .batch import Batch, BatchResult
 from .types import Types
 from .contexts import Contexts
 from .subscriptions import Subscriptions
@@ -194,60 +194,29 @@ class AsyncClient:
         """
         await self.client.aclose()
 
-    @overload
-    async def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> Entity:
-        """Create an entity.
+    async def create(self, *entities) -> Union[Entity, BatchResult]:
+        """Create one or many entities.
 
-        Facade method for Entities.create().
+        Facade method backed by Batch.create() or Entities.create()
 
         Parameters
         ----------
-        entity : Entity
-            the entity to be created by the Context Broker
-        skip : bool, optional
-            if set, skips creation (do nothing) if already exists, by default False
-        overwrite : bool, optional
-            if set, force upsert the entity if already exists, by default False
+        entities : 
+            Entities to be created by the Context Broker
+            Either a single Entity, or a list of entities, or comma-separated entities
 
         Returns
         -------
         Entity
-            the entity succesfully created
-        """
-        ...
-
-    @overload
-    async def create(self, entities: Sequence[Entity], skip: bool = False, overwrite: bool = False):
-        """Create a batch of entities.
-
-        Facade method for Batch.create().
-
-        Parameters
-        ----------
-        entities : Sequence[Entity]
-            the entity to be created by the Context Broker
-        skip : bool, optional
-            if set, skips creation (do nothing) if already exists, by default False
-        overwrite : bool, optional
-            if set, force upsert the entity if already exists, by default False
-
-        Returns
-        -------
-        BatchOperationResult
-            TODO
-        """
-        ...
-
-    async def create(
-        self,
-        entities: Union[Entity, Sequence[Entity]],
-        skip: bool = False,
-        overwrite: bool = False,
-    ) -> Optional[Entity]:
-        if isinstance(entities, Entity):
-            return await self.entities.create(entities, skip, overwrite) # single one
-        else:
-            return await self.batch.create(entities, skip, overwrite)
+            The entities successfully upserted
+        """        
+        if len(entities) == 1:
+            if isinstance(entities[0], Entity):
+                entity = entities[0]
+                return await self.entities.create(entity)
+            else:
+                entities = entities[0]
+        return await self.batch.create(entities)
 
     async def get(
         self,
@@ -277,49 +246,29 @@ class AsyncClient:
         """
         return await self.entities.get(entity, ctx, asdict, **kwargs)
 
-    @overload
-    async def delete(self, entity: EntityOrId) -> bool:
-        """Delete an entity given its id.
+    async def delete(self, *entities) -> Union[bool, BatchResult]:
+        """Delete one or many entities.
 
-        Facade method for Entities.delete().
-        If already dealing with an entity instance one can provide the entity itself instead of its id.
+        Facade method backed by Batch.delete() or Entities.delete()
 
         Parameters
         ----------
-        entity : EntityOrId
-            The entity identifier or the entity instance
+        entities : 
+            Entities to be deleted by the Context Broker
+            Either a single Entity, or a list of entities, or comma-separated entities
 
         Returns
         -------
-        bool
-            True if the entity has been succefully deleted
-        """
-        ...
-
-    @overload
-    async def delete(self, entities: Sequence[EntityOrId]) -> bool:
-        """Delete entities given its id.
-
-        Facade method for Batch.delete().
-        If already dealing with entity instances one can provide the entities instead of ids.
-
-        Parameters
-        ----------
-        entities : Sequence[EntityOrId]
-            The entities ids or instances
-
-        Returns
-        -------
-        bool
-            True if the entity has been succefully deleted
-        """
-        ...
-
-    async def delete(self, entities: Union[EntityOrId, Sequence[EntityOrId]]) -> bool:
-        if isinstance(entities, EntityOrId):
-            return await self.entities.delete(entities) # single one
-        else:
-            return await self.batch.delete(entities)
+        Entity
+            The entities successfully upserted
+        """        
+        if len(entities) == 1:
+            if isinstance(entities[0], Entity):
+                entity = entities[0]
+                return await self.entities.delete(entity)
+            else:
+                entities = entities[0]
+        return await self.batch.delete(entities)
             
 
     async def delete_from_file(self, filename: str) -> Union[Entity, dict]:
@@ -351,47 +300,29 @@ class AsyncClient:
         """
         return await self.entities.exists(entity)
 
-    @overload
-    async def upsert(self, entity: Entity) -> Entity:
-        """Upsert the entity or update it if already exists.
+    async def upsert(self, *entities) -> Union[Entity, BatchResult]:
+        """Upsert one or many entities.
 
-        Facade method for Entities.upsert().
-
-        Parameters
-        ----------
-        entity : Entity
-            The entity to be upserted by the Context Broker
-
-        Returns
-        -------
-        Entity
-            The entity successfully upserted
-        """
-        ...
-
-    @overload
-    async def upsert(self, entities: Sequence[Entity]) -> dict:
-        """Upsert a batch of entities.
-
-        Facade method for Batch.upsert().
+        Facade method backed by Batch.upsert() or Entities.upsert()
 
         Parameters
         ----------
-        entity : Entity
-            The entity to be upserted by the Context Broker
+        entities : 
+            Entities to be upserted by the Context Broker
+            Either a single Entity, or a list of entities, or comma-separated entities
 
         Returns
         -------
         Entity
             The entities successfully upserted
-        """
-        ...
-
-    async def upsert(self, entities: Union[Entity, Sequence[Entity]]) -> Union[Entity, dict]:
-        if isinstance(entities, Entity):
-            return await self.entities.upsert(entities) # single one
-        else:
-            return await self.batch.upsert(entities)
+        """        
+        if len(entities) == 1:
+            if isinstance(entities[0], Entity):
+                entity = entities[0]
+                return await self.entities.upsert(entity)
+            else:
+                entities = entities[0]
+        return await self.batch.upsert(entities)
 
     async def bulk_import(self, filename: str) -> Union[Entity, dict]:
         """Upsert all entities from a JSON file.
@@ -404,48 +335,29 @@ class AsyncClient:
         entities = await Entity.load_async(filename)
         return await self.upsert(entities)
 
-    @overload
-    async def update(self, entity: Entity) -> Optional[Entity]:
-        """Update the entity.
+    async def update(self, *entities) -> Union[Entity, BatchResult]:
+        """Upsert one or many entities.
 
-        Facade method for Entities.update().
-
-        Parameters
-        ----------
-        entity : Entity
-            The entity to be updated by the Context Broker
-
-        Returns
-        -------
-        Optional[Entity]
-            The entity successfully updated (or None if not found)
-        """
-        ...
-
-    @overload
-    async def update(self, entities: Sequence[Entity]) -> dict:
-        """Update a batch of entities.
-
-        Facade method for Batch.update().
+        Facade method backed by Batch.update() or Entities.update()
 
         Parameters
         ----------
-        entities : Sequence[Entity]
-            The entities to be updated by the Context Broker
+        entities : 
+            Entities to be upserted by the Context Broker
+            Either a single Entity, or a list of entities, or comma-separated entities
 
         Returns
         -------
-        Optional[Entity]
-            The entity successfully updated (or None if not found)
-        """
-        ...
-
-    async def update(self, entities: Union[Entity, Sequence[Entity]]) -> Union[Optional[Entity], dict]:
-        if isinstance(entities, Entity):
-            entity = entities
-            return await self.entities.update(entity)
-        else:
-            return await self.batch.update(entities)
+        Entity
+            The entities successfully updated
+        """        
+        if len(entities) == 1:
+            if isinstance(entities[0], Entity):
+                entity = entities[0]
+                return await self.entities.update(entity)
+            else:
+                entities = entities[0]
+        return await self.batch.update(entities)
 
     async def query_head(
         self, type: str = None, q: str = None, gq: str = None, ctx: str = None, n: int = 5
