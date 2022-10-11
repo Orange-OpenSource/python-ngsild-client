@@ -229,24 +229,15 @@ def test_vehicle_multiple_attribute():
     Context Information Management (CIM) ; NGSI-LD API []ETSI GS CIM 009 V1.1.1 (2019-01)]
 
     """
-    e = Entity(
-        "Vehicle",
-        "Vehicle:A4567",
-        ctx=[
-            "http://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-            {
-                "speed#1": "http://example.org/speed",
-                "speed#2": "http://example.org/speed",
-                "source": "http://example.org/hasSource",
-            },
-        ],
-    )
-    e.prop("#speed1", 55, datasetid="Property:speedometerA4567-speed").prop(
-        "source", "Speedometer", NESTED
-    )
-    e.prop("#speed2", 54.5, datasetid="Property:gpsBxyz123-speed").prop(
-        "source", "GPS", NESTED
-    )
+    e = Entity("Vehicle", "A4567")
+    speed1 = MultiAttrValue(55.0, datasetid="Property:speedometerA4567-speed", userdata=mkprop("source", "Speedometer"))
+    speed2 = MultiAttrValue(54.5, datasetid="Property:gpsBxyz123-speed", userdata=mkprop("source", "GPS"))
+    e.prop("speed", [speed1, speed2])
+    e.context=[ { "Vehicle": "http://example.org/Vehicle",
+                "speed": "http://example.org/speed",
+                "source": "http://example.org/hasSource" },
+            "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.5.jsonld"
+        ]
     assert e.to_dict() == expected_dict("vehicle_multiple_attribute")
 
 

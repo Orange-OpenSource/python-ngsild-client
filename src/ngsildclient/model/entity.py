@@ -19,7 +19,7 @@ import logging
 
 from copy import deepcopy
 from functools import partialmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from datetime import datetime
 from typing import overload, Any, Union, List, Tuple, Optional, Callable
@@ -30,12 +30,23 @@ from .ngsidict import NgsiDict
 from ngsildclient.utils import iso8601, url, is_interactive
 from ngsildclient.utils.urn import Urn
 
-from ngsildclient.model.constants import CORE_CONTEXT, Rel, AttrType, Auto, NESTED
+from ngsildclient.model.constants import CORE_CONTEXT, Rel, AttrType, Auto, NESTED, NgsiDate, NgsiGeometry, NgsiLocation
 
 logger = logging.getLogger(__name__)
 
 """This module contains the definition of the Entity class.
 """
+
+@dataclass
+class MultiAttrValue:
+    value: Any
+    datasetid: str
+    unitcode: str = None
+    observedat: Union[str, datetime] = None
+    userdata: dict = field(default_factory=dict)
+
+def mkprop(*args, **kwargs):
+    return NgsiDict().mkprop(*args, **kwargs)
 
 class Entity:
     """The main goal of this class is to build, manipulate and represent a NGSI-LD compliant entity.

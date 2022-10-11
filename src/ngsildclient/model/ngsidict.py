@@ -23,7 +23,6 @@ from .constants import *
 from .exceptions import *
 
 import json
-import operator
 
 """This module contains the definition of the NgsiDict class.
 """
@@ -114,13 +113,15 @@ class NgsiDict(dict):
         escape: bool = False,
     ) -> NgsiDict:
         property: NgsiDict = NgsiDict()
-        property["type"] = AttrType.PROP.value  # set type
+        if isinstance(value, List) and len(value) > 1 and isinstance(value[0], entity.MultiAttrValue):
+            return self._m__build_property(value)
         if isinstance(value, (int, float, bool, list, dict)):
             v = value
         elif isinstance(value, str):
             v = url.escape(value) if escape else value
         else:
             raise NgsiUnmatchedAttributeTypeError(f"Cannot map {type(value)} to NGSI type. {value=}")
+        property["type"] = AttrType.PROP.value  # set type
         property["value"] = v  # set value
         if unitcode is not None:
             property[META_ATTR_UNITCODE] = unitcode
@@ -130,6 +131,25 @@ class NgsiDict(dict):
             property[META_ATTR_DATASET_ID] = Urn.prefix(datasetid)
         if userdata:
             property |= userdata
+        return property
+
+    def _m__build_property(
+        self,
+        values: List[entity.MultiAttrValue],
+    ) -> NgsiDict:
+        property: List[NgsiDict] = []
+        for v in values:
+            p = NgsiDict()
+            p["type"] = AttrType.PROP.value
+            p["value"] = v.value
+            p[META_ATTR_DATASET_ID] = Urn.prefix(v.datasetid)            
+            if v.unitcode is not None:
+                p[META_ATTR_UNITCODE] = v.unitcode
+            if v.observedat is not None:
+                p[META_ATTR_OBSERVED_AT] = self._process_observedat(v.observedat)
+            if v.userdata:
+                p |= v.userdata
+            property.append(p)
         return property
 
     def prop(self, name: str, value: str, **kwargs):
@@ -233,3 +253,7 @@ class NgsiDict(dict):
             name = name.value
         self[name] = self._build_relationship(value, **kwargs)
         return self[name]
+
+    @classmethod
+    def mkprop(cls, *args, **kwargs):
+        return cls().prop(*args, **kwargs)

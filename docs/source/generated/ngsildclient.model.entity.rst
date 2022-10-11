@@ -1,4 +1,4 @@
-ngsildclient.model.entity
+﻿ngsildclient.model.entity
 =========================
 
 .. automodule:: ngsildclient.model.entity
@@ -9,6 +9,12 @@ ngsildclient.model.entity
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      mkprop
+   
    
 
    
@@ -18,6 +24,7 @@ ngsildclient.model.entity
    .. autosummary::
    
       Entity
+      MultiAttrValue
    
    
 
