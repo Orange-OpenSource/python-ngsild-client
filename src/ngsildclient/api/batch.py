@@ -10,8 +10,12 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING, List, Literal, Sequence
 from dataclasses import dataclass, field
+
+if TYPE_CHECKING:
+    from ngsildclient.model.constants import EntityOrId
 
 import logging
 
@@ -151,9 +155,9 @@ class Batch:
         return r
 
     @rfc7807_error_handle
-    def _delete(self, entities: Sequence[Entity]) -> tuple[bool, dict]:
+    def _delete(self, entities: Sequence[EntityOrId]) -> tuple[bool, dict]:
         r = self._session.post(
-            f"{self.url}/delete/", json=[entity.id for entity in entities]
+            f"{self.url}/delete/", json=[e.id if isinstance(e, Entity) else e for e in entities]
         )
         self._client.raise_for_status(r)
         if r.status_code == 204:
@@ -166,7 +170,7 @@ class Batch:
         return BatchResult("delete", success, errors)
 
     @rfc7807_error_handle
-    def delete(self, entities: Sequence[Entity], *, batchsize: int = BATCHSIZE) -> BatchResult:
+    def delete(self, entities: Sequence[EntityOrId], *, batchsize: int = BATCHSIZE) -> BatchResult:
         r = BatchResult("delete")
         for i in range(0, len(entities), batchsize):
             r += self._delete(entities[i:i+batchsize]) 

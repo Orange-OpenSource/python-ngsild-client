@@ -10,12 +10,12 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Sequence
 
 import logging
 
 if TYPE_CHECKING:
-    from .client import AsyncClient
+    from .client import AsyncClient, EntityOrId
 
 from ..constants import BATCHSIZE
 from ..exceptions import NgsiApiError, rfc7807_error_handle_async
@@ -34,7 +34,7 @@ class Batch:
 
     @rfc7807_error_handle_async
     async def _create(
-        self, entities: List[Entity]) -> BatchResult:
+        self, entities: Sequence[Entity]) -> BatchResult:
         r = await self._session.post(
             f"{self.url}/create/", json=[entity._payload for entity in entities]
         )
@@ -49,14 +49,14 @@ class Batch:
         return BatchResult("create", success, errors)
 
     @rfc7807_error_handle_async
-    async def create(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+    async def create(self, entities: Sequence[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
         r = BatchResult("create")
         for i in range(0, len(entities), batchsize):
             r += await self._create(entities[i:i+batchsize])
         return r
     
     @rfc7807_error_handle_async
-    async def _upsert(self, entities: List[Entity]) -> BatchResult:
+    async def _upsert(self, entities: Sequence[Entity]) -> BatchResult:
         r = await self._session.post(
             f"{self.url}/upsert/", json=[entity._payload for entity in entities]
         )
@@ -73,14 +73,14 @@ class Batch:
         return BatchResult("upsert", success, errors)
 
     @rfc7807_error_handle_async
-    async def upsert(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+    async def upsert(self, entities: Sequence[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
         r = BatchResult("upsert")
         for i in range(0, len(entities), batchsize):
             r += await self._upsert(entities[i:i+batchsize]) 
         return r
 
     @rfc7807_error_handle_async
-    async def _update(self, entities: List[Entity]) -> tuple[bool, dict]:
+    async def _update(self, entities: Sequence[Entity]) -> tuple[bool, dict]:
         r = await self._session.post(
             f"{self.url}/update/", json=[entity._payload for entity in entities]
         )
@@ -95,16 +95,16 @@ class Batch:
         return BatchResult("update", success, errors)
 
     @rfc7807_error_handle_async
-    async def update(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+    async def update(self, entities: Sequence[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
         r = BatchResult("update")
         for i in range(0, len(entities), batchsize):
             r += await self._update(entities[i:i+batchsize]) 
         return r
 
     @rfc7807_error_handle_async
-    async def _delete(self, entities: List[Entity]) -> tuple[bool, dict]:
+    async def _delete(self, entities: Sequence[EntityOrId]) -> BatchResult:
         r = await self._session.post(
-            f"{self.url}/delete/", json=[entity.id for entity in entities]
+            f"{self.url}/delete/", json=[e.id if isinstance(e, Entity) else e for e in entities]
         )
         self._client.raise_for_status(r)
         if r.status_code == 204:
@@ -117,7 +117,7 @@ class Batch:
         return BatchResult("delete", success, errors)
 
     @rfc7807_error_handle_async
-    async def delete(self, entities: List[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+    async def delete(self, entities: Sequence[EntityOrId], batchsize: int = BATCHSIZE) -> BatchResult:
         r = BatchResult("delete")
         for i in range(0, len(entities), batchsize):
             r += await self._delete(entities[i:i+batchsize]) 
