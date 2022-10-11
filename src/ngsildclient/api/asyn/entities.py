@@ -44,7 +44,7 @@ class Entities:
                 return False
             elif overwrite or self._client.overwrite:
                 return self.update(entity, check_exists=False)
-        if self._client.ignore_errors:    
+        if not self._client.ignore_errors:    
             self._client.raise_for_status(r)
         return True
 
