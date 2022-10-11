@@ -40,31 +40,19 @@ class Entities:
         return f"http://{self._client.hostname}:{self._client.port}/{ENDPOINT_ENTITIES}/{eid}"
 
     @rfc7807_error_handle
-    def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> Optional[Entity]:
+    def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> bool:
         r = self._session.post(
             f"{self.url}/",
             json=entity._payload,
         )
-
         if r.status_code == 409:  # already exists
             if skip:
-                return None
+                return False
             elif overwrite or self._client.overwrite:
                 return self.update(entity, check_exists=False)
-
-        self._client.raise_for_status(r)
-        location = r.headers.get("Location")
-        if location is None:
-            if self._client.ignore_errors:
-                return None
-            else:
-                raise NgsiApiError("Missing Location header")
-        logger.info(f"{r.status_code=}")
-        logger.info(f"{location=}")
-        id_returned_from_broker = location.rsplit("/", 1)[-1]
-        if entity.id != id_returned_from_broker:
-            raise NgsiApiError(f"Broker returned wrong id. Expected={entity.id} Returned={id_returned_from_broker}")
-        return entity
+        if not self._client.ignore_errors:
+            self._client.raise_for_status(r)
+        return True
 
     @rfc7807_error_handle
     def get(
@@ -105,7 +93,7 @@ class Entities:
         return False
 
     @rfc7807_error_handle
-    def upsert(self, entity: Entity) -> Entity:
+    def upsert(self, entity: Entity) -> bool:
         try:
             return self.create(entity)
         except NgsiAlreadyExistsError:
@@ -113,11 +101,11 @@ class Entities:
             return self.create(entity)
 
     @rfc7807_error_handle
-    def update(self, entity: Entity, check_exists: bool = True) -> Optional[Entity]:
+    def update(self, entity: Entity, check_exists: bool = True) -> bool:
         if check_exists and self.exists(entity):
             self.delete(entity)
             return self.create(entity)
-        return None
+        return False
 
     @rfc7807_error_handle
     def _query(
