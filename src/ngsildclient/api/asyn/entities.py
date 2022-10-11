@@ -36,30 +36,17 @@ class Entities:
         return f"http://{self._client.hostname}:{self._client.port}/{ENDPOINT_ENTITIES}/{eid}"
 
     @rfc7807_error_handle_async
-    async def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> Optional[Entity]:
+    async def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> bool:
         headers = {"Content-Type": "application/ld+json"}
         r: Response = await self._client.client.post(url=f"{self.url}/", headers=headers, json=entity._payload)
-
         if r.status_code == 409:  # already exists
             if skip:
-                return None
+                return False
             elif overwrite or self._client.overwrite:
                 return self.update(entity, check_exists=False)
-
-        self._client.raise_for_status(r)
-
-        location = r.headers.get("Location")
-        if location is None:
-            if self._client.ignore_errors:
-                return None
-            else:
-                raise NgsiApiError("Missing Location header")
-        logger.info(f"{r.status_code=}")
-        logger.info(f"{location=}")
-        id_returned_from_broker = location.rsplit("/", 1)[-1]
-        if entity.id != id_returned_from_broker:
-            raise NgsiApiError(f"Broker returned wrong id. Expected={entity.id} Returned={id_returned_from_broker}")
-        return entity
+        if self._client.ignore_errors:    
+            self._client.raise_for_status(r)
+        return True
 
     @rfc7807_error_handle_async
     async def get(
@@ -98,7 +85,7 @@ class Entities:
         return False
 
     @rfc7807_error_handle_async
-    async def upsert(self, entity: Entity) -> Entity:
+    async def upsert(self, entity: Entity) -> bool:
         try:
             return await self.create(entity)
         except NgsiAlreadyExistsError:
@@ -106,11 +93,11 @@ class Entities:
             return await self.create(entity)
 
     @rfc7807_error_handle_async
-    async def update(self, entity: Entity, check_exists: bool = True) -> Optional[Entity]:
+    async def update(self, entity: Entity, check_exists: bool = True) -> bool:
         if check_exists and await self.exists(entity):
             await self.delete(entity)
             return await self.create(entity)
-        return None
+        return False
 
     @rfc7807_error_handle_async
     async def _query(

@@ -194,7 +194,7 @@ class AsyncClient:
         """
         await self.client.aclose()
 
-    async def create(self, *entities) -> Union[Entity, BatchResult]:
+    async def create(self, *entities) -> Union[bool, BatchResult]:
         """Create one or many entities.
 
         Facade method backed by Batch.create() or Entities.create()
@@ -271,7 +271,7 @@ class AsyncClient:
         return await self.batch.delete(entities)
             
 
-    async def delete_from_file(self, filename: str) -> Union[Entity, dict]:
+    async def delete_from_file(self, filename: str) -> Union[bool, dict]:
         """Delete in the broker all entities present in the JSON file.
 
         Parameters
@@ -300,7 +300,7 @@ class AsyncClient:
         """
         return await self.entities.exists(entity)
 
-    async def upsert(self, *entities) -> Union[Entity, BatchResult]:
+    async def upsert(self, *entities) -> Union[bool, BatchResult]:
         """Upsert one or many entities.
 
         Facade method backed by Batch.upsert() or Entities.upsert()
@@ -324,7 +324,7 @@ class AsyncClient:
                 entities = entities[0]
         return await self.batch.upsert(entities)
 
-    async def bulk_import(self, filename: str) -> Union[Entity, dict]:
+    async def bulk_import(self, filename: str) -> Union[bool, dict]:
         """Upsert all entities from a JSON file.
 
         Parameters
@@ -335,7 +335,7 @@ class AsyncClient:
         entities = await Entity.load_async(filename)
         return await self.upsert(entities)
 
-    async def update(self, *entities) -> Union[Entity, BatchResult]:
+    async def update(self, *entities) -> Union[bool, BatchResult]:
         """Upsert one or many entities.
 
         Facade method backed by Batch.update() or Entities.update()

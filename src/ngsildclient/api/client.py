@@ -267,7 +267,7 @@ class Client:
         """
         self.session.close()
 
-    def create(self, *entities) -> Union[Entity, BatchResult]:
+    def create(self, *entities) -> Union[bool, BatchResult]:
         """Create one or many entities.
 
         Facade method backed by Batch.create() or Entities.create()
@@ -344,7 +344,7 @@ class Client:
                 entities = entities[0]
         return self.batch.delete(entities)            
 
-    def delete_from_file(self, filename: str) -> Union[Entity, dict]:
+    def delete_from_file(self, filename: str) -> Union[bool, BatchResult]:
         """Delete in the broker all entities present in the JSON file.
 
         Parameters
@@ -373,7 +373,7 @@ class Client:
         """
         return self.entities.exists(entity)
 
-    def upsert(self, *entities) -> Union[Entity, BatchResult]:
+    def upsert(self, *entities) -> Union[bool, BatchResult]:
         """Upsert one or many entities.
 
         Facade method backed by Batch.upsert() or Entities.upsert()
@@ -397,7 +397,7 @@ class Client:
                 entities = entities[0]
         return self.batch.upsert(entities)
 
-    def bulk_import(self, filename: str) -> Union[Entity, dict]:
+    def bulk_import(self, filename: str) -> Union[bool, dict]:
         """Upsert all entities from a JSON file.
 
         Parameters
@@ -408,7 +408,7 @@ class Client:
         entities = Entity.load(filename)
         return self.upsert(entities)
 
-    def update(self, *entities) -> Union[Entity, BatchResult]:
+    def update(self, *entities) -> Union[bool, BatchResult]:
         """Upsert one or many entities.
 
         Facade method backed by Batch.update() or Entities.update()
