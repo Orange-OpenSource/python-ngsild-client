@@ -1,3 +1,12 @@
+# ngsildclient 0.4.0
+## October 12, 2022
+
+- Improved batch operations
+    - Added auto-batch support
+    - Harmonized batchop results
+- Added support for entity multi-attributes properties and relationships
+- Added experimental dataviz for network graphs
+
 # ngsildclient 0.3.2
 ## October 4, 2022
 
