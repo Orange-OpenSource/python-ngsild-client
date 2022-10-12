@@ -42,20 +42,11 @@ class NgsiDict(dict):
 
     def __init__(self, *args, dtcached: datetime = None, **kwargs):
         super().__init__(*args, **kwargs)
-        self._dtcached: datetime = dtcached if dtcached else iso8601.utcnow()
 
     @classmethod
     def _from_json(cls, payload: str):
         d = json.loads(payload)
         return cls(d)
-
-    def _cachedate(self, dt: datetime):
-        self._dtcached = dt
-
-    def _dateauto(self):
-        if self._dtcached is None:
-            self._dtcached = iso8601.utcnow()
-        return self._dtcached
 
     def __getitem__(self, element: str):
         return reduce(dict.__getitem__, element.split("."), self)
@@ -95,19 +86,16 @@ class NgsiDict(dict):
             json.dump(self, fp, default=str, ensure_ascii=False, indent=indent)
 
     def _process_observedat(self, observedat):
-        if observedat is Auto:
-            observedat = self._dateauto()
         date_str, temporaltype, dt = iso8601.parse(observedat)
         if temporaltype != TemporalType.DATETIME:
             raise NgsiDateFormatError(f"observedAt must be a DateTime : {date_str}")
-        self._cachedate(dt)
         return date_str
 
     def _build_property(
         self,
         value: Any,
         unitcode: str = None,
-        observedat: Union[str, datetime, type[Auto]] = None,
+        observedat: Union[str, datetime] = None,
         datasetid: str = None,
         userdata: NgsiDict = None,
         escape: bool = False,
@@ -164,7 +152,7 @@ class NgsiDict(dict):
     def _build_geoproperty(
         self,
         value: NgsiGeometry,
-        observedat: Union[str, datetime, type[Auto]] = None,
+        observedat: Union[str, datetime] = None,
         datasetid: str = None,
     ) -> NgsiDict:
         property: NgsiDict = NgsiDict()
@@ -187,20 +175,15 @@ class NgsiDict(dict):
         self[name] = self._build_geoproperty(value, **kwargs)
         return self[name]
 
-    def _build_temporal_property(self, value: Union[NgsiDate, type[Auto]]) -> NgsiDict:
+    def _build_temporal_property(self, value: NgsiDate) -> NgsiDict:
         property: NgsiDict = NgsiDict()
         property["type"] = AttrType.TEMPORAL.value  # set type
-
-        if value is Auto:
-            value = self._dateauto()
-
         date_str, temporaltype, dt = iso8601.parse(value)
         v = {
             "@type": temporaltype.value,
             "@value": date_str,
         }
         property["value"] = v  # set value
-        self._cachedate(dt)
         return property
 
     def tprop(self, name: str, value: str, **kwargs):
@@ -210,7 +193,7 @@ class NgsiDict(dict):
     def _build_relationship(
         self,
         value: Union[str, List[str]],
-        observedat: Union[str, datetime, type[Auto]] = None,
+        observedat: Union[str, datetime] = None,
         datasetid: str = None,
         userdata: NgsiDict = None,
     ) -> NgsiDict:

@@ -14,6 +14,7 @@ import json
 from pytest import fixture
 
 from datetime import datetime, timezone
+from ngsildclient.model.constants import NESTED
 from ngsildclient.model.entity import *
 from ngsildclient.model.helper.postal import PostalAddressBuilder
 
@@ -306,19 +307,3 @@ def test_store_1_many_relationship():
     shelf2 = MultiAttrValue("Shelf002", datasetid="Relationship:2")
     e.rel("furniture", [shelf1, shelf2])
     assert e.to_dict() == expected_dict("store_1_many_relationship")
-    
-def test_cached_datetime_in_observedat():
-    e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
-    e.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))  # cache the datetime
-    e.prop(
-        "NO2", 22, unitcode="GP", observedat=Auto
-    )  # reuse the datetime set by the previous tprop() call
-    e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
-    assert e["NO2.observedAt"] == "2018-08-07T12:00:00Z"
-
-def test_cached_datetime_in_prop():
-    e = Entity(
-        "AirQualityObserved", "AirQualityObserved:RZ:2018-08-07T12:00:00Z"
-    )  # cache the datetime
-    e.obs()  # dateObserved that uses the cached datetime (the one extracted from the entity identifier)
-    assert e["dateObserved.value.@value"] == "2018-08-07T12:00:00Z"

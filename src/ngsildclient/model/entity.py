@@ -30,7 +30,7 @@ from .ngsidict import NgsiDict
 from ngsildclient.utils import iso8601, url, is_interactive
 from ngsildclient.utils.urn import Urn
 
-from ngsildclient.model.constants import CORE_CONTEXT, Rel, AttrType, Auto, NESTED, NgsiDate, NgsiGeometry, NgsiLocation
+from ngsildclient.model.constants import CORE_CONTEXT, Rel, AttrType, NgsiDate, NgsiGeometry
 
 logger = logging.getLogger(__name__)
 
@@ -80,8 +80,6 @@ class Entity:
 
     Dates and Datetimes are ISO8601.
     Helper functions are provided in the module utils.iso8601.
-    Often a same date (the one when the measure/event happened) is used many times in the entity.
-    When building an entity, the first time a datetime is used it is cached, then can be reused using "Auto".
 
     Given a NGSI-LD entity, many actions are possible :
     - access/add/remove/update attributes
@@ -118,11 +116,12 @@ class Entity:
 
     >>> # Add a temporal property named dateObserved
     >>> # We could provide a string if preferred (rather than a datetime)
-    >>> e.tprop("dateObserved", datetime(2018, 8, 7, 12))
+    >>> dt = datetime(2018, 8, 7, 12)
+    >>> e.tprop("dateObserved", dt)
 
     >>> # Add a property named NO2 with a pollutant concentration value and a metadata to indicate the unit (mg/m3)
     >>> # The accuracy property is nested
-    >>> e.prop("NO2", 22, unitcode="GP", observedat=Auto).prop("accuracy", 0.95, NESTED)
+    >>> e.prop("NO2", 22, unitcode="GP", observedat=dt).prop("accuracy", 0.95, NESTED)
 
     >>> # Add a relationship towards a POI NGSI-LD Entity
     >>> e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
