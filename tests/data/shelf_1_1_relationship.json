@@ -1,0 +1,49 @@
+{
+  "@context": [
+    "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"
+  ],
+  "id": "urn:ngsi-ld:Shelf:unit001",
+  "type": "Shelf",
+  "location": {
+    "type": "GeoProperty",
+    "value": {
+      "type": "Point",
+      "coordinates": [
+        13.398611,
+        52.554699
+      ]
+    }
+  },
+  "name": {
+    "type": "Property",
+    "value": "Corner Unit"
+  },
+  "maxCapacity": {
+    "type": "Property",
+    "value": 50
+  },
+  "stocks": {
+    "type": "Relationship",
+    "object": "urn:ngsi-ld:Product:001"
+  },
+  "numberOfItems": {
+    "type": "Property",
+    "value": 50
+  },
+  "locatedIn": {
+    "type": "Relationship",
+    "object": "urn:ngsi-ld:Building:store001",
+    "requestedBy": {
+      "type": "Relationship",
+      "object": "urn:ngsi-ld:bob-the-manager"
+    },
+    "installedBy": {
+      "type": "Relationship",
+      "object": "urn:ngsi-ld:Person:employee001"
+    },
+    "statusOfWork": {
+      "type": "Property",
+      "value": "completed"
+    }
+  }
+}

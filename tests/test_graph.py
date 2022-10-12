@@ -11,7 +11,7 @@
 
 import networkx as nx
 
-from ngsildclient import Entity
+from ngsildclient import Entity, MultiAttrValue
 from .common import MockedClient
 
 def test_relationships():
@@ -30,7 +30,9 @@ def test_relationships_multi():
     d2 = Entity("D", "D2")
     a1.rel("hasB", b1)
     a1.rel("hasC", c1)
-    a1.rel("hasMultiD", [d1, d2])
+    has_d1 = MultiAttrValue("D:D1", datasetid="Relationship:1")
+    has_d2 = MultiAttrValue("D:D2", datasetid="Relationship:2")
+    a1.rel("hasMultiD", [has_d1, has_d2])
     assert a1.relationships == [
         ("hasB", "urn:ngsi-ld:B:B1"), 
         ("hasC", "urn:ngsi-ld:C:C1"), 
@@ -102,7 +104,9 @@ def test_graph_3():
     d1 = Entity("D", "D1")
     d2 = Entity("D", "D2")
     a1.rel("hasB", b1)
-    a1.rel("hasD", [d1, d2]) # TODO : do multiple relationships now require datasetId ?
+    has_d1 = MultiAttrValue("D:D1", datasetid="Relationship:1")
+    has_d2 = MultiAttrValue("D:D2", datasetid="Relationship:2")    
+    a1.rel("hasMultiD", [has_d1, has_d2])
     b1.rel("hasC", c1)
     c1.rel("hasA", a1)    
     client = MockedClient()
@@ -111,39 +115,47 @@ def test_graph_3():
     G: nx.Graph = client.network(root)
     assert len(G.nodes) == 5
     assert len(G.edges) == 5
-    # nodes = [*G.nodes]
-    # assert nodes[0] == ('A', 'A:A1')
-    # assert nodes[1] == ('B', 'B:B1')
-    # assert nodes[2] == ('C', 'C:C1')
-    # edges = [*G.edges]
-    # assert edges[0] == (('A', 'A:A1'), ('B', 'B:B1'))
-    # assert edges[1] == (('A', 'A:A1'), ('C', 'C:C1'))
-    # assert edges[2] == (('B', 'B:B1'), ('C', 'C:C1'))
+    nodes = [*G.nodes]
+    assert nodes[0] == ('A', 'A:A1')
+    assert nodes[1] == ('B', 'B:B1')
+    assert nodes[2] == ('C', 'C:C1')
+    assert nodes[3] == ('D', 'D:D1')
+    assert nodes[4] == ('D', 'D:D2')
+    edges = [*G.edges]
+    assert edges[0] == (('A', 'A:A1'), ('B', 'B:B1'))
+    assert edges[1] == (('A', 'A:A1'), ('C', 'C:C1'))
+    assert edges[2] == (('A', 'A:A1'), ('D', 'D:D1'))
+    assert edges[3] == (('A', 'A:A1'), ('D', 'D:D2'))
+    assert edges[4] == (('B', 'B:B1'), ('C', 'C:C1'))
 
-# def test_graph_4():
-#     a1 = Entity("A", "A1")
-#     b1 = Entity("B", "B1")
-#     c1 = Entity("C", "C1")
-#     d1 = Entity("D", "D1")
-#     d2 = Entity("D", "D2")
-#     a1.rel("hasB", b1)
-#     a1.rel("hasD", [d1, d2])
-#     a1.rel("hasC", c1)
-#     b1.rel("hasC", c1)
-#     c1.rel("hasA", a1)    
-#     client = MockedClient()
-#     client.upsert([a1, b1, c1, d1, d2])
-#     a1 = client.get("A:A1")
-#     source, target = client.adjvec(a1)
-#     assert len(source) == 5
-#     assert len(target) == 5
-#     assert source[0] == "A:A1"
-#     assert target[0] == "B:B1"
-#     assert source[1] == "B:B1"
-#     assert target[1] == "C:C1"
-#     assert source[2] == "C:C1"
-#     assert target[2] == "A:A1"
-#     assert source[3] == "A:A1"
-#     assert target[3] == "D:D1"
-#     assert source[4] == "A:A1"
-#     assert target[4] == "D:D2"    
+def test_graph_4():
+    a1 = Entity("A", "A1")
+    b1 = Entity("B", "B1")
+    c1 = Entity("C", "C1")
+    d1 = Entity("D", "D1")
+    d2 = Entity("D", "D2")
+    a1.rel("hasB", b1)
+    a1.rel("hasC", c1) # 2 edges between A and C : A->C and C->A
+    has_d1 = MultiAttrValue("D:D1", datasetid="Relationship:1")
+    has_d2 = MultiAttrValue("D:D2", datasetid="Relationship:2")    
+    a1.rel("hasMultiD", [has_d1, has_d2])
+    b1.rel("hasC", c1)
+    c1.rel("hasA", a1)    
+    client = MockedClient()
+    client.upsert([a1, b1, c1, d1, d2])
+    root = client.get("A:A1")
+    G: nx.Graph = client.network(root)
+    assert len(G.nodes) == 5
+    assert len(G.edges) == 5
+    nodes = [*G.nodes]
+    assert nodes[0] == ('A', 'A:A1')
+    assert nodes[1] == ('B', 'B:B1')
+    assert nodes[2] == ('C', 'C:C1')
+    assert nodes[3] == ('D', 'D:D1')
+    assert nodes[4] == ('D', 'D:D2')
+    edges = [*G.edges]
+    assert edges[0] == (('A', 'A:A1'), ('B', 'B:B1'))
+    assert edges[1] == (('A', 'A:A1'), ('C', 'C:C1'))
+    assert edges[2] == (('A', 'A:A1'), ('D', 'D:D1'))
+    assert edges[3] == (('A', 'A:A1'), ('D', 'D:D2'))
+    assert edges[4] == (('B', 'B:B1'), ('C', 'C:C1'))    

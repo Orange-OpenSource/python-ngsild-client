@@ -17,7 +17,7 @@ __version__ = "0.4.0"
 
 from .utils import iso8601, is_interactive
 from .utils.uuid import shortuuid
-from .model.entity import Entity, MultiAttrValue, mkprop
+from .model.entity import Entity, MultiAttrValue, mkprop, mkrel
 from .model.helper.postal import PostalAddressBuilder
 from .model.helper.openinghours import OpeningHoursBuilder
 from .model.constants import (
@@ -46,6 +46,7 @@ __all__ = [
     "Entity",
     "MultiAttrValue",
     "mkprop",
+    "mkrel",
     "PostalAddressBuilder",
     "OpeningHoursBuilder",
     "CORE_CONTEXT",

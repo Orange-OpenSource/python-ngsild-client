@@ -136,12 +136,17 @@ class NgsiDict(dict):
     def _m__build_property(
         self,
         values: List[entity.MultiAttrValue],
+        *,
+        attrtype: AttrType = AttrType.PROP
     ) -> NgsiDict:
+        attrkey = "object" if attrtype == AttrType.REL else "value"
         property: List[NgsiDict] = []
         for v in values:
+            if attrtype == AttrType.REL:
+                v.value = Urn.prefix(v.value.id) if isinstance(v.value, entity.Entity) else Urn.prefix(v.value)
             p = NgsiDict()
-            p["type"] = AttrType.PROP.value
-            p["value"] = v.value
+            p["type"] = attrtype.value
+            p[attrkey] = v.value
             p[META_ATTR_DATASET_ID] = Urn.prefix(v.datasetid)            
             if v.unitcode is not None:
                 p[META_ATTR_UNITCODE] = v.unitcode
@@ -210,42 +215,22 @@ class NgsiDict(dict):
         userdata: NgsiDict = None,
     ) -> NgsiDict:
         property: NgsiDict = NgsiDict()
-        property["type"] = AttrType.REL.value  # set types
-        property["object"] = Urn.prefix(value.id) if isinstance(value, entity.Entity) else Urn.prefix(value)
+        if isinstance(value, List) and len(value) > 1 and isinstance(value[0], entity.MultiAttrValue):
+            return self._m__build_property(value, attrtype=AttrType.REL)
+        property["type"] = AttrType.REL.value  # set type
+        if isinstance(value, List):
+            property["object"] = []
+            for v in value:
+                v = Urn.prefix(v.id) if isinstance(v, entity.Entity) else Urn.prefix(v)
+                property["object"].append(v)
+        else:
+            property["object"] = Urn.prefix(value.id) if isinstance(value, entity.Entity) else Urn.prefix(value)
         if observedat is not None:
             property[META_ATTR_OBSERVED_AT] = self._process_observedat(observedat)
         if datasetid is not None:
             property[META_ATTR_DATASET_ID] = Urn.prefix(datasetid)
             if userdata:
                 property |= userdata
-        return property
-
-    def _m_build_relationship(
-        # Multiple Relationship limitation : no metadata
-        self,
-        value: List[str],
-        observedat: Union[str, datetime, type[Auto]] = None,
-        datasetid: str = None,
-        userdata: NgsiDict = None,
-    ) -> NgsiDict:
-        property: List[NgsiDict] = []
-        if isinstance(observedat, List):
-            if len(observedat) != len(value):
-                raise ValueError("Missing observedAt attributes")
-        else:
-            observedat = [observedat] * len(value)
-        if isinstance(datasetid, List):
-            if len(datasetid) != len(value):
-                raise ValueError("Missing datasetId attributes")
-        else:
-            datasetid = [datasetid] * len(value)
-        if isinstance(userdata, List):
-            if len(userdata) != len(value):
-                raise ValueError("Missing userdata attributes")
-        else:
-            userdata = [userdata] * len(value)
-        for x in zip(value, observedat, datasetid, userdata):
-            property.append(self._build_relationship(*x))
         return property
 
     def rel(self, name: str, value: str, **kwargs):
@@ -257,3 +242,7 @@ class NgsiDict(dict):
     @classmethod
     def mkprop(cls, *args, **kwargs):
         return cls().prop(*args, **kwargs)
+
+    @classmethod
+    def mkrel(cls, *args, **kwargs):
+        return cls().rel(*args, **kwargs)        

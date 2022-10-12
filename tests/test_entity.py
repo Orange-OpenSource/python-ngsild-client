@@ -15,6 +15,7 @@ from pytest import fixture
 
 from datetime import datetime, timezone
 from ngsildclient.model.entity import *
+from ngsildclient.model.helper.postal import PostalAddressBuilder
 
 
 def expected_dict(basename: str) -> dict:
@@ -265,7 +266,47 @@ def test_parking():
     assert e.to_dict() == expected_dict("parking")
     assert e.to_dict(kv=True) == expected_dict("parking.kv")
 
+def test_shelf_1_1_relationship():
+    ctx = ["https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"]
+    e = Entity("Shelf", "unit001", ctx=ctx)
+    e.loc((52.554699,13.3986112))
+    e.prop("name", "Corner Unit").prop("maxCapacity", 50)
+    e.rel("stocks", "Product:001")
+    e.prop("numberOfItems", 50)
+    e.rel("locatedIn", "Building:store001").anchor() \
+        .rel("requestedBy", "bob-the-manager") \
+        .rel("installedBy", "Person:employee001") \
+        .prop("statusOfWork", "completed")
+    assert e.to_dict() == expected_dict("shelf_1_1_relationship")
 
+def test_shelf_1_1_relationship_alt():
+    ctx = ["https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"]
+    e = Entity("Shelf", "unit001", ctx=ctx)
+    e.loc((52.554699,13.3986112))
+    e.prop("name", "Corner Unit").prop("maxCapacity", 50)
+    e.rel("stocks", "Product:001")
+    e.prop("numberOfItems", 50)
+    e.rel("locatedIn", "Building:store001")
+    located_in = e["locatedIn"]
+    located_in.rel("requestedBy", "bob-the-manager")
+    located_in.rel("installedBy", "Person:employee001")
+    located_in.prop("statusOfWork", "completed")
+    assert e.to_dict() == expected_dict("shelf_1_1_relationship")    
+
+def test_store_1_many_relationship():
+    ctx = ["https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"]
+    e = Entity("Building", "store001", ctx=ctx)
+    e.prop("category", ["commercial"])
+    addr = PostalAddressBuilder().street("Bornholmer Straße 65").region("Berlin") \
+        .locality("Prenzlauer Berg").postalcode("10439") \
+        .build()
+    e.prop("address", addr).prop("verified", True, NESTED)
+    e.loc((52.5547,13.3986)).prop("name", "Bösebrücke Einkauf")
+    shelf1 = MultiAttrValue("Shelf001", datasetid="Relationship:1")
+    shelf2 = MultiAttrValue("Shelf002", datasetid="Relationship:2")
+    e.rel("furniture", [shelf1, shelf2])
+    assert e.to_dict() == expected_dict("store_1_many_relationship")
+    
 def test_cached_datetime_in_observedat():
     e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))  # cache the datetime
@@ -274,7 +315,6 @@ def test_cached_datetime_in_observedat():
     )  # reuse the datetime set by the previous tprop() call
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
     assert e["NO2.observedAt"] == "2018-08-07T12:00:00Z"
-
 
 def test_cached_datetime_in_prop():
     e = Entity(

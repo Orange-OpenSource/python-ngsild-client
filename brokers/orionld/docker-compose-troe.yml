@@ -7,7 +7,7 @@ services:
       orionld:
         ipv4_address: 172.29.1.100
   orion:
-    image: fiware/orion-ld:1.0.1
+    image: fiware/orion-ld:1.2.0-PRE-1117
     environment:
       - ORIONLD_TROE=TRUE
       - ORIONLD_TROE_USER=orion

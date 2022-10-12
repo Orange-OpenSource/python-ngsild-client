@@ -50,6 +50,10 @@ class BatchResult:
         return len(self.errors)
 
     @property
+    def n_tot(self) -> int:
+        return self.n_ok + self.n_err
+
+    @property
     def ratio(self) -> float:
         r = self.n_ok / (self.n_ok + self.n_err)
         return round(r, 2)
@@ -103,7 +107,7 @@ class Batch:
         r = BatchResult("create")
         for i in range(0, len(entities), batchsize):
             r += self._create(entities[i:i+batchsize])
-        self.console.message(f"Entities created : {r.n_ok}/{r.n_err} [{r.ratio:.2f}]", level=r.level)
+        self.console.message(f"Entities created : {r.n_ok}/{r.n_tot} [{r.ratio:.2f}]", level=r.level)
         return r
     
     @rfc7807_error_handle
@@ -128,7 +132,7 @@ class Batch:
         r = BatchResult("upsert")
         for i in range(0, len(entities), batchsize):
             r += self._upsert(entities[i:i+batchsize]) 
-        self.console.message(f"Entities upserted : {r.n_ok}/{r.n_err} [{r.ratio:.2f}]", level=r.level)
+        self.console.message(f"Entities upserted : {r.n_ok}/{r.n_tot} [{r.ratio:.2f}]", level=r.level)
         return r
 
     @rfc7807_error_handle
@@ -151,7 +155,7 @@ class Batch:
         r = BatchResult("update")
         for i in range(0, len(entities), batchsize):
             r += self._update(entities[i:i+batchsize]) 
-        self.console.message(f"Entities updated : {r.n_ok}/{r.n_err} [{r.ratio:.2f}]", level=r.level)
+        self.console.message(f"Entities updated : {r.n_ok}/{r.n_tot} [{r.ratio:.2f}]", level=r.level)
         return r
 
     @rfc7807_error_handle
@@ -174,5 +178,5 @@ class Batch:
         r = BatchResult("delete")
         for i in range(0, len(entities), batchsize):
             r += self._delete(entities[i:i+batchsize]) 
-        self.console.message(f"Entities deleted : {r.n_ok}/{r.n_err} [{r.ratio:.2f}]", level=r.level)
+        self.console.message(f"Entities deleted : {r.n_ok}/{r.n_tot} [{r.ratio:.2f}]", level=r.level)
         return r

@@ -48,6 +48,9 @@ class MultiAttrValue:
 def mkprop(*args, **kwargs):
     return NgsiDict().mkprop(*args, **kwargs)
 
+def mkrel(*args, **kwargs):
+    return NgsiDict().mkprop(*args, **kwargs)    
+
 class Entity:
     """The main goal of this class is to build, manipulate and represent a NGSI-LD compliant entity.
 
@@ -722,13 +725,8 @@ class Entity:
         """
         if isinstance(name, Rel):
             name = name.value
-
-        if isinstance(value, List):
-            property = self._payload._m_build_relationship(value, observedat, datasetid, userdata)
-        else:
-            property = self._payload._build_relationship(value, observedat, datasetid, userdata)
+        property = self._payload._build_relationship(value, observedat, datasetid, userdata)
         self._update_entity(name, property, nested)
-
         return self
 
     def __eq__(self, other: Entity):

@@ -1,0 +1,52 @@
+{
+    "@context": [
+        "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"
+    ],
+    "id": "urn:ngsi-ld:Building:store001",
+    "type": "Building",
+    "category": {
+        "type": "Property",
+        "value": [
+            "commercial"
+        ]
+    },
+    "address": {
+        "type": "Property",
+        "value": {
+            "streetAddress": "Bornholmer Straße 65",
+            "addressLocality": "Prenzlauer Berg",
+            "postalCode": "10439",
+            "addressRegion": "Berlin"
+        },
+        "verified": {
+            "type": "Property",
+            "value": true
+        }
+    },
+    "location": {
+        "type": "GeoProperty",
+        "value": {
+            "type": "Point",
+            "coordinates": [
+                13.3986,
+                52.5547
+            ]
+        }
+    },
+    "name": {
+        "type": "Property",
+        "value": "Bösebrücke Einkauf"
+    },
+    "furniture": [
+        {
+            "type": "Relationship",
+            "object": "urn:ngsi-ld:Shelf001",
+            "datasetId": "urn:ngsi-ld:Relationship:1"
+        },
+        {
+            "type": "Relationship",
+            "object": "urn:ngsi-ld:Shelf002",
+            "datasetId": "urn:ngsi-ld:Relationship:2"
+        }
+    ]
+}
