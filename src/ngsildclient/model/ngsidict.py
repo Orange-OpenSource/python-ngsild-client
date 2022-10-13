@@ -101,8 +101,6 @@ class NgsiDict(dict):
         escape: bool = False,
     ) -> NgsiDict:
         property: NgsiDict = NgsiDict()
-        if isinstance(value, List) and len(value) > 1 and isinstance(value[0], entity.MultiAttrValue):
-            return self._m__build_property(value)
         if isinstance(value, (int, float, bool, list, dict)):
             v = value
         elif isinstance(value, str):
@@ -123,7 +121,7 @@ class NgsiDict(dict):
 
     def _m__build_property(
         self,
-        values: List[entity.MultiAttrValue],
+        values: List[entity.AttrValue],
         *,
         attrtype: AttrType = AttrType.PROP
     ) -> NgsiDict:
@@ -198,7 +196,7 @@ class NgsiDict(dict):
         userdata: NgsiDict = None,
     ) -> NgsiDict:
         property: NgsiDict = NgsiDict()
-        if isinstance(value, List) and len(value) > 1 and isinstance(value[0], entity.MultiAttrValue):
+        if isinstance(value, List) and len(value) > 1 and isinstance(value[0], entity.AttrValue):
             return self._m__build_property(value, attrtype=AttrType.REL)
         property["type"] = AttrType.REL.value  # set type
         if isinstance(value, List):

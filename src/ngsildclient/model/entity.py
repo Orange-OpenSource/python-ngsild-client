@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 """
 
 @dataclass
-class MultiAttrValue:
+class AttrValue:
     value: Any
     datasetid: str
     unitcode: str = None
@@ -557,7 +557,10 @@ class Entity:
             }
         }
         """
-        property = self._payload._build_property(value, unitcode, observedat, datasetid, userdata, escape)
+        if isinstance(value, List) and len(value) > 1 and isinstance(value[0], AttrValue):
+            property = self._payload._m__build_property(value)
+        else:
+            property = self._payload._build_property(value, unitcode, observedat, datasetid, userdata, escape)
         self._update_entity(name, property, nested)
         return self
 

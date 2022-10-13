@@ -232,8 +232,8 @@ def test_vehicle_multiple_attribute():
 
     """
     e = Entity("Vehicle", "A4567")
-    speed1 = MultiAttrValue(55.0, datasetid="Property:speedometerA4567-speed", userdata=mkprop("source", "Speedometer"))
-    speed2 = MultiAttrValue(54.5, datasetid="Property:gpsBxyz123-speed", userdata=mkprop("source", "GPS"))
+    speed1 = AttrValue(55.0, datasetid="Property:speedometerA4567-speed", userdata=mkprop("source", "Speedometer"))
+    speed2 = AttrValue(54.5, datasetid="Property:gpsBxyz123-speed", userdata=mkprop("source", "GPS"))
     e.prop("speed", [speed1, speed2])
     e.context=[ { "Vehicle": "http://example.org/Vehicle",
                 "speed": "http://example.org/speed",
@@ -303,7 +303,7 @@ def test_store_1_many_relationship():
         .build()
     e.prop("address", addr).prop("verified", True, NESTED)
     e.loc((52.5547,13.3986)).prop("name", "Bösebrücke Einkauf")
-    shelf1 = MultiAttrValue("Shelf001", datasetid="Relationship:1")
-    shelf2 = MultiAttrValue("Shelf002", datasetid="Relationship:2")
+    shelf1 = AttrValue("Shelf001", datasetid="Relationship:1")
+    shelf2 = AttrValue("Shelf002", datasetid="Relationship:2")
     e.rel("furniture", [shelf1, shelf2])
     assert e.to_dict() == expected_dict("store_1_many_relationship")
