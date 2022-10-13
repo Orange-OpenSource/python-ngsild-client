@@ -21,8 +21,6 @@ from zoneinfo import ZoneInfo
 from geojson import Point, LineString, Polygon
 from dataclasses import dataclass, field
 
-from ..utils.sentinel import Sentinel
-
 if TYPE_CHECKING:
     import ngsildclient.model.entity as entity
     EntityOrId = Union[str, entity.Entity]

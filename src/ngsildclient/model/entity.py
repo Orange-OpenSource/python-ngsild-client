@@ -24,6 +24,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import overload, Any, Union, List, Tuple, Optional, Callable
 from rich import print_json
+from scalpl import Cut
 
 from .exceptions import *
 from .ngsidict import Attr
@@ -281,7 +282,8 @@ class Entity:
                 raise NgsiMissingTypeError()
             if not payload.get("@context", None):
                 raise NgsiMissingContextError()
-            self._payload: Attr = Attr(payload)
+            self._payload:Attr = Attr(payload)
+            self.wrapper = Cut(self._payload)
             return
 
         # create a new Entity using its id and type
@@ -309,6 +311,7 @@ class Entity:
             urn = Urn(id)
 
         self._payload: Attr = Attr({"@context": ctx, "id": urn.fqn, "type": type})
+        self.wrapper = Cut(self._payload)
 
     @classmethod
     def from_dict(cls, payload: dict):
@@ -413,13 +416,13 @@ class Entity:
         return r
 
     def __getitem__(self, item):
-        return self._payload.__getitem__(item)
+        return self.wrapper.__getitem__(item)
 
     def __setitem__(self, key, item):
-        self._payload.__setitem__(key, item)
+        self.wrapper.__setitem__(key, item)
 
     def __delitem__(self, key):
-        self._payload.__delitem__(key)
+        self.wrapper.__delitem__(key)
         return self
 
     def anchor(self):

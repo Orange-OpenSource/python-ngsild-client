@@ -49,25 +49,6 @@ class Attr(dict):
         d = json.loads(payload)
         return cls(d)
 
-    # def __getitem__(self, element: str):
-    #     return reduce(dict.__getitem__, element.split("."), self)
-
-    # def __delitem__(self, element: str):
-    #     try:
-    #         nested, k = element.rsplit(".", 1)
-    #     except ValueError:
-    #         dict.__delitem__(self, element)
-    #     else:
-    #         dict.__delitem__(self[nested], k)
-
-    # def __setitem__(self, key: str, value: Any):
-    #     try:
-    #         nested, k = key.rsplit(".", 1)
-    #     except ValueError:
-    #         dict.__setitem__(self, key, value)
-    #     else:
-    #         dict.__setitem__(self[nested], k, value)
-
     @classmethod
     def _load(cls, filename: str):
         with open(filename, "r") as fp:
