@@ -19,7 +19,7 @@ import logging
 
 from copy import deepcopy
 from functools import partialmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from datetime import datetime
 from typing import overload, Any, Union, List, Tuple, Optional, Callable
@@ -30,20 +30,12 @@ from .ngsidict import NgsiDict
 from ngsildclient.utils import iso8601, url, is_interactive
 from ngsildclient.utils.urn import Urn
 
-from ngsildclient.model.constants import CORE_CONTEXT, Rel, AttrType, NgsiDate, NgsiGeometry
+from ngsildclient.model.constants import CORE_CONTEXT, Rel, AttrType, AttrValue, NgsiDate, NgsiGeometry
 
 logger = logging.getLogger(__name__)
 
 """This module contains the definition of the Entity class.
 """
-
-@dataclass
-class AttrValue:
-    value: Any
-    datasetid: str
-    unitcode: str = None
-    observedat: Union[str, datetime] = None
-    userdata: dict = field(default_factory=dict)
 
 def mkprop(*args, **kwargs):
     return NgsiDict().mkprop(*args, **kwargs)
@@ -498,9 +490,9 @@ class Entity:
         value: Any,
         nested: bool = False,
         *,  # keyword-only arguments after this
-        unitcode: str = None,
-        observedat: Union[str, datetime] = None,
         datasetid: str = None,
+        observedat: Union[str, datetime] = None,
+        unitcode: str = None,
         userdata: NgsiDict = NgsiDict(),
         escape: bool = False,
     ) -> Entity:
@@ -560,7 +552,8 @@ class Entity:
         if isinstance(value, List) and len(value) > 1 and isinstance(value[0], AttrValue):
             property = self._payload._m__build_property(value)
         else:
-            property = self._payload._build_property(value, unitcode, observedat, datasetid, userdata, escape)
+            attrV = AttrValue(value, datasetid, observedat, unitcode, userdata)
+            property = self._payload._build_property(attrV, escape=escape)
         self._update_entity(name, property, nested)
         return self
 

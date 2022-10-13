@@ -23,7 +23,6 @@ from .model.helper.openinghours import OpeningHoursBuilder
 from .model.constants import (
     CORE_CONTEXT,
     NESTED,
-    Auto,
     SmartDataModels,
     Rel,
     TZ_UTC,
@@ -51,7 +50,6 @@ __all__ = [
     "OpeningHoursBuilder",
     "CORE_CONTEXT",
     "NESTED",
-    "Auto",
     "Rel",
     "TZ_UTC",
     "TZ_WET",

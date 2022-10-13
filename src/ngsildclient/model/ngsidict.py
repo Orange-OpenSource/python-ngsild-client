@@ -11,12 +11,13 @@
 
 from __future__ import annotations
 
+import ngsildclient.model.entity as entity
+
 from typing import Any, Union, List
 from functools import reduce
 from datetime import datetime
 from geojson import Point, LineString, Polygon, MultiPoint
 
-import ngsildclient.model.entity as entity
 from ..utils import iso8601, url
 from ..utils.urn import Urn
 from .constants import *
@@ -93,14 +94,12 @@ class NgsiDict(dict):
 
     def _build_property(
         self,
-        value: Any,
-        unitcode: str = None,
-        observedat: Union[str, datetime] = None,
-        datasetid: str = None,
-        userdata: NgsiDict = None,
+        attrV: AttrValue,
+        *,
         escape: bool = False,
     ) -> NgsiDict:
         property: NgsiDict = NgsiDict()
+        value = attrV.value
         if isinstance(value, (int, float, bool, list, dict)):
             v = value
         elif isinstance(value, str):
@@ -109,19 +108,19 @@ class NgsiDict(dict):
             raise NgsiUnmatchedAttributeTypeError(f"Cannot map {type(value)} to NGSI type. {value=}")
         property["type"] = AttrType.PROP.value  # set type
         property["value"] = v  # set value
-        if unitcode is not None:
-            property[META_ATTR_UNITCODE] = unitcode
-        if observedat is not None:
-            property[META_ATTR_OBSERVED_AT] = self._process_observedat(observedat)
-        if datasetid is not None:
-            property[META_ATTR_DATASET_ID] = Urn.prefix(datasetid)
-        if userdata:
-            property |= userdata
+        if attrV.unitcode is not None:
+            property[META_ATTR_UNITCODE] = attrV.unitcode
+        if attrV.observedat is not None:
+            property[META_ATTR_OBSERVED_AT] = self._process_observedat(attrV.observedat)
+        if attrV.datasetid is not None:
+            property[META_ATTR_DATASET_ID] = Urn.prefix(attrV.datasetid)
+        if attrV.userdata:
+            property |= attrV.userdata
         return property
 
     def _m__build_property(
         self,
-        values: List[entity.AttrValue],
+        values: List[AttrValue],
         *,
         attrtype: AttrType = AttrType.PROP
     ) -> NgsiDict:
@@ -196,7 +195,7 @@ class NgsiDict(dict):
         userdata: NgsiDict = None,
     ) -> NgsiDict:
         property: NgsiDict = NgsiDict()
-        if isinstance(value, List) and len(value) > 1 and isinstance(value[0], entity.AttrValue):
+        if isinstance(value, List) and len(value) > 1 and isinstance(value[0], AttrValue):
             return self._m__build_property(value, attrtype=AttrType.REL)
         property["type"] = AttrType.REL.value  # set type
         if isinstance(value, List):

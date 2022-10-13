@@ -15,10 +15,11 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Union, Sequence, TYPE_CHECKING
+from typing import Union, Sequence, TYPE_CHECKING, Any
 from datetime import datetime, date, time, timezone
 from zoneinfo import ZoneInfo
 from geojson import Point, LineString, Polygon
+from dataclasses import dataclass, field
 
 from ..utils.sentinel import Sentinel
 
@@ -56,8 +57,13 @@ TZ_CET = ZoneInfo("CET")  # UTC+2 i.e. Europe/Paris
 TZ_FET = ZoneInfo("Europe/Minsk")  # UTC+3
 
 
-class Auto(Sentinel):
-    pass
+@dataclass
+class AttrValue:
+    value: Any
+    datasetid: str = None # MUST be set for multi-attributes properties
+    observedat: Union[str, datetime] = None
+    unitcode: str = None
+    userdata: dict = field(default_factory=dict)
 
 
 class Rel(Enum):
