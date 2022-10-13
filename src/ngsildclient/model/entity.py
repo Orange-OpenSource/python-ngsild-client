@@ -37,11 +37,25 @@ logger = logging.getLogger(__name__)
 """This module contains the definition of the Entity class.
 """
 
+# Properties and Relationships support Multi-Attributes
+# Temporal Properties and Geospatial Properties DO NOT support Multi-Attributes
+
+# The 4 following functions allow to build attributes along with their name,
+# independently of any Entity.
+# It is useful when building multi-attributes properties.
+
 def mkprop(*args, **kwargs):
-    return Attr().mkprop(*args, **kwargs)
+    return Attr._mkprop(*args, **kwargs)
+
+def mktprop(*args, **kwargs):
+    return Attr._mktprop(*args, **kwargs)
+
+def mkgprop(*args, **kwargs):
+    return Attr._mkgprop(*args, **kwargs)        
 
 def mkrel(*args, **kwargs):
-    return Attr().mkprop(*args, **kwargs)    
+    return Attr._mkrel(*args, **kwargs)
+
 
 class Entity:
     """The main goal of this class is to build, manipulate and represent a NGSI-LD compliant entity.
@@ -481,6 +495,10 @@ class Entity:
         else:
             self._lastprop = self._payload[attrname] = property
 
+    def __ior__(self, prop: Attr):
+        self._payload |= prop
+        return self
+
     def prop(
         self,
         name: str,
@@ -546,7 +564,7 @@ class Entity:
             }
         }
         """
-        if isinstance(value, List) and len(value) > 0 and isinstance(value[0], AttrValue):
+        if isinstance(value, List) and len(value) > 0 and all([isinstance(v, AttrValue) for v in value]):
             property: Attr = self._payload._m__build_property(value)
         else:
             attrV = AttrValue(value, datasetid, observedat, unitcode, userdata)
@@ -713,9 +731,11 @@ class Entity:
             }
         }
         """
-        if isinstance(name, Rel):
-            name = name.value
-        property = self._payload._build_relationship(value, observedat, datasetid, userdata)
+        name = name.value if isinstance(name, Rel) else name
+        if isinstance(value, List) and len(value) > 0 and all([isinstance(v, AttrValue) for v in value]):
+             property: Attr = self._payload._m__build_property(value, attrtype=AttrType.REL)
+        else:
+            property: Attr = self._payload._build_relationship(value, observedat, datasetid, userdata)
         self._update_entity(name, property, nested)
         return self
 

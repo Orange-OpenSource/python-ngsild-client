@@ -12,13 +12,21 @@
     "speed": [
         {
             "type": "Property",
-            "value": "Speedometer",
-            "datasetId": "urn:ngsi-ld:Property:speedometerA4567-speed"
+            "value": 55.0,
+            "datasetId": "urn:ngsi-ld:Property:speedometerA4567-speed",
+            "source": {
+                "type": "Property",
+                "value": "Speedometer"
+            }
         },
         {
             "type": "Property",
-            "value": "GPS",
-            "datasetId": "urn:ngsi-ld:Property:gpsBxyz123-speed"
+            "value": 54.5,
+            "datasetId": "urn:ngsi-ld:Property:gpsBxyz123-speed",
+            "source": {
+                "type": "Property",
+                "value": "GPS"
+            }
         }
     ]
 }

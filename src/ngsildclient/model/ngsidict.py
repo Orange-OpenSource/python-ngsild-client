@@ -32,7 +32,7 @@ import json
 class Attr(dict):
     """This class is a custom dictionary that backs an entity.
 
-    NgsiDict is used to build and hold the entity properties, as well as the entity's root.
+    Attr is used to build and hold the entity properties, as well as the entity's root.
     It's not exposed to the user but intended to be used by the Entity class.
     NgsiDict provides methods that allow to build a dictionary compliant with a NGSI-LD structure.
 
@@ -49,24 +49,24 @@ class Attr(dict):
         d = json.loads(payload)
         return cls(d)
 
-    def __getitem__(self, element: str):
-        return reduce(dict.__getitem__, element.split("."), self)
+    # def __getitem__(self, element: str):
+    #     return reduce(dict.__getitem__, element.split("."), self)
 
-    def __delitem__(self, element: str):
-        try:
-            nested, k = element.rsplit(".", 1)
-        except ValueError:
-            dict.__delitem__(self, element)
-        else:
-            dict.__delitem__(self[nested], k)
+    # def __delitem__(self, element: str):
+    #     try:
+    #         nested, k = element.rsplit(".", 1)
+    #     except ValueError:
+    #         dict.__delitem__(self, element)
+    #     else:
+    #         dict.__delitem__(self[nested], k)
 
-    def __setitem__(self, key: str, value: Any):
-        try:
-            nested, k = key.rsplit(".", 1)
-        except ValueError:
-            dict.__setitem__(self, key, value)
-        else:
-            dict.__setitem__(self[nested], k, value)
+    # def __setitem__(self, key: str, value: Any):
+    #     try:
+    #         nested, k = key.rsplit(".", 1)
+    #     except ValueError:
+    #         dict.__setitem__(self, key, value)
+    #     else:
+    #         dict.__setitem__(self[nested], k, value)
 
     @classmethod
     def _load(cls, filename: str):
@@ -80,7 +80,7 @@ class Attr(dict):
 
     def pprint(self, *args, **kwargs) -> None:
         """Returns the dict pretty-json-formatted"""
-        print(self.to_json(indent=2, *args, **kwargs))
+        entity.Entity.globalsettings.f_print(self.to_json(indent=2, *args, **kwargs))
 
     def _save(self, filename: str, indent=2):
         with open(filename, "w") as fp:
@@ -198,8 +198,6 @@ class Attr(dict):
         userdata: Attr = None,
     ) -> Attr:
         property: Attr = Attr()
-        if isinstance(value, List) and len(value) > 1 and isinstance(value[0], AttrValue):
-            return self._m__build_property(value, attrtype=AttrType.REL)
         property["type"] = AttrType.REL.value  # set type
         if isinstance(value, List):
             property["object"] = []
@@ -220,14 +218,27 @@ class Attr(dict):
         if isinstance(name, Rel):
             name = name.value
         self[name] = self._build_relationship(value, **kwargs)
-        return self[name]
+        return Attr(self[name])
+
+    # the methods below build named properties without attaching to the root dictionary
 
     @classmethod
-    def mkprop(cls, *args, **kwargs):
-        attrV, *args = args
-        return cls().prop(attrV, *args, **kwargs)
+    def _mkprop(cls, name: str, *args, **kwargs):
+        attrV = AttrValue(*args, **kwargs)
+        v = cls().prop(name, attrV)
+        return Attr({name: v})
 
     @classmethod
-    def mkrel(cls, *args, **kwargs):
-        attrV, *args = args
-        return cls().rel(attrV, *args, **kwargs)        
+    def _mktprop(cls, name: str, *args, **kwargs):
+        v = cls().tprop(name, *args, **kwargs)
+        return Attr({name: v})
+
+    @classmethod
+    def _mkgprop(cls, name, *args, **kwargs):
+        v = cls().gprop(name, *args, **kwargs)
+        return Attr({name: v})
+
+    @classmethod
+    def _mkrel(cls, name, *args, **kwargs):
+        v = cls().rel(name, *args, **kwargs)
+        return Attr({name: v})

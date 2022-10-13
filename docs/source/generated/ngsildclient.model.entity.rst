@@ -13,8 +13,10 @@
 
    .. autosummary::
    
+      mkgprop
       mkprop
       mkrel
+      mktprop
    
    
 

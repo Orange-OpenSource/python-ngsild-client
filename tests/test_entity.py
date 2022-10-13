@@ -60,14 +60,24 @@ def test_constructor_id_only():
     assert e.type == "AirQualityObserved"  # infered from id
     assert e.id == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"
 
+def test_mkprop():
+    p = mkprop("CO2", 33, unitcode="GP")
+    assert p == {"CO2": {"type": "Property", "value": 33, "unitCode": "GP"}}
+
+def test_mktprop():
+    p = mktprop("dateObserved", "2018-08-07T12:00:00Z")
+    assert p == {"dateObserved": {"type": "Property", "value": {"@type": "DateTime", "@value": "2018-08-07T12:00:00Z"}}}
+
+def test_mkgprop():
+    p = mkgprop("location", (1.0 ,2.0))
+    assert p == {"location": {"type": "GeoProperty", "value": {"coordinates": [2.0, 1.0], "type": "Point"}}}
+
+def test_mkrel():
+    p = mkrel("hasObject", "Object:Object1")
+    assert p == {'hasObject': {'type': 'Relationship', 'object': 'urn:ngsi-ld:Object:Object1'}}
+
 
 def test_air_quality(expected_air_quality):
-    """Build a sample AirQualityObserved Entity
-
-    .. _NGSI-LD HOWTO:
-    http://google.github.io/styleguide/pyguide.html
-
-    """
     e = Entity("AirQualityObserved", "RZ:Obsv4567")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))
     e.prop("NO2", 22, unitcode="GP")
@@ -144,12 +154,6 @@ def test_air_quality_with_nested_prop_3_lvl():
 
 
 def test_poi():
-    """Build a sample PointOfInterest Entity
-
-    .. _NGSI-LD HOWTO:
-    http://google.github.io/styleguide/pyguide.html
-
-    """
     e = Entity("PointOfInterest", "PointOfInterest:RZ:MainSquare")
     e.prop("category", [113])
     e.prop("description", "Beach of RZ")
@@ -221,7 +225,6 @@ def test_vehicle():
     assert e.to_dict() == expected_dict("vehicle")
     assert json.loads(e.to_json(kv=True)) == expected_dict("vehicle.kv")
 
-
 def test_vehicle_multiple_attribute():
     """Build a sample Vehicle Entity
 
@@ -230,8 +233,8 @@ def test_vehicle_multiple_attribute():
 
     """
     e = Entity("Vehicle", "A4567")
-    speed1 = AttrValue(55.0, datasetid="Property:speedometerA4567-speed", userdata=mkprop("source", AttrValue("Speedometer")))
-    speed2 = AttrValue(54.5, datasetid="Property:gpsBxyz123-speed", userdata=mkprop("source", AttrValue("GPS")))
+    speed1 = AttrValue(55.0, datasetid="Property:speedometerA4567-speed", userdata=mkprop("source", "Speedometer"))
+    speed2 = AttrValue(54.5, datasetid="Property:gpsBxyz123-speed", userdata=mkprop("source", "GPS"))
     e.prop("speed", [speed1, speed2])
     e.context=[ { "Vehicle": "http://example.org/Vehicle",
                 "speed": "http://example.org/speed",
@@ -286,10 +289,10 @@ def test_shelf_1_1_relationship_alt():
     e.rel("stocks", "Product:001")
     e.prop("numberOfItems", 50)
     e.rel("locatedIn", "Building:store001")
-    located_in = e["locatedIn"]
+    located_in: Attr = e["locatedIn"]
     located_in.rel("requestedBy", "bob-the-manager")
     located_in.rel("installedBy", "Person:employee001")
-    located_in.prop("statusOfWork", "completed")
+    located_in.prop("statusOfWork", AttrValue("completed"))
     assert e.to_dict() == expected_dict("shelf_1_1_relationship")    
 
 def test_store_1_many_relationship():
