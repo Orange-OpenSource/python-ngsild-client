@@ -26,7 +26,7 @@ from typing import overload, Any, Union, List, Tuple, Optional, Callable
 from rich import print_json
 
 from .exceptions import *
-from .ngsidict import NgsiDict
+from .ngsidict import Attr
 from ngsildclient.utils import iso8601, url, is_interactive
 from ngsildclient.utils.urn import Urn
 
@@ -38,10 +38,10 @@ logger = logging.getLogger(__name__)
 """
 
 def mkprop(*args, **kwargs):
-    return NgsiDict().mkprop(*args, **kwargs)
+    return Attr().mkprop(*args, **kwargs)
 
 def mkrel(*args, **kwargs):
-    return NgsiDict().mkprop(*args, **kwargs)    
+    return Attr().mkprop(*args, **kwargs)    
 
 class Entity:
     """The main goal of this class is to build, manipulate and represent a NGSI-LD compliant entity.
@@ -257,7 +257,7 @@ class Entity:
         if autoprefix is None:
             autoprefix = Entity.globalsettings.autoprefix
 
-        self._lastprop: NgsiDict = None
+        self._lastprop: Attr = None
         self._anchored: bool = False
 
         if payload is not None:  # create Entity from a dictionary
@@ -267,7 +267,7 @@ class Entity:
                 raise NgsiMissingTypeError()
             if not payload.get("@context", None):
                 raise NgsiMissingContextError()
-            self._payload: NgsiDict = NgsiDict(payload)
+            self._payload: Attr = Attr(payload)
             return
 
         # create a new Entity using its id and type
@@ -294,10 +294,7 @@ class Entity:
             id = Urn.prefix(id)  # set the prefix "urn:ngsi-ld:" if not already done
             urn = Urn(id)
 
-        self._payload: NgsiDict = NgsiDict(
-            {"@context": ctx, "id": urn.fqn, "type": type},
-            dtcached=dt if dt else iso8601.utcnow(),
-        )
+        self._payload: Attr = Attr({"@context": ctx, "id": urn.fqn, "type": type})
 
     @classmethod
     def from_dict(cls, payload: dict):
@@ -474,7 +471,7 @@ class Entity:
         self._anchored = False
         return self
 
-    def _update_entity(self, attrname: str, property: NgsiDict, nested: bool = False):
+    def _update_entity(self, attrname: str, property: Attr, nested: bool = False):
         nested |= self._anchored
         if nested and self._lastprop is not None:
             # update _lastprop only if not anchored
@@ -493,7 +490,7 @@ class Entity:
         datasetid: str = None,
         observedat: Union[str, datetime] = None,
         unitcode: str = None,
-        userdata: NgsiDict = NgsiDict(),
+        userdata: Attr = Attr(),
         escape: bool = False,
     ) -> Entity:
         """Build a Property.
@@ -549,11 +546,11 @@ class Entity:
             }
         }
         """
-        if isinstance(value, List) and len(value) > 1 and isinstance(value[0], AttrValue):
-            property = self._payload._m__build_property(value)
+        if isinstance(value, List) and len(value) > 0 and isinstance(value[0], AttrValue):
+            property: Attr = self._payload._m__build_property(value)
         else:
             attrV = AttrValue(value, datasetid, observedat, unitcode, userdata)
-            property = self._payload._build_property(attrV, escape=escape)
+            property: Attr = self._payload._build_property(attrV, escape=escape)
         self._update_entity(name, property, nested)
         return self
 
@@ -661,8 +658,6 @@ class Entity:
             }
         }
         """
-        if value is None:
-            value = self._payload._dtcached
         property = self._payload._build_temporal_property(value)
         self._update_entity(name, property, nested)
         return self
@@ -681,7 +676,7 @@ class Entity:
         *,
         observedat: Union[str, datetime] = None,
         datasetid: str = None,
-        userdata: NgsiDict = NgsiDict(),
+        userdata: Attr = Attr(),
     ) -> Entity:
         """Build a Relationship Property.
 
@@ -732,7 +727,7 @@ class Entity:
     def __repr__(self):
         return self._payload.__repr__()
 
-    def to_dict(self, kv=False) -> NgsiDict:
+    def to_dict(self, kv=False) -> Attr:
         """Returns the entity as a dictionary.
 
         The returned type is NgsiDict, fully compatible with a native dict.
@@ -749,7 +744,7 @@ class Entity:
         """
         return self._to_keyvalues() if kv else self._payload
 
-    def _to_keyvalues(self) -> NgsiDict:
+    def _to_keyvalues(self) -> Attr:
         """Compute a NgsiDict that contains only the highest-level of information.
 
         Returns
@@ -757,7 +752,7 @@ class Entity:
         NgsiDict
             The simplified representation
         """
-        d = NgsiDict()
+        d = Attr()
         for k, v in self._payload.items():
             if isinstance(v, dict):
                 if v["type"] == AttrType.PROP.value:  # apply to Property and TemporalProperty
@@ -786,7 +781,7 @@ class Entity:
         str
             The JSON content
         """
-        payload: NgsiDict = self.to_dict(kv)
+        payload: Attr = self.to_dict(kv)
         return payload.to_json(*args, **kwargs)
 
     def pprint(self, kv=False, *args, **kwargs):

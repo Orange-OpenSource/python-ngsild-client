@@ -29,7 +29,7 @@ import json
 """
 
 
-class NgsiDict(dict):
+class Attr(dict):
     """This class is a custom dictionary that backs an entity.
 
     NgsiDict is used to build and hold the entity properties, as well as the entity's root.
@@ -41,7 +41,7 @@ class NgsiDict(dict):
     model.Entity
     """
 
-    def __init__(self, *args, dtcached: datetime = None, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     @classmethod
@@ -97,8 +97,8 @@ class NgsiDict(dict):
         attrV: AttrValue,
         *,
         escape: bool = False,
-    ) -> NgsiDict:
-        property: NgsiDict = NgsiDict()
+    ) -> Attr:
+        property: Attr = Attr()
         value = attrV.value
         if isinstance(value, (int, float, bool, list, dict)):
             v = value
@@ -123,13 +123,13 @@ class NgsiDict(dict):
         values: List[AttrValue],
         *,
         attrtype: AttrType = AttrType.PROP
-    ) -> NgsiDict:
+    ) -> Attr:
         attrkey = "object" if attrtype == AttrType.REL else "value"
-        property: List[NgsiDict] = []
+        property: List[Attr] = []
         for v in values:
             if attrtype == AttrType.REL:
                 v.value = Urn.prefix(v.value.id) if isinstance(v.value, entity.Entity) else Urn.prefix(v.value)
-            p = NgsiDict()
+            p = Attr()
             p["type"] = attrtype.value
             p[attrkey] = v.value
             p[META_ATTR_DATASET_ID] = Urn.prefix(v.datasetid)            
@@ -142,8 +142,11 @@ class NgsiDict(dict):
             property.append(p)
         return property
 
-    def prop(self, name: str, value: str, **kwargs):
-        self[name] = self._build_property(value, **kwargs)
+    def prop(self, name: str, value: AttrValue, **kwargs):
+        if isinstance(value, List):
+            self[name] = self._m__build_property(value, **kwargs)
+        else:
+            self[name] = self._build_property(value, **kwargs)
         return self[name]
 
     def _build_geoproperty(
@@ -151,8 +154,8 @@ class NgsiDict(dict):
         value: NgsiGeometry,
         observedat: Union[str, datetime] = None,
         datasetid: str = None,
-    ) -> NgsiDict:
-        property: NgsiDict = NgsiDict()
+    ) -> Attr:
+        property: Attr = Attr()
         property["type"] = AttrType.GEO.value  # set type
         if isinstance(value, (Point, LineString, Polygon, MultiPoint)):
             geometry = value
@@ -172,8 +175,8 @@ class NgsiDict(dict):
         self[name] = self._build_geoproperty(value, **kwargs)
         return self[name]
 
-    def _build_temporal_property(self, value: NgsiDate) -> NgsiDict:
-        property: NgsiDict = NgsiDict()
+    def _build_temporal_property(self, value: NgsiDate) -> Attr:
+        property: Attr = Attr()
         property["type"] = AttrType.TEMPORAL.value  # set type
         date_str, temporaltype, dt = iso8601.parse(value)
         v = {
@@ -192,9 +195,9 @@ class NgsiDict(dict):
         value: Union[str, List[str]],
         observedat: Union[str, datetime] = None,
         datasetid: str = None,
-        userdata: NgsiDict = None,
-    ) -> NgsiDict:
-        property: NgsiDict = NgsiDict()
+        userdata: Attr = None,
+    ) -> Attr:
+        property: Attr = Attr()
         if isinstance(value, List) and len(value) > 1 and isinstance(value[0], AttrValue):
             return self._m__build_property(value, attrtype=AttrType.REL)
         property["type"] = AttrType.REL.value  # set type
@@ -221,8 +224,10 @@ class NgsiDict(dict):
 
     @classmethod
     def mkprop(cls, *args, **kwargs):
-        return cls().prop(*args, **kwargs)
+        attrV, *args = args
+        return cls().prop(attrV, *args, **kwargs)
 
     @classmethod
     def mkrel(cls, *args, **kwargs):
-        return cls().rel(*args, **kwargs)        
+        attrV, *args = args
+        return cls().rel(attrV, *args, **kwargs)        

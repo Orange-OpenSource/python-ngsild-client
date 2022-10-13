@@ -68,13 +68,11 @@ def test_air_quality(expected_air_quality):
     http://google.github.io/styleguide/pyguide.html
 
     """
-    e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
+    e = Entity("AirQualityObserved", "RZ:Obsv4567")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))
     e.prop("NO2", 22, unitcode="GP")
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
     assert e.to_dict() == expected_air_quality
-    assert e.to_dict(kv=True) == expected_dict("air_quality.kv")
-
 
 def test_air_quality_from_dict(expected_air_quality):
     payload = {
@@ -232,8 +230,8 @@ def test_vehicle_multiple_attribute():
 
     """
     e = Entity("Vehicle", "A4567")
-    speed1 = AttrValue(55.0, datasetid="Property:speedometerA4567-speed", userdata=mkprop("source", "Speedometer"))
-    speed2 = AttrValue(54.5, datasetid="Property:gpsBxyz123-speed", userdata=mkprop("source", "GPS"))
+    speed1 = AttrValue(55.0, datasetid="Property:speedometerA4567-speed", userdata=mkprop("source", AttrValue("Speedometer")))
+    speed2 = AttrValue(54.5, datasetid="Property:gpsBxyz123-speed", userdata=mkprop("source", AttrValue("GPS")))
     e.prop("speed", [speed1, speed2])
     e.context=[ { "Vehicle": "http://example.org/Vehicle",
                 "speed": "http://example.org/speed",

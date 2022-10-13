@@ -1,4 +1,4 @@
-ngsildclient.model.constants
+﻿ngsildclient.model.constants
 ============================
 
 .. automodule:: ngsildclient.model.constants
@@ -24,7 +24,7 @@ ngsildclient.model.constants
    .. autosummary::
    
       AttrType
-      Auto
+      AttrValue
       GeometryMetaAttr
       GeometryType
       Rel

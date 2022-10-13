@@ -25,7 +25,6 @@
    .. autosummary::
    
       Entity
-      MultiAttrValue
    
    
 
