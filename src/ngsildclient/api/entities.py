@@ -15,6 +15,8 @@ from typing import TYPE_CHECKING, Optional, Union, Sequence
 
 import logging
 
+from ngsildclient.model.exceptions import NgsiJsonError
+
 if TYPE_CHECKING:
     from .client import Client
     from ..model.constants import EntityOrId
@@ -30,10 +32,11 @@ logger = logging.getLogger(__name__)
 
 class Entities:
     """A wrapper for the NGSI-LD API entities endpoint."""
-    def __init__(self, client: Client, url: str):
+    def __init__(self, client: Client, url: str, url_alt_post_query: str):
         self._client = client
         self._session = client.session
         self.url = url
+        self.url_alt_post_query = url_alt_post_query
 
     def to_broker_url(self, entity: EntityOrId) -> str:
         eid = entity.id if isinstance(entity, Entity) else Urn.prefix(entity)
@@ -147,6 +150,38 @@ class Entities:
         return [Entity.from_dict(entity) for entity in entities]
 
     @rfc7807_error_handle
+    def _query_alt(
+        self,
+        query: dict,
+        ctx: str = None,
+        limit: int = 0,
+        offset: int = 0
+    ) -> Sequence[Entity]:
+        if query.get("type") != "Query":
+            raise NgsiJsonError("Wrong format. Expect JSON-LD Query data type")
+        params = {}
+        if limit != 0:
+            params |= {"limit": limit}
+        if offset != 0:
+            params |= {"offset": offset}
+        headers = {
+            "Accept": "application/ld+json",
+            "Content-Type": "application/json"
+        }
+        if ctx is not None:
+            headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
+        r = self._session.post(
+            self.url_alt_post_query,
+            headers=headers,
+            params=params,
+            json = query
+        )
+        self._client.raise_for_status(r)
+        entities = r.json()
+        logger.debug(f"{entities=}")
+        return [Entity.from_dict(entity) for entity in entities]        
+
+    @rfc7807_error_handle
     def count(self, type: str = None, q: str = None, gq: str = None, ctx: str = None) -> int:
         params = {"limit": 0, "count": "true"}
         if type is None and q is None:
@@ -158,7 +193,7 @@ class Entities:
         if gq:
             params["geoQ"] = gq
         headers = {
-            "Accept": "application/json",
+            "Accept": "application/ld+json",
             "Content-Type": None,
         }  # overrides session headers
         if ctx is not None:
@@ -171,3 +206,23 @@ class Entities:
         self._client.raise_for_status(r)
         count = int(r.headers["NGSILD-Results-Count"])
         return count
+
+    def _count_alt(self, query: dict, ctx: str = None) -> int:
+        params = {"limit": 0, "count": "true"}
+        if query.get("type") != "Query":
+            raise NgsiJsonError("Wrong format. Expect JSON-LD Query data type")
+        headers = {
+            "Accept": "application/ld+json",
+            "Content-Type": None,
+        }
+        if ctx is not None:
+            headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
+        r = self._session.post(
+            self.url_alt_post_query,
+            headers=headers,
+            params=params,
+            json = query
+        )
+        self._client.raise_for_status(r)
+        count = int(r.headers["NGSILD-Results-Count"])
+        return count        

@@ -34,6 +34,7 @@ from .types import Types
 from .contexts import Contexts
 from .subscriptions import Subscriptions
 from .temporal import Temporal
+from .alt import Alt
 from .exceptions import *
 
 logger = logging.getLogger(__name__)
@@ -140,6 +141,7 @@ class Client:
         self.overwrite = overwrite
         self.ignore_errors = ignore_errors
         self.proxy = proxy
+        self.url_temporal = f"{self.scheme}://{hostname}:{port_temporal}"
 
         self.session = requests.Session()
         if custom_auth:
@@ -156,18 +158,13 @@ class Client:
 
         logger.info("Connecting client ...")
 
-        self._entities = Entities(self, f"{self.url}/{ENDPOINT_ENTITIES}")
+        self._entities = Entities(self, f"{self.url}/{ENDPOINT_ENTITIES}", f"{self.url}/{ENDPOINT_ALT_QUERY_ENTITIES}")
         self._batch = Batch(self, f"{self.url}/{ENDPOINT_BATCH}")
         self._types = Types(self, f"{self.url}/{ENDPOINT_TYPES}")
         self._contexts = Contexts(self, f"{self.url}/{ENDPOINT_CONTEXTS}")
         self._subscriptions = Subscriptions(self, f"{self.url}/{ENDPOINT_SUBSCRIPTIONS}")
-        url_temporal = f"{self.scheme}://{hostname}:{port_temporal}"
-        temporal_path = (
-            f"{url_temporal}/{NGSILD_BASEPATH}/temporal/entities"
-            if port_temporal == port  # temporal share the same port and basepath
-            else f"{url_temporal}/temporal/entities"
-        )
-        self._temporal = Temporal(self, temporal_path)
+        self._temporal = Temporal(self, f"{self.url_temporal}/{ENDPOINT_TEMPORAL}", f"{self.url_temporal}/{ENDPOINT_ALT_QUERY_TEMPORAL}")
+        self._alt = Alt(self)
         self.broker = Broker(Vendor.UNKNOWN, "N/A")
 
         # get status and retrieve Context Broker information
@@ -259,6 +256,10 @@ class Client:
     @property
     def temporal(self):
         return self._temporal
+
+    @property
+    def alt(self):
+        return self._alt        
 
     def close(self):
         """Terminates the client.

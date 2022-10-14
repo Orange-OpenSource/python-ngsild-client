@@ -97,10 +97,11 @@ class TemporalResult:
 
 class Temporal:
     """A wrapper for the NGSI-LD API temporal endpoint."""
-    def __init__(self, client: Client, url: str):
+    def __init__(self, client: Client, url: str, url_alt_post_query: str):
         self._client = client
         self._session = client.session
         self.url = url
+        self.url_alt_post_query = url_alt_post_query
 
     def _get(
         self,
