@@ -1,4 +1,11 @@
 # ngsildclient 0.4.0
+## October 14, 2022
+
+- Added support for alternative (POST) query endpoints (Issue #4)
+    - `entityOperations/query`
+    - `temporal/entityOperations/query`
+
+# ngsildclient 0.4.0
 ## October 12, 2022
 
 - Improved batch operations
