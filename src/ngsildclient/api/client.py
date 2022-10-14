@@ -437,7 +437,7 @@ class Client:
         """Retrieve entities given its type and/or query string.
 
         Retrieve up to PAGINATION_LIMIT_MAX entities.
-        Use query_all() to retrieve all entities.
+        Use query() to retrieve all entities.
         Use entities.query() to deal with limit and offset on your own.
 
         Parameters

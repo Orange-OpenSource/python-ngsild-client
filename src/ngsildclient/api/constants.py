@@ -88,8 +88,8 @@ ENDPOINT_ALT_QUERY_ENTITIES = f"{ENDPOINT_BATCH}/query"
 ENDPOINT_TYPES = f"{NGSILD_BASEPATH}/types"
 ENDPOINT_CONTEXTS = f"{NGSILD_BASEPATH}/jsonldContexts"
 ENDPOINT_SUBSCRIPTIONS = f"{NGSILD_BASEPATH}/subscriptions"
-ENDPOINT_TEMPORAL = f"{NGSILD_BASEPATH}/temporal/entities"
-ENDPOINT_ALT_QUERY_TEMPORAL = f"{NGSILD_BASEPATH}/temporal/entityOperations/query"
+ENDPOINT_TEMPORAL = f"temporal/entities"
+ENDPOINT_ALT_QUERY_TEMPORAL = "temporal/entityOperations/query"
 
 PAGINATION_LIMIT_MAX = 100  # pagination
 BATCHSIZE = 100  # maximum number of entities sent per batch operation

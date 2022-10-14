@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 from ..utils.urn import Urn
 from .constants import ENDPOINT_ENTITIES, JSONLD_CONTEXT
-from .exceptions import NgsiAlreadyExistsError, NgsiApiError, rfc7807_error_handle
+from .exceptions import NgsiAlreadyExistsError, rfc7807_error_handle
 from ..model.entity import Entity
 
 

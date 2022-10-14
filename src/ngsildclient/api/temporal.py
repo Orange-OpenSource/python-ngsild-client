@@ -27,17 +27,10 @@ from .constants import JSONLD_CONTEXT, AggrMethod
 from ..utils.urn import Urn
 from .helper.temporal import TemporalQuery
 from ..model.entity import Entity
-from ngsildclient.utils import iso8601, is_pandas_installed
+from ngsildclient.utils import iso8601, is_pandas_installed, _addopt
+from .temporal_alt import TemporalAlt
 
 logger = logging.getLogger(__name__)
-
-
-def _addopt(params: dict, newopt: str):
-    if params.get("options", "") == "":
-        params["options"] = newopt
-    else:
-        params["options"] += f",{newopt}"
-
 
 def _troes_to_dfdict(troes: dict):
     # the result dictionary is independant of the number of attributes !
@@ -97,11 +90,16 @@ class TemporalResult:
 
 class Temporal:
     """A wrapper for the NGSI-LD API temporal endpoint."""
-    def __init__(self, client: Client, url: str, url_alt_post_query: str):
+    def __init__(self, client: Client, url: str, url_alt_temporal_query: str):
         self._client = client
         self._session = client.session
         self.url = url
-        self.url_alt_post_query = url_alt_post_query
+        self.url_alt_temporal_query = url_alt_temporal_query
+        self._alt = TemporalAlt(self._client, url_alt_temporal_query)
+
+    @property
+    def alt(self):
+        return self._alt
 
     def _get(
         self,

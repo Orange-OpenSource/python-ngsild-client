@@ -1,4 +1,4 @@
-﻿ngsildclient.api.batch
+ngsildclient.api.batch
 ======================
 
 .. automodule:: ngsildclient.api.batch

@@ -35,6 +35,7 @@
    :recursive:
 
    ngsildclient.utils.console
+   ngsildclient.utils.dataviz
    ngsildclient.utils.iso8601
    ngsildclient.utils.sentinel
    ngsildclient.utils.url

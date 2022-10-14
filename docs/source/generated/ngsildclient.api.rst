@@ -1,4 +1,4 @@
-ngsildclient.api
+﻿ngsildclient.api
 ================
 
 .. automodule:: ngsildclient.api
@@ -27,6 +27,7 @@ ngsildclient.api
    :toctree:
    :recursive:
 
+   ngsildclient.api.alt
    ngsildclient.api.asyn
    ngsildclient.api.batch
    ngsildclient.api.client
