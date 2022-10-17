@@ -44,6 +44,20 @@ class Attr(dict):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    @property
+    def value(self):
+        if self["type"] == "Relationship":
+            return self["object"]
+        else:
+            return self["value"]
+
+    @value.setter
+    def value(self, v: Any):
+        if self["type"] == "Relationship":
+            self["object"] = v
+        else:
+            self["value"] = v
+
     @classmethod
     def _from_json(cls, payload: str):
         d = json.loads(payload)
