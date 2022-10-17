@@ -295,8 +295,6 @@ class Entity:
         else:
             type, id = None, arg1
 
-        dt = iso8601.extract(id)
-
         if type is None:  # try to infer type from the fully qualified identifier
             id = Urn.prefix(id)
             urn = Urn(id)
