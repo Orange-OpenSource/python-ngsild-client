@@ -10,6 +10,7 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
+import ngsildclient
 
 import ngsildclient.model.entity as entity
 
@@ -29,7 +30,7 @@ import json
 """
 
 
-class Attr(dict):
+class NgsiDict(dict):
     """This class is a custom dictionary that backs an entity.
 
     Attr is used to build and hold the entity properties, as well as the entity's root.
@@ -56,7 +57,7 @@ class Attr(dict):
         if self["type"] == "Relationship":
             self["object"] = v
         else:
-            self["value"] = v
+            self["value"] = v     
 
     @classmethod
     def _from_json(cls, payload: str):
@@ -92,8 +93,8 @@ class Attr(dict):
         attrV: AttrValue,
         *,
         escape: bool = False,
-    ) -> Attr:
-        property: Attr = Attr()
+    ) -> NgsiDict:
+        property: NgsiDict = NgsiDict()
         value = attrV.value
         if isinstance(value, (int, float, bool, list, dict)):
             v = value
@@ -118,13 +119,13 @@ class Attr(dict):
         values: List[AttrValue],
         *,
         attrtype: AttrType = AttrType.PROP
-    ) -> Attr:
+    ) -> NgsiDict:
         attrkey = "object" if attrtype == AttrType.REL else "value"
-        property: List[Attr] = []
+        property: List[NgsiDict] = []
         for v in values:
             if attrtype == AttrType.REL:
                 v.value = Urn.prefix(v.value.id) if isinstance(v.value, entity.Entity) else Urn.prefix(v.value)
-            p = Attr()
+            p = NgsiDict()
             p["type"] = attrtype.value
             p[attrkey] = v.value
             p[META_ATTR_DATASET_ID] = Urn.prefix(v.datasetid)            
@@ -149,8 +150,8 @@ class Attr(dict):
         value: NgsiGeometry,
         observedat: Union[str, datetime] = None,
         datasetid: str = None,
-    ) -> Attr:
-        property: Attr = Attr()
+    ) -> NgsiDict:
+        property: NgsiDict = NgsiDict()
         property["type"] = AttrType.GEO.value  # set type
         if isinstance(value, (Point, LineString, Polygon, MultiPoint)):
             geometry = value
@@ -170,8 +171,8 @@ class Attr(dict):
         self[name] = self._build_geoproperty(value, **kwargs)
         return self[name]
 
-    def _build_temporal_property(self, value: NgsiDate) -> Attr:
-        property: Attr = Attr()
+    def _build_temporal_property(self, value: NgsiDate) -> NgsiDict:
+        property: NgsiDict = NgsiDict()
         property["type"] = AttrType.TEMPORAL.value  # set type
         date_str, temporaltype, dt = iso8601.parse(value)
         v = {
@@ -190,9 +191,9 @@ class Attr(dict):
         value: Union[str, List[str]],
         observedat: Union[str, datetime] = None,
         datasetid: str = None,
-        userdata: Attr = None,
-    ) -> Attr:
-        property: Attr = Attr()
+        userdata: NgsiDict = None,
+    ) -> NgsiDict:
+        property: NgsiDict = NgsiDict()
         property["type"] = AttrType.REL.value  # set type
         if isinstance(value, List):
             property["object"] = []
@@ -213,7 +214,7 @@ class Attr(dict):
         if isinstance(name, Rel):
             name = name.value
         self[name] = self._build_relationship(value, **kwargs)
-        return Attr(self[name])
+        return NgsiDict(self[name])
 
     # the methods below build named properties without attaching to the root dictionary
 
@@ -221,19 +222,19 @@ class Attr(dict):
     def _mkprop(cls, name: str, *args, **kwargs):
         attrV = AttrValue(*args, **kwargs)
         v = cls().prop(name, attrV)
-        return Attr({name: v})
+        return NgsiDict({name: v})
 
     @classmethod
     def _mktprop(cls, name: str, *args, **kwargs):
         v = cls().tprop(name, *args, **kwargs)
-        return Attr({name: v})
+        return NgsiDict({name: v})
 
     @classmethod
     def _mkgprop(cls, name, *args, **kwargs):
         v = cls().gprop(name, *args, **kwargs)
-        return Attr({name: v})
+        return NgsiDict({name: v})
 
     @classmethod
     def _mkrel(cls, name, *args, **kwargs):
         v = cls().rel(name, *args, **kwargs)
-        return Attr({name: v})
+        return NgsiDict({name: v})

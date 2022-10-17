@@ -289,7 +289,7 @@ def test_shelf_1_1_relationship_alt():
     e.rel("stocks", "Product:001")
     e.prop("numberOfItems", 50)
     e.rel("locatedIn", "Building:store001")
-    located_in: Attr = e["locatedIn"]
+    located_in: NgsiDict = e["locatedIn"]
     located_in.rel("requestedBy", "bob-the-manager")
     located_in.rel("installedBy", "Person:employee001")
     located_in.prop("statusOfWork", AttrValue("completed"))

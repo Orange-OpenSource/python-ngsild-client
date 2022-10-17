@@ -35,6 +35,7 @@ from .contexts import Contexts
 from .subscriptions import Subscriptions
 from .temporal import Temporal
 from .alt import Alt
+from .follow import LinkFollower
 from .exceptions import *
 
 logger = logging.getLogger(__name__)
@@ -799,6 +800,14 @@ class Client:
         nodecache: dict[str, Entity] = {} # hash table
         edgecache: Set[Tuple[str,str]] = set() # membership testing
         return self._create_network(root, G, nodecache, edgecache)
+
+    def enable_follow(self):
+        follower = LinkFollower(self)
+        Entity.globalsettings.follower = follower
+
+    def disable_follow(self):
+        Entity.globalsettings.follower = None
+
 
     # below the context manager methods
 
