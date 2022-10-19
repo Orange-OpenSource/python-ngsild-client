@@ -10,12 +10,14 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
+from collections import MutableMapping
 
 import ngsildclient.model.entity as entity
 
 from typing import Any, Union, List
 from datetime import datetime
 from geojson import Point, LineString, Polygon, MultiPoint
+from scalpl import Cut
 
 from ..utils import iso8601, url
 from ..utils.urn import Urn
@@ -28,7 +30,7 @@ import json
 """
 
 
-class NgsiDict(dict):
+class NgsiDict(Cut, MutableMapping):
     """This class is a custom dictionary that backs an entity.
 
     Attr is used to build and hold the entity properties, as well as the entity's root.
@@ -42,6 +44,20 @@ class NgsiDict(dict):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def __getitem__(self, path: str):
+        r = super().__getitem__(path)
+        if isinstance(r, dict) and not isinstance(r, NgsiDict):
+            r = NgsiDict(r)
+        return r
+
+    def __repr__(self):
+        return dict.__repr__(self.data)
+
+    def __ior__(self, prop: Mapping):
+        prop = prop.data if isinstance(prop, NgsiDict) else prop
+        self.data |= prop
+        return self
 
     @property
     def value(self):
@@ -68,9 +84,13 @@ class NgsiDict(dict):
             d = json.load(fp)
             return cls(d)
 
+    def to_dict(self) -> dict:
+        return self.data
+        
     def to_json(self, indent=None) -> str:
         """Returns the dict in json format"""
-        return json.dumps(self, default=str, ensure_ascii=False, indent=indent)
+        return json.dumps(self,  ensure_ascii=False, indent=indent, 
+            default = lambda x: x.data if isinstance(x, NgsiDict) else str)
 
     def pprint(self, *args, **kwargs) -> None:
         """Returns the dict pretty-json-formatted"""
@@ -78,7 +98,8 @@ class NgsiDict(dict):
 
     def _save(self, filename: str, indent=2):
         with open(filename, "w") as fp:
-            json.dump(self, fp, default=str, ensure_ascii=False, indent=indent)
+            json.dump(self, fp, ensure_ascii=False, indent=indent,
+                default = lambda x: x.data if isinstance(x, NgsiDict) else str)
 
     def prop(self, name: str, value: AttrValue, **kwargs):
         if isinstance(value, List):

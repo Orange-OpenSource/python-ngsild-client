@@ -1,4 +1,4 @@
-﻿ngsildclient.model.entity
+ngsildclient.model.entity
 =========================
 
 .. automodule:: ngsildclient.model.entity

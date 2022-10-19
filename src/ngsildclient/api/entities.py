@@ -46,7 +46,7 @@ class Entities:
     def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> bool:
         r = self._session.post(
             f"{self.url}/",
-            json=entity._payload,
+            data=entity.to_json(),
         )
         if r.status_code == 409:  # already exists
             if skip:

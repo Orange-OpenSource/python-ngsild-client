@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Sequence
 
 import logging
+import json
 
 if TYPE_CHECKING:
     from .client import AsyncClient, EntityOrId
@@ -21,6 +22,7 @@ from ..constants import BATCHSIZE
 from ..exceptions import NgsiApiError, rfc7807_error_handle_async
 from ..batch import BatchResult
 from ...model.entity import Entity
+from ngsildclient.model.serializer import NgsiEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +38,8 @@ class Batch:
     async def _create(
         self, entities: Sequence[Entity]) -> BatchResult:
         r = await self._session.post(
-            f"{self.url}/create/", json=[entity._payload for entity in entities]
+            f"{self.url}/create/", 
+            data=json.dumps([e for e in entities], cls=NgsiEncoder)
         )
         self._client.raise_for_status(r)
         if r.status_code == 201:
@@ -58,7 +61,8 @@ class Batch:
     @rfc7807_error_handle_async
     async def _upsert(self, entities: Sequence[Entity]) -> BatchResult:
         r = await self._session.post(
-            f"{self.url}/upsert/", json=[entity._payload for entity in entities]
+            f"{self.url}/upsert/",
+            data=json.dumps([e for e in entities], cls=NgsiEncoder)
         )
         self._client.raise_for_status(r)
         if r.status_code == 201:
@@ -82,7 +86,8 @@ class Batch:
     @rfc7807_error_handle_async
     async def _update(self, entities: Sequence[Entity]) -> BatchResult:
         r = await self._session.post(
-            f"{self.url}/update/", json=[entity._payload for entity in entities]
+            f"{self.url}/update/", 
+            data=json.dumps([e for e in entities], cls=NgsiEncoder)
         )
         self._client.raise_for_status(r)
         if r.status_code == 204:

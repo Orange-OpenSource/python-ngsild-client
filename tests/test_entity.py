@@ -196,8 +196,6 @@ def test_store():
     e.gprop("location", (-20.2845607, 57.4874121))
     e.prop("storeName", "Checker Market")
     assert e.to_dict() == expected_dict("store")
-    assert e.to_dict(kv=True) == expected_dict("store.kv")
-
 
 def test_vehicle():
     """Build a sample Vehicle Entity
@@ -223,7 +221,6 @@ def test_vehicle():
         observedat=datetime(2017, 7, 29, 12, 0, 4, tzinfo=timezone.utc),
     ).rel("providedBy", "Person:Bob", NESTED)
     assert e.to_dict() == expected_dict("vehicle")
-    assert json.loads(e.to_json(kv=True)) == expected_dict("vehicle.kv")
 
 def test_vehicle_multiple_attribute():
     """Build a sample Vehicle Entity
@@ -266,7 +263,6 @@ def test_parking():
     e.prop("totalSpotNumber", 200)
     e.gprop("location", (41.2, -8.5))
     assert e.to_dict() == expected_dict("parking")
-    assert e.to_dict(kv=True) == expected_dict("parking.kv")
 
 def test_shelf_1_1_relationship():
     ctx = ["https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"]

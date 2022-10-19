@@ -1,4 +1,4 @@
-﻿ngsildclient.model.ngsidict
+ngsildclient.model.ngsidict
 ===========================
 
 .. automodule:: ngsildclient.model.ngsidict
@@ -17,7 +17,7 @@
 
    .. autosummary::
    
-      Attr
+      NgsiDict
    
    
 

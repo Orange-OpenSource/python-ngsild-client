@@ -22,7 +22,7 @@ from functools import partialmethod
 from dataclasses import dataclass
 
 from datetime import datetime
-from typing import overload, Any, Union, List, Tuple, Optional, Callable
+from typing import overload, Any, Union, List, Tuple, Optional, Callable, Mapping
 from rich import print_json
 from scalpl import Cut
 
@@ -407,22 +407,22 @@ class Entity:
     def relationships(self) -> List[Tuple[str, str]]:
         r: List[Tuple[str, str]] = []
         for k, v in self._payload.items():
-            if isinstance(v, dict) and v.get("type") == "Relationship":
+            if isinstance(v, Mapping) and v.get("type") == "Relationship":
                 r.append((k, v.get("object")))
             elif isinstance(v, List):
                 for x in v:
-                    if isinstance(x, dict) and x.get("type") == "Relationship":
+                    if isinstance(x, Mapping) and x.get("type") == "Relationship":
                         r.append((k, x.get("object")))
         return r
 
     def __getitem__(self, item):
-        return self.wrapper.__getitem__(item)
+        return self._payload.__getitem__(item)
 
     def __setitem__(self, key, item):
-        self.wrapper.__setitem__(key, item)
+        self._payload.__setitem__(key, item)
 
     def __delitem__(self, key):
-        self.wrapper.__delitem__(key)
+        self._payload.__delitem__(key)
         return self
 
     def follow(self, relname: str):
@@ -505,7 +505,7 @@ class Entity:
         else:
             self._lastprop = self._payload[attrname] = property
 
-    def __ior__(self, prop: NgsiDict):
+    def __ior__(self, prop: Mapping):
         self._payload |= prop
         return self
 
@@ -646,7 +646,7 @@ class Entity:
     entity.loc((44, -8)) is a shorcut for entity.gprop("location", (44, -8))
     """
 
-    def tprop(self, name: str, value: NgsiDate = None, nested: bool = False) -> Entity:
+    def tprop(self, name: str, value: NgsiDate = iso8601.utcnow(), nested: bool = False) -> Entity:
         """Build a TemporalProperty.
 
         Build a TemporalProperty and attach it to the current entity.
@@ -757,72 +757,32 @@ class Entity:
     def __repr__(self):
         return self._payload.__repr__()
 
-    def to_dict(self, kv=False) -> NgsiDict:
+    def to_dict(self) -> NgsiDict:
         """Returns the entity as a dictionary.
 
         The returned type is NgsiDict, fully compatible with a native dict.
-
-        Parameters
-        ----------
-        kv : bool, optional
-            KeyValues format (aka simplified representation), by default False
 
         Returns
         -------
         NgsiDict
             The underlying native Python dictionary
         """
-        return self._to_keyvalues() if kv else self._payload
+        return self._payload.to_dict()
 
-    def _to_keyvalues(self) -> NgsiDict:
-        """Compute a NgsiDict that contains only the highest-level of information.
-
-        Returns
-        -------
-        NgsiDict
-            The simplified representation
-        """
-        d = NgsiDict()
-        for k, v in self._payload.items():
-            if isinstance(v, dict):
-                if v["type"] == AttrType.PROP.value:  # apply to Property and TemporalProperty
-                    value = v["value"]
-                    if isinstance(value, dict):
-                        value = value.get("@value", value)  # for Temporal Property only
-                    d[k] = value
-                elif v["type"] == AttrType.GEO.value:
-                    d[k] = v["value"]
-                elif v["type"] == AttrType.REL.value:
-                    d[k] = v["object"]
-            else:
-                d[k] = v
-        return d
-
-    def to_json(self, kv=False, *args, **kwargs) -> str:
+    def to_json(self, *args, **kwargs) -> str:
         """Returns the entity as JSON.
-
-        Parameters
-        ----------
-        kv : bool, optional
-            KeyValues format (aka simplified representation), by default False
 
         Returns
         -------
         str
             The JSON content
         """
-        payload: NgsiDict = self.to_dict(kv)
-        return payload.to_json(*args, **kwargs)
+        return self._payload.to_json(*args, **kwargs)
 
-    def pprint(self, kv=False, *args, **kwargs):
+    def pprint(self, *args, **kwargs):
         """Pretty-print the entity to the standard ouput.
-
-        Parameters
-        ----------
-        kv : bool, optional
-            KeyValues format (aka simplified representation), by default False
         """
-        Entity.globalsettings.f_print(self.to_json(kv, indent=2, *args, **kwargs))
+        Entity.globalsettings.f_print(self.to_json(indent=2, *args, **kwargs))
 
     @classmethod
     def load(cls, filename: str):
@@ -961,7 +921,8 @@ class Entity:
             identation size (number of spaces), by default 2
         """
         with open(filename, "w") as fp:
-            json.dump(self._payload, fp, default=str, ensure_ascii=False, indent=indent)
+            json.dump(self._payload, fp, ensure_ascii=False, indent=indent,
+                default = lambda x: x.data if isinstance(x, NgsiDict) else str)
 
     async def save_async(self, filename: str, *, indent: int = 2):
         """Save the entity to a file.
@@ -974,7 +935,8 @@ class Entity:
             identation size (number of spaces), by default 2
         """
         async with aiofiles.open(filename, "w") as fp:
-            payload = json.dumps(self._payload, default=str, ensure_ascii=False, indent=indent)
+            payload = json.dumps(self._payload, ensure_ascii=False, indent=indent,
+                default = lambda x: x.data if isinstance(x, NgsiDict) else str)
             await fp.write(payload)
 
     @classmethod
@@ -998,7 +960,8 @@ class Entity:
         """
         payload = [x._payload for x in entities]
         with open(filename, "w") as fp:
-            json.dump(payload, fp, default=str, ensure_ascii=False, indent=indent)
+            json.dump(payload, fp, ensure_ascii=False, indent=indent,
+                default = lambda x: x.data if isinstance(x, NgsiDict) else str)
 
     @classmethod
     async def save_batch_async(cls, entities: List[Entity], filename: str, *, indent: int = 2):
@@ -1021,5 +984,6 @@ class Entity:
         """
         payload = [x._payload for x in entities]
         async with aiofiles.open(filename, "w") as fp:
-            payload = json.dumps(payload, default=str, ensure_ascii=False, indent=indent)
+            payload = json.dumps(payload, ensure_ascii=False, indent=indent,
+                default = lambda x: x.data if isinstance(x, NgsiDict) else str)
             await fp.write(payload)

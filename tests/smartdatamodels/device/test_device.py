@@ -51,7 +51,6 @@ def test_device():
     e.prop("direction", "Outlet")
 
     assert e.to_dict() == expected_dict("device")
-    assert e.to_dict(kv=True) == expected_dict("device.kv")
 
 
 def test_devicemodel():
@@ -75,4 +74,3 @@ def test_devicemodel():
     e.prop("controlledProperty", ["fillingLevel", "temperature"])
 
     assert e.to_dict() == expected_dict("device_model")
-    assert e.to_dict(kv=True) == expected_dict("device_model.kv")

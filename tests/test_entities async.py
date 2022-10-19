@@ -72,7 +72,7 @@ async def test_api_retrieve(httpx_mock: HTTPXMock):
         url="http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
         match_headers={"Accept": "application/ld+json"},
         status_code=200,
-        json=sample_entity.to_dict(),
+        text=sample_entity.to_json(),
     )
     client = AsyncClient()
     res = await client.entities.get("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
@@ -109,7 +109,7 @@ async def test_api_exists(httpx_mock: HTTPXMock):
         method="GET",
         url="http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
         status_code=200,
-        json=sample_entity.to_dict(),
+        text=sample_entity.to_json(),
     )
     client = AsyncClient()
     res = await client._entities.exists("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")

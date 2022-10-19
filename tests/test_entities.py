@@ -64,7 +64,7 @@ def test_api_retrieve(mocked_connected, requests_mock):
         "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
         request_headers={"Accept": "application/ld+json"},
         status_code=200,
-        json=sample_entity.to_dict(),
+        text=sample_entity.to_json(),
     )
     client = Client()
     res = client.entities.get("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
@@ -98,7 +98,7 @@ def test_api_exists(mocked_connected, requests_mock):
         "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
         request_headers={"Accept": "application/ld+json"},
         status_code=200,
-        json=sample_entity.to_dict(),
+        text=sample_entity.to_json(),
     )
     client = Client()
     res = client._entities.exists("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")

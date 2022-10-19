@@ -38,7 +38,8 @@ class Entities:
     @rfc7807_error_handle_async
     async def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> bool:
         headers = {"Content-Type": "application/ld+json"}
-        r: Response = await self._client.client.post(url=f"{self.url}/", headers=headers, json=entity._payload)
+        r: Response = await self._client.client.post(url=f"{self.url}/", headers=headers, 
+            data=entity.to_json())
         if r.status_code == 409:  # already exists
             if skip:
                 return False

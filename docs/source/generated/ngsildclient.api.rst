@@ -35,8 +35,10 @@
    ngsildclient.api.contexts
    ngsildclient.api.entities
    ngsildclient.api.exceptions
+   ngsildclient.api.follow
    ngsildclient.api.helper
    ngsildclient.api.subscriptions
    ngsildclient.api.temporal
+   ngsildclient.api.temporal_alt
    ngsildclient.api.types
 

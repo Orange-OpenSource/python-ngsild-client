@@ -1,4 +1,4 @@
-﻿ngsildclient.model.constants
+ngsildclient.model.constants
 ============================
 
 .. automodule:: ngsildclient.model.constants
