@@ -27,6 +27,7 @@ ngsildclient.model.constants
       AttrValue
       GeometryMetaAttr
       GeometryType
+      MultAttr
       Rel
       SmartDataModels
       TemporalType

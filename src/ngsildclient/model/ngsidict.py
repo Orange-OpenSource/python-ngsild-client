@@ -10,25 +10,30 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from collections import MutableMapping
 
-import ngsildclient.model.entity as entity
+from typing import Any, List, Literal, TYPE_CHECKING
 
-from typing import Any, Union, List
+if TYPE_CHECKING:
+    from ngsildclient.model.attr.prop import AttrProp
+    from ngsildclient.model.attr.geo import AttrGeo
+    from ngsildclient.model.attr.temporal import AttrTemporal
+    from ngsildclient.model.attr.rel import AttrRel
+    from ngsildclient.model.entity import Entity
+
+from collections.abc import MutableMapping, Mapping
+
 from datetime import datetime
-from geojson import Point, LineString, Polygon, MultiPoint
 from scalpl import Cut
 
 from ..utils import iso8601, url
-from ..utils.urn import Urn
 from .constants import *
 from .exceptions import *
+from ngsildclient.settings import globalsettings
 
 import json
 
 """This module contains the definition of the NgsiDict class.
 """
-
 
 class NgsiDict(Cut, MutableMapping):
     """This class is a custom dictionary that backs an entity.
@@ -42,17 +47,22 @@ class NgsiDict(Cut, MutableMapping):
     model.Entity
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, data: dict = None, name: str = None):
+        super().__init__(data)
+        self.name = name
+
+    def is_root(self) -> bool:
+        return self.get("@context") is not None
 
     def __getitem__(self, path: str):
-        r = super().__getitem__(path)
-        if isinstance(r, dict) and not isinstance(r, NgsiDict):
-            r = NgsiDict(r)
-        return r
+        item = super().__getitem__(path)
+        if isinstance(item, Mapping) and not isinstance(item, NgsiDict):
+            from ngsildclient.model.attr.factory import AttrFactory
+            return AttrFactory.create(item)
+        return item
 
     def __repr__(self):
-        return dict.__repr__(self.data)
+        return self.data.__repr__()
 
     def __ior__(self, prop: Mapping):
         prop = prop.data if isinstance(prop, NgsiDict) else prop
@@ -61,17 +71,15 @@ class NgsiDict(Cut, MutableMapping):
 
     @property
     def value(self):
-        if self["type"] == "Relationship":
-            return self["object"]
-        else:
-            return self["value"]
+        raise NotImplementedError()
 
     @value.setter
     def value(self, v: Any):
-        if self["type"] == "Relationship":
-            self["object"] = v
-        else:
-            self["value"] = v     
+        raise NotImplementedError()
+
+    @property
+    def type(self) -> Literal["Property", "GeoProperty", "TemporalProperty", "Relationship"]:
+        raise NotImplementedError()
 
     @classmethod
     def _from_json(cls, payload: str):
@@ -94,168 +102,82 @@ class NgsiDict(Cut, MutableMapping):
 
     def pprint(self, *args, **kwargs) -> None:
         """Returns the dict pretty-json-formatted"""
-        entity.Entity.globalsettings.f_print(self.to_json(indent=2, *args, **kwargs))
+        globalsettings.f_print(self.to_json(indent=2, *args, **kwargs))
 
     def _save(self, filename: str, indent=2):
         with open(filename, "w") as fp:
             json.dump(self, fp, ensure_ascii=False, indent=indent,
                 default = lambda x: x.data if isinstance(x, NgsiDict) else str)
 
-    def prop(self, name: str, value: AttrValue, **kwargs):
-        if isinstance(value, List):
-            self[name] = NgsiDict._m__build_property(value, **kwargs)
-        else:
-            self[name] = NgsiDict._build_property(value, **kwargs)
-        return self[name]
-
-    def gprop(self, name: str, value: str, **kwargs):
-        self[name] = NgsiDict._build_geoproperty(value, **kwargs)
-        return self[name]
-
-    def tprop(self, name: str, value: str, **kwargs):
-        self[name] = NgsiDict._build_temporal_property(value, **kwargs)
-        return self[name]
-
-    def rel(self, name: str, value: str, **kwargs):
-        if isinstance(name, Rel):
-            name = name.value
-        self[name] = NgsiDict._build_relationship(value, **kwargs)
-        return NgsiDict(self[name])
-
-    @staticmethod
-    def _process_observedat(observedat):
-        date_str, temporaltype, _ = iso8601.parse(observedat)
-        if temporaltype != TemporalType.DATETIME:
-            raise NgsiDateFormatError(f"observedAt must be a DateTime : {date_str}")
-        return date_str
-
-    @staticmethod
-    def _build_property(
-        attrV: AttrValue,
-        *,
-        escape: bool = False,
-    ) -> NgsiDict:
-        property: NgsiDict = NgsiDict()
-        value = attrV.value
-        if isinstance(value, (int, float, bool, list, dict)):
-            v = value
-        elif isinstance(value, str):
-            v = url.escape(value) if escape else value
-        else:
-            raise NgsiUnmatchedAttributeTypeError(f"Cannot map {type(value)} to NGSI type. {value=}")
-        property["type"] = AttrType.PROP.value  # set type
-        property["value"] = v  # set value
-        if attrV.unitcode is not None:
-            property[META_ATTR_UNITCODE] = attrV.unitcode
-        if attrV.observedat is not None:
-            property[META_ATTR_OBSERVED_AT] = NgsiDict._process_observedat(attrV.observedat)
-        if attrV.datasetid is not None:
-            property[META_ATTR_DATASET_ID] = Urn.prefix(attrV.datasetid)
-        if attrV.userdata:
-            property |= attrV.userdata
-        return property
-
-    @staticmethod
-    def _m__build_property(
-        values: List[AttrValue],
-        *,
-        attrtype: AttrType = AttrType.PROP
-    ) -> NgsiDict:
-        attrkey = "object" if attrtype == AttrType.REL else "value"
-        property: List[NgsiDict] = []
-        for v in values:
-            if attrtype == AttrType.REL:
-                v.value = Urn.prefix(v.value.id) if isinstance(v.value, entity.Entity) else Urn.prefix(v.value)
-            p = NgsiDict()
-            p["type"] = attrtype.value
-            p[attrkey] = v.value
-            p[META_ATTR_DATASET_ID] = Urn.prefix(v.datasetid)            
-            if v.unitcode is not None:
-                p[META_ATTR_UNITCODE] = v.unitcode
-            if v.observedat is not None:
-                p[META_ATTR_OBSERVED_AT] = NgsiDict._process_observedat(v.observedat)
-            if v.userdata:
-                p |= v.userdata
-            property.append(p)
-        return property
-
-    @staticmethod
-    def _build_geoproperty(
-        value: NgsiGeometry,
-        observedat: Union[str, datetime] = None,
+    @classmethod
+    def prop(
+        cls,
+        name: str,
+        value: Any,
+        *,  # keyword-only arguments after this
         datasetid: str = None,
-    ) -> NgsiDict:
-        property: NgsiDict = NgsiDict()
-        property["type"] = AttrType.GEO.value  # set type
-        if isinstance(value, (Point, LineString, Polygon, MultiPoint)):
-            geometry = value
-        elif isinstance(value, tuple) and len(value) == 2:  # simple way for a location Point
-            lat, lon = value
-            geometry = Point((lon, lat))
-        else:
-            raise NgsiUnmatchedAttributeTypeError(f"Cannot map {type(value)} to NGSI type. {value=}")
-        property["value"] = geometry  # set value
-        if observedat is not None:
-            property[META_ATTR_OBSERVED_AT] = NgsiDict._process_observedat(observedat)
-        if datasetid is not None:
-            property[META_ATTR_DATASET_ID] = Urn.prefix(datasetid)
-        return property
-
-    @staticmethod
-    def _build_temporal_property(value: NgsiDate) -> NgsiDict:
-        property: NgsiDict = NgsiDict()
-        property["type"] = AttrType.TEMPORAL.value  # set type
-        date_str, temporaltype, dt = iso8601.parse(value)
-        v = {
-            "@type": temporaltype.value,
-            "@value": date_str,
-        }
-        property["value"] = v  # set value
-        return property
-
-    @staticmethod
-    def _build_relationship(
-        value: Union[str, List[str]],
         observedat: Union[str, datetime] = None,
-        datasetid: str = None,
+        unitcode: str = None,
         userdata: NgsiDict = None,
-    ) -> NgsiDict:
-        property: NgsiDict = NgsiDict()
-        property["type"] = AttrType.REL.value  # set type
-        if isinstance(value, List):
-            property["object"] = []
-            for v in value:
-                v = Urn.prefix(v.id) if isinstance(v, entity.Entity) else Urn.prefix(v)
-                property["object"].append(v)
+        escape: bool = False,
+        fq: bool = False
+    ) -> AttrProp:
+        from ngsildclient.model.attr.prop import AttrProp
+        if isinstance(value, MultAttr):
+            if len(value) == 0:
+                raise ValueError("MultAttr is empty")
+            p: List[AttrProp] = [AttrProp.build(v) for v in value]
         else:
-            property["object"] = Urn.prefix(value.id) if isinstance(value, entity.Entity) else Urn.prefix(value)
-        if observedat is not None:
-            property[META_ATTR_OBSERVED_AT] = NgsiDict._process_observedat(observedat)
-        if datasetid is not None:
-            property[META_ATTR_DATASET_ID] = Urn.prefix(datasetid)
-            if userdata:
-                property |= userdata
-        return property
-
-    # the methods below build named properties without attaching to the root dictionary
+            value = url.escape(value) if escape and isinstance(value, str) else value
+            attrvalue = AttrValue(value, datasetid, observedat, unitcode, userdata)
+            p = AttrProp.build(attrvalue)
+        return {name: p} if fq else p
 
     @classmethod
-    def _mkprop(cls, name: str, *args, **kwargs):
-        attrV = AttrValue(*args, **kwargs)
-        v = cls().prop(name, attrV)
-        return NgsiDict({name: v})
+    def gprop(
+        cls,
+        name: str,
+        value: NgsiGeometry,
+        *,  # keyword-only arguments after this
+        datasetid: str = None,
+        observedat: Union[str, datetime] = None,
+        fq: bool = False
+    ) -> AttrGeo:
+        from ngsildclient.model.attr.geo import AttrGeo
+        attrvalue = AttrValue(value, datasetid, observedat)
+        p = AttrGeo.build(attrvalue)
+        return {name: p} if fq else p
 
     @classmethod
-    def _mktprop(cls, name: str, *args, **kwargs):
-        v = cls().tprop(name, *args, **kwargs)
-        return NgsiDict({name: v})
+    def tprop(
+        cls,
+        name: str,
+        value: NgsiDate = iso8601.utcnow(),
+        *,  # keyword-only arguments after this
+        fq: bool = False
+    ) -> AttrTemporal:
+        from ngsildclient.model.attr.temporal import AttrTemporal
+        attrvalue = AttrValue(value)
+        p = AttrTemporal.build(attrvalue)
+        return {name: p} if fq else p
 
     @classmethod
-    def _mkgprop(cls, name, *args, **kwargs):
-        v = cls().gprop(name, *args, **kwargs)
-        return NgsiDict({name: v})
-
-    @classmethod
-    def _mkrel(cls, name, *args, **kwargs):
-        v = cls().rel(name, *args, **kwargs)
-        return NgsiDict({name: v})
+    def rel(
+        cls,
+        name: str,
+        value: Union[str, List[str], Entity, List[Entity]],
+        *,  # keyword-only arguments after this
+        datasetid: str = None,
+        observedat: Union[str, datetime] = None,
+        fq: bool = False
+    ) -> AttrRel:
+        from ngsildclient.model.attr.rel import AttrRel
+        if isinstance(value, MultAttr):
+            if len(value) == 0:
+                raise ValueError("MultAttr is empty")
+            p: List[AttrRel] = [AttrRel.build(v.id if hasattr(v, "id") else v) for v in value]
+        else:
+            value = value.id if hasattr(value, "id") else value
+            attrvalue = AttrValue(value, datasetid, observedat)
+            p = AttrRel.build(attrvalue)
+        return {name: p} if fq else p

@@ -27,7 +27,7 @@ from .constants import BATCHSIZE
 from ngsildclient.utils.console import Console, MsgLvl
 from .exceptions import NgsiApiError, rfc7807_error_handle
 from ..model.entity import Entity
-from ngsildclient.model.serializer import NgsiEncoder
+from ngsildclient.model.utils import NgsiEncoder
 
 BatchOp = Literal["create", "upsert", "update", "delete"]
 

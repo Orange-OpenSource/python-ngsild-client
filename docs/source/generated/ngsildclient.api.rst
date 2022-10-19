@@ -1,4 +1,4 @@
-﻿ngsildclient.api
+ngsildclient.api
 ================
 
 .. automodule:: ngsildclient.api

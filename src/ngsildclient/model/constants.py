@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Union, Sequence, TYPE_CHECKING, Any
+from typing import Union, Sequence, TYPE_CHECKING, Any, Iterable, List
 from datetime import datetime, date, time, timezone
 from zoneinfo import ZoneInfo
 from geojson import Point, LineString, Polygon
@@ -47,8 +47,6 @@ META_ATTR_UNITCODE = "unitCode"
 META_ATTR_OBSERVED_AT = "observedAt"
 META_ATTR_DATASET_ID = "datasetId"
 
-NESTED = True
-
 TZ_UTC = timezone.utc
 TZ_WET = ZoneInfo("WET")  # UTC+1 i.e. Europe/Lisbon
 TZ_CET = ZoneInfo("CET")  # UTC+2 i.e. Europe/Paris
@@ -63,6 +61,31 @@ class AttrValue:
     unitcode: str = None
     userdata: dict = field(default_factory=dict)
 
+@dataclass
+class MultAttr(Iterable[AttrValue]):
+    datasetid: str = None
+    observedat: Union[str, datetime] = None
+    unitcode: str = None
+    userdata: dict = field(default_factory=dict)
+    attrvalues: List[AttrValue] = field(default_factory=list)
+
+    def add(self, value: Any, datasetid: str = None, observedat: Union[str, datetime] = None, unitcode: str = None, userdata: dict = {}):
+        if hasattr(value, "id"):
+            value = value.id
+        attrvalue = AttrValue(value)
+        attrvalue.datasetid = datasetid if datasetid else self.datasetid
+        attrvalue.observedat = observedat if observedat else self.observedat
+        attrvalue.unitcode = unitcode if unitcode else self.unitcode
+        attrvalue.userdata = userdata if userdata else self.userdata
+        self.attrvalues.append(attrvalue)
+        return self
+
+    def __iter__(self):
+        return iter(self.attrvalues)
+
+    def __len__(self):
+        return len(self.attrvalues)
+        
 
 class Rel(Enum):
     HAS_PART = "hasPart"

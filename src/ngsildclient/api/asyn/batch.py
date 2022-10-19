@@ -22,7 +22,7 @@ from ..constants import BATCHSIZE
 from ..exceptions import NgsiApiError, rfc7807_error_handle_async
 from ..batch import BatchResult
 from ...model.entity import Entity
-from ngsildclient.model.serializer import NgsiEncoder
+from ngsildclient.model.utils import NgsiEncoder
 
 logger = logging.getLogger(__name__)
 

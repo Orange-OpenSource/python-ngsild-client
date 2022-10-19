@@ -26,7 +26,7 @@ import networkx as nx
 from ngsildclient import __version__ as __version__
 from ..utils import is_interactive
 from ..utils.urn import Urn
-from ..model.entity import Entity
+from ngsildclient import Entity
 from .constants import *
 from .entities import Entities
 from .batch import Batch, BatchResult

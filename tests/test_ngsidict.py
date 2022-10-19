@@ -14,48 +14,57 @@ import pytest
 from datetime import datetime, date, time, timezone
 from geojson import Point
 
+from ngsildclient.model.entity import Entity
 from ngsildclient.model.ngsidict import NgsiDict
 from ngsildclient.model.constants import AttrValue
 
+def test_type():
+    d = {"@context": ["https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"],
+        "id": "urn:ngsi-ld:Barn:Barn001",
+        "type": "Barn",
+        "fillingLevel": {"type": "Property", "value": 0.6}}
+    e = Entity(payload=d)
+    prop = e["fillingLevel"]
+    assert prop.type == "Property"
 
 def test_prop():
-    p = NgsiDict()._build_property(AttrValue(22))
+    p = NgsiDict()._build_single(AttrValue(22))
     assert p == {"type": "Property", "value": 22}
 
 
 def test_prop_string():
-    p = NgsiDict()._build_property(AttrValue(r"A<>\"'=;()Z"))
+    p = NgsiDict()._build_single(AttrValue(r"A<>\"'=;()Z"))
     assert p == {"type": "Property", "value": r"A<>\"'=;()Z"}
 
 
 def test_prop_string_escaped():
-    p = NgsiDict()._build_property(AttrValue(r"A<>\"'=;()Z"), escape=True)
+    p = NgsiDict()._build_single(AttrValue(r"A<>\"'=;()Z"), escape=True)
     assert p == {"type": "Property", "value": r"A%3C%3E%5C%22%27%3D%3B%28%29Z"}
 
 
 def test_prop_with_meta_unitcode():
     attrV = AttrValue(22, unitcode="GP")
-    p = NgsiDict()._build_property(attrV)
+    p = NgsiDict()._build_single(attrV)
     assert p == {"type": "Property", "unitCode": "GP", "value": 22}
 
 
 def test_prop_with_meta_timestamp():
     attrV = AttrValue(22, observedat=datetime(2021, 8, 31, 12, tzinfo=timezone.utc))
-    p = NgsiDict()._build_property(attrV)
+    p = NgsiDict()._build_single(attrV)
     assert p == {"observedAt": "2021-08-31T12:00:00Z", "type": "Property", "value": 22}
 
 
 def test_prop_with_meta_userdata():
     attrV = AttrValue(22, userdata={"accuracy": 0.95})
-    p = NgsiDict()._build_property(attrV)
+    p = NgsiDict()._build_single(attrV)
     assert p == {"accuracy": 0.95, "type": "Property", "value": 22}
 
 
 def test_prop_with_nested_property():
     nd = NgsiDict()
-    p = nd._build_property(
+    p = nd._build_single(
         AttrValue(22, unitcode="GP", \
-            userdata={"accuracy": nd._build_property(AttrValue(0.95))})
+            userdata={"accuracy": nd._build_single(AttrValue(0.95))})
     )
     assert p == {
         "type": "Property",

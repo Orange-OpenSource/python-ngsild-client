@@ -36,5 +36,6 @@
    ngsildclient.api
    ngsildclient.exceptions
    ngsildclient.model
+   ngsildclient.settings
    ngsildclient.utils
 

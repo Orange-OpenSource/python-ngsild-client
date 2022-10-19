@@ -17,18 +17,18 @@ __version__ = "0.5.0"
 
 from .utils import iso8601, is_interactive
 from .utils.uuid import shortuuid
-from .model.entity import Entity, AttrValue, mkprop, mktprop, mkgprop, mkrel
+from .model.entity import Entity, mkprop, mktprop, mkgprop, mkrel
 from .model.helper.postal import PostalAddressBuilder
 from .model.helper.openinghours import OpeningHoursBuilder
 from .model.constants import (
     CORE_CONTEXT,
-    NESTED,
     SmartDataModels,
     Rel,
     TZ_UTC,
     TZ_WET,
     TZ_CET,
     TZ_FET,
+    MultAttr
 )
 from .model.mock import MockerNgsi
 from .api.client import Client
@@ -42,21 +42,21 @@ from .api.exceptions import NgsiApiError, NgsiContextBrokerError, NgsiAlreadyExi
 __all__ = [
     "iso8601",
     "shortuuid",
+    "mkprop",
+    "mkgprop",
+    "mktprop",
+    "mkrel",
     "Entity",
     "AttrValue",
-    "mkprop",
-    "mktprop",
-    "mkgprop",
-    "mkrel",
     "PostalAddressBuilder",
     "OpeningHoursBuilder",
     "CORE_CONTEXT",
-    "NESTED",
     "Rel",
     "TZ_UTC",
     "TZ_WET",
     "TZ_CET",
     "TZ_FET",
+    "MultAttr",
     "MockerNgsi",
     "Client",
     "AsyncClient",

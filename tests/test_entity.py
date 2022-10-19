@@ -14,7 +14,6 @@ import json
 from pytest import fixture
 
 from datetime import datetime, timezone
-from ngsildclient.model.constants import NESTED
 from ngsildclient.model.entity import *
 from ngsildclient.model.helper.postal import PostalAddressBuilder
 
@@ -60,21 +59,29 @@ def test_constructor_id_only():
     assert e.type == "AirQualityObserved"  # infered from id
     assert e.id == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"
 
-def test_mkprop():
-    p = mkprop("CO2", 33, unitcode="GP")
-    assert p == {"CO2": {"type": "Property", "value": 33, "unitCode": "GP"}}
+def test_simple_prop():
+    e = Entity("Barn", "Barn001")
+    e.prop("fillingLevel", 0.6).prop("accuracy", 0.9, nested=True)
+    assert e.to_dict() == {"@context": ["https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"],
+    "id": "urn:ngsi-ld:Barn:Barn001",
+    "type": "Barn",
+    "fillingLevel": {"type": "Property", "value": 0.6, "accuracy": {"type": "Property", "value": 0.9}}}
 
-def test_mktprop():
-    p = mktprop("dateObserved", "2018-08-07T12:00:00Z")
-    assert p == {"dateObserved": {"type": "Property", "value": {"@type": "DateTime", "@value": "2018-08-07T12:00:00Z"}}}
+# def test_mkprop():
+#     p = mkprop("CO2", 33, unitcode="GP")
+#     assert p == {"CO2": {"type": "Property", "value": 33, "unitCode": "GP"}}
 
-def test_mkgprop():
-    p = mkgprop("location", (1.0 ,2.0))
-    assert p == {"location": {"type": "GeoProperty", "value": {"coordinates": [2.0, 1.0], "type": "Point"}}}
+# def test_mktprop():
+#     p = mktprop("dateObserved", "2018-08-07T12:00:00Z")
+#     assert p == {"dateObserved": {"type": "Property", "value": {"@type": "DateTime", "@value": "2018-08-07T12:00:00Z"}}}
 
-def test_mkrel():
-    p = mkrel("hasObject", "Object:Object1")
-    assert p == {'hasObject': {'type': 'Relationship', 'object': 'urn:ngsi-ld:Object:Object1'}}
+# def test_mkgprop():
+#     p = mkgprop("location", (1.0 ,2.0))
+#     assert p == {"location": {"type": "GeoProperty", "value": {"coordinates": [2.0, 1.0], "type": "Point"}}}
+
+# def test_mkrel():
+#     p = mkrel("hasObject", "Object:Object1")
+#     assert p == {'hasObject': {'type': 'Relationship', 'object': 'urn:ngsi-ld:Object:Object1'}}
 
 
 def test_air_quality(expected_air_quality):
@@ -128,7 +135,7 @@ def test_air_quality_with_nested_prop_1_lvl():
     """
     e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))
-    e.prop("NO2", 22, unitcode="GP").prop("accuracy", 0.95, NESTED)
+    e.prop("NO2", 22, unitcode="GP").prop("accuracy", 0.95, nested=True)
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
     assert e.to_dict() == expected_dict("air_quality_with_nested_prop_1_lvl")
 
@@ -136,7 +143,7 @@ def test_air_quality_with_nested_prop_1_lvl():
 def test_air_quality_with_nested_prop_2_lvl():
     e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))
-    e.prop("NO2", 22, unitcode="GP").prop("qc", "checked", NESTED).prop(
+    e.prop("NO2", 22, unitcode="GP").prop("qc", "checked", nested=True).prop(
         "status", "discarded", nested=True
     )
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
@@ -146,9 +153,9 @@ def test_air_quality_with_nested_prop_2_lvl():
 def test_air_quality_with_nested_prop_3_lvl():
     e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
     e.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))
-    e.prop("NO2", 22, unitcode="GP").prop("qc", "checked", NESTED).prop(
-        "status", "passed", NESTED
-    ).prop("reliability", 0.95, NESTED)
+    e.prop("NO2", 22, unitcode="GP").prop("qc", "checked", nested=True).prop(
+        "status", "passed", nested=True
+    ).prop("reliability", 0.95, nested=True)
     e.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
     assert e.to_dict() == expected_dict("air_quality_with_nested_prop_3_lvl")
 
@@ -219,26 +226,26 @@ def test_vehicle():
         "isParked",
         "OffStreetParking:Downtown1",
         observedat=datetime(2017, 7, 29, 12, 0, 4, tzinfo=timezone.utc),
-    ).rel("providedBy", "Person:Bob", NESTED)
+    ).rel("providedBy", "Person:Bob", nested=True)
     assert e.to_dict() == expected_dict("vehicle")
 
-def test_vehicle_multiple_attribute():
-    """Build a sample Vehicle Entity
+# def test_vehicle_multiple_attribute():
+#     """Build a sample Vehicle Entity
 
-    .. _NGSI-LD Specification
-    Context Information Management (CIM) ; NGSI-LD API []ETSI GS CIM 009 V1.1.1 (2019-01)]
+#     .. _NGSI-LD Specification
+#     Context Information Management (CIM) ; NGSI-LD API []ETSI GS CIM 009 V1.1.1 (2019-01)]
 
-    """
-    e = Entity("Vehicle", "A4567")
-    speed1 = AttrValue(55.0, datasetid="Property:speedometerA4567-speed", userdata=mkprop("source", "Speedometer"))
-    speed2 = AttrValue(54.5, datasetid="Property:gpsBxyz123-speed", userdata=mkprop("source", "GPS"))
-    e.prop("speed", [speed1, speed2])
-    e.context=[ { "Vehicle": "http://example.org/Vehicle",
-                "speed": "http://example.org/speed",
-                "source": "http://example.org/hasSource" },
-            "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.5.jsonld"
-        ]
-    assert e.to_dict() == expected_dict("vehicle_multiple_attribute")
+#     """
+#     e = Entity("Vehicle", "A4567")
+#     speed1 = AttrValue(55.0, datasetid="Property:speedometerA4567-speed", userdata=mkprop("source", "Speedometer"))
+#     speed2 = AttrValue(54.5, datasetid="Property:gpsBxyz123-speed", userdata=mkprop("source", "GPS"))
+#     e.prop("speed", [speed1, speed2])
+#     e.context=[ { "Vehicle": "http://example.org/Vehicle",
+#                 "speed": "http://example.org/speed",
+#                 "source": "http://example.org/hasSource" },
+#             "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.5.jsonld"
+#         ]
+#     assert e.to_dict() == expected_dict("vehicle_multiple_attribute")
 
 
 def test_parking():
@@ -277,19 +284,19 @@ def test_shelf_1_1_relationship():
         .prop("statusOfWork", "completed")
     assert e.to_dict() == expected_dict("shelf_1_1_relationship")
 
-def test_shelf_1_1_relationship_alt():
-    ctx = ["https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"]
-    e = Entity("Shelf", "unit001", ctx=ctx)
-    e.loc((52.554699,13.3986112))
-    e.prop("name", "Corner Unit").prop("maxCapacity", 50)
-    e.rel("stocks", "Product:001")
-    e.prop("numberOfItems", 50)
-    e.rel("locatedIn", "Building:store001")
-    located_in: NgsiDict = e["locatedIn"]
-    located_in.rel("requestedBy", "bob-the-manager")
-    located_in.rel("installedBy", "Person:employee001")
-    located_in.prop("statusOfWork", AttrValue("completed"))
-    assert e.to_dict() == expected_dict("shelf_1_1_relationship")    
+# def test_shelf_1_1_relationship_alt():
+#     ctx = ["https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"]
+#     e = Entity("Shelf", "unit001", ctx=ctx)
+#     e.loc((52.554699,13.3986112))
+#     e.prop("name", "Corner Unit").prop("maxCapacity", 50)
+#     e.rel("stocks", "Product:001")
+#     e.prop("numberOfItems", 50)
+#     e.rel("locatedIn", "Building:store001")
+#     located_in: NgsiDict = e["locatedIn"]
+#     located_in.rel("requestedBy", "bob-the-manager")
+#     located_in.rel("installedBy", "Person:employee001")
+#     located_in.build("statusOfWork", AttrValue("completed"))
+#     assert e.to_dict() == expected_dict("shelf_1_1_relationship")    
 
 def test_store_1_many_relationship():
     ctx = ["https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"]
@@ -298,7 +305,7 @@ def test_store_1_many_relationship():
     addr = PostalAddressBuilder().street("Bornholmer Straße 65").region("Berlin") \
         .locality("Prenzlauer Berg").postalcode("10439") \
         .build()
-    e.prop("address", addr).prop("verified", True, NESTED)
+    e.prop("address", addr).prop("verified", True, nested=True)
     e.loc((52.5547,13.3986)).prop("name", "Bösebrücke Einkauf")
     shelf1 = AttrValue("Shelf001", datasetid="Relationship:1")
     shelf2 = AttrValue("Shelf002", datasetid="Relationship:2")

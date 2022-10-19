@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import re
 
-from typing import TYPE_CHECKING, Union, Optional
+from typing import Union, Optional, Literal, Tuple
 from datetime import datetime, date, time, timezone
 from contextlib import suppress
 from ngsildclient.model.constants import TemporalType
@@ -158,6 +158,30 @@ def _from_string(value: str) -> tuple[str, TemporalType, datetime]:
             datetime.strptime(value, "%H:%M:%SZ")
             return value, TemporalType.TIME, None
     raise ValueError(f"Bad date format : {value}")
+
+def from_string(type: Literal["DateTime", "Date", "Time"], value: str) -> Union[datetime, date, time]:
+    with suppress(ValueError):
+        if type == "DateTime":
+            return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+        if type == "Date":
+            return datetime.strptime(value, "%Y-%m-%d")
+        if type == "Time":
+            return datetime.strptime(value, "%H:%M:%SZ")
+    raise ValueError(f"Bad date format : {value}")
+
+def to_string(dt: Union[datetime, date, time]) -> Tuple[str, str]:
+    if isinstance(dt, datetime):
+        type = "DateTime"
+        value = from_datetime(dt)
+    elif isinstance(dt, date):
+        type = "Date"
+        value = from_date(dt)
+    elif isinstance(dt, time):
+        type = "Time"
+        value = from_time(dt)
+    else:
+        raise ValueError(f"Bad date format : {dt}")
+    return type, value
 
 
 def parse(value: Union[datetime, date, time, str]) -> tuple[str, TemporalType, datetime]:

@@ -1,7 +1,7 @@
-ngsildclient.model.entity
-=========================
+ngsildclient.settings
+=====================
 
-.. automodule:: ngsildclient.model.entity
+.. automodule:: ngsildclient.settings
 
    
    
@@ -17,7 +17,7 @@ ngsildclient.model.entity
 
    .. autosummary::
    
-      Entity
+      Settings
    
    
 
