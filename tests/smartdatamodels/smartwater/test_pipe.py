@@ -14,7 +14,7 @@ import json
 
 from geojson import MultiPoint
 from ngsildclient.model.entity import Entity
-from ngsildclient.model.constants import NESTED, Rel
+from ngsildclient.model.constants import Rel
 
 def expected_dict(basename: str) -> dict:
     filename: str = pkg_resources.resource_filename(
@@ -35,14 +35,14 @@ def test_pipe():
     e.prop("description", "Free Text")
     e.prop("diameter", 203, unitcode="MMT")
     e.rel("endsAt", "Reservoir:1863179e-3768-4480-9167-ff21f870dd19")
-    e.prop("flow", 20, unitcode="G51").rel(Rel.OBSERVED_BY, device, NESTED)
+    e.prop("flow", 20, unitcode="G51").rel(Rel.OBSERVED_BY, device, nested=True)
     e.prop("inititalStatus", "OPEN").prop("length", 52.9, unitcode="MTR")
     e.prop("minorLoss", 72.4549, unitcode="C62")
-    e.prop("quality", 0.5, unitcode="F27").rel(Rel.OBSERVED_BY, device, NESTED)
+    e.prop("quality", 0.5, unitcode="F27").rel(Rel.OBSERVED_BY, device, nested=True)
     e.prop("roughness", 72.4549, unitcode="C62")
     e.rel("startsAt", "Junction:63fe7d79-0d4c-4da9-b7d0-3340efa0656a")
     e.prop("status", "OPEN").prop("tag", "DMA1")
-    e.prop("velocity", 2, unitcode="MTS").rel(Rel.OBSERVED_BY, device, NESTED)
+    e.prop("velocity", 2, unitcode="MTS").rel(Rel.OBSERVED_BY, device, nested=True)
     e.gprop("vertices", MultiPoint([[(24.40623, 60.17966), (24.50623, 60.27966)]]))
     e.prop("wallCoeff", 72.4549, unitcode="RRC")
 

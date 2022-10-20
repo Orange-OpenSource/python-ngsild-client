@@ -269,7 +269,7 @@ class Entity:
                 raise NgsiMissingTypeError()
             if not payload.get("@context", None):
                 raise NgsiMissingContextError()
-            self.root = NgsiDict(payload)
+            self._lastprop = self.root = NgsiDict(payload)
             return
 
         # create a new Entity using its id and type
@@ -294,7 +294,7 @@ class Entity:
             id = Urn.prefix(id)  # set the prefix "urn:ngsi-ld:" if not already done
             urn = Urn(id)
 
-        self.root = NgsiDict({"@context": ctx, "id": urn.fqn, "type": type})
+        self._lastprop = self.root = NgsiDict({"@context": ctx, "id": urn.fqn, "type": type})
 
     @classmethod
     def from_dict(cls, payload: dict):
@@ -479,20 +479,16 @@ class Entity:
         return self
 
     def _update_entity(self, attrname: str, property: NgsiDict, nested: bool = False):
-        self._lastwasmulti = False
-        if isinstance(property, Sequence):
-            self._lastwasmulti = True
-            lastprop = self._lastprop if self._lastprop else self.root
-            lastprop[attrname] = property
-            return
+        ismulti = isinstance(property, Sequence)
         nested |= self._anchored
-        if nested and self._lastprop is not None:
+        if nested and not self._lastwasmulti:
             # update _lastprop only if not anchored
             self._lastprop[attrname] = property
             if not self._anchored:
                 self._lastprop = property
         else:
-            self._lastprop = self.root[attrname] = property            
+            self._lastprop = self.root[attrname] = property
+        self._lastwasmulti = ismulti        
 
     def __ior__(self, prop: Mapping):
         self.root |= prop
@@ -534,11 +530,10 @@ class Entity:
 
     def loc(self, *coord, **kwargs) -> Entity:
         if len(coord) == 1 and isinstance(coord, Tuple):
-                coord = coord[0]
+            coord = coord[0]
         if len(coord) == 2:
             return self.gprop("location", coord, **kwargs)
         raise ValueError("lat,lon tuple expected")
-
 
     """ A helper method to set the frequently used "location" geoproperty.
 

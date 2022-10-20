@@ -11,7 +11,7 @@
 
 import networkx as nx
 
-from ngsildclient import Entity, AttrValue
+from ngsildclient import Entity, MultAttr
 from .common import MockedClient
 
 def test_relationships():
@@ -30,9 +30,10 @@ def test_relationships_multi():
     d2 = Entity("D", "D2")
     a1.rel("hasB", b1)
     a1.rel("hasC", c1)
-    has_d1 = AttrValue("D:D1", datasetid="Relationship:1")
-    has_d2 = AttrValue("D:D2", datasetid="Relationship:2")
-    a1.rel("hasMultiD", [has_d1, has_d2])
+    m = MultAttr()
+    m.add(d1, datasetid="Relationship:1")
+    m.add(d2, datasetid="Relationship:2")
+    a1.rel("hasMultiD", m)
     assert a1.relationships == [
         ("hasB", "urn:ngsi-ld:B:B1"), 
         ("hasC", "urn:ngsi-ld:C:C1"), 
@@ -104,9 +105,10 @@ def test_graph_3():
     d1 = Entity("D", "D1")
     d2 = Entity("D", "D2")
     a1.rel("hasB", b1)
-    has_d1 = AttrValue("D:D1", datasetid="Relationship:1")
-    has_d2 = AttrValue("D:D2", datasetid="Relationship:2")    
-    a1.rel("hasMultiD", [has_d1, has_d2])
+    m = MultAttr()
+    m.add(d1, datasetid="Relationship:1")
+    m.add(d2, datasetid="Relationship:2")
+    a1.rel("hasMultiD", m)
     b1.rel("hasC", c1)
     c1.rel("hasA", a1)    
     client = MockedClient()
@@ -136,9 +138,10 @@ def test_graph_4():
     d2 = Entity("D", "D2")
     a1.rel("hasB", b1)
     a1.rel("hasC", c1) # 2 edges between A and C : A->C and C->A
-    has_d1 = AttrValue("D:D1", datasetid="Relationship:1")
-    has_d2 = AttrValue("D:D2", datasetid="Relationship:2")    
-    a1.rel("hasMultiD", [has_d1, has_d2])
+    m = MultAttr()
+    m.add(d1, datasetid="Relationship:1")
+    m.add(d2, datasetid="Relationship:2")
+    a1.rel("hasMultiD", m)
     b1.rel("hasC", c1)
     c1.rel("hasA", a1)    
     client = MockedClient()

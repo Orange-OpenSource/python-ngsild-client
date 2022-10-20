@@ -11,7 +11,7 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Literal, TYPE_CHECKING
+from typing import Any, List, Literal, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ngsildclient.model.attr.prop import AttrProp
@@ -29,6 +29,7 @@ from ..utils import iso8601, url
 from .constants import *
 from .exceptions import *
 from ngsildclient.settings import globalsettings
+from ngsildclient.model.utils import tuple_to_point
 
 import json
 
@@ -137,13 +138,19 @@ class NgsiDict(Cut, MutableMapping):
     def gprop(
         cls,
         name: str,
-        value: NgsiGeometry,
+        value: Union[Tuple[float], NgsiGeometry],
         *,  # keyword-only arguments after this
         datasetid: str = None,
         observedat: Union[str, datetime] = None,
         fq: bool = False
     ) -> AttrGeo:
         from ngsildclient.model.attr.geo import AttrGeo
+        if isinstance(value, Tuple):
+            if len(value) == 2:
+                lat, lon = value
+                value = Point((lon, lat))
+            else:
+                raise ValueError("lat, lon tuple expected")
         attrvalue = AttrValue(value, datasetid, observedat)
         p = AttrGeo.build(attrvalue)
         return {name: p} if fq else p

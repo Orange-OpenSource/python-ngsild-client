@@ -18,8 +18,9 @@ from ngsildclient.model.constants import TemporalType
 from ngsildclient.model.exceptions import NgsiDateFormatError
 
 from json import JSONEncoder
-from typing import Literal
+from typing import Literal, Tuple
 from collections.abc import Mapping
+from geojson import Point
 
 
 class NgsiEncoder(JSONEncoder):
@@ -62,3 +63,10 @@ def process_observedat(observedat):
     if temporaltype != TemporalType.DATETIME:
         raise NgsiDateFormatError(f"observedAt must be a DateTime : {date_str}")
     return date_str
+
+def tuple_to_point(*coord, **kwargs) -> Point:
+    if len(coord) == 1 and isinstance(coord, Tuple):
+            return Point(coord[0])
+    if len(coord) == 2:
+        return Point(coord)
+    raise ValueError("lat,lon tuple expected")     

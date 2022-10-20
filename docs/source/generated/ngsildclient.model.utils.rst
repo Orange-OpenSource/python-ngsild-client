@@ -1,4 +1,4 @@
-ngsildclient.model.utils
+﻿ngsildclient.model.utils
 ========================
 
 .. automodule:: ngsildclient.model.utils
@@ -14,6 +14,8 @@ ngsildclient.model.utils
    .. autosummary::
    
       guess_ngsild_type
+      process_observedat
+      tuple_to_point
    
    
 

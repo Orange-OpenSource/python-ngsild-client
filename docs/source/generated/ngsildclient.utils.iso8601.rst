@@ -1,4 +1,4 @@
-ngsildclient.utils.iso8601
+﻿ngsildclient.utils.iso8601
 ==========================
 
 .. automodule:: ngsildclient.utils.iso8601
@@ -16,8 +16,10 @@ ngsildclient.utils.iso8601
       extract
       from_date
       from_datetime
+      from_string
       from_time
       parse
+      to_string
       utcnow
    
    

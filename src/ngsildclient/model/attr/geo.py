@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from typing import Tuple
 import geojson
 from geojson import Point, LineString, Polygon, MultiPoint
 from geojson.geometry import Geometry
@@ -31,9 +32,12 @@ class AttrGeo(ngsidict.NgsiDict):
         return geojson.loads(str(self["value"]))
 
     @value.setter
-    def value(self, v: Geometry):
+    def value(self, v: Union[Tuple, Geometry]):
         if self["type"] != "GeoProperty":
             raise ValueError("Attribute type MUST be GeoProperty")
+        if isinstance(v, Tuple) and len(v) == 2:
+            lat, lon = v
+            v = Point((lon, lat))
         self["value"] = v
 
     @property
@@ -49,9 +53,6 @@ class AttrGeo(ngsidict.NgsiDict):
         value = attrV.value
         if isinstance(value, (Point, LineString, Polygon, MultiPoint)):
             geometry = value
-        elif isinstance(value, tuple) and len(value) == 2:  # simple way for a location Point
-            lat, lon = value
-            geometry = Point((lon, lat))
         else:
             raise NgsiUnmatchedAttributeTypeError(f"Cannot map {type(value)} to NGSI type. {value=}")
         property["type"] = AttrType.GEO.value

@@ -1,4 +1,4 @@
-ngsildclient.model.entity
+﻿ngsildclient.model.entity
 =========================
 
 .. automodule:: ngsildclient.model.entity
@@ -8,6 +8,15 @@ ngsildclient.model.entity
    
 
    
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      mkgprop
+      mkprop
+      mkrel
+      mktprop
    
    
 

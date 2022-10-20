@@ -43,7 +43,7 @@ def test_building():
     e.gprop("containedInPlace", polygon)
     e.prop("dataProvider", "OperatorA").prop("description", "Office block")
     e.prop("floorsAboveGround", 7).prop("floorsBelowGround", 0)
-    e.loc(polygon)
+    e.gprop("location", polygon)
     e.prop("mapUrl", "http://www.example.com")
     e.rel("occupier", "Person:9830f692-7677-11e6-838b-4f9fb3dc5a4f")
     e.prop(

@@ -11,12 +11,10 @@
 
 from __future__ import annotations
 
-from ...utils.urn import Urn
 from ..constants import *
 from ..exceptions import *
 
 import ngsildclient.model.ngsidict as ngsidict
-from ngsildclient.model.utils import process_observedat
 from ngsildclient.utils import iso8601
 
 class AttrTemporal(ngsidict.NgsiDict):

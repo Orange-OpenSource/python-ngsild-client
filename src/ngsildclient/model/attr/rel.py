@@ -30,7 +30,7 @@ class AttrRel(ngsildclient.model.ngsidict.NgsiDict):
     def value(self, v: str):
         if self["type"] != "Relationship":
             raise ValueError("Attribute type MUST be Relationship")
-        self["object"] = v
+        self["object"] = Urn.prefix(v)
 
     @property
     def type(self):
@@ -44,11 +44,13 @@ class AttrRel(ngsildclient.model.ngsidict.NgsiDict):
         property: AttrRel = cls()
         value = attrV.value
         if isinstance(value, str):
-            v = value
+            value = Urn.prefix(value)
+        elif isinstance(value, Sequence):
+            value = [Urn.prefix(v) for v in value]
         else:
             raise NgsiUnmatchedAttributeTypeError(f"Cannot map {type(value)} to NGSI type. {value=}")
         property["type"] = AttrType.REL.value  # set type
-        property["object"] = Urn.prefix(v)  # set value
+        property["object"] = value  # set value
         if attrV.observedat is not None:
             property[META_ATTR_OBSERVED_AT] = process_observedat(attrV.observedat)
         if attrV.datasetid is not None:
