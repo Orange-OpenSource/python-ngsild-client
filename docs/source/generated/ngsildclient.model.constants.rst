@@ -1,4 +1,4 @@
-ngsildclient.model.constants
+﻿ngsildclient.model.constants
 ============================
 
 .. automodule:: ngsildclient.model.constants
@@ -27,7 +27,7 @@ ngsildclient.model.constants
       AttrValue
       GeometryMetaAttr
       GeometryType
-      MultAttr
+      MultAttrValue
       Rel
       SmartDataModels
       TemporalType

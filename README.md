@@ -15,7 +15,7 @@
 
  **ngsildclient** is a Python library that helps building NGSI-LD entities and allows to interact with a NGSI-LD Context Broker.
 
- The library primary purpose is to ease and **speed up the development of a NGSI Agent**.
+ The library primary purpose is to ease and speed up the development of a NGSI Agent.
  
  It also can be of interest *especially in a Jupyter notebook or in an interactive interpreter* :
  - to **design new DataModels**
@@ -56,17 +56,22 @@ pip install ngsildclient
 
 ## Getting started
 
-The following code snippet builds a NGSI-LD entity related to a measure of air quality in Bordeaux then sends it to the Context Broker.
+The following code snippet builds the sample `OffstreetParking` Entity from the ETSI documentation.
+It assumes that a broker is running on your localhost.
 
 ```python
+from datetime import datetime
 from ngsildclient import Entity, Client
 
-e = Entity("AirQualityObserved", "Bordeaux-AirProbe42-2022-03-24T09:00:00Z")
-e.tprop("dateObserved").gprop("location", (44.84044, -0.5805))
-e.prop("PM25", 12, unitcode="GP").prop("PM10", 18, unitcode="GP")
-e.prop("NO2", 8, unitcode="GP").prop("O3", 83, unitcode="GP")
-e.rel("refDevice", "Device:AirProbe42")
-with Client() as client:
+PARKING_CONTEXT = "http://example.org/ngsi-ld/latest/parking.jsonld"
+
+e = Entity("OffStreetParking", "Downtown1")
+e.ctx.append(PARKING_CONTEXT) # add to the default core context
+e.prop("name", "Downtown One")
+e.prop("availableSpotNumber", 121, observedat=datetime(2017, 7, 29, 12, 5, 2)).anchor()
+e.prop("reliability", 0.7).rel("providedBy", "Camera:C1").unanchor()
+e.prop("totalSpotNumber", 200).loc(41.2, -8.5)
+with Client() as client: # localhost, default port, no authentication
     client.upsert(e)
 ```
 

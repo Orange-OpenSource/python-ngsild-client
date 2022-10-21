@@ -63,6 +63,17 @@ class NgsiDict(Cut, MutableMapping):
             return AttrFactory.create(item)
         return item
 
+    def get(self, path: str, default=None):
+        try:
+            item = super().__getitem__(path)
+        except (KeyError, IndexError) as error:
+            return default
+        if isinstance(item, Mapping) and not isinstance(item, NgsiDict):
+            from ngsildclient.model.attr.factory import AttrFactory
+            return AttrFactory.create(item)    
+        return item        
+
+
     def __repr__(self):
         return self.data.__repr__()
 

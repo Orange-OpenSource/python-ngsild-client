@@ -38,12 +38,12 @@ def test_parse_datetime():
 
 def test_parse_date():
     d = "2021-09-17"
-    assert iso8601.parse(d) == (d, TemporalType.DATE, None)
+    assert iso8601.parse(d) == (d, TemporalType.DATE, date(2021, 9, 17))
 
 
 def test_parse_time():
     d = "09:25:00Z"
-    assert iso8601.parse(d) == (d, TemporalType.TIME, None)
+    assert iso8601.parse(d) == (d, TemporalType.TIME, time(9,25))
 
 
 def test_parse_bad_format_bad_length():

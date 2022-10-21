@@ -11,11 +11,11 @@
 
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import Any
 
 import ngsildclient
 
-from ngsildclient.model.utils import process_observedat
+from ngsildclient.model.utils import process_observedat, iso8601
 from ...utils.urn import Urn
 from ..constants import *
 from ..exceptions import *
@@ -23,7 +23,11 @@ from ..exceptions import *
 class AttrProp(ngsildclient.model.ngsidict.NgsiDict):
 
     @property
-    def value(self):
+    def type(self):
+        return "Property"
+
+    @property
+    def value(self) -> Any:
         if self["type"] != "Property":
             raise ValueError("Attribute type MUST be Property")
         return self["value"]
@@ -35,8 +39,31 @@ class AttrProp(ngsildclient.model.ngsidict.NgsiDict):
         self["value"] = v
 
     @property
-    def type(self):
-        return "Property"
+    def observedat(self) -> datetime:
+        dt: str = self.get("observedAt")
+        if dt:
+            return iso8601.to_datetime(dt)
+        return
+
+    @observedat.setter
+    def observedat(self, dt: datetime):
+        self["observedAt"] = iso8601.from_datetime(dt)
+
+    @property
+    def unitcode(self) -> str:
+        return self.get("unitCode")
+
+    @unitcode.setter
+    def unitcode(self, unitcode: str):
+        self["unitcode"] = unitcode
+
+    @property
+    def datasetid(self) -> str:
+        return self.get("datasetId")
+
+    @datasetid.setter
+    def datasetid(self, datasetid: str):
+        self["datasetId"] = Urn.prefix(datasetid)
 
     @classmethod
     def build(

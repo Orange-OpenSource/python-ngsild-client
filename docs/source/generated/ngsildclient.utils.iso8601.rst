@@ -19,7 +19,10 @@
       from_string
       from_time
       parse
+      to_date
+      to_datetime
       to_string
+      to_time
       utcnow
    
    

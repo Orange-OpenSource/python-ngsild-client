@@ -12,7 +12,6 @@
 from __future__ import annotations
 
 import json
-from tkinter import N
 import requests
 import httpx
 import aiofiles
@@ -362,11 +361,11 @@ class Entity:
         self.root["type"] = etype
 
     @property
-    def context(self):
+    def ctx(self):
         return self.root["@context"]
 
-    @context.setter
-    def context(self, ctx: list):
+    @ctx.setter
+    def ctx(self, ctx: List):
         self.root["@context"] = ctx
 
     @property

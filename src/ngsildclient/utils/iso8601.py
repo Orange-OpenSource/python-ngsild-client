@@ -61,6 +61,8 @@ def from_datetime(value: datetime) -> str:
         value = value.astimezone(timezone.utc)
     return value.strftime("%Y-%m-%dT%H:%M:%SZ")
 
+def to_datetime(value: str) -> datetime:
+    return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
 
 def utcnow() -> str:
     """Converts the current UTC datetime to ISO8601-formatted string.
@@ -96,6 +98,8 @@ def from_date(value: date) -> str:
     """
     return value.strftime("%Y-%m-%d")
 
+def to_date(value: str) -> date:
+    return datetime.strptime(value, "%Y-%m-%d").date()
 
 def from_time(value: time) -> str:
     """Convert from time to ISO8601-formatted string.
@@ -120,6 +124,8 @@ def from_time(value: time) -> str:
     """
     return value.strftime("%H:%M:%SZ")
 
+def to_time(value: str) -> time:
+    return datetime.strptime(value, "%H:%M:%SZ").time()
 
 def _from_string(value: str) -> tuple[str, TemporalType, datetime]:
     """Guess the temporal date type from a given string.
@@ -149,24 +155,24 @@ def _from_string(value: str) -> tuple[str, TemporalType, datetime]:
     """
     with suppress(ValueError):
         if len(value) == 20:
-            dt = datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+            dt = to_datetime(value)
             return value, TemporalType.DATETIME, dt
         elif len(value) == 10:
-            datetime.strptime(value, "%Y-%m-%d")
-            return value, TemporalType.DATE, None
+            dt = to_date(value)
+            return value, TemporalType.DATE, dt
         elif len(value) == 9:
-            datetime.strptime(value, "%H:%M:%SZ")
-            return value, TemporalType.TIME, None
+            dt = to_time(value)
+            return value, TemporalType.TIME, dt
     raise ValueError(f"Bad date format : {value}")
 
 def from_string(type: Literal["DateTime", "Date", "Time"], value: str) -> Union[datetime, date, time]:
     with suppress(ValueError):
         if type == "DateTime":
-            return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+            return to_datetime(value)
         if type == "Date":
-            return datetime.strptime(value, "%Y-%m-%d")
+            return to_date(value)
         if type == "Time":
-            return datetime.strptime(value, "%H:%M:%SZ")
+            return to_time(value)
     raise ValueError(f"Bad date format : {value}")
 
 def to_string(dt: Union[datetime, date, time]) -> Tuple[str, str]:
@@ -218,9 +224,9 @@ def parse(value: Union[datetime, date, time, str]) -> tuple[str, TemporalType, d
     if isinstance(value, datetime):
         return from_datetime(value), TemporalType.DATETIME, value
     if isinstance(value, date):
-        return from_date(value), TemporalType.DATE, None
+        return from_date(value), TemporalType.DATE, value
     if isinstance(value, time):
-        return from_time(value), TemporalType.TIME, None
+        return from_time(value), TemporalType.TIME, value
     if isinstance(value, str):
         return _from_string(value)
     raise ValueError(f"Bad date format : {value}")
@@ -249,6 +255,7 @@ def extract(value: str) -> Optional[datetime]:
     if len(dates) < 1:
         return None
     try:
-        return datetime.strptime(dates[-1], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+        dt = to_datetime(dates[-1])
+        return dt.replace(tzinfo=timezone.utc)
     except ValueError:
         return None

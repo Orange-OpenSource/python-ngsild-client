@@ -255,7 +255,7 @@ def test_vehicle_multiple_attribute():
     m.add(55.0, datasetid="Property:speedometerA4567-speed", userdata=mkprop("source", "Speedometer"))
     m.add(54.5, datasetid="Property:gpsBxyz123-speed", userdata=mkprop("source", "GPS"))
     e.prop("speed", m)
-    e.context=[ { "Vehicle": "http://example.org/Vehicle",
+    e.ctx=[ { "Vehicle": "http://example.org/Vehicle",
                 "speed": "http://example.org/speed",
                 "source": "http://example.org/hasSource" },
             "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.5.jsonld"

@@ -13,12 +13,16 @@ from __future__ import annotations
 
 import ngsildclient
 
-from ngsildclient.model.utils import process_observedat
+from ngsildclient.model.utils import process_observedat, iso8601
 from ...utils.urn import Urn
 from ..constants import *
 from ..exceptions import *
 
 class AttrRel(ngsildclient.model.ngsidict.NgsiDict):
+
+    @property
+    def type(self):
+        return "Relationship"
 
     @property
     def value(self):
@@ -33,8 +37,23 @@ class AttrRel(ngsildclient.model.ngsidict.NgsiDict):
         self["object"] = Urn.prefix(v)
 
     @property
-    def type(self):
-        return "Relationship"
+    def observedat(self) -> datetime:
+        dt: str = self.get("observedAt")
+        if dt:
+            return iso8601.to_datetime(dt)
+        return
+
+    @observedat.setter
+    def observedat(self, dt: datetime):
+        self["observedAt"] = iso8601.from_datetime(dt)
+
+    @property
+    def datasetid(self) -> str:
+        return self.get("datasetId")
+
+    @datasetid.setter
+    def datasetid(self, datasetid: str):
+        self["datasetId"] = Urn.prefix(datasetid)        
 
     @classmethod
     def build(
