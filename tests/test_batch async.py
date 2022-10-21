@@ -112,7 +112,7 @@ async def test_api_batch_create_multi_ok(mocked_connected, httpx_mock: HTTPXMock
 async def test_api_batch_upsert_ok_201(mocked_connected, httpx_mock: HTTPXMock):
     httpx_mock.add_response(
         method="POST",
-        url="http://localhost:1026/ngsi-ld/v1/entityOperations/upsert/",
+        url="http://localhost:1026/ngsi-ld/v1/entityOperations/upsert/?options=replace",
         headers = {"Content-Type": "application/ld+json"},
         status_code=201,
         json=[
@@ -143,7 +143,7 @@ async def test_api_batch_upsert_ok_201(mocked_connected, httpx_mock: HTTPXMock):
 async def test_api_batch_upsert_ok_204(mocked_connected, httpx_mock: HTTPXMock):
     httpx_mock.add_response(
         method="POST",
-        url="http://localhost:1026/ngsi-ld/v1/entityOperations/upsert/",
+        url="http://localhost:1026/ngsi-ld/v1/entityOperations/upsert/?options=replace",
         headers = {"Content-Type": "application/ld+json"},
         status_code=204
     )    

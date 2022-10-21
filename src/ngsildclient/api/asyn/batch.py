@@ -10,7 +10,7 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING, Sequence, Literal
 
 import logging
 import json
@@ -59,10 +59,12 @@ class Batch:
         return r
     
     @rfc7807_error_handle_async
-    async def _upsert(self, entities: Sequence[Entity]) -> BatchResult:
+    async def _upsert(self, entities: Sequence[Entity], opt: Literal["replace", "update"] = "replace") -> BatchResult:
+        params = {"options": opt} if opt else {}
         r = await self._session.post(
             f"{self.url}/upsert/",
-            content=json.dumps([e for e in entities], cls=NgsiEncoder)
+            content=json.dumps([e for e in entities], cls=NgsiEncoder),
+            params=params
         )
         self._client.raise_for_status(r)
         if r.status_code == 201:
@@ -77,17 +79,21 @@ class Batch:
         return BatchResult("upsert", success, errors)
 
     @rfc7807_error_handle_async
-    async def upsert(self, entities: Sequence[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+    async def upsert(self, entities: Sequence[Entity], *, update: bool = False, batchsize: int = BATCHSIZE) -> BatchResult:
+        # default mode (without any option) is "replace", anyway always force the option
+        opt = "update" if update else "replace"        
         r = BatchResult("upsert")
         for i in range(0, len(entities), batchsize):
-            r += await self._upsert(entities[i:i+batchsize]) 
+            r += await self._upsert(entities[i:i+batchsize], opt) 
         return r
 
     @rfc7807_error_handle_async
-    async def _update(self, entities: Sequence[Entity]) -> BatchResult:
+    async def _update(self, entities: Sequence[Entity], opt: Literal["noOverwrite"] = None) -> BatchResult:
+        params = {"options": opt} if opt else {}
         r = await self._session.post(
             f"{self.url}/update/", 
-            content=json.dumps([e for e in entities], cls=NgsiEncoder)
+            content=json.dumps([e for e in entities], cls=NgsiEncoder),
+            params=params
         )
         self._client.raise_for_status(r)
         if r.status_code == 204:
@@ -100,10 +106,11 @@ class Batch:
         return BatchResult("update", success, errors)
 
     @rfc7807_error_handle_async
-    async def update(self, entities: Sequence[Entity], batchsize: int = BATCHSIZE) -> BatchResult:
+    async def update(self, entities: Sequence[Entity], *, overwrite: bool = True, batchsize: int = BATCHSIZE) -> BatchResult:
+        opt = "noOverwrite" if not overwrite else None
         r = BatchResult("update")
         for i in range(0, len(entities), batchsize):
-            r += await self._update(entities[i:i+batchsize]) 
+            r += await self._update(entities[i:i+batchsize], opt) 
         return r
 
     @rfc7807_error_handle_async

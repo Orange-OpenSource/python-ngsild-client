@@ -300,7 +300,7 @@ class AsyncClient:
         """
         return await self.entities.exists(entity)
 
-    async def upsert(self, *entities) -> Union[bool, BatchResult]:
+    async def upsert(self, *entities, update: bool = False) -> Union[bool, BatchResult]:
         """Upsert one or many entities.
 
         Facade method backed by Batch.upsert() or Entities.upsert()
@@ -310,6 +310,11 @@ class AsyncClient:
         entities : 
             Entities to be upserted by the Context Broker
             Either a single Entity, or a list of entities, or comma-separated entities
+
+        update: bool
+            For batch mode only.
+            If set : "indicates that existing Entity content shall be updated".
+            If not set : "indicates that all the existing Entity content shall be replaced (default mode)".            
 
         Returns
         -------
@@ -322,7 +327,7 @@ class AsyncClient:
                 return await self.entities.upsert(entity)
             else:
                 entities = entities[0]
-        return await self.batch.upsert(entities)
+        return await self.batch.upsert(entities, update=update)
 
     async def bulk_import(self, filename: str) -> Union[bool, dict]:
         """Upsert all entities from a JSON file.
@@ -335,7 +340,7 @@ class AsyncClient:
         entities = await Entity.load_async(filename)
         return await self.upsert(entities)
 
-    async def update(self, *entities) -> Union[bool, BatchResult]:
+    async def update(self, *entities, overwrite=True) -> Union[bool, BatchResult]:
         """Upsert one or many entities.
 
         Facade method backed by Batch.update() or Entities.update()
@@ -345,6 +350,11 @@ class AsyncClient:
         entities : 
             Entities to be upserted by the Context Broker
             Either a single Entity, or a list of entities, or comma-separated entities
+
+        overwrite: bool
+            For batch mode only.
+            If set : Overwrite (default mode).
+            If unset switch to "noOverwrite" mode : "indicates that no attribute overwrite shall be performed".            
 
         Returns
         -------
@@ -357,7 +367,7 @@ class AsyncClient:
                 return await self.entities.update(entity)
             else:
                 entities = entities[0]
-        return await self.batch.update(entities)
+        return await self.batch.update(entities, overwrite=overwrite)
 
     async def query_head(
         self, type: str = None, q: str = None, gq: str = None, ctx: str = None, n: int = 5
