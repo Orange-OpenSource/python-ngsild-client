@@ -17,7 +17,7 @@ from ..exceptions import *
 import ngsildclient.model.ngsidict as ngsidict
 from ngsildclient.utils import iso8601
 
-class AttrTemporal(ngsidict.NgsiDict):
+class AttrTemporalValue(ngsidict.NgsiDict):
 
     @property
     def value(self) -> Union[datetime, date, time]:
@@ -43,8 +43,8 @@ class AttrTemporal(ngsidict.NgsiDict):
     def build(
         cls,
         attrV: AttrValue,
-    ) -> AttrTemporal:
-        property: AttrTemporal = cls()
+    ) -> AttrTemporalValue:
+        property: AttrTemporalValue = cls()
         value = attrV.value
         date_str, temporaltype, _ = iso8601.parse(value)
         v = {

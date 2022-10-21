@@ -14,10 +14,10 @@ from __future__ import annotations
 from typing import Any, List, Literal, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ngsildclient.model.attr.prop import AttrProp
-    from ngsildclient.model.attr.geo import AttrGeo
-    from ngsildclient.model.attr.temporal import AttrTemporal
-    from ngsildclient.model.attr.rel import AttrRel
+    from ngsildclient.model.attr.prop import AttrPropValue
+    from ngsildclient.model.attr.geo import AttrGeoValue
+    from ngsildclient.model.attr.temporal import AttrTemporalValue
+    from ngsildclient.model.attr.rel import AttrRelValue
     from ngsildclient.model.entity import Entity
 
 from collections.abc import MutableMapping, Mapping
@@ -133,16 +133,16 @@ class NgsiDict(Cut, MutableMapping):
         userdata: NgsiDict = None,
         escape: bool = False,
         attrname: str = None,
-    ) -> AttrProp:
-        from ngsildclient.model.attr.prop import AttrProp
+    ) -> AttrPropValue:
+        from ngsildclient.model.attr.prop import AttrPropValue
         if isinstance(value, MultAttrValue):
             if len(value) == 0:
                 raise ValueError("MultAttr is empty")
-            p: List[AttrProp] = [AttrProp.build(v) for v in value]
+            p: List[AttrPropValue] = [AttrPropValue.build(v) for v in value]
         else:
             value = url.escape(value) if escape and isinstance(value, str) else value
             attrvalue = AttrValue(value, datasetid, observedat, unitcode, userdata)
-            p = AttrProp.build(attrvalue)
+            p = AttrPropValue.build(attrvalue)
         return {attrname: p} if attrname else p
 
     @classmethod
@@ -153,8 +153,8 @@ class NgsiDict(Cut, MutableMapping):
         datasetid: str = None,
         observedat: Union[str, datetime] = None,
         attrname: str = None,
-    ) -> AttrGeo:
-        from ngsildclient.model.attr.geo import AttrGeo
+    ) -> AttrGeoValue:
+        from ngsildclient.model.attr.geo import AttrGeoValue
         if isinstance(value, Tuple):
             if len(value) == 2:
                 lat, lon = value
@@ -162,7 +162,7 @@ class NgsiDict(Cut, MutableMapping):
             else:
                 raise ValueError("lat, lon tuple expected")
         attrvalue = AttrValue(value, datasetid, observedat)
-        p = AttrGeo.build(attrvalue)
+        p = AttrGeoValue.build(attrvalue)
         return {attrname: p} if attrname else p
 
     @classmethod
@@ -171,10 +171,10 @@ class NgsiDict(Cut, MutableMapping):
         value: NgsiDate = iso8601.utcnow(),
         *,  # keyword-only arguments after this
         attrname: str = None,
-    ) -> AttrTemporal:
-        from ngsildclient.model.attr.temporal import AttrTemporal
+    ) -> AttrTemporalValue:
+        from ngsildclient.model.attr.temporal import AttrTemporalValue
         attrvalue = AttrValue(value)
-        p = AttrTemporal.build(attrvalue)
+        p = AttrTemporalValue.build(attrvalue)
         return {attrname: p} if attrname else p
 
     @classmethod
@@ -185,14 +185,14 @@ class NgsiDict(Cut, MutableMapping):
         datasetid: str = None,
         observedat: Union[str, datetime] = None,
         attrname: str = None,
-    ) -> AttrRel:
-        from ngsildclient.model.attr.rel import AttrRel
+    ) -> AttrRelValue:
+        from ngsildclient.model.attr.rel import AttrRelValue
         if isinstance(value, MultAttrValue):
             if len(value) == 0:
                 raise ValueError("MultAttr is empty")
-            p: List[AttrRel] = [AttrRel.build(v.id if hasattr(v, "id") else v) for v in value]
+            p: List[AttrRelValue] = [AttrRelValue.build(v.id if hasattr(v, "id") else v) for v in value]
         else:
             value = value.id if hasattr(value, "id") else value
             attrvalue = AttrValue(value, datasetid, observedat)
-            p = AttrRel.build(attrvalue)
+            p = AttrRelValue.build(attrvalue)
         return {attrname: p} if attrname else p

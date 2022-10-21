@@ -20,7 +20,7 @@ from ...utils.urn import Urn
 from ..constants import *
 from ..exceptions import *
 
-class AttrProp(ngsildclient.model.ngsidict.NgsiDict):
+class AttrPropValue(ngsildclient.model.ngsidict.NgsiDict):
 
     @property
     def type(self):
@@ -69,8 +69,8 @@ class AttrProp(ngsildclient.model.ngsidict.NgsiDict):
     def build(
         cls,
         attrV: AttrValue,
-    ) -> AttrProp:
-        property: AttrProp = cls()
+    ) -> AttrPropValue:
+        property: AttrPropValue = cls()
         value = attrV.value
         if isinstance(value, (int, float, bool, str, list, dict)):
             v = value

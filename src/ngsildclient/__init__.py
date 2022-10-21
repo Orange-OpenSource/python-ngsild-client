@@ -30,7 +30,6 @@ from .model.constants import (
     TZ_FET,
     MultAttrValue
 )
-from .model.mock import MockerNgsi
 from .api.client import Client
 from .api.asyn.client import AsyncClient
 from .api.helper.subscription import SubscriptionBuilder
@@ -57,7 +56,6 @@ __all__ = [
     "TZ_CET",
     "TZ_FET",
     "MultAttrValue",
-    "MockerNgsi",
     "Client",
     "AsyncClient",
     "SubscriptionBuilder",

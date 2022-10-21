@@ -18,7 +18,7 @@ from ...utils.urn import Urn
 from ..constants import *
 from ..exceptions import *
 
-class AttrRel(ngsildclient.model.ngsidict.NgsiDict):
+class AttrRelValue(ngsildclient.model.ngsidict.NgsiDict):
 
     @property
     def type(self):
@@ -59,8 +59,8 @@ class AttrRel(ngsildclient.model.ngsidict.NgsiDict):
     def build(
         cls,
         attrV: AttrValue,
-    ) -> AttrRel:
-        property: AttrRel = cls()
+    ) -> AttrRelValue:
+        property: AttrRelValue = cls()
         value = attrV.value
         if isinstance(value, str):
             value = Urn.prefix(value)

@@ -23,7 +23,7 @@ from ..exceptions import *
 
 import ngsildclient.model.ngsidict as ngsidict
 
-class AttrGeo(ngsidict.NgsiDict):
+class AttrGeoValue(ngsidict.NgsiDict):
 
     @property
     def value(self):
@@ -48,8 +48,8 @@ class AttrGeo(ngsidict.NgsiDict):
     def build(
         cls,
         attrV: AttrValue,
-    ) -> AttrGeo:
-        property: AttrGeo = cls()
+    ) -> AttrGeoValue:
+        property: AttrGeoValue = cls()
         value = attrV.value
         if isinstance(value, (Point, LineString, Polygon, MultiPoint)):
             geometry = value

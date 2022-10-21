@@ -13,10 +13,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from .prop import AttrProp
-from .geo import AttrGeo
-from .temporal import AttrTemporal
-from .rel import AttrRel
+from .prop import AttrPropValue
+from .geo import AttrGeoValue
+from .temporal import AttrTemporalValue
+from .rel import AttrRelValue
 from ..utils import guess_ngsild_type
 from ..ngsidict import NgsiDict
 
@@ -30,12 +30,12 @@ class AttrFactory:
         except ValueError as e:
             return attr
         if type == "Property":
-            return AttrProp(attr)
+            return AttrPropValue(attr)
         elif type == "TemporalProperty":
-            return AttrTemporal(attr)
+            return AttrTemporalValue(attr)
         elif type == "GeoProperty":
-            return AttrGeo(attr)
+            return AttrGeoValue(attr)
         elif type == "Relationship":
-            return AttrRel(attr)
+            return AttrRelValue(attr)
         else:
             return NgsiDict(attr) # should happen only for json arrays
