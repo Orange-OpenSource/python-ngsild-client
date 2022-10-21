@@ -82,6 +82,16 @@ class NgsiDict(Cut, MutableMapping):
         self.data |= prop
         return self
 
+    def dup(self) -> NgsiDict:
+        """Duplicates the NgsiDict
+
+        Returns
+        -------
+        Entity
+            The new entity
+        """
+        return deepcopy(self)
+
     @property
     def value(self):
         raise NotImplementedError()

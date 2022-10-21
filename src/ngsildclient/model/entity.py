@@ -255,7 +255,7 @@ class Entity:
 
         if not ctx:
             ctx = [CORE_CONTEXT]
-            
+
         if autoprefix is None:
             autoprefix = globalsettings.autoprefix
 
@@ -347,6 +347,16 @@ class Entity:
         """
         return deepcopy(self)
 
+    def dupattr(self, attrname: str) -> NgsiDict:
+        """Duplicates the attribute
+
+        Returns
+        -------
+        NgsiDict
+            The new attribute
+        """
+        return NgsiDict({attrname: self[attrname].dup()})
+
     @property
     def id(self):
         return self.root["id"]
@@ -383,8 +393,8 @@ class Entity:
                         r.append((k, x.get("object")))
         return r
 
-    def __getitem__(self, item):
-        return self.root.__getitem__(item)
+    def __getitem__(self, key):
+        return self.root.__getitem__(key)
 
     def __setitem__(self, key, item):
         self.root.__setitem__(key, item)
