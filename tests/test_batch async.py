@@ -35,8 +35,8 @@ async def test_api_batch_single_create_ok(mocked_connected, httpx_mock: HTTPXMoc
         ],
     )
     client = AsyncClient()
-    sample2 = sample_entity.copy()
-    sample3 = sample_entity.copy()
+    sample2 = sample_entity.dup()
+    sample3 = sample_entity.dup()
     sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]
@@ -96,8 +96,8 @@ async def test_api_batch_create_multi_ok(mocked_connected, httpx_mock: HTTPXMock
         ]
     )
     client = AsyncClient()
-    sample2 = sample_entity.copy()
-    sample3 = sample_entity.copy()
+    sample2 = sample_entity.dup()
+    sample3 = sample_entity.dup()
     sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]
@@ -122,8 +122,8 @@ async def test_api_batch_upsert_ok_201(mocked_connected, httpx_mock: HTTPXMock):
         ],
     )
     client = AsyncClient()
-    sample2 = sample_entity.copy()
-    sample3 = sample_entity.copy()
+    sample2 = sample_entity.dup()
+    sample3 = sample_entity.dup()
     sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]
@@ -148,8 +148,8 @@ async def test_api_batch_upsert_ok_204(mocked_connected, httpx_mock: HTTPXMock):
         status_code=204
     )    
     client = AsyncClient()
-    sample2 = sample_entity.copy()
-    sample3 = sample_entity.copy()
+    sample2 = sample_entity.dup()
+    sample3 = sample_entity.dup()
     sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]
@@ -179,8 +179,8 @@ async def test_api_batch_update_ok_204(mocked_connected, httpx_mock: HTTPXMock):
         ],
     )
     client = AsyncClient()
-    sample2 = sample_entity.copy()
-    sample3 = sample_entity.copy()
+    sample2 = sample_entity.dup()
+    sample3 = sample_entity.dup()
     sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]
@@ -210,8 +210,8 @@ async def test_api_batch_delete_ok_204(mocked_connected, httpx_mock: HTTPXMock):
         ],
     )    
     client = AsyncClient()
-    sample2 = sample_entity.copy()
-    sample3 = sample_entity.copy()
+    sample2 = sample_entity.dup()
+    sample3 = sample_entity.dup()
     sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]

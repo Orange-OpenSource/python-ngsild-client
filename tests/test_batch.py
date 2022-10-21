@@ -33,8 +33,8 @@ def test_api_batch_single_create_ok(mocked_connected, requests_mock: Mocker):
         ],
     )
     client = Client()
-    sample2 = sample_entity.copy()
-    sample3 = sample_entity.copy()
+    sample2 = sample_entity.dup()
+    sample3 = sample_entity.dup()
     sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]
@@ -81,8 +81,8 @@ def test_api_batch_create_multi_ok(mocked_connected, requests_mock: Mocker):
         ]}
      ])            
     client = Client()
-    sample2 = sample_entity.copy()
-    sample3 = sample_entity.copy()
+    sample2 = sample_entity.dup()
+    sample3 = sample_entity.dup()
     sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]
@@ -105,8 +105,8 @@ def test_api_batch_upsert_ok_201(mocked_connected, requests_mock):
         ],
     )
     client = Client()
-    sample2 = sample_entity.copy()
-    sample3 = sample_entity.copy()
+    sample2 = sample_entity.dup()
+    sample3 = sample_entity.dup()
     sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]
@@ -129,8 +129,8 @@ def test_api_batch_upsert_ok_204(mocked_connected, requests_mock):
         status_code=204
     )
     client = Client()
-    sample2 = sample_entity.copy()
-    sample3 = sample_entity.copy()
+    sample2 = sample_entity.dup()
+    sample3 = sample_entity.dup()
     sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]
@@ -158,8 +158,8 @@ def test_api_batch_update_ok_204(mocked_connected, requests_mock):
         ],
     )
     client = Client()
-    sample2 = sample_entity.copy()
-    sample3 = sample_entity.copy()
+    sample2 = sample_entity.dup()
+    sample3 = sample_entity.dup()
     sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]
@@ -187,8 +187,8 @@ def test_api_batch_delete_ok_204(mocked_connected, requests_mock):
         ],
     )
     client = Client()
-    sample2 = sample_entity.copy()
-    sample3 = sample_entity.copy()
+    sample2 = sample_entity.dup()
+    sample3 = sample_entity.dup()
     sample2.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568"
     sample3.id = "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569"
     batch = [sample_entity, sample2, sample3]

@@ -28,7 +28,7 @@ from .model.constants import (
     TZ_WET,
     TZ_CET,
     TZ_FET,
-    MultAttr
+    MultAttrValue
 )
 from .model.mock import MockerNgsi
 from .api.client import Client
@@ -56,7 +56,7 @@ __all__ = [
     "TZ_WET",
     "TZ_CET",
     "TZ_FET",
-    "MultAttr",
+    "MultAttrValue",
     "MockerNgsi",
     "Client",
     "AsyncClient",

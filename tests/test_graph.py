@@ -11,7 +11,7 @@
 
 import networkx as nx
 
-from ngsildclient import Entity, MultAttr
+from ngsildclient import Entity, MultAttrValue
 from .common import MockedClient
 
 def test_relationships():
@@ -30,7 +30,7 @@ def test_relationships_multi():
     d2 = Entity("D", "D2")
     a1.rel("hasB", b1)
     a1.rel("hasC", c1)
-    m = MultAttr()
+    m = MultAttrValue()
     m.add(d1, datasetid="Relationship:1")
     m.add(d2, datasetid="Relationship:2")
     a1.rel("hasMultiD", m)
@@ -105,7 +105,7 @@ def test_graph_3():
     d1 = Entity("D", "D1")
     d2 = Entity("D", "D2")
     a1.rel("hasB", b1)
-    m = MultAttr()
+    m = MultAttrValue()
     m.add(d1, datasetid="Relationship:1")
     m.add(d2, datasetid="Relationship:2")
     a1.rel("hasMultiD", m)
@@ -138,7 +138,7 @@ def test_graph_4():
     d2 = Entity("D", "D2")
     a1.rel("hasB", b1)
     a1.rel("hasC", c1) # 2 edges between A and C : A->C and C->A
-    m = MultAttr()
+    m = MultAttrValue()
     m.add(d1, datasetid="Relationship:1")
     m.add(d2, datasetid="Relationship:2")
     a1.rel("hasMultiD", m)

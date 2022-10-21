@@ -38,4 +38,4 @@ class AttrFactory:
         elif type == "Relationship":
             return AttrRel(attr)
         else:
-            return NgsiDict(attr) # should never happen
+            return NgsiDict(attr) # should happen only for json arrays

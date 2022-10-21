@@ -36,7 +36,7 @@ class MockerNgsi:
         self.f_mock_payload = f_mock_payload
 
     def _mock(self, entity: Entity) -> Entity:
-        dst: Entity = entity.copy()
+        dst: Entity = entity.dup()
         self.f_mock_id(dst)
         self.f_mock_payload(dst)
         return dst

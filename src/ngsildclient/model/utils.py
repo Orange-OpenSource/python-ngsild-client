@@ -30,6 +30,8 @@ class NgsiEncoder(JSONEncoder):
         return str
 
 def guess_ngsild_type(attr: Mapping) -> Literal["Property", "GeoProperty", "TemporalProperty", "Relationship"]:
+    if not isinstance(attr, Mapping): # not a NGSI-LD attribute
+        raise ValueError("NGSI-LD attribute MUST be a JSON object")
     type = attr.get("type")
     if type is None:
         raise ValueError("NGSI-LD attribute has no type")

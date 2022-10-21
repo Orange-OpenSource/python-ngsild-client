@@ -39,7 +39,7 @@ class Batch:
         self, entities: Sequence[Entity]) -> BatchResult:
         r = await self._session.post(
             f"{self.url}/create/", 
-            data=json.dumps([e for e in entities], cls=NgsiEncoder)
+            content=json.dumps([e for e in entities], cls=NgsiEncoder)
         )
         self._client.raise_for_status(r)
         if r.status_code == 201:
@@ -62,7 +62,7 @@ class Batch:
     async def _upsert(self, entities: Sequence[Entity]) -> BatchResult:
         r = await self._session.post(
             f"{self.url}/upsert/",
-            data=json.dumps([e for e in entities], cls=NgsiEncoder)
+            content=json.dumps([e for e in entities], cls=NgsiEncoder)
         )
         self._client.raise_for_status(r)
         if r.status_code == 201:
@@ -87,7 +87,7 @@ class Batch:
     async def _update(self, entities: Sequence[Entity]) -> BatchResult:
         r = await self._session.post(
             f"{self.url}/update/", 
-            data=json.dumps([e for e in entities], cls=NgsiEncoder)
+            content=json.dumps([e for e in entities], cls=NgsiEncoder)
         )
         self._client.raise_for_status(r)
         if r.status_code == 204:

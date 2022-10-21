@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 
 from collections.abc import MutableMapping, Mapping
 
+from copy import deepcopy
 from datetime import datetime
 from scalpl import Cut
 
@@ -111,9 +112,8 @@ class NgsiDict(Cut, MutableMapping):
                 default = lambda x: x.data if isinstance(x, NgsiDict) else str)
 
     @classmethod
-    def prop(
+    def mkprop(
         cls,
-        name: str,
         value: Any,
         *,  # keyword-only arguments after this
         datasetid: str = None,
@@ -121,10 +121,10 @@ class NgsiDict(Cut, MutableMapping):
         unitcode: str = None,
         userdata: NgsiDict = None,
         escape: bool = False,
-        fq: bool = False
+        attrname: str = None,
     ) -> AttrProp:
         from ngsildclient.model.attr.prop import AttrProp
-        if isinstance(value, MultAttr):
+        if isinstance(value, MultAttrValue):
             if len(value) == 0:
                 raise ValueError("MultAttr is empty")
             p: List[AttrProp] = [AttrProp.build(v) for v in value]
@@ -132,17 +132,16 @@ class NgsiDict(Cut, MutableMapping):
             value = url.escape(value) if escape and isinstance(value, str) else value
             attrvalue = AttrValue(value, datasetid, observedat, unitcode, userdata)
             p = AttrProp.build(attrvalue)
-        return {name: p} if fq else p
+        return {attrname: p} if attrname else p
 
     @classmethod
-    def gprop(
+    def mkgprop(
         cls,
-        name: str,
         value: Union[Tuple[float], NgsiGeometry],
         *,  # keyword-only arguments after this
         datasetid: str = None,
         observedat: Union[str, datetime] = None,
-        fq: bool = False
+        attrname: str = None,
     ) -> AttrGeo:
         from ngsildclient.model.attr.geo import AttrGeo
         if isinstance(value, Tuple):
@@ -153,33 +152,31 @@ class NgsiDict(Cut, MutableMapping):
                 raise ValueError("lat, lon tuple expected")
         attrvalue = AttrValue(value, datasetid, observedat)
         p = AttrGeo.build(attrvalue)
-        return {name: p} if fq else p
+        return {attrname: p} if attrname else p
 
     @classmethod
-    def tprop(
+    def mktprop(
         cls,
-        name: str,
         value: NgsiDate = iso8601.utcnow(),
         *,  # keyword-only arguments after this
-        fq: bool = False
+        attrname: str = None,
     ) -> AttrTemporal:
         from ngsildclient.model.attr.temporal import AttrTemporal
         attrvalue = AttrValue(value)
         p = AttrTemporal.build(attrvalue)
-        return {name: p} if fq else p
+        return {attrname: p} if attrname else p
 
     @classmethod
-    def rel(
+    def mkrel(
         cls,
-        name: str,
         value: Union[str, List[str], Entity, List[Entity]],
         *,  # keyword-only arguments after this
         datasetid: str = None,
         observedat: Union[str, datetime] = None,
-        fq: bool = False
+        attrname: str = None,
     ) -> AttrRel:
         from ngsildclient.model.attr.rel import AttrRel
-        if isinstance(value, MultAttr):
+        if isinstance(value, MultAttrValue):
             if len(value) == 0:
                 raise ValueError("MultAttr is empty")
             p: List[AttrRel] = [AttrRel.build(v.id if hasattr(v, "id") else v) for v in value]
@@ -187,4 +184,4 @@ class NgsiDict(Cut, MutableMapping):
             value = value.id if hasattr(value, "id") else value
             attrvalue = AttrValue(value, datasetid, observedat)
             p = AttrRel.build(attrvalue)
-        return {name: p} if fq else p
+        return {attrname: p} if attrname else p

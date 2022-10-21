@@ -62,7 +62,7 @@ class AttrValue:
     userdata: dict = field(default_factory=dict)
 
 @dataclass
-class MultAttr(Iterable[AttrValue]):
+class MultAttrValue(Iterable[AttrValue]):
     datasetid: str = None
     observedat: Union[str, datetime] = None
     unitcode: str = None

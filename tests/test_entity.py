@@ -15,7 +15,7 @@ from pytest import fixture
 
 from datetime import datetime, timezone
 from ngsildclient.model.entity import *
-from ngsildclient.model.constants import MultAttr
+from ngsildclient.model.constants import MultAttrValue
 from ngsildclient.model.helper.postal import PostalAddressBuilder
 
 
@@ -251,7 +251,7 @@ def test_vehicle_multiple_attribute():
 
     """
     e = Entity("Vehicle", "A4567")
-    m = MultAttr()
+    m = MultAttrValue()
     m.add(55.0, datasetid="Property:speedometerA4567-speed", userdata=mkprop("source", "Speedometer"))
     m.add(54.5, datasetid="Property:gpsBxyz123-speed", userdata=mkprop("source", "GPS"))
     e.prop("speed", m)
@@ -322,7 +322,7 @@ def test_store_1_many_relationship():
         .build()
     e.prop("address", addr).prop("verified", True, nested=True)
     e.loc((52.5547,13.3986)).prop("name", "Bösebrücke Einkauf")
-    m = MultAttr()
+    m = MultAttrValue()
     m.add("Shelf001", datasetid="Relationship:1")
     m.add("Shelf002", datasetid="Relationship:2")
     e.rel("furniture", m)

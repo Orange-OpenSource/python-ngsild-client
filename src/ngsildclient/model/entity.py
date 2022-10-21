@@ -46,17 +46,17 @@ logger = logging.getLogger(__name__)
 # independently of any Entity.
 # It is useful when building multi-attributes properties.
 
-def mkprop(*args, **kwargs):
-    return NgsiDict.prop(*args, fq=True, **kwargs)
+def mkprop(name: str, *args, **kwargs):
+    return NgsiDict.mkprop(*args, attrname=name, **kwargs)
 
-def mkgprop(*args, **kwargs):
-    return NgsiDict.gprop(*args, fq=True, **kwargs)
+def mkgprop(name: str, *args, **kwargs):
+    return NgsiDict.mkgprop(*args, attrname=name, **kwargs)
 
-def mktprop(*args, **kwargs):
-    return NgsiDict.tprop(*args, fq=True, **kwargs)
+def mktprop(name: str, *args, **kwargs):
+    return NgsiDict.mktprop(*args, attrname=name, **kwargs)
 
-def mkrel(*args, **kwargs):
-    return NgsiDict.rel(*args, fq=True, **kwargs)
+def mkrel(name: str, *args, **kwargs):
+    return NgsiDict.mkrel(*args, attrname=name, **kwargs)
 
 class Entity:
     """The main goal of this class is to build, manipulate and represent a NGSI-LD compliant entity.
@@ -335,24 +335,7 @@ class Entity:
         payload: dict = json.loads(content)
         return cls(payload=payload)
 
-    @classmethod
-    def duplicate(cls, entity: Entity) -> Entity:
-        """Duplicate a given entity.
-
-        Parameters
-        ----------
-        entity : Entity
-            The input Entity
-
-        Returns
-        -------
-        Entity
-            The output entity
-        """
-        new = deepcopy(entity)
-        return new
-
-    def copy(self) -> Entity:
+    def dup(self) -> Entity:
         """Duplicates the entity
 
         Returns
@@ -360,7 +343,7 @@ class Entity:
         Entity
             The new entity
         """
-        return Entity.duplicate(self)
+        return deepcopy(self)
 
     @property
     def id(self):
@@ -508,7 +491,7 @@ class Entity:
     ) -> Entity:
         if nested and self._lastwasmulti:
             raise ValueError("Nesting multi-attribute is not allowed")
-        property = NgsiDict.prop(name, value, datasetid=datasetid, observedat=observedat, unitcode=unitcode, userdata=userdata, escape=escape)
+        property = NgsiDict.mkprop(value, datasetid=datasetid, observedat=observedat, unitcode=unitcode, userdata=userdata, escape=escape)
         self._update_entity(name, property, nested)
         return self  
 
@@ -524,7 +507,7 @@ class Entity:
         datasetid: str = None,
         observedat: Union[str, datetime] = None,
     ) -> Entity:
-        property = NgsiDict.gprop(name, value, datasetid=datasetid, observedat=observedat)
+        property = NgsiDict.mkgprop(value, datasetid=datasetid, observedat=observedat)
         self._update_entity(name, property, nested)
         return self
 
@@ -547,7 +530,7 @@ class Entity:
         *,  # keyword-only arguments after this
         nested: bool = False,
     ) -> Entity:
-        property = NgsiDict.tprop(name, value)
+        property = NgsiDict.mktprop(value)
         self._update_entity(name, property, nested)
         return self
 
@@ -569,7 +552,7 @@ class Entity:
         if nested and self._lastwasmulti:
             raise ValueError("Nesting multi-attribute is not allowed")
         name = name.value if isinstance(name, Rel) else name
-        property = NgsiDict.rel(name, value, datasetid=datasetid, observedat=observedat)
+        property = NgsiDict.mkrel(value, datasetid=datasetid, observedat=observedat)
         self._update_entity(name, property, nested)
         return self  
 
