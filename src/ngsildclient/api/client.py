@@ -375,7 +375,7 @@ class Client:
         """
         return self.entities.exists(entity)
 
-    def upsert(self, *entities) -> Union[bool, BatchResult]:
+    def upsert(self, *entities, update: bool = False) -> Union[bool, BatchResult]:
         """Upsert one or many entities.
 
         Facade method backed by Batch.upsert() or Entities.upsert()
@@ -385,6 +385,11 @@ class Client:
         entities : 
             Entities to be upserted by the Context Broker
             Either a single Entity, or a list of entities, or comma-separated entities
+
+        update: bool
+            For batch mode only.
+            If set : "indicates that existing Entity content shall be updated".
+            If not set : "indicates that all the existing Entity content shall be replaced (default mode)".
 
         Returns
         -------
@@ -397,7 +402,7 @@ class Client:
                 return self.entities.upsert(entity)
             else:
                 entities = entities[0]
-        return self.batch.upsert(entities)
+        return self.batch.upsert(entities, update=update)
 
     def bulk_import(self, filename: str) -> Union[bool, dict]:
         """Upsert all entities from a JSON file.
@@ -410,7 +415,7 @@ class Client:
         entities = Entity.load(filename)
         return self.upsert(entities)
 
-    def update(self, *entities) -> Union[bool, BatchResult]:
+    def update(self, *entities, overwrite=True) -> Union[bool, BatchResult]:
         """Upsert one or many entities.
 
         Facade method backed by Batch.update() or Entities.update()
@@ -420,6 +425,11 @@ class Client:
         entities : 
             Entities to be upserted by the Context Broker
             Either a single Entity, or a list of entities, or comma-separated entities
+
+        overwrite: bool
+            For batch mode only.
+            If set : Overwrite (default mode).
+            If unset switch to "noOverwrite" mode : "indicates that no attribute overwrite shall be performed".
 
         Returns
         -------
@@ -432,7 +442,7 @@ class Client:
                 return self.entities.update(entity)
             else:
                 entities = entities[0]
-        return self.batch.update(entities)
+        return self.batch.update(entities, overwrite=overwrite)
 
     def query_head(self, type: str = None, q: str = None, gq: str = None, ctx: str = None, n: int = 5) -> List[Entity]:
         """Retrieve entities given its type and/or query string.

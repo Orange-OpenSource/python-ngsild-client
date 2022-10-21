@@ -114,10 +114,12 @@ class Batch:
         return r
     
     @rfc7807_error_handle
-    def _upsert(self, entities: Sequence[Entity]) -> BatchResult:
+    def _upsert(self, entities: Sequence[Entity], opt: Literal["replace", "update"] = "replace") -> BatchResult:
+        params = {"options": opt} if opt else {}
         r = self._session.post(
             f"{self.url}/upsert/", 
-            data=json.dumps([e for e in entities], cls=NgsiEncoder)
+            data=json.dumps([e for e in entities], cls=NgsiEncoder),
+            params=params
         )
         self._client.raise_for_status(r)
         if r.status_code == 201:
@@ -132,18 +134,22 @@ class Batch:
         return BatchResult("upsert", success, errors)
 
     @rfc7807_error_handle
-    def upsert(self, entities: Sequence[Entity], *, batchsize: int = BATCHSIZE) -> BatchResult:
+    def upsert(self, entities: Sequence[Entity], *, update: bool = False, batchsize: int = BATCHSIZE) -> BatchResult:
+        # default mode (without any option) is "replace", anyway always force the option
+        opt = "update" if update else "replace"
         r = BatchResult("upsert")
         for i in range(0, len(entities), batchsize):
-            r += self._upsert(entities[i:i+batchsize]) 
+            r += self._upsert(entities[i:i+batchsize], opt) 
         self.console.message(f"Entities upserted : {r.n_ok}/{r.n_tot} [{r.ratio:.2f}]", level=r.level)
         return r
 
     @rfc7807_error_handle
-    def _update(self, entities: Sequence[Entity]) -> BatchResult:
+    def _update(self, entities: Sequence[Entity], opt: Literal["noOverwrite"] = None) -> BatchResult:
+        params = {"options": opt} if opt else {}
         r = self._session.post(
             f"{self.url}/update/",
-            data=json.dumps([e for e in entities], cls=NgsiEncoder)
+            data=json.dumps([e for e in entities], cls=NgsiEncoder),
+            params=params
         )
         self._client.raise_for_status(r)
         if r.status_code == 204:
@@ -156,10 +162,11 @@ class Batch:
         return BatchResult("update", success, errors)
 
     @rfc7807_error_handle
-    def update(self, entities: Sequence[Entity], *, batchsize: int = BATCHSIZE) -> BatchResult:
+    def update(self, entities: Sequence[Entity], *, overwrite: bool = True, batchsize: int = BATCHSIZE) -> BatchResult:
+        opt = "noOverwrite" if not overwrite else None
         r = BatchResult("update")
         for i in range(0, len(entities), batchsize):
-            r += self._update(entities[i:i+batchsize]) 
+            r += self._update(entities[i:i+batchsize], opt) 
         self.console.message(f"Entities updated : {r.n_ok}/{r.n_tot} [{r.ratio:.2f}]", level=r.level)
         return r
 
