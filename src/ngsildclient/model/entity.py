@@ -174,7 +174,7 @@ class Entity:
     """
 
     @overload
-    def __init__(self, type: str, id: str, *, ctx: list = [CORE_CONTEXT]):
+    def __init__(self, type: str, id: str, *, ctx: List = None):
         """Create a NGSI-LD compliant entity
 
         One can omit the urn and namespace, "urn:ngsi-ld:" will be added automatically.
@@ -214,7 +214,7 @@ class Entity:
         ...
 
     @overload
-    def __init__(self, id: str, *, ctx: list = [CORE_CONTEXT]):
+    def __init__(self, id: str, *, ctx: List = None):
         """Create a NGSI-LD compliant entity.
 
         Type is inferred from the fully qualified identifier.
@@ -247,12 +247,15 @@ class Entity:
         arg1: str = None,
         arg2: str = None,
         *,
-        ctx: list = [CORE_CONTEXT],
+        ctx: List = None,
         payload: dict = None,
         autoprefix: Optional[bool] = None,
     ):
         logger.debug(f"{arg1=} {arg2=}")
 
+        if not ctx:
+            ctx = [CORE_CONTEXT]
+            
         if autoprefix is None:
             autoprefix = globalsettings.autoprefix
 
