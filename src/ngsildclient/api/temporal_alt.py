@@ -11,22 +11,16 @@
 
 from __future__ import annotations
 from typing import TYPE_CHECKING, Union, List, Optional, Generator, Callable
-from dataclasses import dataclass
-from datetime import timedelta
-from isodate import duration_isoformat
-from functools import reduce
-from operator import iconcat
-
+from pathlib import Path
 
 import logging
+import json
 
 if TYPE_CHECKING:
     from .client import Client
     from .temporal import TemporalResult, Pagination, troes_to_dataframe
 
 from .constants import JSONLD_CONTEXT
-from ..utils import _addopt
-from .helper.temporal import TemporalQuery
 from ..model.entity import Entity
 from ngsildclient.utils import is_pandas_installed
 from ngsildclient.model.exceptions import NgsiJsonError
@@ -74,12 +68,15 @@ class TemporalAlt:
 
     def query_head(
         self,
+        query: Union[dict, Path],
         *,
-        query: dict,
         ctx: str = None,
         limit: int = 5,
         as_dataframe: bool = False,
     ) -> List[dict]:
+        if isinstance(query, Path):
+            with open(query) as f:
+                query = json.load(f)
         if as_dataframe:
             if is_pandas_installed():
                 verbose = False  # force simplified representation
@@ -90,13 +87,16 @@ class TemporalAlt:
 
     def query(
         self,
+        query: Union[dict, Path],
         *,
-        query: dict,
         ctx: str = None,
         lastn: int = 0,
         pagesize: int = 0,
         as_dataframe: bool = False,
     ) -> List[dict]:
+        if isinstance(query, Path):
+            with open(query) as f:
+                query = json.load(f)    
         if as_dataframe:
             if is_pandas_installed():
                 verbose = False  # force simplified representation
@@ -113,11 +113,14 @@ class TemporalAlt:
 
     def query_generator(
         self,
+        query: Union[dict, Path],
         *,
-        query: dict,
         ctx: str = None,
         pagesize: int = 0,
     ) -> Generator[List[dict], None, None]:
+        if isinstance(query, Path):
+            with open(query) as f:
+                query = json.load(f)
         r: TemporalResult = self._query(query, ctx, pagesize=pagesize)
         troes = r.result
         yield from troes
@@ -130,17 +133,11 @@ class TemporalAlt:
 
     def query_handle(
         self,
+        query: Union[dict, Path],
         *,
-        eid: Union[str, Entity] = None,
-        type: str = None,
-        attrs: List[str] = None,
-        q: str = None,
-        gq: str = None,
         ctx: str = None,
-        verbose: bool = False,
-        tq: TemporalQuery = None,
         pagesize: int = 0,
         callback: Callable[[Entity], None],
     ) -> None:
-        for troe in self.query_generator(eid, type, attrs, q, gq, ctx, verbose, tq, pagesize):
+        for troe in self.query_generator(query=query, ctx=ctx, pagesize=pagesize):
             callback(troe)

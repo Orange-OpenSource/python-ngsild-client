@@ -13,12 +13,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Generator, Callable
 
 import logging
+import json
 
 if TYPE_CHECKING:
     from .client import Client
 
-from typing import List
+from typing import List, Union
 from math import ceil
+from pathlib import Path
 from ngsildclient.model.entity import Entity
 from ngsildclient.api.constants import PAGINATION_LIMIT_MAX
 from ngsildclient.api.exceptions import NgsiClientTooManyResultsError
@@ -32,10 +34,13 @@ class Alt:
         self._client = client
         self._session = client.session
 
-    def count(self, query: dict, ctx: str = None) -> int:
+    def count(self, query: Union[dict, Path], ctx: str = None) -> int:
+        if isinstance(query, Path):
+            with open(query) as f:
+                query = json.load(f)           
         return self._client.entities._count_alt(query, ctx)
 
-    def query_head(self, query: dict, ctx: str = None, n: int = 5) -> List[Entity]:
+    def query_head(self, query: Union[dict, Path], ctx: str = None, n: int = 5) -> List[Entity]:
         """Retrieve entities given its type and/or query string.
 
         Retrieve up to PAGINATION_LIMIT_MAX entities.
@@ -61,11 +66,14 @@ class Alt:
         >>> with Client() as client:
         >>>     client.alt.query_head(query)
         """
+        if isinstance(query, Path):
+            with open(query) as f:
+                query = json.load(f)          
         return self._client.entities._query_alt(query, ctx, limit=n)
 
     def query(
         self,
-        query: dict,
+        query: Union[dict, Path],
         ctx: str = None,
         limit: int = PAGINATION_LIMIT_MAX,
         max: int = 1_000_000,
@@ -95,6 +103,9 @@ class Alt:
         >>> with Client() as client:
         >>>     client.alt.query(query)
         """
+        if isinstance(query, Path):
+            with open(query) as f:
+                query = json.load(f)          
         entities: list[Entity] = []
         count = self.count(query, ctx=ctx)
         if count > max:
@@ -105,7 +116,7 @@ class Alt:
 
     def query_generator(
         self,
-        query: dict,
+        query: Union[dict, Path],
         ctx: str = None,
         limit: int = PAGINATION_LIMIT_MAX,
         batch: bool = False,
@@ -128,6 +139,9 @@ class Alt:
         list[Entity]
             Retrieved a generator of entities (matching the given type and/or query string)
         """
+        if isinstance(query, Path):
+            with open(query) as f:
+                query = json.load(f)           
         count = self.count(query)
         for page in range(ceil(count / limit)):
             if batch:
@@ -137,7 +151,7 @@ class Alt:
 
     def query_handle(
         self,
-        query: dict,
+        query: Union[dict, Path],
         ctx: str = None,
         limit: int = PAGINATION_LIMIT_MAX,
         *,
@@ -162,5 +176,5 @@ class Alt:
         >>> with Client() as client:
         >>>     client.alt.query_handle(query, lambda e: print(e))
         """
-        for entity in self.query_generator(type, query, ctx, limit, False):
+        for entity in self.query_generator(query, ctx, limit):
             callback(entity)

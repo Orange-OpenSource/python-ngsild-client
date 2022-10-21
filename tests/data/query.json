@@ -1,0 +1,9 @@
+{
+    "type": "Query",
+    "entities": [
+        {
+            "type": "Farm"
+        }
+    ],
+    "q": "fillingLevel>0.7"
+}
