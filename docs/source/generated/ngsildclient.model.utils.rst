@@ -1,4 +1,4 @@
-﻿ngsildclient.model.utils
+ngsildclient.model.utils
 ========================
 
 .. automodule:: ngsildclient.model.utils

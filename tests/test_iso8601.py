@@ -11,13 +11,14 @@
 
 import pytest
 
-from datetime import datetime, date, time, timezone
+from datetime import datetime, date, time
+from dateutil.tz import UTC
 from ngsildclient.utils import iso8601
 from ngsildclient.model.constants import TemporalType
 
 
 def test_from_datetime():
-    d = datetime(2021, 9, 17, 9, 25, tzinfo=timezone.utc)
+    d = datetime(2021, 9, 17, 9, 25, tzinfo=UTC)
     assert iso8601.from_datetime(d) == "2021-09-17T09:25:00Z"
 
 
@@ -33,7 +34,7 @@ def test_from_time():
 
 def test_parse_datetime():
     d = "2021-09-17T09:25:00Z"
-    assert iso8601.parse(d) == (d, TemporalType.DATETIME, datetime(2021, 9, 17, 9, 25))
+    assert iso8601.parse(d) == (d, TemporalType.DATETIME, datetime(2021, 9, 17, 9, 25, tzinfo=UTC))
 
 
 def test_parse_date():
@@ -43,7 +44,7 @@ def test_parse_date():
 
 def test_parse_time():
     d = "09:25:00Z"
-    assert iso8601.parse(d) == (d, TemporalType.TIME, time(9,25))
+    assert iso8601.parse(d) == (d, TemporalType.TIME, time(9, 25, tzinfo=UTC))
 
 
 def test_parse_bad_format_bad_length():
@@ -59,14 +60,10 @@ def test_parse_bad_format_wrong_date():
 
 
 def test_extract_datetime():
-    dt = iso8601.extract(
-        "urn:ngsi-ld:WeatherObserved:Spain-WeatherObserved-Valladolid-2016-11-30T07:00:00Z"
-    )
-    assert dt == datetime(2016, 11, 30, 7, 0, tzinfo=timezone.utc)
+    dt = iso8601.extract("urn:ngsi-ld:WeatherObserved:Spain-WeatherObserved-Valladolid-2016-11-30T07:00:00Z")
+    assert dt == datetime(2016, 11, 30, 7, 0, tzinfo=UTC)
 
 
 def test_extract_datetime_not_found():
-    dt = iso8601.extract(
-        "urn:ngsi-ld:WeatherObserved:Spain-WeatherObserved-Valladolid-2016-13-30T07:00:00Z"
-    )
+    dt = iso8601.extract("urn:ngsi-ld:WeatherObserved:Spain-WeatherObserved-Valladolid-2016-13-30T07:00:00Z")
     assert dt is None

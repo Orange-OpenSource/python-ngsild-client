@@ -1,4 +1,4 @@
-ngsildclient.model.attr.prop
+﻿ngsildclient.model.attr.prop
 ============================
 
 .. automodule:: ngsildclient.model.attr.prop
@@ -17,7 +17,7 @@ ngsildclient.model.attr.prop
 
    .. autosummary::
    
-      AttrProp
+      AttrPropValue
    
    
 

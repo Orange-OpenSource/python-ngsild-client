@@ -1,4 +1,4 @@
-ngsildclient.model.attr.temporal
+﻿ngsildclient.model.attr.temporal
 ================================
 
 .. automodule:: ngsildclient.model.attr.temporal
@@ -17,7 +17,7 @@ ngsildclient.model.attr.temporal
 
    .. autosummary::
    
-      AttrTemporal
+      AttrTemporalValue
    
    
 

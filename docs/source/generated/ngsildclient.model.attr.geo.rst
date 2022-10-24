@@ -1,4 +1,4 @@
-ngsildclient.model.attr.geo
+﻿ngsildclient.model.attr.geo
 ===========================
 
 .. automodule:: ngsildclient.model.attr.geo
@@ -17,7 +17,7 @@ ngsildclient.model.attr.geo
 
    .. autosummary::
    
-      AttrGeo
+      AttrGeoValue
    
    
 

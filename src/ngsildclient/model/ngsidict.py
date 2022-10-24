@@ -37,6 +37,7 @@ import json
 """This module contains the definition of the NgsiDict class.
 """
 
+
 class NgsiDict(Cut, MutableMapping):
     """This class is a custom dictionary that backs an entity.
 
@@ -60,19 +61,20 @@ class NgsiDict(Cut, MutableMapping):
         item = super().__getitem__(path)
         if isinstance(item, Mapping) and not isinstance(item, NgsiDict):
             from ngsildclient.model.attr.factory import AttrFactory
+
             return AttrFactory.create(item)
         return item
 
     def get(self, path: str, default=None):
         try:
             item = super().__getitem__(path)
-        except (KeyError, IndexError) as error:
+        except (KeyError, IndexError):
             return default
         if isinstance(item, Mapping) and not isinstance(item, NgsiDict):
             from ngsildclient.model.attr.factory import AttrFactory
-            return AttrFactory.create(item)    
-        return item        
 
+            return AttrFactory.create(item)
+        return item
 
     def __repr__(self):
         return self.data.__repr__()
@@ -117,11 +119,12 @@ class NgsiDict(Cut, MutableMapping):
 
     def to_dict(self) -> dict:
         return self.data
-        
+
     def to_json(self, indent=None) -> str:
         """Returns the dict in json format"""
-        return json.dumps(self,  ensure_ascii=False, indent=indent, 
-            default = lambda x: x.data if isinstance(x, NgsiDict) else str)
+        return json.dumps(
+            self, ensure_ascii=False, indent=indent, default=lambda x: x.data if isinstance(x, NgsiDict) else str
+        )
 
     def pprint(self, *args, **kwargs) -> None:
         """Returns the dict pretty-json-formatted"""
@@ -129,8 +132,13 @@ class NgsiDict(Cut, MutableMapping):
 
     def _save(self, filename: str, indent=2):
         with open(filename, "w") as fp:
-            json.dump(self, fp, ensure_ascii=False, indent=indent,
-                default = lambda x: x.data if isinstance(x, NgsiDict) else str)
+            json.dump(
+                self,
+                fp,
+                ensure_ascii=False,
+                indent=indent,
+                default=lambda x: x.data if isinstance(x, NgsiDict) else str,
+            )
 
     @classmethod
     def mkprop(
@@ -145,6 +153,7 @@ class NgsiDict(Cut, MutableMapping):
         attrname: str = None,
     ) -> AttrPropValue:
         from ngsildclient.model.attr.prop import AttrPropValue
+
         if isinstance(value, MultAttrValue):
             if len(value) == 0:
                 raise ValueError("MultAttr is empty")
@@ -165,6 +174,7 @@ class NgsiDict(Cut, MutableMapping):
         attrname: str = None,
     ) -> AttrGeoValue:
         from ngsildclient.model.attr.geo import AttrGeoValue
+
         if isinstance(value, Tuple):
             if len(value) == 2:
                 lat, lon = value
@@ -183,6 +193,7 @@ class NgsiDict(Cut, MutableMapping):
         attrname: str = None,
     ) -> AttrTemporalValue:
         from ngsildclient.model.attr.temporal import AttrTemporalValue
+
         attrvalue = AttrValue(value)
         p = AttrTemporalValue.build(attrvalue)
         return {attrname: p} if attrname else p
@@ -197,6 +208,7 @@ class NgsiDict(Cut, MutableMapping):
         attrname: str = None,
     ) -> AttrRelValue:
         from ngsildclient.model.attr.rel import AttrRelValue
+
         if isinstance(value, MultAttrValue):
             if len(value) == 0:
                 raise ValueError("MultAttr is empty")

@@ -23,8 +23,8 @@ from ..exceptions import *
 
 import ngsildclient.model.ngsidict as ngsidict
 
-class AttrGeoValue(ngsidict.NgsiDict):
 
+class AttrGeoValue(ngsidict.NgsiDict):
     @property
     def value(self):
         if self["type"] != "GeoProperty":

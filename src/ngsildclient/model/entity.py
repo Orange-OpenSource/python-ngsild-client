@@ -45,17 +45,22 @@ logger = logging.getLogger(__name__)
 # independently of any Entity.
 # It is useful when building multi-attributes properties.
 
+
 def mkprop(name: str, *args, **kwargs):
     return NgsiDict.mkprop(*args, attrname=name, **kwargs)
+
 
 def mkgprop(name: str, *args, **kwargs):
     return NgsiDict.mkgprop(*args, attrname=name, **kwargs)
 
+
 def mktprop(name: str, *args, **kwargs):
     return NgsiDict.mktprop(*args, attrname=name, **kwargs)
 
+
 def mkrel(name: str, *args, **kwargs):
     return NgsiDict.mkrel(*args, attrname=name, **kwargs)
+
 
 class Entity:
     """The main goal of this class is to build, manipulate and represent a NGSI-LD compliant entity.
@@ -259,7 +264,7 @@ class Entity:
         if autoprefix is None:
             autoprefix = globalsettings.autoprefix
 
-        self.root : NgsiDict = None
+        self.root: NgsiDict = None
         self._lastprop: NgsiDict = None
         self._anchored: bool = False
         self._lastwasmulti: bool = False
@@ -405,6 +410,7 @@ class Entity:
 
     def follow(self, relname: str):
         from ngsildclient.api.follow import LinkFollower
+
         follower: LinkFollower = globalsettings.follower
         if follower is None:
             raise ValueError("Follower not set in globalsettings")
@@ -483,7 +489,7 @@ class Entity:
                 self._lastprop = property
         else:
             self._lastprop = self.root[attrname] = property
-        self._lastwasmulti = ismulti        
+        self._lastwasmulti = ismulti
 
     def __ior__(self, prop: Mapping):
         self.root |= prop
@@ -503,9 +509,11 @@ class Entity:
     ) -> Entity:
         if nested and self._lastwasmulti:
             raise ValueError("Nesting multi-attribute is not allowed")
-        property = NgsiDict.mkprop(value, datasetid=datasetid, observedat=observedat, unitcode=unitcode, userdata=userdata, escape=escape)
+        property = NgsiDict.mkprop(
+            value, datasetid=datasetid, observedat=observedat, unitcode=unitcode, userdata=userdata, escape=escape
+        )
         self._update_entity(name, property, nested)
-        return self  
+        return self
 
     def addr(self, value: str):
         return self.prop("address", value)
@@ -566,7 +574,7 @@ class Entity:
         name = name.value if isinstance(name, Rel) else name
         property = NgsiDict.mkrel(value, datasetid=datasetid, observedat=observedat)
         self._update_entity(name, property, nested)
-        return self  
+        return self
 
     def __eq__(self, other: Entity):
         if other.__class__ is not self.__class__:
@@ -599,8 +607,7 @@ class Entity:
         return self.root.to_json(*args, **kwargs)
 
     def pprint(self, *args, **kwargs):
-        """Pretty-print the entity to the standard ouput.
-        """
+        """Pretty-print the entity to the standard ouput."""
         globalsettings.f_print(self.to_json(indent=2, *args, **kwargs))
 
     @classmethod
@@ -740,8 +747,13 @@ class Entity:
             identation size (number of spaces), by default 2
         """
         with open(filename, "w") as fp:
-            json.dump(self.root, fp, ensure_ascii=False, indent=indent,
-                default = lambda x: x.data if isinstance(x, NgsiDict) else str)
+            json.dump(
+                self.root,
+                fp,
+                ensure_ascii=False,
+                indent=indent,
+                default=lambda x: x.data if isinstance(x, NgsiDict) else str,
+            )
 
     async def save_async(self, filename: str, *, indent: int = 2):
         """Save the entity to a file.
@@ -754,8 +766,12 @@ class Entity:
             identation size (number of spaces), by default 2
         """
         async with aiofiles.open(filename, "w") as fp:
-            payload = json.dumps(self.root, ensure_ascii=False, indent=indent,
-                default = lambda x: x.data if isinstance(x, NgsiDict) else str)
+            payload = json.dumps(
+                self.root,
+                ensure_ascii=False,
+                indent=indent,
+                default=lambda x: x.data if isinstance(x, NgsiDict) else str,
+            )
             await fp.write(payload)
 
     @classmethod
@@ -779,8 +795,13 @@ class Entity:
         """
         payload = [x.root for x in entities]
         with open(filename, "w") as fp:
-            json.dump(payload, fp, ensure_ascii=False, indent=indent,
-                default = lambda x: x.data if isinstance(x, NgsiDict) else str)
+            json.dump(
+                payload,
+                fp,
+                ensure_ascii=False,
+                indent=indent,
+                default=lambda x: x.data if isinstance(x, NgsiDict) else str,
+            )
 
     @classmethod
     async def save_batch_async(cls, entities: List[Entity], filename: str, *, indent: int = 2):
@@ -803,6 +824,7 @@ class Entity:
         """
         payload = [x.root for x in entities]
         async with aiofiles.open(filename, "w") as fp:
-            payload = json.dumps(payload, ensure_ascii=False, indent=indent,
-                default = lambda x: x.data if isinstance(x, NgsiDict) else str)
+            payload = json.dumps(
+                payload, ensure_ascii=False, indent=indent, default=lambda x: x.data if isinstance(x, NgsiDict) else str
+            )
             await fp.write(payload)

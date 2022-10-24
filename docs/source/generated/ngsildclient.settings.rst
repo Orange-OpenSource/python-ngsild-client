@@ -1,29 +1,6 @@
-ngsildclient.settings
+﻿ngsildclient.settings
 =====================
 
-.. automodule:: ngsildclient.settings
+.. currentmodule:: ngsildclient
 
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   .. rubric:: Classes
-
-   .. autosummary::
-   
-      Settings
-   
-   
-
-   
-   
-   
-
-
-
+.. autodata:: settings

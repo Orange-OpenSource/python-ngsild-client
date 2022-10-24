@@ -26,10 +26,13 @@ References
 from __future__ import annotations
 
 import re
+from dateutil.parser import isoparser
+from dateutil.tz import UTC
 
 from typing import Union, Optional, Literal, Tuple
-from datetime import datetime, date, time, timezone
+from datetime import datetime, date, time
 from contextlib import suppress
+
 from ngsildclient.model.constants import TemporalType
 
 ISO8601_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
@@ -56,13 +59,18 @@ def from_datetime(value: datetime) -> str:
     >>> print(iso8601.from_datetime(d))
     2021-10-13T09:29:00Z
     """
-    # convert to UTC if naive-datetime or not-UTC aware-datetime
-    if value.tzinfo is None or value.tzinfo != timezone.utc:
-        value = value.astimezone(timezone.utc)
+    if value.tzinfo is None:  # naive datetime => set timezone to UTC (the datetime value remains unchanged)
+        value = value.replace(tzinfo=UTC)
+    elif (
+        value.tzinfo != UTC
+    ):  # aware datetime => convert to UTC (the datetime value is changed according to the UTC offset)
+        value = value.astimezone(UTC)
     return value.strftime("%Y-%m-%dT%H:%M:%SZ")
 
+
 def to_datetime(value: str) -> datetime:
-    return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+    return isoparser().isoparse(value)
+
 
 def utcnow() -> str:
     """Converts the current UTC datetime to ISO8601-formatted string.
@@ -72,7 +80,7 @@ def utcnow() -> str:
     str
         The current UTC datetime, ISO8601-formatted
     """
-    return from_datetime(datetime.utcnow())
+    return from_datetime(datetime.now(UTC))
 
 
 def from_date(value: date) -> str:
@@ -98,8 +106,10 @@ def from_date(value: date) -> str:
     """
     return value.strftime("%Y-%m-%d")
 
+
 def to_date(value: str) -> date:
-    return datetime.strptime(value, "%Y-%m-%d").date()
+    return isoparser().parse_isodate(value)
+
 
 def from_time(value: time) -> str:
     """Convert from time to ISO8601-formatted string.
@@ -122,10 +132,14 @@ def from_time(value: time) -> str:
     >>> print(iso8601.from_time(d))
     09:29:00Z
     """
+    if value.tzinfo is None:  # naive time => set timezone to UTC (the time value remains unchanged)
+        value = value.replace(tzinfo=UTC)
     return value.strftime("%H:%M:%SZ")
 
+
 def to_time(value: str) -> time:
-    return datetime.strptime(value, "%H:%M:%SZ").time()
+    return isoparser().parse_isotime(value)
+
 
 def _from_string(value: str) -> tuple[str, TemporalType, datetime]:
     """Guess the temporal date type from a given string.
@@ -165,6 +179,7 @@ def _from_string(value: str) -> tuple[str, TemporalType, datetime]:
             return value, TemporalType.TIME, dt
     raise ValueError(f"Bad date format : {value}")
 
+
 def from_string(type: Literal["DateTime", "Date", "Time"], value: str) -> Union[datetime, date, time]:
     with suppress(ValueError):
         if type == "DateTime":
@@ -174,6 +189,7 @@ def from_string(type: Literal["DateTime", "Date", "Time"], value: str) -> Union[
         if type == "Time":
             return to_time(value)
     raise ValueError(f"Bad date format : {value}")
+
 
 def to_string(dt: Union[datetime, date, time]) -> Tuple[str, str]:
     if isinstance(dt, datetime):
@@ -255,7 +271,6 @@ def extract(value: str) -> Optional[datetime]:
     if len(dates) < 1:
         return None
     try:
-        dt = to_datetime(dates[-1])
-        return dt.replace(tzinfo=timezone.utc)
+        return to_datetime(dates[-1])
     except ValueError:
         return None

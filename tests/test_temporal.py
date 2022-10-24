@@ -10,6 +10,7 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from datetime import datetime
+from dateutil.tz import UTC
 from ngsildclient.api.temporal import _troes_to_dfdict
 
 troes_1entity_1attr_2measures = [
@@ -90,8 +91,8 @@ def test_to_dfdict_1entity_1attr_2measures():
     assert dfdict == {
         "RoomObserved": ["Room1", "Room1"],
         "observed": [
-            datetime(2022, 9, 29, 4, 16, 10),
-            datetime(2022, 9, 29, 6, 16, 10),
+            datetime(2022, 9, 29, 4, 16, 10, tzinfo=UTC),
+            datetime(2022, 9, 29, 6, 16, 10, tzinfo=UTC),
         ],
         "temperature": [21.7, 21.6],
     }
@@ -102,8 +103,8 @@ def test_to_dfdict_1entity_2attrs_2measures():
     assert dfdict == {
         "RoomObserved": ["Room1", "Room1"],
         "observed": [
-            datetime(2022, 9, 29, 4, 16, 10),
-            datetime(2022, 9, 29, 6, 16, 10),
+            datetime(2022, 9, 29, 4, 16, 10, tzinfo=UTC),
+            datetime(2022, 9, 29, 6, 16, 10, tzinfo=UTC),
         ],
         "temperature": [21.7, 21.6],
         "pressure": [721, 720],
@@ -115,10 +116,10 @@ def test_to_dfdict_2entities_2attrs_2measures():
     assert dfdict == {
         "RoomObserved": ["Room1", "Room1", "Room2", "Room2"],
         "observed": [
-            datetime(2022, 9, 29, 4, 16, 10),
-            datetime(2022, 9, 29, 6, 16, 10),
-            datetime(2022, 9, 29, 4, 16, 10),
-            datetime(2022, 9, 29, 6, 16, 10),
+            datetime(2022, 9, 29, 4, 16, 10, tzinfo=UTC),
+            datetime(2022, 9, 29, 6, 16, 10, tzinfo=UTC),
+            datetime(2022, 9, 29, 4, 16, 10, tzinfo=UTC),
+            datetime(2022, 9, 29, 6, 16, 10, tzinfo=UTC),
         ],
         "temperature": [21.7, 21.6, 22.7, 22.6],
         "pressure": [721, 720, 731, 730],

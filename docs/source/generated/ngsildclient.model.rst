@@ -32,7 +32,6 @@
    ngsildclient.model.entity
    ngsildclient.model.exceptions
    ngsildclient.model.helper
-   ngsildclient.model.mock
    ngsildclient.model.ngsidict
    ngsildclient.model.utils
 
