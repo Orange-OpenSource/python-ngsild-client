@@ -5,3 +5,9 @@
 ```console
 $ docker compose up -d
 ```
+
+```python
+from ngsildclient import CLient
+
+client = Client(port=9090)
+```

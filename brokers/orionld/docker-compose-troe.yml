@@ -7,7 +7,7 @@ services:
       orionld:
         ipv4_address: 172.29.1.100
   orion:
-    image: fiware/orion-ld:1.2.0-PRE-1117
+    image: fiware/orion-ld:1.2.0-PRE-1123
     environment:
       - ORIONLD_TROE=TRUE
       - ORIONLD_TROE_USER=orion
@@ -28,7 +28,7 @@ services:
     hostname: timescale
     container_name: timescale
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U orion"]
+      test: [ "CMD-SHELL", "pg_isready -U orion" ]
       interval: 15s
       timeout: 15s
       retries: 5
@@ -41,7 +41,7 @@ services:
       orionld:
         ipv4_address: 172.29.1.102
   mintaka:
-    image: fiware/mintaka:latest
+    image: fiware/mintaka:0.5.24
     hostname: mintaka
     container_name: mintaka
     environment:
@@ -59,7 +59,7 @@ services:
         ipv4_address: 172.29.1.103
     ports:
       - "8027:8082"
-      - "8028:8081"          
+      - "8028:8081"
 networks:
   orionld:
     ipam:

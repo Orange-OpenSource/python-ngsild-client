@@ -89,7 +89,7 @@ class Client:
         self,
         hostname: str = "localhost",
         port: int = NGSILD_DEFAULT_PORT,
-        port_temporal: int = NGSILD_TEMPORAL_PORT,
+        port_temporal: Optional[int] = None,
         secure: bool = False,
         useragent: str = UA,
         tenant: str = None,
@@ -132,6 +132,8 @@ class Client:
         """
         self.hostname = hostname
         self.port = port
+        if port_temporal is None:
+            port_temporal = port
         self.port_temporal = port_temporal
         self.secure = secure
         self.scheme = "https" if secure else "http"
@@ -164,7 +166,11 @@ class Client:
         self._types = Types(self, f"{self.url}/{ENDPOINT_TYPES}")
         self._contexts = Contexts(self, f"{self.url}/{ENDPOINT_CONTEXTS}")
         self._subscriptions = Subscriptions(self, f"{self.url}/{ENDPOINT_SUBSCRIPTIONS}")
-        self._temporal = Temporal(self, f"{self.url_temporal}/{ENDPOINT_TEMPORAL}", f"{self.url_temporal}/{ENDPOINT_ALT_QUERY_TEMPORAL}")
+        
+        if port_temporal == port: # temporal endpoint mounted at /ngsi-ld/v1
+            self._temporal = Temporal(self, f"{self.url_temporal}/{NGSILD_BASEPATH}/{ENDPOINT_TEMPORAL}", f"{self.url_temporal}/{NGSILD_BASEPATH}/{ENDPOINT_ALT_QUERY_TEMPORAL}")
+        else: # temporal endpoint mounted at /
+            self._temporal = Temporal(self, f"{self.url_temporal}/{ENDPOINT_TEMPORAL}", f"{self.url_temporal}/{ENDPOINT_ALT_QUERY_TEMPORAL}")
         self._alt = Alt(self)
         self.broker = Broker(Vendor.UNKNOWN, "N/A")
 

@@ -8,3 +8,9 @@ The docker-compose file from Stellio is slightly modified in order to enable the
 $ source .env
 $ docker compose up -d
 ```
+
+```python
+from ngsildclient import Client
+
+client = Client(port=8080)
+```
