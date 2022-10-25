@@ -11,7 +11,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Tuple, Generator, List, Sequence, Union, Callable, Set
+from typing import TYPE_CHECKING, Optional, Tuple, Generator, List, Union, Callable, Set
 
 if TYPE_CHECKING:
     from ngsildclient.model.constants import EntityOrId
@@ -37,6 +37,7 @@ from .temporal import Temporal
 from .alt import Alt
 from .follow import LinkFollower
 from .exceptions import *
+from ngsildclient.settings import globalsettings
 
 logger = logging.getLogger(__name__)
 
@@ -166,11 +167,17 @@ class Client:
         self._types = Types(self, f"{self.url}/{ENDPOINT_TYPES}")
         self._contexts = Contexts(self, f"{self.url}/{ENDPOINT_CONTEXTS}")
         self._subscriptions = Subscriptions(self, f"{self.url}/{ENDPOINT_SUBSCRIPTIONS}")
-        
-        if port_temporal == port: # temporal endpoint mounted at /ngsi-ld/v1
-            self._temporal = Temporal(self, f"{self.url_temporal}/{NGSILD_BASEPATH}/{ENDPOINT_TEMPORAL}", f"{self.url_temporal}/{NGSILD_BASEPATH}/{ENDPOINT_ALT_QUERY_TEMPORAL}")
-        else: # temporal endpoint mounted at /
-            self._temporal = Temporal(self, f"{self.url_temporal}/{ENDPOINT_TEMPORAL}", f"{self.url_temporal}/{ENDPOINT_ALT_QUERY_TEMPORAL}")
+
+        if port_temporal == port:  # temporal endpoint mounted at /ngsi-ld/v1
+            self._temporal = Temporal(
+                self,
+                f"{self.url_temporal}/{NGSILD_BASEPATH}/{ENDPOINT_TEMPORAL}",
+                f"{self.url_temporal}/{NGSILD_BASEPATH}/{ENDPOINT_ALT_QUERY_TEMPORAL}",
+            )
+        else:  # temporal endpoint mounted at /
+            self._temporal = Temporal(
+                self, f"{self.url_temporal}/{ENDPOINT_TEMPORAL}", f"{self.url_temporal}/{ENDPOINT_ALT_QUERY_TEMPORAL}"
+            )
         self._alt = Alt(self)
         self.broker = Broker(Vendor.UNKNOWN, "N/A")
 
@@ -266,7 +273,7 @@ class Client:
 
     @property
     def alt(self):
-        return self._alt        
+        return self._alt
 
     def close(self):
         """Terminates the client.
@@ -282,7 +289,7 @@ class Client:
 
         Parameters
         ----------
-        entities : 
+        entities :
             Entities to be created by the Context Broker
             Either a single Entity, or a list of entities, or comma-separated entities
 
@@ -290,7 +297,7 @@ class Client:
         -------
         Entity
             The entities successfully upserted
-        """        
+        """
         if len(entities) == 1:
             if isinstance(entities[0], Entity):
                 entity = entities[0]
@@ -298,7 +305,6 @@ class Client:
             else:
                 entities = entities[0]
         return self.batch.create(entities)
-
 
     def get(
         self,
@@ -335,7 +341,7 @@ class Client:
 
         Parameters
         ----------
-        entities : 
+        entities :
             Entities to be deleted by the Context Broker
             Either a single Entity, or a list of entities, or comma-separated entities
 
@@ -343,14 +349,14 @@ class Client:
         -------
         Entity
             The entities successfully upserted
-        """        
+        """
         if len(entities) == 1:
             if isinstance(entities[0], Entity):
                 entity = entities[0]
                 return self.entities.delete(entity)
             else:
                 entities = entities[0]
-        return self.batch.delete(entities)            
+        return self.batch.delete(entities)
 
     def delete_from_file(self, filename: str) -> Union[bool, BatchResult]:
         """Delete in the broker all entities present in the JSON file.
@@ -388,7 +394,7 @@ class Client:
 
         Parameters
         ----------
-        entities : 
+        entities :
             Entities to be upserted by the Context Broker
             Either a single Entity, or a list of entities, or comma-separated entities
 
@@ -401,7 +407,7 @@ class Client:
         -------
         Entity
             The entities successfully upserted
-        """        
+        """
         if len(entities) == 1:
             if isinstance(entities[0], Entity):
                 entity = entities[0]
@@ -428,7 +434,7 @@ class Client:
 
         Parameters
         ----------
-        entities : 
+        entities :
             Entities to be upserted by the Context Broker
             Either a single Entity, or a list of entities, or comma-separated entities
 
@@ -441,7 +447,7 @@ class Client:
         -------
         Entity
             The entities successfully updated
-        """        
+        """
         if len(entities) == 1:
             if isinstance(entities[0], Entity):
                 entity = entities[0]
@@ -795,14 +801,14 @@ class Client:
         source: Tuple = Urn.split(root.id)
         for _, nodeid in root.relationships:
             target: Tuple = Urn.split(nodeid)
-            if (source,target) in edgecache or (target,source) in edgecache:
+            if (source, target) in edgecache or (target, source) in edgecache:
                 continue
             edgecache.add((source, target))
             G.add_edge(source, target)
             logger.debug(f"cache lookup : {nodeid}")
             entity = nodecache.get(nodeid)
             logger.debug(f"{entity=}")
-            if entity is None: # cache miss
+            if entity is None:  # cache miss
                 try:
                     entity = self.get(nodeid)
                     nodecache[nodeid] = entity
@@ -813,17 +819,16 @@ class Client:
 
     def network(self, root: Entity):
         G = nx.Graph()
-        nodecache: dict[str, Entity] = {} # hash table
-        edgecache: Set[Tuple[str,str]] = set() # membership testing
+        nodecache: dict[str, Entity] = {}  # hash table
+        edgecache: Set[Tuple[str, str]] = set()  # membership testing
         return self._create_network(root, G, nodecache, edgecache)
 
     def enable_follow(self):
         follower = LinkFollower(self)
-        Entity.globalsettings.follower = follower
+        globalsettings.follower = follower
 
     def disable_follow(self):
-        Entity.globalsettings.follower = None
-
+        globalsettings.follower = None
 
     # below the context manager methods
 

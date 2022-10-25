@@ -13,30 +13,57 @@
 
 ## Overview
 
- **ngsildclient** is a Python library that helps building NGSI-LD entities and allows to interact with a NGSI-LD Context Broker.
-
- The library primary purpose is to ease and speed up the development of a NGSI Agent.
+ **ngsildclient** is a Python library dedicated to NGSI-LD.
  
- It also can be of interest *especially in a Jupyter notebook or in an interactive interpreter* :
- - to **design new DataModels**
- - to **explore and manipulate entities stored in a broker**
- - for **demos**, quick **proofs of concept** or **eductional purposes**
+ It combines :
 
-## Key Features
+ - a toolbox to create and modify NGSI-LD entities effortlessly
+ - a NGSI-LD API client to interact with a Context Broker
+
+### Build entities
+
+Four primitives are provided `prop()`, `gprop()`, `tprop()`, `rel()` to build respectively a Property, GeoProperty, TemporalProperty and Relationship.
+
+An Entity is backed by a Python dictionary that stores the JSON-LD payload.
+The library operates the mapping between the Entity's attributes and the JSON-LD counterpart, allowing to easily manipulate NGSI-LD properties and always work with Python types.
+
+### Interact with the broker
+
+Two clients are provided,  `Client` and `AsyncClient` respectively for synchronous and asynchronous modes.
+
+Prefer the synchronous one when working in interactive mode, for example to explore and visualize context data in a Jupyter notebook.
+Prefer the async one if you're looking for performance, for example to develop a "real-time" NGSI-LD Agent with a high data-acquisition frequency rate.
+
+
+ ## Features
 
 ### Build NGSI-LD entities
+- primitives to build properties and relationships (chainable)
+- benefit from uri naming convention, omit scheme and entity's type, e.g. `parking = Entity("OffStreetParking", "Downtown1")`
+- support dot-notation facility, e.g. `reliability = parking["availableSpotNumber.reliability"]`
+- easily manipulate a property's value, e.g. `reliability.value = 0.8`
+- easily manipulate a property's metadata, e.g. `reliability.datasetid = "dataset1"`
+- support nesting
+- support multi-attribute
+- load/save to file
+- load from HTTP
+- load well-known sample entities, e.g.  `parking = Entity.load(SmartDataModels.SmartCities.Parking.OffStreetParking)`
+- provide helpers to ease building some structures, e.g. PostalAddress
+- pretty-print entity and properties
 
-The task of building a large NGSI-LD compliant entity is tedious, error-prone and results in a significant amount of code. 
-
-**ngsildclient** provides primitives to build and manipulate NGSI-LD compliant entities without effort, in respect with the [ETSI specifications](https://www.etsi.org/committee/cim).
-
-### Implement the NGSI-LD API
-
-**ngsildclient** provides a NGSI-LD API Client implementation.
-
-Acting as a Context Producer/Consumer **ngsildclient** is able to send/receive NGSI-LD entities to/from the Context Broker for creation and other operations.
-
-The library wraps a large subset of the API endpoints and supports batch operations, queries, subscriptions.
+### Wrap the NGSI-LD API
+ - synchronous and asynchronous clients
+ - support batch operations
+ - support pagination : transparently handle pagination (sending as many requests as needed under the hood)
+ - support auto-batch : transparently divide into many batch requests if needed
+ - support queries and alternate (POST) queries
+ - support temporal queries
+ - support pandas dataframe as a temporal query result
+ - support subscriptions
+ - find subscription conflicts
+ - SubscriptionBuilder to help build subscriptions
+ - auto-detect broker vendor and version
+ - support follow relationships (chainable), e.g. `camera = parking.follow("availableSpotNumber.providedBy")`
 
 ## Where to get it
 
@@ -56,49 +83,144 @@ pip install ngsildclient
 
 ## Getting started
 
-The following code snippet builds the sample `OffstreetParking` Entity from the ETSI documentation.
-It assumes that a broker is running on your localhost.
+### Create our first parking Entity
+
+The following code snippet builds the `OffstreetParking` sample entity from the ETSI documentation.
 
 ```python
 from datetime import datetime
-from ngsildclient import Entity, Client
+from ngsildclient import Entity
 
-PARKING_CONTEXT = "http://example.org/ngsi-ld/latest/parking.jsonld"
+PARKING_CONTEXT = "https://raw.githubusercontent.com/smart-data-models/dataModel.Parking/master/context.jsonld"
 
 e = Entity("OffStreetParking", "Downtown1")
-e.ctx.append(PARKING_CONTEXT) # add to the default core context
+e.ctx.append(PARKING_CONTEXT)
 e.prop("name", "Downtown One")
-e.prop("availableSpotNumber", 121, observedat=datetime(2017, 7, 29, 12, 5, 2)).anchor()
+e.prop("availableSpotNumber", 121, observedat=datetime(2022, 10, 25, 8)).anchor()
 e.prop("reliability", 0.7).rel("providedBy", "Camera:C1").unanchor()
 e.prop("totalSpotNumber", 200).loc(41.2, -8.5)
-with Client() as client: # localhost, default port, no authentication
-    client.upsert(e)
 ```
 
-The corresponding JSON-LD [payload](https://github.com/Orange-OpenSource/python-ngsild-client/blob/master/samples/gettingstarted.json) has been generated.
-
-Already have a NGSI-LD entity available in JSON format ? Simply use `Entity.load()`.
-
-## Asynchronous Client
-
-Alternatively you can prefer the Asynchronous Client, typically when user interactivity is not needed and seeking for performance - i.e. writing a real-time NGSI-LD agent.
-
+Let's print the JSON-LD payload.
 
 ```python
-from ngsildclient import AsyncClient
-
-async with AsyncClient() as client:
-    await client.upsert(e)
+e.pprint()
 ```
+
+```json
+{
+    "@context": [
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        "https://raw.githubusercontent.com/smart-data-models/dataModel.Parking/master/context.jsonld"
+    ],
+    "id": "urn:ngsi-ld:OffStreetParking:Downtown1",
+    "type": "OffStreetParking",
+    "name": {
+        "type": "Property",
+        "value": "Downtown One"
+    },
+    "availableSpotNumber": {
+        "type": "Property",
+        "value": 121,
+        "observedAt": "2022-10-25T08:00:00Z",
+        "reliability": {
+            "type": "Property",
+            "value": 0.7
+        },
+        "providedBy": {
+            "type": "Relationship",
+            "object": "urn:ngsi-ld:Camera:C1"
+        }
+    },
+    "totalSpotNumber": {
+        "type": "Property",
+        "value": 200
+    },
+    "location": {
+        "type": "GeoProperty",
+        "value": {
+            "type": "Point",
+            "coordinates": [
+                -8.5,
+                41.2
+            ]
+        }
+    }
+}
+```
+
+### Persist our parking in the Context Broker
+
+The following example assumes that an Orion-LD context broker *(w/ TRoE enabled)* is running on localhost.
+
+A docker-compose config [file](https://raw.githubusercontent.com/Orange-OpenSource/python-ngsild-client/master/brokers/orionld/docker-compose-troe.yml) file is provided for that purpose.
+
+```python
+from ngsildclient import Client
+
+client = Client(port=8026, port_temporal=8027)
+client.create(e)
+```
+
+### Increase our parking occupancy as the day goes on
+
+Each hour five more parkings spots are occupied, until 8 p.m.
+
+```python
+from datetime import timedelta
+
+prop = e["availableSpotNumber"]
+for _ in range(12):
+    prop.observedat += timedelta(hours=1)
+    prop.value -= 10
+    client.update(e)
+```
+
+### Retrieve our parking
+
+Get back our parking from the broker and display it.
+
+Only one available parking spot remains at 8 p.m.
+
+```python
+parking = client.get("OffStreetParking:Downtown1", ctx=PARKING_CONTEXT)
+parking.pprint()
+```
+
+### Request the Temporal Representation of our parking
+
+For convenience we retrieve it as a pandas dataframe.
+
+*If you don't have pandas installed, just omit the `as_dataframe` argument and get JSON instead.*
+
+```python
+df = client.temporal.get(e, ctx=PARKING_CONTEXT, as_dataframe=True)
+```
+
+Let's close the client and display the last rows.
+
+```python
+client.close()
+df.tail()
+```
+
+|    | OffStreetParking   | observed                  |   availableSpotNumber |
+|---:|:-------------------|:--------------------------|----------------------:|
+|  8 | Downtown1          | 2022-10-25 16:00:00+00:00 |                    41 |
+|  9 | Downtown1          | 2022-10-25 17:00:00+00:00 |                    31 |
+| 10 | Downtown1          | 2022-10-25 18:00:00+00:00 |                    21 |
+| 11 | Downtown1          | 2022-10-25 19:00:00+00:00 |                    11 |
+| 12 | Downtown1          | 2022-10-25 20:00:00+00:00 |                     1 |
+
 
 ## Documentation
 
 User guide is available on [Read the Docs](https://ngsildclient.readthedocs.io/en/latest/index.html).
 
-Please refer to the [Cookbook](https://ngsildclient.readthedocs.io/en/latest/cookbook.html) chapter that provides many HOWTOs to :
+Refer to the [Cookbook](https://ngsildclient.readthedocs.io/en/latest/cookbook.html) chapter that provides many HOWTOs to :
 
 - develop various NGSI-LD Agents collecting data from heterogeneous datasources
-- forge official NGSI-LD Entities from the Smart Data Models initiative
+- forge NGSI-LD sample entities from the Smart Data Models initiative
 
 ## License
 

@@ -1,48 +1,39 @@
 {
   "@context": [
-    "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+    "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+    "https://raw.githubusercontent.com/smart-data-models/dataModel.Parking/master/context.jsonld"
   ],
-  "id": "urn:ngsi-ld:AirQualityObserved:Bordeaux-AirProbe42-2022-03-24T09:00:00Z",
-  "type": "AirQualityObserved",
-  "dateObserved": {
+  "id": "urn:ngsi-ld:OffStreetParking:Downtown1",
+  "type": "OffStreetParking",
+  "name": {
     "type": "Property",
-    "value": {
-      "@type": "DateTime",
-      "@value": "2022-03-24T09:00:00Z"
+    "value": "Downtown One"
+  },
+  "availableSpotNumber": {
+    "type": "Property",
+    "value": 121,
+    "observedAt": "2022-10-25T08:00:00Z",
+    "reliability": {
+      "type": "Property",
+      "value": 0.7
+    },
+    "providedBy": {
+      "type": "Relationship",
+      "object": "urn:ngsi-ld:Camera:C1"
     }
+  },
+  "totalSpotNumber": {
+    "type": "Property",
+    "value": 200
   },
   "location": {
     "type": "GeoProperty",
     "value": {
       "type": "Point",
       "coordinates": [
-        -0.5805,
-        44.84044
+        -8.5,
+        41.2
       ]
     }
-  },
-  "PM25": {
-    "type": "Property",
-    "value": 12,
-    "unitCode": "GP"
-  },
-  "PM10": {
-    "type": "Property",
-    "value": 18,
-    "unitCode": "GP"
-  },
-  "NO2": {
-    "type": "Property",
-    "value": 8,
-    "unitCode": "GP"
-  },
-  "O3": {
-    "type": "Property",
-    "value": 83,
-    "unitCode": "GP"
-  },
-  "refDevice": {
-    "type": "Relationship",
-    "object": "urn:ngsi-ld:Device:AirProbe42"
   }
 }
