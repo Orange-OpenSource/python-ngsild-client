@@ -872,9 +872,10 @@ Note that this is not needed for the **tprop()** primitive and **observedat** ar
    :caption: ISO8601 Example
 
    from datetime import datetime
-   from ngsildclient import iso8601, TZ_CET
+   from dateutil import tz
+   from ngsildclient import iso8601
 
-   dt = datetime(2022, 3, 10, 17, 49, tzinfo=TZ_CET)
+   dt = datetime(2022, 3, 10, 17, 49, tzinfo=tz.gettz("Europe/Paris"))
    iso8601.from_datetime(dt) # '2022-03-10T16:49:00Z'
 
 Short UUID
@@ -891,7 +892,6 @@ The dash character (often used as a NGSI field separator) is replaced by the til
 
    from ngsildclient import Entity, shortuuid
 
-   dt = datetime(2022, 3, 10, 17, 49, tzinfo=TZ_CET)
    crop = Entity("AgriCrop", shortuuid())
 
 .. code-block:: json-ld

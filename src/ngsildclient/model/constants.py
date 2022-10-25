@@ -17,7 +17,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Union, Sequence, TYPE_CHECKING, Any, Iterable, List
 from datetime import datetime, date, time, timezone
-from zoneinfo import ZoneInfo
+from dateutil import tz
 from geojson import Point, LineString, Polygon
 from dataclasses import dataclass, field
 
@@ -47,11 +47,7 @@ META_ATTR_UNITCODE = "unitCode"
 META_ATTR_OBSERVED_AT = "observedAt"
 META_ATTR_DATASET_ID = "datasetId"
 
-TZ_UTC = timezone.utc
-TZ_WET = ZoneInfo("WET")  # UTC+1 i.e. Europe/Lisbon
-TZ_CET = ZoneInfo("CET")  # UTC+2 i.e. Europe/Paris
-TZ_FET = ZoneInfo("Europe/Minsk")  # UTC+3
-
+UTC = tz.UTC
 
 @dataclass
 class AttrValue:

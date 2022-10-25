@@ -21,7 +21,7 @@ from .utils.uuid import shortuuid
 from .model.entity import Entity, mkprop, mktprop, mkgprop, mkrel
 from .model.helper.postal import PostalAddressBuilder
 from .model.helper.openinghours import OpeningHoursBuilder
-from .model.constants import CORE_CONTEXT, SmartDataModels, Rel, TZ_UTC, TZ_WET, TZ_CET, TZ_FET, MultAttrValue
+from .model.constants import CORE_CONTEXT, SmartDataModels, Rel, UTC, MultAttrValue
 from .api.client import Client
 from .api.asyn.client import AsyncClient
 from .api.helper.subscription import SubscriptionBuilder
@@ -44,10 +44,7 @@ __all__ = [
     "OpeningHoursBuilder",
     "CORE_CONTEXT",
     "Rel",
-    "TZ_UTC",
-    "TZ_WET",
-    "TZ_CET",
-    "TZ_FET",
+    "UTC",
     "MultAttrValue",
     "Client",
     "AsyncClient",
