@@ -1,4 +1,20 @@
-# ngsildclient 0.4.0
+# ngsildclient 0.5.0
+## October 26, 2022
+
+- Added mapping between : an item returned from the underlying dict AND an Attribute object
+- Added Multi-Attribute support for Properties and Relationships
+- Added access to value and metadata thanks to Python @property
+- Added dot-notation access to the entity (thanks to Scalpl)
+- Added support for batchop options (Issue #5)
+- Alt POST queries accept also accept a Path to a query file
+- Fixed wrong temporal endpoint mount when TRoE shares the same port number
+- Fixed issue with naive datetimes (switched to dateutil timezones)
+- Fixed contexts bug all referencing the same array
+- Removed Mocking
+- Removed the Auto cached-date feature
+- Completly remote Readme and use a new parking example
+
+# ngsildclient 0.4.2
 ## October 14, 2022
 
 - Added support for alternative (POST) query endpoints (Issue #4)
