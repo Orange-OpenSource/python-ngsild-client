@@ -20,67 +20,6 @@
  - a toolbox to create and modify NGSI-LD entities effortlessly
  - a NGSI-LD API client to interact with a Context Broker
 
-### Build entities
-
-Four primitives are provided `prop()`, `gprop()`, `tprop()`, `rel()` to build respectively a Property, GeoProperty, TemporalProperty and Relationship.
-
-An Entity is backed by a Python dictionary that stores the JSON-LD payload.
-The library operates the mapping between the Entity's attributes and the JSON-LD counterpart, allowing to easily manipulate NGSI-LD properties and always work with Python types.
-
-### Interact with the broker
-
-Two clients are provided,  `Client` and `AsyncClient` respectively for synchronous and asynchronous modes.
-
-Prefer the synchronous one when working in interactive mode, for example to explore and visualize context data in a Jupyter notebook.
-Prefer the async one if you're looking for performance, for example to develop a "real-time" NGSI-LD Agent with a high data-acquisition frequency rate.
-
-
- ## Features
-
-### Build NGSI-LD entities
-- primitives to build properties and relationships (chainable)
-- benefit from uri naming convention, omit scheme and entity's type, e.g. `parking = Entity("OffStreetParking", "Downtown1")`
-- support dot-notation facility, e.g. `reliability = parking["availableSpotNumber.reliability"]`
-- easily manipulate a property's value, e.g. `reliability.value = 0.8`
-- easily manipulate a property's metadata, e.g. `reliability.datasetid = "dataset1"`
-- support nesting
-- support multi-attribute
-- load/save to file
-- load from HTTP
-- load well-known sample entities, e.g.  `parking = Entity.load(SmartDataModels.SmartCities.Parking.OffStreetParking)`
-- provide helpers to ease building some structures, e.g. PostalAddress
-- pretty-print entity and properties
-
-### Wrap the NGSI-LD API
- - synchronous and asynchronous clients
- - support batch operations
- - support pagination : transparently handle pagination (sending as many requests as needed under the hood)
- - support auto-batch : transparently divide into many batch requests if needed
- - support queries and alternate (POST) queries
- - support temporal queries
- - support pandas dataframe as a temporal query result
- - support subscriptions
- - find subscription conflicts
- - SubscriptionBuilder to help build subscriptions
- - auto-detect broker vendor and version
- - support follow relationships (chainable), e.g. `camera = parking.follow("availableSpotNumber.providedBy")`
-
-## Where to get it
-
-The source code is currently hosted on GitHub at :
-https://github.com/Orange-OpenSource/python-ngsild-client
-
-Binary installer for the latest released version is available at the [Python
-package index](https://pypi.org/project/ngsildclient).
-
-## Installation
-
-**ngsildclient** requires Python 3.9+.
-
-```sh
-pip install ngsildclient
-```
-
 ## Getting started
 
 ### Create our first parking Entity
@@ -151,8 +90,7 @@ e.pprint()
 
 ### Persist our parking in the Context Broker
 
-The following example assumes that an Orion-LD context broker *(w/ TRoE enabled)* is running on localhost.
-
+The following example assumes that an Orion-LD context broker is running on localhost.<br>
 A docker-compose config [file](https://raw.githubusercontent.com/Orange-OpenSource/python-ngsild-client/master/brokers/orionld/docker-compose-troe.yml) file is provided for that purpose.
 
 ```python
@@ -178,13 +116,29 @@ for _ in range(12):
 
 ### Retrieve our parking
 
-Get back our parking from the broker and display it.
-
-Only one available parking spot remains at 8 p.m.
+Get back our parking from the broker and display its `availableSpotNumber` property.<br>
 
 ```python
 parking = client.get("OffStreetParking:Downtown1", ctx=PARKING_CONTEXT)
-parking.pprint()
+parking["availableSpotNumber"].pprint()
+```
+
+Only one available parking spot remains at 8 p.m.
+
+```json
+{
+    "type": "Property",
+    "value": 1,
+    "observedAt": "2022-10-25T20:00:00Z",
+    "reliability": {
+        "type": "Property",
+        "value": 0.7
+    },
+    "providedBy": {
+        "type": "Relationship",
+        "object": "urn:ngsi-ld:Camera:C1"
+    }
+}
 ```
 
 ### Request the Temporal Representation of our parking
@@ -212,6 +166,67 @@ df.tail()
 | 11 | Downtown1          | 2022-10-25 19:00:00+00:00 |                    11 |
 | 12 | Downtown1          | 2022-10-25 20:00:00+00:00 |                     1 |
 
+## Features
+
+### Build NGSI-LD entities
+
+Four primitives are provided `prop()`, `gprop()`, `tprop()`, `rel()` to build respectively a Property, GeoProperty, TemporalProperty and Relationship.
+
+An Entity is backed by a Python dictionary that stores the JSON-LD payload.
+The library operates the mapping between the Entity's attributes and their JSON-LD counterpart, allowing to easily manipulate NGSI-LD value and metadata directly in Python.
+
+### Features list
+
+- primitives to build properties and relationships (chainable)
+- benefit from uri naming convention, omit scheme and entity's type, e.g. `parking = Entity("OffStreetParking", "Downtown1")`
+- support dot-notation facility, e.g. `reliability = parking["availableSpotNumber.reliability"]`
+- easily manipulate a property's value, e.g. `reliability.value = 0.8`
+- easily manipulate a property's metadata, e.g. `reliability.datasetid = "dataset1"`
+- support nesting
+- support multi-attribute
+- load/save to file
+- load from HTTP
+- load well-known sample entities, e.g.  `parking = Entity.load(SmartDataModels.SmartCities.Parking.OffStreetParking)`
+- provide helpers to ease building some structures, e.g. PostalAddress
+- pretty-print entity and properties
+
+### Interact with the Context Broker
+
+Two clients are provided,  `Client` and `AsyncClient` respectively for synchronous and asynchronous modes.
+
+Prefer the synchronous one when working in interactive mode, for example to explore and visualize context data in a Jupyter notebook.
+Prefer the async one if you're looking for performance, for example to develop a "real-time" NGSI-LD Agent with a high data-acquisition frequency rate.
+
+### Features list
+
+ - synchronous and asynchronous clients
+ - support batch operations
+ - support pagination : transparently handle pagination (sending as many requests as needed under the hood)
+ - support auto-batch : transparently divide into many batch requests if needed
+ - support queries and alternate (POST) queries
+ - support temporal queries
+ - support pandas dataframe as a temporal query result
+ - support subscriptions
+ - find subscription conflicts
+ - SubscriptionBuilder to help build subscriptions
+ - auto-detect broker vendor and version
+ - support follow relationships (chainable), e.g. `camera = parking.follow("availableSpotNumber.providedBy")`
+
+## Where to get it
+
+The source code is currently hosted on GitHub at :
+https://github.com/Orange-OpenSource/python-ngsild-client
+
+Binary installer for the latest released version is available at the [Python
+package index](https://pypi.org/project/ngsildclient).
+
+## Installation
+
+**ngsildclient** requires Python 3.9+.
+
+```sh
+pip install ngsildclient
+```
 
 ## Documentation
 
