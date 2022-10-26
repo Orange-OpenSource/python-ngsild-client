@@ -12,7 +12,7 @@
 - Fixed contexts bug all referencing the same array
 - Removed Mocking
 - Removed the Auto cached-date feature
-- Completly remote Readme and use a new parking example
+- Completly rewrote Readme and use a new parking example
 
 # ngsildclient 0.4.2
 ## October 14, 2022
