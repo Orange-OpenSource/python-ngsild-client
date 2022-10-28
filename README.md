@@ -239,6 +239,53 @@ n = client.count("ParkingSpot", q='status=="occupied"')  # 282
 client.close()
 ```
 
+### Next steps
+
+Create two NGSI-LD agents :
+
+- the first one collects data from parking spots in-ground sensors and cameras then updates the parking spots entities in the broker
+- the second one subscribes to parking spots events then updates values in the parking entity, such as the occupancy ratio
+
+Below the code to create the subscription needed by the second agent.
+
+```python
+from ngsildclient import SubscriptionBuilder, Client
+
+subscr = SubscriptionBuilder("http://dummy.parkingmanagement.com:8000/parking_spots")
+    .description("Notify me of parking spot movements")
+    .select_type("ParkingSpot").watch(["status"])
+    .build()
+
+with Client(port=8026, port_temporal=8027) as client:
+   subscr_id = client.subscriptions.create(subscr)
+```
+
+The following subscription payload has been generated.
+
+```json
+{
+    "type": "Subscription",
+    "description": "Notify me of parking spot movements",
+    "entities": [
+        {
+            "type': 'ParkingSpot"
+        }
+    ],
+    "watchedAttributes": [
+        "status"
+    ],
+    "isActive": true,
+    "notification": {
+        "format": "normalized",
+        "endpoint": {
+            "uri": "http://dummy.parkingmanagement.com:8000/parking_spots",
+            "accept": "application/ld+json"
+        }
+    },
+    "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+}
+```
+
 ## Features
 
 ### Build NGSI-LD entities
