@@ -1,0 +1,76 @@
+{
+    "@context": [
+        "iudx:WmgmtBin",
+        "https://raw.githubusercontent.com/smart-data-models/dataModel.WasteManagement/master/context.jsonld"
+    ],
+    "id": "urn:ngsi-ld:WasteContainer:1021:AAWD",
+    "type": "WasteContainer",
+    "RFID": {
+        "type": "Property",
+        "value": "67855734"
+    },
+    "binCapacity": {
+        "type": "Property",
+        "value": 43
+    },
+    "binCategory": {
+        "type": "Property",
+        "value": "Household Bin"
+    },
+    "binClearedTime": {
+        "type": "Property",
+        "value": {
+            "@type": "DateTime",
+            "@value": "2021-03-11T10:21:02Z"
+        }
+    },
+    "binColor": {
+        "type": "Property",
+        "value": "Green"
+    },
+    "binFillingLevel": {
+        "type": "Property",
+        "value": 0.65
+    },
+    "binFullnessThreshold": {
+        "type": "Property",
+        "value": 80
+    },
+    "binId": {
+        "type": "Property",
+        "value": 12
+    },
+    "binLoggedTime": {
+        "type": "Property",
+        "value": {
+            "@type": "DateTime",
+            "@value": "2021-03-11T10:21:02Z"
+        }
+    },
+    "binMaxLoad": {
+        "type": "Property",
+        "value": 75
+    },
+    "binRecommendedLoad": {
+        "type": "Property",
+        "value": 30
+    },
+    "licensePlate": {
+        "type": "Property",
+        "value": "KA23F2345"
+    },
+    "location": {
+        "type": "GeoProperty",
+        "value": {
+            "type": "Point",
+            "coordinates": [
+                -8.76846,
+                42.602145
+            ]
+        }
+    },
+    "wardId": {
+        "type": "Property",
+        "value": 21
+    }
+}

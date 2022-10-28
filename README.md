@@ -102,7 +102,7 @@ client.create(e)
 
 ### Increase our parking occupancy as the day goes on
 
-Each hour five more parkings spots are occupied, until 8 p.m.
+Each hour ten more parkings spots are occupied, until 8 p.m.
 
 ```python
 from datetime import timedelta
@@ -151,10 +151,9 @@ For convenience we retrieve it as a pandas dataframe.
 df = client.temporal.get(e, ctx=PARKING_CONTEXT, as_dataframe=True)
 ```
 
-Let's close the client and display the last rows.
+Let's display the last rows.
 
 ```python
-client.close()
 df.tail()
 ```
 
@@ -166,9 +165,88 @@ df.tail()
 | 11 | Downtown1          | 2022-10-25 19:00:00+00:00 |                    11 |
 | 12 | Downtown1          | 2022-10-25 20:00:00+00:00 |                     1 |
 
+### Let's throw in a more realistic parking management system
+
+Let us move from our first example to the more realistic parking example provided by the Smart Data Models Program.
+
+```python
+from ngsildclient import SmartDataModels
+
+parking = Entity.load(SmartDataModels.SmartCities.Parking.OffStreetParking)
+```
+
+Once loaded we can manipulate our new parking the same way we've done until now.<br>
+For the moment just see how it is occupied.
+
+```python
+n_total = parking["totalSpotNumber"].value
+n_occupied = parking["occupiedSpotNumber"].value
+n_free= parking["availableSpotNumber"].value
+print(n_total, n_occupied, n_avail)
+```
+
+This parking has 414 parking slots. 282 are occupied. 132 are free.<br>
+In order to complete our parking system we would like to add 414 spots to our datamodel.<br>
+Let's create a reference parking spot to be used as a template.
+
+```python
+spot = Spot("ParkingSpot", "OffStreetParking:porto-ParkingLot-23889:000")
+spot.prop("status", "free")
+spot.rel("refParkingSite", parking)
+```
+
+Let's clone this spot 414 times, assign a disctinct id to each one and occupy the 282 first spots.<br>
+This is a simplistic strategy but enough to keep the parking system consistent.
+
+```python
+spots = spot * n_total
+for i, spot in enumerate(spots):
+    spot.id = f"{spot.id[:-3]}{i+1:03}"
+    if i < n_occupied:
+        spot["status"].value = "occupied"
+```
+
+We now establish the relationship between the parking and its spots by adding a new attribute to the parking.
+
+```python
+from ngsildclient import MultAttrValue
+
+mrel = MultAttrValue()
+for spot in spots:
+    mrel.add(spot, datasetid=f"Dataset:{spot.id[-26:]}")
+parking.rel("refParkingSpot", mrel)
+```
+
+To sum up we have obtained 415 entities : 1 parking and 414 spots.<br>
+Make a single array of these parts and save it into a file.
+
+```python
+datamodel = sum([[parking], spots], [])  # flatten arrays
+Entity.save_batch(datamodel, "parking_system.jsonld")
+```
+The result is available [here](https://raw.githubusercontent.com/Orange-OpenSource/python-ngsild-client/master/parking_system.jsonld).<br>
+Time now to populate our parking system in the broker.
+
+```python
+client.upsert(datamodel)
+```
+
+Check everything is ok by asking the broker for the number of occupied spots.<br>
+Eventually close the client.
+
+```python
+n = client.count("ParkingSpot", q='status=="occupied"')  # 282
+client.close()
+```
+
 ## Features
 
 ### Build NGSI-LD entities
+
+ngsildclient aims at :
+
+- programatically generating NGSI-LD entities
+- load entities from a JSON-LD payload and further amend
 
 Four primitives are provided `prop()`, `gprop()`, `tprop()`, `rel()` to build respectively a Property, GeoProperty, TemporalProperty and Relationship.
 
@@ -195,7 +273,7 @@ The library operates the mapping between the Entity's attributes and their JSON-
 Two clients are provided,  `Client` and `AsyncClient` respectively for synchronous and asynchronous modes.
 
 Prefer the synchronous one when working in interactive mode, for example to explore and visualize context data in a Jupyter notebook.
-Prefer the async one if you're looking for performance, for example to develop a "real-time" NGSI-LD Agent with a high data-acquisition frequency rate.
+Prefer the async one if you're looking for performance, for example to develop a real-time NGSI-LD Agent with a high data-acquisition frequency rate.
 
 ### Features list
 

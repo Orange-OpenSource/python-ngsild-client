@@ -84,6 +84,18 @@ class NgsiDict(Cut, MutableMapping):
         self.data |= prop
         return self
 
+    def __mul__(self, n: int):
+        res = []
+        for _ in range(n):
+            res.append(NgsiDict.duplicate(self))
+        return res
+
+    __rmul__ = __mul__
+
+    @classmethod
+    def duplicate(cls, attr: NgsiDict) -> NgsiDict:
+        return deepcopy(attr)
+
     def dup(self) -> NgsiDict:
         """Duplicates the NgsiDict
 
@@ -120,10 +132,13 @@ class NgsiDict(Cut, MutableMapping):
     def to_dict(self) -> dict:
         return self.data
 
-    def to_json(self, indent=None) -> str:
+    def to_json(self, pattern: str = None, indent: int = None) -> str:
         """Returns the dict in json format"""
+        if pattern:
+            pattern = pattern.lower() 
+        d = {k: v for k, v in self.items() if pattern in k.lower()} if pattern else self
         return json.dumps(
-            self, ensure_ascii=False, indent=indent, default=lambda x: x.data if isinstance(x, NgsiDict) else str
+            d, ensure_ascii=False, indent=indent, default=lambda x: x.data if isinstance(x, NgsiDict) else str
         )
 
     def pprint(self, *args, **kwargs) -> None:

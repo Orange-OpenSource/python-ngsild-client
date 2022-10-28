@@ -21,7 +21,7 @@ from copy import deepcopy
 from functools import partialmethod
 
 from datetime import datetime
-from typing import Sequence, overload, Any, Union, List, Tuple, Optional, Mapping
+from typing import Sequence, overload, Any, Union, List, Tuple, Optional, Mapping, Callable
 
 
 from .exceptions import *
@@ -342,6 +342,18 @@ class Entity:
         payload: dict = json.loads(content)
         return cls(payload=payload)
 
+    @classmethod
+    def duplicate(cls, entity: Entity) -> Entity:
+        return deepcopy(entity)
+
+    @classmethod
+    def clone(cls, src: Entity, n: int = 0, f: Callable[[Entity, int], None] = None) -> List[Entity]:
+        clones = src * n
+        if f:
+            for i, c in enumerate(clones, 1):
+                c = f(c, i)
+        return clones
+
     def dup(self) -> Entity:
         """Duplicates the entity
 
@@ -351,6 +363,14 @@ class Entity:
             The new entity
         """
         return deepcopy(self)
+
+    def __mul__(self, n: int):
+        res = []
+        for _ in range(n):
+            res.append(Entity.duplicate(self))
+        return res
+
+    __rmul__ = __mul__
 
     def dupattr(self, attrname: str) -> NgsiDict:
         """Duplicates the attribute
@@ -584,6 +604,16 @@ class Entity:
     def __repr__(self):
         return self.root.__repr__()
 
+    def rm(self, key: str):
+        self.root.__delitem__(key)
+
+    def rmsysattrs(self):
+        try:
+            for key in ("createdAt", "modifiedAt"):
+                self.root.__delitem__(key)
+        except KeyError:
+            pass
+
     def to_dict(self) -> NgsiDict:
         """Returns the entity as a dictionary.
 
@@ -596,7 +626,7 @@ class Entity:
         """
         return self.root.to_dict()
 
-    def to_json(self, *args, **kwargs) -> str:
+    def to_json(self, *args, pattern: str = None, **kwargs) -> str:
         """Returns the entity as JSON.
 
         Returns
@@ -604,11 +634,11 @@ class Entity:
         str
             The JSON content
         """
-        return self.root.to_json(*args, **kwargs)
+        return self.root.to_json(*args, pattern=pattern, **kwargs)
 
-    def pprint(self, *args, **kwargs):
+    def pprint(self, *args, pattern: str = None, **kwargs):
         """Pretty-print the entity to the standard ouput."""
-        globalsettings.f_print(self.to_json(indent=2, *args, **kwargs))
+        globalsettings.f_print(self.to_json(indent=2, *args, pattern=pattern, **kwargs))
 
     @classmethod
     def load(cls, filename: str):

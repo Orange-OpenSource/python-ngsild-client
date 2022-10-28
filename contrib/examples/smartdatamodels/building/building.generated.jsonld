@@ -1,0 +1,125 @@
+{
+    "@context": [
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        "https://raw.githubusercontent.com/smart-data-models/dataModel.Building/master/context.jsonld"
+    ],
+    "id": "urn:ngsi-ld:Building:building-a85e3da145c1",
+    "type": "Building",
+    "address": {
+        "type": "Property",
+        "value": {
+            "streetAddress": "25 Walbrook",
+            "addressLocality": "London",
+            "postalCode": "EC4N 8AF"
+        }
+    },
+    "category": {
+        "type": "Property",
+        "value": [
+            "office"
+        ]
+    },
+    "containedInPlace": {
+        "type": "Property",
+        "value": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [
+                        100,
+                        0
+                    ],
+                    [
+                        101,
+                        0
+                    ],
+                    [
+                        101,
+                        1
+                    ],
+                    [
+                        100,
+                        1
+                    ],
+                    [
+                        100,
+                        0
+                    ]
+                ]
+            ]
+        }
+    },
+    "dataProvider": {
+        "type": "Property",
+        "value": "operatorA"
+    },
+    "description": {
+        "type": "Property",
+        "value": "Office block"
+    },
+    "floorsAboveGround": {
+        "type": "Property",
+        "value": 7
+    },
+    "floorsBelowGround": {
+        "type": "Property",
+        "value": 0
+    },
+    "location": {
+        "type": "GeoProperty",
+        "value": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [
+                        100,
+                        0
+                    ],
+                    [
+                        101,
+                        0
+                    ],
+                    [
+                        101,
+                        1
+                    ],
+                    [
+                        100,
+                        1
+                    ],
+                    [
+                        100,
+                        0
+                    ]
+                ]
+            ]
+        }
+    },
+    "mapUrl": {
+        "type": "Property",
+        "value": "http://www.example.com"
+    },
+    "occupier": {
+        "type": "Relationship",
+        "object": "urn:ngsi-ld:Person:9830f692-7677-11e6-838b-4f9fb3dc5a4f"
+    },
+    "openingHours": {
+        "type": "Property",
+        "value": [
+            "Mo-Fr 10:00-19:00",
+            "Sa 10:00-22:00",
+            "Su 10:00-21:00"
+        ]
+    },
+    "owner": {
+        "type": "Relationship",
+        "object": [
+            "urn:ngsi-ld:cdfd9cb8-ae2b-47cb-a43a-b9767ffd5c84",
+            "urn:ngsi-ld:1be9cd61-ef59-421f-a326-4b6c84411ad4"
+        ]
+    },
+    "source": {
+        "type": "Property",
+        "value": "http://www.example.com"
+    }
+}
