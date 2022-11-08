@@ -31,4 +31,5 @@ class Settings:
     f_print: Callable = print_json if is_interactive() else print
     follower: LinkFollower = None
 
+
 globalsettings: Settings = Settings()

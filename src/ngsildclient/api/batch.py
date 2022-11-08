@@ -33,6 +33,7 @@ BatchOp = Literal["create", "upsert", "update", "delete"]
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class BatchResult:
     op: BatchOp = "N/A"
@@ -80,7 +81,7 @@ class BatchResult:
 
 
 class Batch:
-    """A wrapper for the NGSI-LD API batch endpoint."""    
+    """A wrapper for the NGSI-LD API batch endpoint."""
 
     def __init__(self, client: Client, url: str):
         self._client = client
@@ -89,12 +90,8 @@ class Batch:
         self.console = Console()
 
     @rfc7807_error_handle
-    def _create(
-        self, entities: Sequence[Entity]) -> BatchResult:
-        r = self._session.post(
-            f"{self.url}/create/", 
-            data=json.dumps([e for e in entities], cls=NgsiEncoder)
-        )
+    def _create(self, entities: Sequence[Entity]) -> BatchResult:
+        r = self._session.post(f"{self.url}/create/", data=json.dumps([e for e in entities], cls=NgsiEncoder))
         self._client.raise_for_status(r)
         if r.status_code == 201:
             success, errors = r.json(), []
@@ -109,17 +106,15 @@ class Batch:
     def create(self, entities: Sequence[Entity], *, batchsize: int = BATCHSIZE) -> BatchResult:
         r = BatchResult("create")
         for i in range(0, len(entities), batchsize):
-            r += self._create(entities[i:i+batchsize])
+            r += self._create(entities[i : i + batchsize])
         self.console.message(f"Entities created : {r.n_ok}/{r.n_tot} [{r.ratio:.2f}]", level=r.level)
         return r
-    
+
     @rfc7807_error_handle
     def _upsert(self, entities: Sequence[Entity], opt: Literal["replace", "update"] = "replace") -> BatchResult:
         params = {"options": opt} if opt else {}
         r = self._session.post(
-            f"{self.url}/upsert/", 
-            data=json.dumps([e for e in entities], cls=NgsiEncoder),
-            params=params
+            f"{self.url}/upsert/", data=json.dumps([e for e in entities], cls=NgsiEncoder), params=params
         )
         self._client.raise_for_status(r)
         if r.status_code == 201:
@@ -139,7 +134,7 @@ class Batch:
         opt = "update" if update else "replace"
         r = BatchResult("upsert")
         for i in range(0, len(entities), batchsize):
-            r += self._upsert(entities[i:i+batchsize], opt) 
+            r += self._upsert(entities[i : i + batchsize], opt)
         self.console.message(f"Entities upserted : {r.n_ok}/{r.n_tot} [{r.ratio:.2f}]", level=r.level)
         return r
 
@@ -147,9 +142,7 @@ class Batch:
     def _update(self, entities: Sequence[Entity], opt: Literal["noOverwrite"] = None) -> BatchResult:
         params = {"options": opt} if opt else {}
         r = self._session.post(
-            f"{self.url}/update/",
-            data=json.dumps([e for e in entities], cls=NgsiEncoder),
-            params=params
+            f"{self.url}/update/", data=json.dumps([e for e in entities], cls=NgsiEncoder), params=params
         )
         self._client.raise_for_status(r)
         if r.status_code == 204:
@@ -166,15 +159,13 @@ class Batch:
         opt = "noOverwrite" if not overwrite else None
         r = BatchResult("update")
         for i in range(0, len(entities), batchsize):
-            r += self._update(entities[i:i+batchsize], opt) 
+            r += self._update(entities[i : i + batchsize], opt)
         self.console.message(f"Entities updated : {r.n_ok}/{r.n_tot} [{r.ratio:.2f}]", level=r.level)
         return r
 
     @rfc7807_error_handle
     def _delete(self, entities: Sequence[EntityOrId]) -> BatchResult:
-        r = self._session.post(
-            f"{self.url}/delete/", json=[e.id if isinstance(e, Entity) else e for e in entities]
-        )
+        r = self._session.post(f"{self.url}/delete/", json=[e.id if isinstance(e, Entity) else e for e in entities])
         self._client.raise_for_status(r)
         if r.status_code == 204:
             success, errors = [e.id for e in entities], []
@@ -189,6 +180,6 @@ class Batch:
     def delete(self, entities: Sequence[EntityOrId], *, batchsize: int = BATCHSIZE) -> BatchResult:
         r = BatchResult("delete")
         for i in range(0, len(entities), batchsize):
-            r += self._delete(entities[i:i+batchsize]) 
+            r += self._delete(entities[i : i + batchsize])
         self.console.message(f"Entities deleted : {r.n_ok}/{r.n_tot} [{r.ratio:.2f}]", level=r.level)
         return r

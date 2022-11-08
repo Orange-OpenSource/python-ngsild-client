@@ -26,7 +26,6 @@ MAP_LEVEL_COLOR = {"info": None, "success": "green", "warning": "orange3", "erro
 
 
 class Console:
-
     def __init__(self):
         self.console = console.Console() if is_interactive() else None
 
@@ -44,7 +43,7 @@ class Console:
         self.message(color="green")
 
     def warn(self):
-        self.message(color="orange") 
+        self.message(color="orange")
 
     def error(self):
-        self.message(color="red")  
+        self.message(color="red")

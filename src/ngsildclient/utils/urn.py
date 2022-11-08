@@ -227,7 +227,7 @@ class Urn:
 
     @staticmethod
     def split(value: str) -> Tuple[str, str]:
-        """Return 
+        """Return
 
         Parameters
         ----------

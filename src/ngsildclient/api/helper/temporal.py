@@ -39,7 +39,7 @@ class TemporalQuery(dict):
     ) -> dict:
         self["timerel"] = "after"
         if isinstance(start, timedelta):
-            self["timeAt"] = from_datetime(datetime.utcnow()-start)
+            self["timeAt"] = from_datetime(datetime.utcnow() - start)
         elif isinstance(start, datetime):
             self["timeAt"] = from_datetime(start)
         else:

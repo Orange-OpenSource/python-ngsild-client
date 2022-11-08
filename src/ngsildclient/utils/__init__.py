@@ -23,8 +23,9 @@ def is_interactive() -> bool:
 def is_pandas_installed() -> bool:
     return importlib.util.find_spec("pandas") is not None
 
+
 def _addopt(params: dict, newopt: str):
     if params.get("options", "") == "":
         params["options"] = newopt
     else:
-        params["options"] += f",{newopt}"    
+        params["options"] += f",{newopt}"

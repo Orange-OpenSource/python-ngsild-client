@@ -32,6 +32,7 @@ from .temporal_alt import TemporalAlt
 
 logger = logging.getLogger(__name__)
 
+
 def _troes_to_dfdict(troes: dict):
     # the result dictionary is independant of the number of attributes !
     d = {}
@@ -90,6 +91,7 @@ class TemporalResult:
 
 class Temporal:
     """A wrapper for the NGSI-LD API temporal endpoint."""
+
     def __init__(self, client: Client, url: str, url_alt_temporal_query: str):
         self._client = client
         self._session = client.session
@@ -282,7 +284,7 @@ class Temporal:
         Parameters
         ----------
         eid : Union[str, Entity]
-            The entity identifier or the entity instance     
+            The entity identifier or the entity instance
         etype : str
             The entity's type
         attrs : List[str]
@@ -304,7 +306,7 @@ class Temporal:
             By default the broker pagesize default.
         as_dataframe : bool
             Default is false, meaning it returns JSON TRoE.
-            If set returns a pandas dataframe. Requires pandas.            
+            If set returns a pandas dataframe. Requires pandas.
         limit: int
             The number of entities retrieved in each request
 
@@ -327,7 +329,17 @@ class Temporal:
         troes: List[dict] = r.result
         while r.pagination.next_url is not None:
             r: TemporalResult = self._query(
-                eid, type, attrs, q, gq, ctx, verbose, tq, lastn=lastn, pagesize=pagesize, pageanchor=r.pagination.next_url
+                eid,
+                type,
+                attrs,
+                q,
+                gq,
+                ctx,
+                verbose,
+                tq,
+                lastn=lastn,
+                pagesize=pagesize,
+                pageanchor=r.pagination.next_url,
             )
             troes.extend(r.result)
         return troes_to_dataframe(troes) if as_dataframe else troes

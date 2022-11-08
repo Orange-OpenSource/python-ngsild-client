@@ -11,15 +11,15 @@
 
 from __future__ import annotations
 
-from typing import Tuple
+from typing import Tuple, Union
 import geojson
 from geojson import Point, LineString, Polygon, MultiPoint
 from geojson.geometry import Geometry
 
 from ngsildclient.model.utils import process_observedat
 from ...utils.urn import Urn
-from ..constants import *
-from ..exceptions import *
+from ..constants import AttrValue, AttrType, META_ATTR_OBSERVED_AT, META_ATTR_DATASET_ID
+from ..exceptions import NgsiUnmatchedAttributeTypeError
 
 import ngsildclient.model.ngsidict as ngsidict
 

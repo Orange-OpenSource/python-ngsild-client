@@ -117,51 +117,37 @@ class OpeningHoursBuilder:
 
     def monday(self, opens: TimeOrStr, closes: TimeOrStr):
         opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
-        self._oh[WeekDay.MONDAY] = OpeningHoursSpecification(
-            opens, closes, WeekDay.MONDAY.value
-        )
+        self._oh[WeekDay.MONDAY] = OpeningHoursSpecification(opens, closes, WeekDay.MONDAY.value)
         return self
 
     def tuesday(self, opens: TimeOrStr, closes: TimeOrStr):
         opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
-        self._oh[WeekDay.TUESDAY] = OpeningHoursSpecification(
-            opens, closes, WeekDay.TUESDAY.value
-        )
+        self._oh[WeekDay.TUESDAY] = OpeningHoursSpecification(opens, closes, WeekDay.TUESDAY.value)
         return self
 
     def wednesday(self, opens: TimeOrStr, closes: TimeOrStr):
         opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
-        self._oh[WeekDay.WEDNESDAY] = OpeningHoursSpecification(
-            opens, closes, WeekDay.WEDNESDAY.value
-        )
+        self._oh[WeekDay.WEDNESDAY] = OpeningHoursSpecification(opens, closes, WeekDay.WEDNESDAY.value)
         return self
 
     def thursday(self, opens: TimeOrStr, closes: TimeOrStr):
         opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
-        self._oh[WeekDay.THURSDAY] = OpeningHoursSpecification(
-            opens, closes, WeekDay.THURSDAY.value
-        )
+        self._oh[WeekDay.THURSDAY] = OpeningHoursSpecification(opens, closes, WeekDay.THURSDAY.value)
         return self
 
     def friday(self, opens: TimeOrStr, closes: TimeOrStr):
         opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
-        self._oh[WeekDay.FRIDAY] = OpeningHoursSpecification(
-            opens, closes, WeekDay.FRIDAY.value
-        )
+        self._oh[WeekDay.FRIDAY] = OpeningHoursSpecification(opens, closes, WeekDay.FRIDAY.value)
         return self
 
     def saturday(self, opens: TimeOrStr, closes: TimeOrStr):
         opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
-        self._oh[WeekDay.SATURDAY] = OpeningHoursSpecification(
-            opens, closes, WeekDay.SATURDAY.value
-        )
+        self._oh[WeekDay.SATURDAY] = OpeningHoursSpecification(opens, closes, WeekDay.SATURDAY.value)
         return self
 
     def sunday(self, opens: TimeOrStr, closes: TimeOrStr):
         opens, closes = OpeningHoursBuilder._converttimes(opens, closes)
-        self._oh[WeekDay.SUNDAY] = OpeningHoursSpecification(
-            opens, closes, WeekDay.SUNDAY.value
-        )
+        self._oh[WeekDay.SUNDAY] = OpeningHoursSpecification(opens, closes, WeekDay.SUNDAY.value)
         return self
 
     def days(self, opens: TimeOrStr, closes: TimeOrStr, *days):

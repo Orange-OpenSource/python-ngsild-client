@@ -135,7 +135,7 @@ class NgsiDict(Cut, MutableMapping):
     def to_json(self, pattern: str = None, indent: int = None) -> str:
         """Returns the dict in json format"""
         if pattern:
-            pattern = pattern.lower() 
+            pattern = pattern.lower()
         d = {k: v for k, v in self.items() if pattern in k.lower()} if pattern else self
         return json.dumps(
             d, ensure_ascii=False, indent=indent, default=lambda x: x.data if isinstance(x, NgsiDict) else str

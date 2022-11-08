@@ -22,12 +22,11 @@ from ..ngsidict import NgsiDict
 
 
 class AttrFactory:
-
     @classmethod
     def create(self, attr: Mapping) -> NgsiDict:
         try:
             type = guess_ngsild_type(attr)
-        except ValueError as e:
+        except ValueError:
             return attr
         if type == "Property":
             return AttrPropValue(attr)
@@ -38,4 +37,4 @@ class AttrFactory:
         elif type == "Relationship":
             return AttrRelValue(attr)
         else:
-            return NgsiDict(attr) # should happen only for json arrays
+            return NgsiDict(attr)  # should happen only for json arrays

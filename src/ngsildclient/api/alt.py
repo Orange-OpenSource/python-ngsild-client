@@ -37,7 +37,7 @@ class Alt:
     def count(self, query: Union[dict, Path], ctx: str = None) -> int:
         if isinstance(query, Path):
             with open(query) as f:
-                query = json.load(f)           
+                query = json.load(f)
         return self._client.entities._count_alt(query, ctx)
 
     def query_head(self, query: Union[dict, Path], ctx: str = None, n: int = 5) -> List[Entity]:
@@ -68,7 +68,7 @@ class Alt:
         """
         if isinstance(query, Path):
             with open(query) as f:
-                query = json.load(f)          
+                query = json.load(f)
         return self._client.entities._query_alt(query, ctx, limit=n)
 
     def query(
@@ -105,7 +105,7 @@ class Alt:
         """
         if isinstance(query, Path):
             with open(query) as f:
-                query = json.load(f)          
+                query = json.load(f)
         entities: list[Entity] = []
         count = self.count(query, ctx=ctx)
         if count > max:
@@ -141,7 +141,7 @@ class Alt:
         """
         if isinstance(query, Path):
             with open(query) as f:
-                query = json.load(f)           
+                query = json.load(f)
         count = self.count(query)
         for page in range(ceil(count / limit)):
             if batch:

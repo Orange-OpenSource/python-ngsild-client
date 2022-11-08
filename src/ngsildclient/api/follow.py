@@ -10,11 +10,12 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Generator, Callable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .client import Client
     from ngsildclient.model.entity import Entity
+
 
 class LinkFollower:
     def __init__(self, client: Client):

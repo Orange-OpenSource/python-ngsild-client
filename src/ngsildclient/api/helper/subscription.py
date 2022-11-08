@@ -145,7 +145,5 @@ class SubscriptionBuilder:
 
     def build(self) -> dict:
         if self._subscr.entities == [] and self._subscr.watched_attrs is None:
-            raise ValueError(
-                "At least one of (a) entities or (b) watchedAttributes shall be present."
-            )
+            raise ValueError("At least one of (a) entities or (b) watchedAttributes shall be present.")
         return self._subscr.to_dict()

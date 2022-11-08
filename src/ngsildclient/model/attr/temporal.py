@@ -11,14 +11,15 @@
 
 from __future__ import annotations
 
-from ..constants import *
-from ..exceptions import *
+from typing import Union
+from datetime import datetime, date, time
 
 import ngsildclient.model.ngsidict as ngsidict
+from ngsildclient.model.constants import AttrValue, AttrType
 from ngsildclient.utils import iso8601
 
-class AttrTemporalValue(ngsidict.NgsiDict):
 
+class AttrTemporalValue(ngsidict.NgsiDict):
     @property
     def value(self) -> Union[datetime, date, time]:
         if self["type"] != "Property":
@@ -51,6 +52,6 @@ class AttrTemporalValue(ngsidict.NgsiDict):
             "@type": temporaltype.value,
             "@value": date_str,
         }
-        property["type"] = AttrType.TEMPORAL.value        
+        property["type"] = AttrType.TEMPORAL.value
         property["value"] = v  # set value
         return property

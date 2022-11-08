@@ -14,13 +14,23 @@ from __future__ import annotations
 import logging
 import httpx
 from httpx._types import AuthTypes
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Generator, List, Union, Callable
+from typing import TYPE_CHECKING, Generator, List, Union, Callable
 from math import ceil
 
 from ...model.entity import Entity
-from ..constants import *
-from ..exceptions import *
+from ..constants import (
+    NGSILD_DEFAULT_PORT,
+    NGSILD_TEMPORAL_PORT,
+    UA,
+    NGSILD_PATH,
+    ENDPOINT_ENTITIES,
+    ENDPOINT_BATCH,
+    ENDPOINT_TYPES,
+    ENDPOINT_CONTEXTS,
+    ENDPOINT_SUBSCRIPTIONS,
+    NGSILD_BASEPATH,
+    PAGINATION_LIMIT_MAX,
+)
 from .entities import Entities
 from .batch import Batch, BatchResult
 from .types import Types
@@ -201,7 +211,7 @@ class AsyncClient:
 
         Parameters
         ----------
-        entities : 
+        entities :
             Entities to be created by the Context Broker
             Either a single Entity, or a list of entities, or comma-separated entities
 
@@ -209,7 +219,7 @@ class AsyncClient:
         -------
         Entity
             The entities successfully upserted
-        """        
+        """
         if len(entities) == 1:
             if isinstance(entities[0], Entity):
                 entity = entities[0]
@@ -236,7 +246,7 @@ class AsyncClient:
             The entity identifier or the entity instance
         ctx : str
             The context
-        asdict : bool, optional
+        asdict : bool
             If set (instead of returning an Entity) returns the raw API response (a Python dict that represents the JSON response), by default False
 
         Returns
@@ -253,7 +263,7 @@ class AsyncClient:
 
         Parameters
         ----------
-        entities : 
+        entities :
             Entities to be deleted by the Context Broker
             Either a single Entity, or a list of entities, or comma-separated entities
 
@@ -261,7 +271,7 @@ class AsyncClient:
         -------
         Entity
             The entities successfully upserted
-        """        
+        """
         if len(entities) == 1:
             if isinstance(entities[0], Entity):
                 entity = entities[0]
@@ -269,7 +279,6 @@ class AsyncClient:
             else:
                 entities = entities[0]
         return await self.batch.delete(entities)
-            
 
     async def delete_from_file(self, filename: str) -> Union[bool, dict]:
         """Delete in the broker all entities present in the JSON file.
@@ -307,20 +316,20 @@ class AsyncClient:
 
         Parameters
         ----------
-        entities : 
+        entities :
             Entities to be upserted by the Context Broker
             Either a single Entity, or a list of entities, or comma-separated entities
 
         update: bool
             For batch mode only.
             If set : "indicates that existing Entity content shall be updated".
-            If not set : "indicates that all the existing Entity content shall be replaced (default mode)".            
+            If not set : "indicates that all the existing Entity content shall be replaced (default mode)".
 
         Returns
         -------
         Entity
             The entities successfully upserted
-        """        
+        """
         if len(entities) == 1:
             if isinstance(entities[0], Entity):
                 entity = entities[0]
@@ -347,20 +356,20 @@ class AsyncClient:
 
         Parameters
         ----------
-        entities : 
+        entities :
             Entities to be upserted by the Context Broker
             Either a single Entity, or a list of entities, or comma-separated entities
 
         overwrite: bool
             For batch mode only.
             If set : Overwrite (default mode).
-            If unset switch to "noOverwrite" mode : "indicates that no attribute overwrite shall be performed".            
+            If unset switch to "noOverwrite" mode : "indicates that no attribute overwrite shall be performed".
 
         Returns
         -------
         Entity
             The entities successfully updated
-        """        
+        """
         if len(entities) == 1:
             if isinstance(entities[0], Entity):
                 entity = entities[0]

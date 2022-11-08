@@ -29,8 +29,9 @@ class NgsiEncoder(JSONEncoder):
             return o.to_dict()
         return str
 
+
 def guess_ngsild_type(attr: Mapping) -> Literal["Property", "GeoProperty", "TemporalProperty", "Relationship"]:
-    if not isinstance(attr, Mapping): # not a NGSI-LD attribute
+    if not isinstance(attr, Mapping):  # not a NGSI-LD attribute
         raise ValueError("NGSI-LD attribute MUST be a JSON object")
     type = attr.get("type")
     if type is None:
@@ -53,12 +54,13 @@ def guess_ngsild_type(attr: Mapping) -> Literal["Property", "GeoProperty", "Temp
     value = attr.get("value")
     if value is None:
         raise ValueError("NGSI-LD property has no value")
-    if isinstance(value, Mapping): # should be a TemporalProperty
+    if isinstance(value, Mapping):  # should be a TemporalProperty
         inner_type = value.get("@type")
         if inner_type in ("DateTime", "Date", "Time"):
             return "TemporalProperty"
         raise ValueError("Malformed NGSI-LD TemporalProperty")
     return "Property"
+
 
 def process_observedat(observedat):
     date_str, temporaltype, _ = iso8601.parse(observedat)
@@ -66,9 +68,10 @@ def process_observedat(observedat):
         raise NgsiDateFormatError(f"observedAt must be a DateTime : {date_str}")
     return date_str
 
+
 def tuple_to_point(*coord, **kwargs) -> Point:
     if len(coord) == 1 and isinstance(coord, Tuple):
-            return Point(coord[0])
+        return Point(coord[0])
     if len(coord) == 2:
         return Point(coord)
-    raise ValueError("lat,lon tuple expected")     
+    raise ValueError("lat,lon tuple expected")

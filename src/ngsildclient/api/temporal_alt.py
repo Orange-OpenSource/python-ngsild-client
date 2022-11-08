@@ -10,7 +10,7 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Union, List, Optional, Generator, Callable
+from typing import TYPE_CHECKING, Union, List, Generator, Callable
 from pathlib import Path
 
 import logging
@@ -27,8 +27,10 @@ from ngsildclient.model.exceptions import NgsiJsonError
 
 logger = logging.getLogger(__name__)
 
+
 class TemporalAlt:
     """A wrapper for the NGSI-LD API temporal alternative endpoint."""
+
     def __init__(self, client: Client, url_alt_temporal_query: str):
         self._client = client
         self._session = client.session
@@ -57,12 +59,7 @@ class TemporalAlt:
         }
         if ctx is not None:
             headers["Link"] = f'<{ctx}>; rel="{JSONLD_CONTEXT}"; type="application/ld+json"'
-        r = self._session.post(
-            self.url_alt_temporal_query,
-            headers=headers,
-            params=params,
-            json=query
-        )
+        r = self._session.post(self.url_alt_temporal_query, headers=headers, params=params, json=query)
         self._client.raise_for_status(r)
         return TemporalResult(r.json(), Pagination.from_headers(r.headers))
 
@@ -82,7 +79,7 @@ class TemporalAlt:
                 verbose = False  # force simplified representation
             else:
                 raise ValueError("Cannot export to dataframe : pandas not installed.")
-        troes = self._query(query, ctx, lastn=limit, pagesize=limit).result
+        troes = self._query(query, ctx, verbose, lastn=limit, pagesize=limit).result
         return troes_to_dataframe(troes) if as_dataframe else troes
 
     def query(
@@ -96,7 +93,7 @@ class TemporalAlt:
     ) -> List[dict]:
         if isinstance(query, Path):
             with open(query) as f:
-                query = json.load(f)    
+                query = json.load(f)
         if as_dataframe:
             if is_pandas_installed():
                 verbose = False  # force simplified representation
@@ -125,9 +122,7 @@ class TemporalAlt:
         troes = r.result
         yield from troes
         while r.pagination.next_url is not None:
-            r: TemporalResult = self._query(
-               query, ctx, pagesize=pagesize, pageanchor=r.pagination.next_url
-            )
+            r: TemporalResult = self._query(query, ctx, pagesize=pagesize, pageanchor=r.pagination.next_url)
             troes = r.result
             yield from troes
 

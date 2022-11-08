@@ -12,12 +12,12 @@
 """This module contains constants used in the api package.
 """
 
-from typing import TYPE_CHECKING, Union, Sequence
 from enum import Enum, unique
 
 from ngsildclient import __version__
 
 Version = str
+
 
 @unique
 class Vendor(Enum):
@@ -51,11 +51,12 @@ class TimeProperty(Enum):
     MODIFIED_AT = "modifiedAt"
     CREATED_AT = "createdAt"
 
+
 @unique
 class AggrMethod(Enum):
     TOTAL_COUNT = "totalCount"
     DISTINCT_COUNT = "distinctCount"
-    SUM = "sum"  
+    SUM = "sum"
     AVERAGE = "avg"
     MINIMUM = "min"
     MAXIMUM = "max"

@@ -18,8 +18,8 @@ from ...utils.urn import Urn
 from ..constants import *
 from ..exceptions import *
 
-class AttrRelValue(ngsildclient.model.ngsidict.NgsiDict):
 
+class AttrRelValue(ngsildclient.model.ngsidict.NgsiDict):
     @property
     def type(self):
         return "Relationship"
@@ -53,7 +53,7 @@ class AttrRelValue(ngsildclient.model.ngsidict.NgsiDict):
 
     @datasetid.setter
     def datasetid(self, datasetid: str):
-        self["datasetId"] = Urn.prefix(datasetid)        
+        self["datasetId"] = Urn.prefix(datasetid)
 
     @classmethod
     def build(

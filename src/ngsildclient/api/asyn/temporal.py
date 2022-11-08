@@ -11,7 +11,6 @@
 
 from __future__ import annotations
 from typing import TYPE_CHECKING, Union, List, Sequence, Generator, Callable, Awaitable
-from dataclasses import dataclass
 from datetime import timedelta
 from isodate import duration_isoformat
 from httpx import Response

@@ -10,7 +10,7 @@
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Union, Optional, List
+from typing import TYPE_CHECKING, Union, List
 from httpx import Response
 import logging
 
@@ -21,7 +21,7 @@ from ...utils.urn import Urn
 from ..constants import JSONLD_CONTEXT, ENDPOINT_ENTITIES
 from ...model.entity import Entity
 
-from ..exceptions import rfc7807_error_handle_async, NgsiApiError, NgsiAlreadyExistsError
+from ..exceptions import rfc7807_error_handle_async, NgsiAlreadyExistsError
 
 logger = logging.getLogger(__name__)
 
@@ -38,14 +38,13 @@ class Entities:
     @rfc7807_error_handle_async
     async def create(self, entity: Entity, skip: bool = False, overwrite: bool = False) -> bool:
         headers = {"Content-Type": "application/ld+json"}
-        r: Response = await self._client.client.post(url=f"{self.url}/", headers=headers, 
-            content=entity.to_json())
+        r: Response = await self._client.client.post(url=f"{self.url}/", headers=headers, content=entity.to_json())
         if r.status_code == 409:  # already exists
             if skip:
                 return False
             elif overwrite or self._client.overwrite:
                 return self.update(entity, check_exists=False)
-        if not self._client.ignore_errors:    
+        if not self._client.ignore_errors:
             self._client.raise_for_status(r)
         return True
 
@@ -105,7 +104,7 @@ class Entities:
         self,
         type: str = None,
         q: str = None,
-        gq: str = None,        
+        gq: str = None,
         ctx: str = None,
         limit: int = 0,
         offset: int = 0,
@@ -123,7 +122,7 @@ class Entities:
         if q:
             params["q"] = q
         if gq:
-            params["geoQ"] = gq            
+            params["geoQ"] = gq
         headers = {
             "Accept": "application/ld+json",
         }  # overrides session headers

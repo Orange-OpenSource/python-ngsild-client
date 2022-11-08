@@ -49,9 +49,7 @@ class Subscriptions:
         id_returned_from_broker = location.rsplit("/", 1)[-1]
         id = subscr.get("id")
         if id is not None and id != id_returned_from_broker:
-            raise NgsiApiError(
-                f"Broker returned wrong id. Expected={id} Returned={id_returned_from_broker}"
-            )
+            raise NgsiApiError(f"Broker returned wrong id. Expected={id} Returned={id_returned_from_broker}")
         return id_returned_from_broker
 
     @rfc7807_error_handle_async
@@ -61,18 +59,14 @@ class Subscriptions:
             # "Content-Type": None,
         }  # overrides session headers
         if ctx is not None:
-            headers[
-                "Link"
-            ] = f'<{ctx}>; rel="{CORE_CONTEXT}"; type="application/ld+json"'
+            headers["Link"] = f'<{ctx}>; rel="{CORE_CONTEXT}"; type="application/ld+json"'
         r = await self._session.get(f"{self.url}")
         subscriptions = r.json()
         if pattern is not None:
             subscriptions = [
                 x
                 for x in subscriptions
-                if re.search(
-                    pattern, x.get("name", "") + x.get("description", ""), re.IGNORECASE
-                )
+                if re.search(pattern, x.get("name", "") + x.get("description", ""), re.IGNORECASE)
             ]
         return subscriptions
 
@@ -98,9 +92,7 @@ class Subscriptions:
             # "Content-Type": None,
         }  # overrides session headers
         if ctx is not None:
-            headers[
-                "Link"
-            ] = f'<{ctx}>; rel="{CORE_CONTEXT}"; type="application/ld+json"'
+            headers["Link"] = f'<{ctx}>; rel="{CORE_CONTEXT}"; type="application/ld+json"'
         r = await self._session.get(f"{self.url}")
         return [x for x in r.json() if Subscriptions._hash(x) == hashref]
 
@@ -111,9 +103,7 @@ class Subscriptions:
             # "Content-Type": None,
         }  # overrides session headers
         if ctx is not None:
-            headers[
-                "Link"
-            ] = f'<{ctx}>; rel="{CORE_CONTEXT}"; type="application/ld+json"'
+            headers["Link"] = f'<{ctx}>; rel="{CORE_CONTEXT}"; type="application/ld+json"'
         r = await self._session.get(f"{self.url}/{id}", headers=headers)
         self._client.raise_for_status(r)
         return r.json()

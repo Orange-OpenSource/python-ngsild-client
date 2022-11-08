@@ -20,8 +20,8 @@ from ...utils.urn import Urn
 from ..constants import *
 from ..exceptions import *
 
-class AttrPropValue(ngsildclient.model.ngsidict.NgsiDict):
 
+class AttrPropValue(ngsildclient.model.ngsidict.NgsiDict):
     @property
     def type(self):
         return "Property"

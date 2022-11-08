@@ -21,16 +21,24 @@ from copy import deepcopy
 from functools import partialmethod
 
 from datetime import datetime
-from typing import Sequence, overload, Any, Union, List, Tuple, Optional, Mapping, Callable
+from typing import (
+    Sequence,
+    overload,
+    Any,
+    Union,
+    List,
+    Tuple,
+    Optional,
+    Mapping,
+    Callable,
+)
 
 
-from .exceptions import *
 from ngsildclient.model.ngsidict import NgsiDict
 from ngsildclient.utils import iso8601, url
 from ngsildclient.utils.urn import Urn
-
+from ngsildclient.model.exceptions import NgsiMissingIdError, NgsiMissingTypeError, NgsiMissingContextError
 from ngsildclient.model.constants import CORE_CONTEXT, Rel, NgsiDate, NgsiGeometry
-from ngsildclient.api.follow import LinkFollower
 from ngsildclient.settings import globalsettings
 
 logger = logging.getLogger(__name__)
@@ -185,8 +193,8 @@ class Entity:
         One can omit the urn and namespace, "urn:ngsi-ld:" will be added automatically.
         One can omit the type inside the identifier.
 
-        By default, the constructor assumes the identifier naming convention "urn:ngsi-ld:<type>:<remainder>" and automatically
-        insert the type into the identifier.
+        By default, the constructor assumes the identifier naming convention "urn:ngsi-ld:<type>:<remainder>" and
+        automatically insert the type into the identifier.
         The default behaviour can be disabled : Entity.globalsettings.autoprefix = False.
 
 
@@ -530,7 +538,12 @@ class Entity:
         if nested and self._lastwasmulti:
             raise ValueError("Nesting multi-attribute is not allowed")
         property = NgsiDict.mkprop(
-            value, datasetid=datasetid, observedat=observedat, unitcode=unitcode, userdata=userdata, escape=escape
+            value,
+            datasetid=datasetid,
+            observedat=observedat,
+            unitcode=unitcode,
+            userdata=userdata,
+            escape=escape,
         )
         self._update_entity(name, property, nested)
         return self
@@ -855,6 +868,9 @@ class Entity:
         payload = [x.root for x in entities]
         async with aiofiles.open(filename, "w") as fp:
             payload = json.dumps(
-                payload, ensure_ascii=False, indent=indent, default=lambda x: x.data if isinstance(x, NgsiDict) else str
+                payload,
+                ensure_ascii=False,
+                indent=indent,
+                default=lambda x: x.data if isinstance(x, NgsiDict) else str,
             )
             await fp.write(payload)
