@@ -12,17 +12,16 @@
 import pkg_resources
 import json
 
-from datetime import datetime, timezone
-from ngsildclient.model.entity import *
+from datetime import datetime
+from dateutil.tz import UTC
+from ngsildclient.model.entity import Entity
 from ngsildclient.model.helper.postal import PostalAddressBuilder
 from ngsildclient.model.helper.openinghours import OpeningHoursBuilder
 from ngsildclient.utils.urn import Urn
 
 
 def expected_dict(basename: str) -> dict:
-    filename: str = pkg_resources.resource_filename(
-        __name__, f"data/urbanmobility/{basename}.json"
-    )
+    filename: str = pkg_resources.resource_filename(__name__, f"data/urbanmobility/{basename}.json")
     with open(filename, "r") as fp:
         expected = json.load(fp)
     return expected
@@ -41,19 +40,13 @@ def test_transportstop():
         ],
     )
 
-    e.tprop("dateModified", datetime(2018, 9, 25, 8, 32, 26, tzinfo=timezone.utc))
+    e.tprop("dateModified", datetime(2018, 9, 25, 8, 32, 26, tzinfo=UTC))
     e.prop("source", "https://api.smartsantander.eu/")
     e.prop("dataProvider", "http://www.smartsantander.eu/")
     e.prop("entityVersion", "2.0")
 
     builder = PostalAddressBuilder()
-    address = (
-        builder.street("C/ La Pereda 14")
-        .locality("Santander")
-        .region("Cantabria")
-        .country("Spain")
-        .build()
-    )
+    address = builder.street("C/ La Pereda 14").locality("Santander").region("Cantabria").country("Spain").build()
     e.prop("address", address)
 
     e.gprop("location", (43.478053126, -3.804648385))

@@ -21,12 +21,13 @@ from .common import sample_entity
 
 logger = logging.getLogger(__name__)
 
+
 @pytest.mark.asyncio
 async def test_api_batch_single_create_ok(mocked_connected, httpx_mock: HTTPXMock):
     httpx_mock.add_response(
         method="POST",
         url="http://localhost:1026/ngsi-ld/v1/entityOperations/create/",
-        headers = {"Content-Type": "application/ld+json"},
+        headers={"Content-Type": "application/ld+json"},
         status_code=201,
         json=[
             "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
@@ -46,19 +47,35 @@ async def test_api_batch_single_create_ok(mocked_connected, httpx_mock: HTTPXMoc
     assert r.n_err == 0
     assert r.ratio == 1.0
 
+
 @pytest.mark.asyncio
 async def test_api_batch_single_create_nok(mocked_connected, httpx_mock: HTTPXMock):
     httpx_mock.add_response(
         method="POST",
         url="http://localhost:1026/ngsi-ld/v1/entityOperations/create/",
-        headers = {"Content-Type": "application/ld+json"},
+        headers={"Content-Type": "application/ld+json"},
         status_code=207,
-        json={"success": [], 
+        json={
+            "success": [],
             "errors": [
-                {"entityId": "urn:ngsi-ld:RoomObserved:Room1", "error": {"type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData", "title": "entity already exists", "status": 400}}, 
-                {'entityId': 'urn:ngsi-ld:RoomObserved:Room2', 'error': {'type': 'https://uri.etsi.org/ngsi-ld/errors/BadRequestData', 'title': 'entity already exists', 'status': 400}}
-            ]
-        }
+                {
+                    "entityId": "urn:ngsi-ld:RoomObserved:Room1",
+                    "error": {
+                        "type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData",
+                        "title": "entity already exists",
+                        "status": 400,
+                    },
+                },
+                {
+                    "entityId": "urn:ngsi-ld:RoomObserved:Room2",
+                    "error": {
+                        "type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData",
+                        "title": "entity already exists",
+                        "status": 400,
+                    },
+                },
+            ],
+        },
     )
     client = AsyncClient()
     room1 = Entity("RoomObserved", "Room1").prop("temperature", 21.7)
@@ -70,30 +87,45 @@ async def test_api_batch_single_create_nok(mocked_connected, httpx_mock: HTTPXMo
     assert r.n_err == 2
     assert r.ratio == 0.0
     assert r.errors == [
-        {"entityId": "urn:ngsi-ld:RoomObserved:Room1", "error": {"type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData", "title": "entity already exists", "status": 400}}, 
-        {'entityId': 'urn:ngsi-ld:RoomObserved:Room2', 'error': {'type': 'https://uri.etsi.org/ngsi-ld/errors/BadRequestData', 'title': 'entity already exists', 'status': 400}}
+        {
+            "entityId": "urn:ngsi-ld:RoomObserved:Room1",
+            "error": {
+                "type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData",
+                "title": "entity already exists",
+                "status": 400,
+            },
+        },
+        {
+            "entityId": "urn:ngsi-ld:RoomObserved:Room2",
+            "error": {
+                "type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData",
+                "title": "entity already exists",
+                "status": 400,
+            },
+        },
     ]
+
 
 @pytest.mark.asyncio
 async def test_api_batch_create_multi_ok(mocked_connected, httpx_mock: HTTPXMock):
     httpx_mock.add_response(
         method="POST",
         url="http://localhost:1026/ngsi-ld/v1/entityOperations/create/",
-        headers = {"Content-Type": "application/ld+json"},
+        headers={"Content-Type": "application/ld+json"},
         status_code=201,
         json=[
             "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
             "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
-        ]
+        ],
     )
     httpx_mock.add_response(
         method="POST",
         url="http://localhost:1026/ngsi-ld/v1/entityOperations/create/",
-        headers = {"Content-Type": "application/ld+json"},
+        headers={"Content-Type": "application/ld+json"},
         status_code=201,
         json=[
             "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
-        ]
+        ],
     )
     client = AsyncClient()
     sample2 = sample_entity.dup()
@@ -108,12 +140,13 @@ async def test_api_batch_create_multi_ok(mocked_connected, httpx_mock: HTTPXMock
     assert r.ratio == 1.0
     assert r.errors == []
 
+
 @pytest.mark.asyncio
 async def test_api_batch_upsert_ok_201(mocked_connected, httpx_mock: HTTPXMock):
     httpx_mock.add_response(
         method="POST",
         url="http://localhost:1026/ngsi-ld/v1/entityOperations/upsert/?options=replace",
-        headers = {"Content-Type": "application/ld+json"},
+        headers={"Content-Type": "application/ld+json"},
         status_code=201,
         json=[
             "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
@@ -139,14 +172,15 @@ async def test_api_batch_upsert_ok_201(mocked_connected, httpx_mock: HTTPXMock):
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
     ]
 
+
 @pytest.mark.asyncio
 async def test_api_batch_upsert_ok_204(mocked_connected, httpx_mock: HTTPXMock):
     httpx_mock.add_response(
         method="POST",
         url="http://localhost:1026/ngsi-ld/v1/entityOperations/upsert/?options=replace",
-        headers = {"Content-Type": "application/ld+json"},
-        status_code=204
-    )    
+        headers={"Content-Type": "application/ld+json"},
+        status_code=204,
+    )
     client = AsyncClient()
     sample2 = sample_entity.dup()
     sample3 = sample_entity.dup()
@@ -165,12 +199,13 @@ async def test_api_batch_upsert_ok_204(mocked_connected, httpx_mock: HTTPXMock):
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
     ]
 
+
 @pytest.mark.asyncio
 async def test_api_batch_update_ok_204(mocked_connected, httpx_mock: HTTPXMock):
     httpx_mock.add_response(
         method="POST",
         url="http://localhost:1026/ngsi-ld/v1/entityOperations/update/",
-        headers = {"Content-Type": "application/ld+json"},
+        headers={"Content-Type": "application/ld+json"},
         status_code=204,
         json=[
             "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
@@ -196,19 +231,20 @@ async def test_api_batch_update_ok_204(mocked_connected, httpx_mock: HTTPXMock):
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
     ]
 
+
 @pytest.mark.asyncio
 async def test_api_batch_delete_ok_204(mocked_connected, httpx_mock: HTTPXMock):
     httpx_mock.add_response(
         method="POST",
         url="http://localhost:1026/ngsi-ld/v1/entityOperations/delete/",
-        headers = {"Content-Type": "application/ld+json"},
+        headers={"Content-Type": "application/ld+json"},
         status_code=204,
         json=[
             "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
             "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
             "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
         ],
-    )    
+    )
     client = AsyncClient()
     sample2 = sample_entity.dup()
     sample3 = sample_entity.dup()
@@ -225,4 +261,4 @@ async def test_api_batch_delete_ok_204(mocked_connected, httpx_mock: HTTPXMock):
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
-    ]    
+    ]

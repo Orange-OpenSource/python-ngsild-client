@@ -16,15 +16,17 @@ from typing import List, TYPE_CHECKING
 if TYPE_CHECKING:
     from ngsildclient.model.constants import EntityOrId
 
-from datetime import datetime, timezone
+from datetime import datetime
+from dateutil.tz import UTC
 from ngsildclient.model.entity import Entity
 from ngsildclient.api.client import Client
 from ngsildclient.utils.urn import Urn
 
-sample_entity = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
-sample_entity.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=timezone.utc))
+sample_entity = Entity("AirQualityObserved", "RZ:Obsv4567")
+sample_entity.tprop("dateObserved", datetime(2018, 8, 7, 12, tzinfo=UTC))
 sample_entity.prop("NO2", 22, unitcode="GP")
 sample_entity.rel("refPointOfInterest", "PointOfInterest:RZ:MainSquare")
+
 
 class MockedClient(Client):
     def __init__(self):

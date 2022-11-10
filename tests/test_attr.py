@@ -11,9 +11,11 @@
 
 import pytest
 
-from datetime import datetime, date, time, timezone
+from datetime import datetime
+from dateutil.tz import UTC
 from ngsildclient.model.entity import Entity
 from ngsildclient.model.attr.prop import AttrPropValue
+
 
 def test_observedat():
     e = Entity("OffStreetParking", "Downtown1")
@@ -21,4 +23,4 @@ def test_observedat():
     p = e["availableSpotNumber"]
     assert isinstance(p, AttrPropValue)
     dt = p.observedat
-    assert dt == datetime(2017, 7, 29, 12, 5, 2, tzinfo=timezone.utc)
+    assert dt == datetime(2017, 7, 29, 12, 5, 2, tzinfo=UTC)

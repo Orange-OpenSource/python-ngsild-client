@@ -23,7 +23,6 @@ from functools import partialmethod
 from datetime import datetime
 from typing import (
     Sequence,
-    overload,
     Any,
     Union,
     List,
@@ -186,15 +185,24 @@ class Entity:
     >>> e.rm("NO2.accuracy")
     """
 
-    @overload
-    def __init__(self, type: str, id: str, *, ctx: List = None):
+    def __init__(
+        self,
+        *args: str,
+        ctx: List = None,
+        payload: dict = None,
+        autoprefix: Optional[bool] = None,
+    ):
         """Create a NGSI-LD compliant entity
 
-        One can omit the urn and namespace, "urn:ngsi-ld:" will be added automatically.
-        One can omit the type inside the identifier.
+        Expected args are : the Entity's type and identifier.
+        Example : Entity("AirQualityObserved", "RZ:Obsv4567")
+        The fully qualified identifier is built following the naming convention : "urn:ngsi-ld:{type}:{id}'.
+        "urn:ngsi-ld:" is added if not specified.
 
-        By default, the constructor assumes the identifier naming convention "urn:ngsi-ld:<type>:<remainder>" and
-        automatically insert the type into the identifier.
+        Alernatively a single arg is allowed : the fully qualified Entity's identifier.
+        Example : Entity("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
+        Type is inferred from the fully qualified identifier.
+
         The default behaviour can be disabled : Entity.globalsettings.autoprefix = False.
 
 
@@ -224,60 +232,16 @@ class Entity:
             "type": "AirQualityObserved"
         }
         """
-        ...
-
-    @overload
-    def __init__(self, id: str, *, ctx: List = None):
-        """Create a NGSI-LD compliant entity.
-
-        Type is inferred from the fully qualified identifier.
-        Works only if your identifiers follow the naming convention "urn:ngsi-ld:<type>:<remainder>"
-
-        Parameters
-        ----------
-        id : str
-            entity identifier (fully qualified urn)
-        context : list, optional
-            the NGSI-LD context, by default the NGSI-LD Core Context
-
-        Example
-        -------
-        >>> from ngsildclient.model.entity import Entity
-        >>> e = Entity("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
-        >>> e.pprint()
-        {
-            "@context": [
-                "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
-            ],
-            "id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
-            "type": "AirQualityObserved"
-        }
-        """
-        ...
-
-    def __init__(
-        self,
-        arg1: str = None,
-        arg2: str = None,
-        *,
-        ctx: List = None,
-        payload: dict = None,
-        autoprefix: Optional[bool] = None,
-    ):
-        logger.debug(f"{arg1=} {arg2=}")
-
-        if not ctx:
-            ctx = [CORE_CONTEXT]
-
-        if autoprefix is None:
-            autoprefix = globalsettings.autoprefix
-
         self.root: NgsiDict = None
         self._lastprop: NgsiDict = None
         self._anchored: bool = False
         self._lastwasmulti: bool = False
 
-        if payload is not None:  # create Entity from a dictionary
+        if len(args) == 2:
+            type, id = args
+        elif len(args) == 1:
+            id, type = args[0], None
+        elif len(args) == 0 and payload is not None:  # create Entity from a dictionary
             if not payload.get("id", None):
                 raise NgsiMissingIdError()
             if not payload.get("type", None):
@@ -286,14 +250,15 @@ class Entity:
                 raise NgsiMissingContextError()
             self._lastprop = self.root = NgsiDict(payload)
             return
+        else:
+            raise ValueError("Expecteds args : type, id (alt. fully qualified id)")
+
+        if autoprefix is None:
+            autoprefix = globalsettings.autoprefix
+        if not ctx:
+            ctx = [CORE_CONTEXT]
 
         # create a new Entity using its id and type
-
-        if arg2:
-            type, id = arg1, arg2
-        else:
-            type, id = None, arg1
-
         if type is None:  # try to infer type from the fully qualified identifier
             id = Urn.prefix(id)
             urn = Urn(id)

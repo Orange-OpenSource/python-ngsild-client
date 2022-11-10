@@ -211,9 +211,10 @@ observedAt
 .. code-block::
   :caption: SO2 concentration with the observation date
 
-   from datetime import datetime, timezone
+   from datetime import datetime
+   from dateutil.tz import UTC
 
-   entity.prop("SO2", 11, observedat=datetime(2016, 3, 15, 11, tzinfo=timezone.utc))
+   entity.prop("SO2", 11, observedat=datetime(2016, 3, 15, 11, tzinfo=UTC))
 
    # Alternatively one could pass directly an ISO8601 string
    # entity.prop("SO2", 11, observedat="2016-03-15T11:00:00Z")

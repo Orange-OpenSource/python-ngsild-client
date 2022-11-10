@@ -9,7 +9,8 @@
 #
 # Author: Fabien BATTELLO <fabien.battello@orange.com> et al.
 
-from datetime import datetime, timezone
+from datetime import datetime
+from dateutil.tz import UTC
 from ngsildclient import Entity, PostalAddressBuilder, OpeningHoursBuilder
 from ngsildclient.utils.urn import Urn
 
@@ -23,7 +24,7 @@ def build_entity():
             "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
         ],
     )
-    e.tprop("dateModified", datetime(2018, 9, 25, 8, 32, 26, tzinfo=timezone.utc))
+    e.tprop("dateModified", datetime(2018, 9, 25, 8, 32, 26, tzinfo=UTC))
     e.prop("source", "https://api.smartsantander.eu/")
     e.prop("dataProvider", "http://www.smartsantander.eu/")
     e.prop("entityVersion", "2.0")

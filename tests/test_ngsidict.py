@@ -11,20 +11,25 @@
 
 import pytest
 
-from datetime import datetime, date, time, timezone
+from datetime import datetime, date, time
+from dateutil.tz import UTC
 from geojson import Point
 
 from ngsildclient.model.entity import Entity, mkprop
 from ngsildclient.model.ngsidict import NgsiDict
 
+
 def test_type():
-    d = {"@context": ["https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"],
+    d = {
+        "@context": ["https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"],
         "id": "urn:ngsi-ld:Barn:Barn001",
         "type": "Barn",
-        "fillingLevel": {"type": "Property", "value": 0.6}}
+        "fillingLevel": {"type": "Property", "value": 0.6},
+    }
     e = Entity(payload=d)
     prop = e["fillingLevel"]
     assert prop.type == "Property"
+
 
 def test_prop():
     p = NgsiDict.mkprop(22)
@@ -47,7 +52,7 @@ def test_prop_with_meta_unitcode():
 
 
 def test_prop_with_meta_timestamp():
-    p = NgsiDict.mkprop(22, observedat=datetime(2021, 8, 31, 12, tzinfo=timezone.utc))
+    p = NgsiDict.mkprop(22, observedat=datetime(2021, 8, 31, 12, tzinfo=UTC))
     assert p == {"observedAt": "2021-08-31T12:00:00Z", "type": "Property", "value": 22}
 
 
@@ -84,7 +89,7 @@ def test_geoprop_point_as_tuple():
 
 
 def test_temporal_prop_datetime():
-    p = NgsiDict.mktprop(datetime(2021, 8, 31, 12, tzinfo=timezone.utc))
+    p = NgsiDict.mktprop(datetime(2021, 8, 31, 12, tzinfo=UTC))
     assert p == {
         "type": "Property",
         "value": {"@type": "DateTime", "@value": "2021-08-31T12:00:00Z"},
