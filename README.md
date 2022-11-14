@@ -151,16 +151,14 @@ For convenience we retrieve it as a pandas dataframe.
 df = client.temporal.get(e, ctx=PARKING_CONTEXT, as_dataframe=True)
 ```
 
-Let's display the last rows.
+Let's display the three last rows.
 
 ```python
-df.tail()
+df.tail(3)
 ```
 
 |    | OffStreetParking   | observed                  |   availableSpotNumber |
 |---:|:-------------------|:--------------------------|----------------------:|
-|  8 | Downtown1          | 2022-10-25 16:00:00+00:00 |                    41 |
-|  9 | Downtown1          | 2022-10-25 17:00:00+00:00 |                    31 |
 | 10 | Downtown1          | 2022-10-25 18:00:00+00:00 |                    21 |
 | 11 | Downtown1          | 2022-10-25 19:00:00+00:00 |                    11 |
 | 12 | Downtown1          | 2022-10-25 20:00:00+00:00 |                     1 |
@@ -181,16 +179,16 @@ For the moment just see how it is occupied.
 ```python
 n_total = parking["totalSpotNumber"].value
 n_occupied = parking["occupiedSpotNumber"].value
-n_free= parking["availableSpotNumber"].value
+n_avail= parking["availableSpotNumber"].value
 print(n_total, n_occupied, n_avail)
 ```
 
-This parking has 414 parking slots. 282 are occupied. 132 are free.<br>
+This parking has 414 parking slots. 282 are occupied. 132 are available.<br>
 In order to complete our parking system we would like to add 414 spots to our datamodel.<br>
 Let's create a reference parking spot to be used as a template.
 
 ```python
-spot = Spot("ParkingSpot", "OffStreetParking:porto-ParkingLot-23889:000")
+spot = Entity("ParkingSpot", "OffStreetParking:porto-ParkingLot-23889:000")
 spot.prop("status", "free")
 spot.rel("refParkingSite", parking)
 ```
@@ -206,7 +204,9 @@ for i, spot in enumerate(spots):
         spot["status"].value = "occupied"
 ```
 
-We now establish the relationship between the parking and its spots by adding a new attribute to the parking.
+We now establish the relationship between the parking and its spots by adding a new attribute to the parking.<br>
+Having a mutual relationship is not necessarily needed. It depends on how we want to navigate in our datamodel. <br>
+Let's do it for the sake of example.
 
 ```python
 from ngsildclient import MultAttrValue
@@ -218,10 +218,10 @@ parking.rel("refParkingSpot", mrel)
 ```
 
 To sum up we have obtained 415 entities : 1 parking and 414 spots.<br>
-Make a single array of these parts and save it into a file.
+Make a single list of these parts and save it into a file.
 
 ```python
-datamodel = sum([[parking], spots], [])  # flatten arrays
+datamodel = sum(([parking], spots), [])  # flatten lists
 Entity.save_batch(datamodel, "parking_system.jsonld")
 ```
 The result is available [here](https://raw.githubusercontent.com/Orange-OpenSource/python-ngsild-client/master/parking_system.jsonld).<br>
@@ -235,7 +235,7 @@ Check everything is ok by asking the broker for the number of occupied spots.<br
 Eventually close the client.
 
 ```python
-n = client.count("ParkingSpot", q='status=="occupied"')  # 282
+client.count("ParkingSpot", q='refParkingSite=="urn:ngsi-ld:OffStreetParking:porto-ParkingLot-23889";status=="occupied"')  # 282
 client.close()
 ```
 
