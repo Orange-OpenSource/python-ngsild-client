@@ -231,7 +231,7 @@ Time now to populate our parking system in the broker.
 client.upsert(datamodel)
 ```
 
-Check everything is ok by asking the broker for the number of occupied spots.<br>
+Check everything is fine by asking the broker for the number of occupied spots.<br>
 Eventually close the client.
 
 ```python
