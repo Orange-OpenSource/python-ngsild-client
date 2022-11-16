@@ -524,6 +524,17 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "multipledispatch"
+version = "0.6.0"
+description = "Multiple dispatch"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+six = "*"
+
+[[package]]
 name = "mypy-extensions"
 version = "0.4.3"
 description = "Experimental type system extensions for programs checked with the mypy typechecker."
@@ -1164,7 +1175,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "flake8 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "19328f7f85bf017bc1865bf0dbeda7862a72de01331ec4cdd1e8a93b3d51dff8"
+content-hash = "f623b34b027eb47082bcd5085ee1db1dcf49100e83ce36598f2057c7d54aed1f"
 
 [metadata.files]
 aiofiles = []
@@ -1239,6 +1250,7 @@ jupyter-core = []
 markupsafe = []
 matplotlib-inline = []
 mccabe = []
+multipledispatch = []
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},

@@ -66,14 +66,14 @@ def test_constructor_type_and_id_without_scheme():
     assert e.id == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"
 
 
-def test_constructor_autoprefix_type_and_id_without_type_included():
-    e = Entity("AirQualityObserved", "RZ:Obsv4567", autoprefix=True)
+def test_constructor_type_and_id_without_type_included():
+    e = Entity("AirQualityObserved", "RZ:Obsv4567")
     assert e.type == "AirQualityObserved"
     assert e.id == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"
 
 
-def test_constructor_autoprefix_type_and_id_with_type_included():
-    e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567", autoprefix=True)
+def test_constructor_type_and_id_with_type_included():
+    e = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567")
     assert e.type == "AirQualityObserved"
     assert e.id == "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567"
 
@@ -140,7 +140,7 @@ def test_air_quality_from_dict(expected_air_quality):
             "object": "urn:ngsi-ld:PointOfInterest:RZ:MainSquare",
         },
     }
-    e = Entity.from_dict(payload=payload)
+    e = Entity.from_dict(payload)
     assert e.to_dict() == expected_air_quality
 
 
@@ -207,7 +207,7 @@ def test_store():
     """
     e = Entity(
         "Store",
-        "Store:001",
+        "001",
         ctx=[
             {
                 "Store": "https://uri.etsi.org/ngsi-ld/primer/Store",

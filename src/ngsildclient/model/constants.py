@@ -45,6 +45,8 @@ if TYPE_CHECKING:
         Sequence[entity.Entity],
     ]
 
+LD_PREFIX = "urn:ngsi-ld"
+
 NgsiLocation = Union[tuple[int, int], Point]
 """A user type : either a tuple of two ints (lat, lon) or a GeoJson Point.
 """

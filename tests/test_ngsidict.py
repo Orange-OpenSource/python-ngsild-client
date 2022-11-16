@@ -26,7 +26,7 @@ def test_type():
         "type": "Barn",
         "fillingLevel": {"type": "Property", "value": 0.6},
     }
-    e = Entity(payload=d)
+    e = Entity(d)
     prop = e["fillingLevel"]
     assert prop.type == "Property"
 

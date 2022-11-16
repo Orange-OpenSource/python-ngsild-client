@@ -22,7 +22,6 @@ import re
 import logging
 
 from typing import overload, Optional, Tuple
-from ngsildclient.api.constants import ENDPOINT_ENTITIES
 
 NID_PATTERN = re.compile(r"^[0-9a-zA-Z\-]+$")
 """Regex pattern that matches a valid namespace identifier (`regex.Pattern`).
@@ -49,8 +48,6 @@ class Urn:
     """Helper class to handle NGSI-LD urn/uri and allow to work with unprefixed strings."""
 
     DEFAULT_NID = "ngsi-ld"
-    # """Default NGSI-LD namespace value
-    # """
 
     @overload
     def __init__(self, fqn: str) -> None:
@@ -202,7 +199,7 @@ class Urn:
         return value if Urn.is_prefixed(value) else f"urn:ngsi-ld:{value}"
 
     @staticmethod
-    def shorten(value: str) -> str:
+    def unprefix(value: str) -> str:
         """Remove the prefix (URN scheme+NID)
 
         Parameters

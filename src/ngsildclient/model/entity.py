@@ -19,7 +19,6 @@ import logging
 
 from copy import deepcopy
 from functools import partialmethod
-
 from datetime import datetime
 from typing import (
     Sequence,
@@ -31,13 +30,13 @@ from typing import (
     Mapping,
     Callable,
 )
-
+from multipledispatch import dispatch
 
 from ngsildclient.model.ngsidict import NgsiDict
 from ngsildclient.utils import iso8601, url
 from ngsildclient.utils.urn import Urn
 from ngsildclient.model.exceptions import NgsiMissingIdError, NgsiMissingTypeError, NgsiMissingContextError
-from ngsildclient.model.constants import CORE_CONTEXT, Rel, NgsiDate, NgsiGeometry
+from ngsildclient.model.constants import CORE_CONTEXT, LD_PREFIX, Rel, NgsiDate, NgsiGeometry
 from ngsildclient.settings import globalsettings
 
 logger = logging.getLogger(__name__)
@@ -185,96 +184,38 @@ class Entity:
     >>> e.rm("NO2.accuracy")
     """
 
-    def __init__(
-        self,
-        *args: str,
-        ctx: List = None,
-        payload: dict = None,
-        autoprefix: Optional[bool] = None,
-    ):
-        """Create a NGSI-LD compliant entity
+    @staticmethod
+    def _build_fully_qualified_id(type: str, id: str) -> Urn:
+        if globalsettings.autoprefix:
+            bare_id = Urn.unprefix(id)
+            if not bare_id.startswith(f"{type}:"):
+                id = f"{type}:{bare_id}"
+        return Urn.prefix(id)
 
-        Expected args are : the Entity's type and identifier.
-        Example : Entity("AirQualityObserved", "RZ:Obsv4567")
-        The fully qualified identifier is built following the naming convention : "urn:ngsi-ld:{type}:{id}'.
-        "urn:ngsi-ld:" is added if not specified.
-
-        Alernatively a single arg is allowed : the fully qualified Entity's identifier.
-        Example : Entity("urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
-        Type is inferred from the fully qualified identifier.
-
-        The default behaviour can be disabled : Entity.globalsettings.autoprefix = False.
-
-
-        Parameters
-        ----------
-        type : str
-            entity type
-        id : str
-            entity identifier
-        ctx : list, optional
-            the NGSI-LD context, by default the NGSI-LD Core Context
-
-        Example
-        -------
-        >>> from ngsildclient.model.entity import Entity
-        >>> e1 = Entity("AirQualityObserved", "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567") # long form
-        >>> e2 = Entity("AirQualityObserved", "AirQualityObserved:RZ:Obsv4567") # omit scheme + nss
-        >>> e3 = Entity("AirQualityObserved", "RZ:Obsv4567") # omit scheme + nss + type
-        >>> print(e1 == e2 == e3)
-        True
-        >>> e1.pprint()
-        {
-            "@context": [
-                "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
-            ],
-            "id": "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
-            "type": "AirQualityObserved"
-        }
-        """
-        self.root: NgsiDict = None
-        self._lastprop: NgsiDict = None
+    @dispatch(dict)
+    def __init__(self, payload: dict):
+        if not payload.get("id", None):
+            raise NgsiMissingIdError()
+        if not payload.get("type", None):
+            raise NgsiMissingTypeError()
+        if not payload.get("@context"):
+            payload["@context"] = [CORE_CONTEXT]
+        self._lastprop = self.root = NgsiDict(payload)
         self._anchored: bool = False
         self._lastwasmulti: bool = False
 
-        if len(args) == 2:
-            type, id = args
-        elif len(args) == 1:
-            id, type = args[0], None
-        elif len(args) == 0 and payload is not None:  # create Entity from a dictionary
-            if not payload.get("id", None):
-                raise NgsiMissingIdError()
-            if not payload.get("type", None):
-                raise NgsiMissingTypeError()
-            if not payload.get("@context", None):
-                raise NgsiMissingContextError()
-            self._lastprop = self.root = NgsiDict(payload)
-            return
-        else:
-            raise ValueError("Expecteds args : type, id (alt. fully qualified id)")
+    @dispatch(str, str)
+    def __init__(self, type: str, id: str, *, ctx: List[str] = None):  # noqa F811
+        id = Entity._build_fully_qualified_id(type, id)
+        self.__init__({"id": id, "type": type, "@context": ctx or [CORE_CONTEXT]})
 
-        if autoprefix is None:
-            autoprefix = globalsettings.autoprefix
-        if not ctx:
-            ctx = [CORE_CONTEXT]
-
-        # create a new Entity using its id and type
-        if type is None:  # try to infer type from the fully qualified identifier
-            id = Urn.prefix(id)
-            urn = Urn(id)
-            if (type := urn.infertype()) is None:
-                raise NgsiMissingTypeError(f"{urn.fqn=}")
-        else:  # type is not None
-            autoprefix &= not Urn.is_prefixed(id)
-            if autoprefix:
-                bareid = Urn.shorten(id)
-                prefix = f"{type}:"
-                if not bareid.startswith(prefix):
-                    id = prefix + bareid
-            id = Urn.prefix(id)  # set the prefix "urn:ngsi-ld:" if not already done
-            urn = Urn(id)
-
-        self._lastprop = self.root = NgsiDict({"@context": ctx, "id": urn.fqn, "type": type})
+    @dispatch(str)
+    def __init__(self, id: str, *, ctx: List[str] = None):  # noqa F811
+        id = Urn.prefix(id)
+        urn = Urn(id)
+        if (type := urn.infertype()) is None:
+            raise NgsiMissingTypeError(f"{urn.fqn=}")
+        self.__init__({"id": id, "type": type, "@context": ctx or [CORE_CONTEXT]})
 
     @classmethod
     def from_dict(cls, payload: dict):
@@ -293,7 +234,7 @@ class Entity:
         Entity
             The result Entity instance
         """
-        return cls(payload=payload)
+        return cls(payload)
 
     @classmethod
     def from_json(cls, content: str):
@@ -313,7 +254,7 @@ class Entity:
             The result Entity instance
         """
         payload: dict = json.loads(content)
-        return cls(payload=payload)
+        return cls(payload)
 
     @classmethod
     def duplicate(cls, entity: Entity) -> Entity:

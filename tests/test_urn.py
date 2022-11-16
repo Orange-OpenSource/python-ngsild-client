@@ -45,12 +45,12 @@ def test_valid_urn():
 
 def test_invalid_urn_bad_nid():
     with pytest.raises(UrnError):
-        urn = Urn("urn:ngsi*ld:test")
+        _ = Urn("urn:ngsi*ld:test")
 
 
 def test_invalid_urn_missing_nss():
     with pytest.raises(UrnError):
-        urn = Urn("urn:ngsi-ld:")
+        _ = Urn("urn:ngsi-ld:")
 
 
 def test_guess_from_string():
