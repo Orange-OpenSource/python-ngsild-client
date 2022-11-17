@@ -1,0 +1,39 @@
+{
+    "@context": [
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        "https://raw.githubusercontent.com/smart-data-models/dataModel.Parking/master/context.jsonld"
+    ],
+    "id": "urn:ngsi-ld:OffStreetParking:Downtown1",
+    "type": "OffStreetParking",
+    "name": {
+        "type": "Property",
+        "value": "Downtown One"
+    },
+    "availableSpotNumber": {
+        "type": "Property",
+        "value": 121,
+        "observedAt": "2022-10-25T08:00:00Z",
+        "reliability": {
+            "type": "Property",
+            "value": 0.7
+        },
+        "providedBy": {
+            "type": "Relationship",
+            "object": "urn:ngsi-ld:Camera:C1"
+        }
+    },
+    "totalSpotNumber": {
+        "type": "Property",
+        "value": 200
+    },
+    "location": {
+        "type": "GeoProperty",
+        "value": {
+            "type": "Point",
+            "coordinates": [
+                -8.5,
+                41.2
+            ]
+        }
+    }
+}
