@@ -31,27 +31,27 @@ class Console:
         self.console = console.Console() if is_interactive() else None
         self.verbose = verbose
 
-    def message(self, msg: str, *, color: str = None, level: MsgLvl = "info"):
+    def message(self, msg: str, *, color: str = None, lvl: MsgLvl = "info"):
         if not self.verbose:
             return
         if not self.console:
             print(msg)
             return
         text = Text(msg)
-        if level:
-            color = MAP_LEVEL_COLOR.get(level, None)
+        if lvl:
+            color = MAP_LEVEL_COLOR.get(lvl, None)
         if color:
             text.stylize(color)
         self.console.print(text)
 
-    def success(self):
-        self.message(color="green")
+    def success(self, msg: str):
+        self.message(msg, lvl="success")
 
-    def warn(self):
-        self.message(color="orange")
+    def warn(self, msg: str):
+        self.message(msg, lvl="warning")
 
-    def error(self):
-        self.message(color="red")
+    def error(self, msg: str):
+        self.message(msg, lvl="error")
 
     def print(self, msg: str):
         if not self.verbose:

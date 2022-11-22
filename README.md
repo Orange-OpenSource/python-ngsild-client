@@ -186,11 +186,6 @@ parking = Entity.load(SmartDataModels.SmartCities.Parking.OffStreetParking)
 ```
 
 Once loaded we can manipulate our new parking the same way we've done until now.<br>
-First apply this minor fix that will prevent brokers to create the parking.
-```python
-parking.ctx.remove("iudx:SmartParking")  # brokers won't resolve this context without any additional config
-```
-
 Let's see how it is occupied.
 
 ```python

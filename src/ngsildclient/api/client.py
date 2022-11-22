@@ -236,7 +236,8 @@ class Client:
             r.raise_for_status()
         except Exception as e:
             if is_interactive():
-                return False
+                self.console.print(str(e))
+                return
             if raise_for_disconnected:
                 raise NgsiNotConnectedError(f"Cannot connect to Context Broker at {self.hostname}:{self.port}: {e}")
             else:
@@ -789,13 +790,13 @@ class Client:
             return None
 
     def _welcome_message(self) -> str:
-        return f"[green]Connected[/] to Context Broker at [blue]{self.hostname}:{self.port}[/] | vendor=[blue]{self.broker.vendor.value}[/] | version=[blue]{self.broker.version}[/]"
+        return f"[green]Connected[/] to Context Broker at [blue3]{self.hostname}:{self.port}[/] | vendor=[blue3]{self.broker.vendor.value}[/] | version=[blue3]{self.broker.version}[/]"
 
     def _fail_message(self) -> str:
-        return f"[red]Failed[/] to connect to Context Broker at {self.hostname}:{self.port}"
+        return f"[red3]Failed[/] to connect to Context Broker at [blue3]{self.hostname}:{self.port}[/]"
 
     def _warn_spring_message(self) -> str:
-        return "Java-Spring based Context Broker detected. [orange]Info endpoint disabled."
+        return "Java-Spring based Context Broker detected. [orange3]Info endpoint disabled."
 
     def _create_network(self, root: Entity, G: nx.Graph, nodecache: dict, edgecache: Set):
         source: Tuple = Urn.split(root.id)
