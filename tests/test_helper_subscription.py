@@ -20,7 +20,7 @@ def test_build_subscription():
         .description("Notify me of low feedstock on Farm:001")
         .select_type("FillingLevelSensor")
         .watch(["filling"])
-        .query("filling>0.4;filling<0.6;controlledAsset==urn:ngsi-ld:Building:farm001")
+        .query('filling>0.4;filling<0.6;controlledAsset=="urn:ngsi-ld:Building:farm001"')
         .notif(["filling", "controlledAsset"])
     )
     subscription = builder.build()
@@ -29,7 +29,7 @@ def test_build_subscription():
         "description": "Notify me of low feedstock on Farm:001",
         "entities": [{"type": "FillingLevelSensor"}],
         "watchedAttributes": ["filling"],
-        "q": "filling>0.4;filling<0.6;controlledAsset==urn:ngsi-ld:Building:farm001",
+        "q": "filling%3E0.4%3Bfilling%3C0.6%3BcontrolledAsset%3D%3D%22urn%3Angsi-ld%3ABuilding%3Afarm001%22",
         "isActive": True,
         "notification": {
             "attributes": ["filling", "controlledAsset"],

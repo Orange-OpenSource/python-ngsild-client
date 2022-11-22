@@ -251,6 +251,33 @@ client.count("ParkingSpot", q='refParkingSite=="urn:ngsi-ld:OffStreetParking:por
 client.close()
 ```
 
+### Let's go further
+
+1. Develop a NGSI-LD Agent
+
+    - Collect incoming data from parking IoT *(ground sensors, cameras)* and the parking system API
+    - Clean data, process data and convert to NGSI-LD entities
+    - Create or update entities into the NGSI-LD broker
+
+2. Subscribe to events
+
+    - Create a subscription to be informed when parking occupation exceeds 90%
+    - The software that listens to these highly-occupied parking entities can also be a NGSI-LD Agent
+
+    <br>Example : programatically subscribe to events
+
+    ```python
+    from ngsildclient import SubscriptionBuilder
+
+    subscr = SubscriptionBuilder("https://parkingsystem.example.com:8000/subscription/high-occupancy")
+        .description("Notify me of high occupancy on parking porto-23889")
+        .select_type("OffStreetParking")
+        .watch(["occupancy"])
+        .query('occupancy>0.9;controlledAsset=="urn:ngsi-ld:OffStreetParking:porto-ParkingLot-23889"')
+        .build()
+    client.subscriptions.create(subscr)
+    ```
+
 ## Where to get it
 
 The source code is currently hosted on GitHub at :
