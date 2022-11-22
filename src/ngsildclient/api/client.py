@@ -38,6 +38,7 @@ from .alt import Alt
 from .follow import LinkFollower
 from .exceptions import *
 from ngsildclient.settings import globalsettings
+from ngsildclient.utils.console import Console, MsgLvl
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +99,7 @@ class Client:
         ignore_errors: bool = False,
         proxy: str = None,
         custom_auth: AuthBase = None,
+        verbose: bool = True,
     ):
         """Create a Client instance to interact with the Context Broker.
 
@@ -160,7 +162,8 @@ class Client:
         if proxy:
             self.session.proxies = {proxy}
 
-        logger.info("Connecting client ...")
+        self.verbose = verbose
+        self.console = Console(verbose)
 
         self._entities = Entities(self, f"{self.url}/{ENDPOINT_ENTITIES}", f"{self.url}/{ENDPOINT_ALT_QUERY_ENTITIES}")
         self._batch = Batch(self, f"{self.url}/{ENDPOINT_BATCH}")
@@ -185,11 +188,9 @@ class Client:
         status = self.is_connected(raise_for_disconnected=True)
         if status:
             self.broker = Broker(*self.guess_vendor())
-            if is_interactive():
-                print(self._welcome_message())
+            self.console.print(self._welcome_message())
         else:
-            if is_interactive():
-                print(self._fail_message())
+            self.console.print(self._fail_message())
 
     def raise_for_status(self, r: Response):
         """Raises an exception depending on the API response.
@@ -784,18 +785,17 @@ class Client:
                 return None
             return vendor, version
         except Exception:
-            if is_interactive():
-                print("Java-Spring based Context Broker detected. Try to enable info endpoint.")
+            self.console.print("Java-Spring based Context Broker detected. [orange]Try to enable info endpoint.")
             return None
 
     def _welcome_message(self) -> str:
-        return f"Connected to Context Broker at {self.hostname}:{self.port} | vendor={self.broker.vendor.value} | version={self.broker.version}"
+        return f"[green]Connected[/] to Context Broker at [blue]{self.hostname}:{self.port}[/] | vendor=[blue]{self.broker.vendor.value}[/] | version=[blue]{self.broker.version}[/]"
 
     def _fail_message(self) -> str:
-        return f"Failed to connect to Context Broker at {self.hostname}:{self.port}"
+        return f"[red]Failed[/] to connect to Context Broker at {self.hostname}:{self.port}"
 
     def _warn_spring_message(self) -> str:
-        return "Java-Spring based Context Broker detected. Info endpoint disabled."
+        return "Java-Spring based Context Broker detected. [orange]Info endpoint disabled."
 
     def _create_network(self, root: Entity, G: nx.Graph, nodecache: dict, edgecache: Set):
         source: Tuple = Urn.split(root.id)

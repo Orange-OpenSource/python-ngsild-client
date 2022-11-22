@@ -74,6 +74,9 @@ class BatchResult:
         if not self.ok:
             raise NgsiApiError(f"Error while processing batch {self.op} operation", self)
 
+    def __repr__(self):
+        return f"op: {self.op}, success: {self.n_ok}, errors: {self.n_err}"
+
     def __iadd__(self, r: BatchResult):
         self.success.extend(r.success)
         self.errors.extend(r.errors)

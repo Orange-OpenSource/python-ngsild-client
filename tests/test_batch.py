@@ -44,17 +44,33 @@ def test_api_batch_single_create_ok(mocked_connected, requests_mock: Mocker):
     assert r.n_err == 0
     assert r.ratio == 1.0
 
+
 def test_api_batch_single_create_nok(mocked_connected, requests_mock: Mocker):
     requests_mock.post(
         "http://localhost:1026/ngsi-ld/v1/entityOperations/create/",
         request_headers={"Content-Type": "application/ld+json"},
         status_code=207,
-        json={"success": [], 
+        json={
+            "success": [],
             "errors": [
-                {"entityId": "urn:ngsi-ld:RoomObserved:Room1", "error": {"type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData", "title": "entity already exists", "status": 400}}, 
-                {'entityId': 'urn:ngsi-ld:RoomObserved:Room2', 'error': {'type': 'https://uri.etsi.org/ngsi-ld/errors/BadRequestData', 'title': 'entity already exists', 'status': 400}}
-            ]
-        }
+                {
+                    "entityId": "urn:ngsi-ld:RoomObserved:Room1",
+                    "error": {
+                        "type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData",
+                        "title": "entity already exists",
+                        "status": 400,
+                    },
+                },
+                {
+                    "entityId": "urn:ngsi-ld:RoomObserved:Room2",
+                    "error": {
+                        "type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData",
+                        "title": "entity already exists",
+                        "status": 400,
+                    },
+                },
+            ],
+        },
     )
     client = Client()
     room1 = Entity("RoomObserved", "Room1").prop("temperature", 21.7)
@@ -66,20 +82,45 @@ def test_api_batch_single_create_nok(mocked_connected, requests_mock: Mocker):
     assert r.n_err == 2
     assert r.ratio == 0.0
     assert r.errors == [
-        {"entityId": "urn:ngsi-ld:RoomObserved:Room1", "error": {"type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData", "title": "entity already exists", "status": 400}}, 
-        {'entityId': 'urn:ngsi-ld:RoomObserved:Room2', 'error': {'type': 'https://uri.etsi.org/ngsi-ld/errors/BadRequestData', 'title': 'entity already exists', 'status': 400}}
+        {
+            "entityId": "urn:ngsi-ld:RoomObserved:Room1",
+            "error": {
+                "type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData",
+                "title": "entity already exists",
+                "status": 400,
+            },
+        },
+        {
+            "entityId": "urn:ngsi-ld:RoomObserved:Room2",
+            "error": {
+                "type": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData",
+                "title": "entity already exists",
+                "status": 400,
+            },
+        },
     ]
 
+
 def test_api_batch_create_multi_ok(mocked_connected, requests_mock: Mocker):
-    requests_mock.register_uri("POST", "http://localhost:1026/ngsi-ld/v1/entityOperations/create/",
-     [{"status_code": 201, "json":[
-            "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
-            "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
-        ]},
-        {"status_code": 201, "json":[
-            "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
-        ]}
-     ])            
+    requests_mock.register_uri(
+        "POST",
+        "http://localhost:1026/ngsi-ld/v1/entityOperations/create/",
+        [
+            {
+                "status_code": 201,
+                "json": [
+                    "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
+                    "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
+                ],
+            },
+            {
+                "status_code": 201,
+                "json": [
+                    "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
+                ],
+            },
+        ],
+    )
     client = Client()
     sample2 = sample_entity.dup()
     sample3 = sample_entity.dup()
@@ -92,6 +133,7 @@ def test_api_batch_create_multi_ok(mocked_connected, requests_mock: Mocker):
     assert r.n_err == 0
     assert r.ratio == 1.0
     assert r.errors == []
+
 
 def test_api_batch_upsert_ok_201(mocked_connected, requests_mock):
     requests_mock.post(
@@ -122,11 +164,12 @@ def test_api_batch_upsert_ok_201(mocked_connected, requests_mock):
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
     ]
 
+
 def test_api_batch_upsert_ok_204(mocked_connected, requests_mock):
     requests_mock.post(
         "http://localhost:1026/ngsi-ld/v1/entityOperations/upsert/",
         request_headers={"Content-Type": "application/ld+json"},
-        status_code=204
+        status_code=204,
     )
     client = Client()
     sample2 = sample_entity.dup()
@@ -145,6 +188,7 @@ def test_api_batch_upsert_ok_204(mocked_connected, requests_mock):
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
     ]
+
 
 def test_api_batch_update_ok_204(mocked_connected, requests_mock):
     requests_mock.post(
@@ -175,6 +219,7 @@ def test_api_batch_update_ok_204(mocked_connected, requests_mock):
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
     ]
 
+
 def test_api_batch_delete_ok_204(mocked_connected, requests_mock):
     requests_mock.post(
         "http://localhost:1026/ngsi-ld/v1/entityOperations/delete/",
@@ -202,4 +247,4 @@ def test_api_batch_delete_ok_204(mocked_connected, requests_mock):
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567",
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4568",
         "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4569",
-    ]    
+    ]

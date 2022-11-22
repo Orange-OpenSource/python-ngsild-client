@@ -1,4 +1,4 @@
-ngsildclient.utils.console
+﻿ngsildclient.utils.console
 ==========================
 
 .. automodule:: ngsildclient.utils.console
@@ -8,6 +8,14 @@ ngsildclient.utils.console
    
 
    
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      compute
+      compute4
+      example
    
    
 

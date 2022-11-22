@@ -37,7 +37,10 @@ class Batch:
 
     @rfc7807_error_handle_async
     async def _create(self, entities: Sequence[Entity]) -> BatchResult:
-        r = await self._session.post(f"{self.url}/create/", content=json.dumps([e for e in entities], cls=NgsiEncoder))
+        headers = {"Content-Type": "application/ld+json"}
+        r = await self._session.post(
+            f"{self.url}/create/", headers=headers, content=json.dumps([e for e in entities], cls=NgsiEncoder)
+        )
         self._client.raise_for_status(r)
         if r.status_code == 201:
             success, errors = r.json(), []
@@ -57,9 +60,13 @@ class Batch:
 
     @rfc7807_error_handle_async
     async def _upsert(self, entities: Sequence[Entity], opt: Literal["replace", "update"] = "replace") -> BatchResult:
+        headers = {"Content-Type": "application/ld+json"}
         params = {"options": opt} if opt else {}
         r = await self._session.post(
-            f"{self.url}/upsert/", content=json.dumps([e for e in entities], cls=NgsiEncoder), params=params
+            f"{self.url}/upsert/",
+            content=json.dumps([e for e in entities], cls=NgsiEncoder),
+            headers=headers,
+            params=params,
         )
         self._client.raise_for_status(r)
         if r.status_code == 201:
@@ -86,9 +93,13 @@ class Batch:
 
     @rfc7807_error_handle_async
     async def _update(self, entities: Sequence[Entity], opt: Literal["noOverwrite"] = None) -> BatchResult:
+        headers = {"Content-Type": "application/ld+json"}
         params = {"options": opt} if opt else {}
         r = await self._session.post(
-            f"{self.url}/update/", content=json.dumps([e for e in entities], cls=NgsiEncoder), params=params
+            f"{self.url}/update/",
+            content=json.dumps([e for e in entities], cls=NgsiEncoder),
+            headers=headers,
+            params=params,
         )
         self._client.raise_for_status(r)
         if r.status_code == 204:

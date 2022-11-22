@@ -141,7 +141,6 @@ class AsyncClient:
         headers = {
             "User-Agent": self.useragent,
             "Accept": "application/ld+json",
-            # "Content-Type": "application/ld+json",
         }
         if tenant is not None:
             headers["NGSILD-Tenant"] = tenant
