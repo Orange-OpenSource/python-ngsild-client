@@ -14,16 +14,11 @@ from ngsildclient.model.helper.postal import PostalAddressBuilder
 
 def test_build_postal_address():
     builder = PostalAddressBuilder()
-    addr = (
-        builder.street("C/ La Pereda 14")
-        .locality("Santander")
-        .region("Cantabria")
-        .country("Spain")
-        .build()
-    )
+    addr = builder.street("C/ La Pereda 14").locality("Santander").region("Cantabria").country("Spain").build()
     assert addr == {
         "streetAddress": "C/ La Pereda 14",
         "addressLocality": "Santander",
         "addressRegion": "Cantabria",
         "addressCountry": "Spain",
+        "type": "PostalAddress",
     }

@@ -4,16 +4,13 @@ from ngsildclient import Entity, PostalAddressBuilder
 obstime = datetime(2018, 9, 21, 12)  # Time of Observation
 
 e = Entity("OffStreetParking", "porto-ParkingLot-23889")
-e.ctx = [
-    "iudx:SmartParking",
-    "https://raw.githubusercontent.com/smart-data-models/dataModel.Parking/master/context.jsonld",
-]
+e.ctx = ["https://raw.githubusercontent.com/smart-data-models/dataModel.Parking/master/context.jsonld"]
 e.tprop("accessModified", obstime)
-e.prop("adress", PostalAddressBuilder().locality("Porto").country("Portugal").street("Rua de Fernandes Tomas").build())
+e.prop("address", PostalAddressBuilder().locality("Porto").country("Portugal").street("Rua de Fernandes Tomas").build())
 e.prop("allowedVehicleType", ["car"])
 e.prop("availableSpotNumber", 132, observedat=obstime)
 e.prop("category", ["underground", "public", "feeCharged", "mediumTerm", "barrierAccess"])
-e.prop("chargeType", "temporaryPrice")
+e.prop("chargeType", ["temporaryPrice"])
 e.prop("description", "Municipal car park located near the Trindade metro station and the Town Hall")
 e.prop("extCategory", ["A"])
 e.prop("fourWheelerSlots", {"availableSpotNumber": 25, "totalSpotNumber": 25, "occupiedSpotNumber": 0})
@@ -36,7 +33,7 @@ e.prop(
     },
 )
 e.prop("name", "Parque de estacionamento Trindade")
-e.tprop("observationDateTime", obstime).prop("occupancy", 0.68).tprop("occupancyModified", obstime)
+e.tprop("observationDateTime", "2021-03-11T15:51:02Z").prop("occupancy", 0.68).tprop("occupancyModified", obstime)
 e.prop("occupiedSpotNumber", 282).prop("parkingSiteID", "P2")
 e.prop("requiredPermit", []).prop("totalSpotNumber", 414)
 e.prop("twoWheelerSlots", {"availableSpotNumber": 20, "totalSpotNumber": 20, "occupiedSpotNumber": 0})

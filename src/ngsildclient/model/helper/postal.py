@@ -40,6 +40,7 @@ class PostalAddress:
             d["addressRegion"] = self.region
         if self.country:
             d["addressCountry"] = self.country
+        d["type"] = "PostalAddress"
         if not d:
             raise ValueError("PostalAddress is empty")
         return d

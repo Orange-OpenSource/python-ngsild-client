@@ -257,7 +257,7 @@ client.close()
 
     - Collect incoming data from parking IoT *(ground sensors, cameras)* and the parking system API
     - Clean data, process data and convert to NGSI-LD entities
-    - Create or update entities into the NGSI-LD broker
+    - Create and update entities into the NGSI-LD broker *in real-time*
 
 2. Subscribe to events
 

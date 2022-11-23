@@ -9,7 +9,8 @@
         "value": {
             "streetAddress": "25 Walbrook",
             "addressLocality": "London",
-            "postalCode": "EC4N 8AF"
+            "postalCode": "EC4N 8AF",
+            "type": "PostalAddress"
         }
     },
     "category": {

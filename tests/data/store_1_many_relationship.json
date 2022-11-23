@@ -16,7 +16,8 @@
             "streetAddress": "Bornholmer Straße 65",
             "addressLocality": "Prenzlauer Berg",
             "postalCode": "10439",
-            "addressRegion": "Berlin"
+            "addressRegion": "Berlin",
+            "type": "PostalAddress"
         },
         "verified": {
             "type": "Property",

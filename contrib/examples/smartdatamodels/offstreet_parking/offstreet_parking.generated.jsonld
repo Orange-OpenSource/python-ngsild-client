@@ -1,10 +1,9 @@
 {
-    "@context": [
-        "iudx:SmartParking",
-        "https://raw.githubusercontent.com/smart-data-models/dataModel.Parking/master/context.jsonld"
-    ],
     "id": "urn:ngsi-ld:OffStreetParking:porto-ParkingLot-23889",
     "type": "OffStreetParking",
+    "@context": [
+        "https://raw.githubusercontent.com/smart-data-models/dataModel.Parking/master/context.jsonld"
+    ],
     "accessModified": {
         "type": "Property",
         "value": {
@@ -12,12 +11,13 @@
             "@value": "2018-09-21T12:00:00Z"
         }
     },
-    "adress": {
+    "address": {
         "type": "Property",
         "value": {
             "streetAddress": "Rua de Fernandes Tomas",
             "addressLocality": "Porto",
-            "addressCountry": "Portugal"
+            "addressCountry": "Portugal",
+            "type": "PostalAddress"
         }
     },
     "allowedVehicleType": {
@@ -43,7 +43,9 @@
     },
     "chargeType": {
         "type": "Property",
-        "value": "temporaryPrice"
+        "value": [
+            "temporaryPrice"
+        ]
     },
     "description": {
         "type": "Property",
@@ -106,7 +108,7 @@
         "type": "Property",
         "value": {
             "@type": "DateTime",
-            "@value": "2018-09-21T12:00:00Z"
+            "@value": "2021-03-11T15:51:02Z"
         }
     },
     "occupancy": {

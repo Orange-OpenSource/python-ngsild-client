@@ -30,7 +30,8 @@
             "streetAddress": "C/ La Pereda 14",
             "addressLocality": "Santander",
             "addressRegion": "Cantabria",
-            "addressCountry": "Spain"
+            "addressCountry": "Spain",
+            "type": "PostalAddress"
         }
     },
     "location": {
