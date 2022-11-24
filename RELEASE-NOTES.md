@@ -1,3 +1,11 @@
+# ngsildclient 0.5.1
+## November 24, 2022
+
+- Allow to specify precision in Entity.loc()
+- Added type to PostalAddressBuilder
+- Urlencode query in subscription payloads
+- Fixed issue #7 : Batch upsert with AsyncClient fails with Unsupported Media type
+
 # ngsildclient 0.5.0
 ## October 26, 2022
 

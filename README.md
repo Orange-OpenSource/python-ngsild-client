@@ -97,7 +97,7 @@ Let's print the JSON-LD payload.
 e.pprint()
 ```
 
-The result is available [here](https://raw.githubusercontent.com/Orange-OpenSource/python-ngsild-client/master/parking_sample.jsonld).<br>
+The result is available [here](https://github.com/Orange-OpenSource/python-ngsild-client/blob/master/parking_sample.jsonld).<br>
 
 
 ### Persist our parking in the Context Broker
@@ -236,7 +236,7 @@ Make a single list of these parts and save it into a file.
 datamodel = sum(([parking], spots), [])  # flatten lists
 Entity.save_batch(datamodel, "parking_system.jsonld")
 ```
-The result is available [here](https://raw.githubusercontent.com/Orange-OpenSource/python-ngsild-client/master/parking_system.jsonld).<br>
+The result is available [here](https://github.com/Orange-OpenSource/python-ngsild-client/blob/master/parking_system.jsonld).<br>
 Time now to populate our parking system in the broker.
 
 ```python
