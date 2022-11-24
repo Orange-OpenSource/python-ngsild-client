@@ -187,13 +187,14 @@ class NgsiDict(Cut, MutableMapping):
         datasetid: str = None,
         observedat: Union[str, datetime] = None,
         attrname: str = None,
+        precision: int = 6,
     ) -> AttrGeoValue:
         from ngsildclient.model.attr.geo import AttrGeoValue
 
         if isinstance(value, Tuple):
             if len(value) == 2:
                 lat, lon = value
-                value = Point((lon, lat))
+                value = Point((lon, lat), precision=precision)
             else:
                 raise ValueError("lat, lon tuple expected")
         attrvalue = AttrValue(value, datasetid, observedat)

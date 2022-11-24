@@ -15,7 +15,7 @@ e.prop("description", "Municipal car park located near the Trindade metro statio
 e.prop("extCategory", ["A"])
 e.prop("fourWheelerSlots", {"availableSpotNumber": 25, "totalSpotNumber": 25, "occupiedSpotNumber": 0})
 e.prop("layout", ["multiLevel"])
-e.loc(41.150691773, -8.60961198807)
+e.loc(41.150691773, -8.60961198807, precision=11)
 e.prop("maximumParkingDuration", "PT8H")
 e.prop(
     "municipalityInfo",

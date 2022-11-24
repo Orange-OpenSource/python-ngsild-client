@@ -32,12 +32,12 @@ class AttrGeoValue(ngsidict.NgsiDict):
         return geojson.loads(str(self["value"]))
 
     @value.setter
-    def value(self, v: Union[Tuple, Geometry]):
+    def value(self, v: Union[Tuple, Geometry], precision: int = 6):
         if self["type"] != "GeoProperty":
             raise ValueError("Attribute type MUST be GeoProperty")
         if isinstance(v, Tuple) and len(v) == 2:
             lat, lon = v
-            v = Point((lon, lat))
+            v = Point((lon, lat), precision=precision)
         self["value"] = v
 
     @property

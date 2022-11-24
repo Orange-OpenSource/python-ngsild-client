@@ -54,6 +54,17 @@ def test_loc_2_float():
     }
 
 
+def test_loc_high_precision():
+    e = Entity("OffStreetParking", "porto-ParkingLot-23889")
+    e.loc(41.150691773, -8.60961198807, precision=11)  # default precision is 6 (geojson default)
+    assert e.to_dict() == {
+        "id": "urn:ngsi-ld:OffStreetParking:porto-ParkingLot-23889",
+        "type": "OffStreetParking",
+        "@context": ["https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"],
+        "location": {"type": "GeoProperty", "value": {"coordinates": [-8.60961198807, 41.150691773], "type": "Point"}},
+    }
+
+
 def test_constructor_type_and_id_fully_qualified():
     e = Entity("AirQualityObserved", "urn:ngsi-ld:AirQualityObserved:RZ:Obsv4567")
     assert e.type == "AirQualityObserved"

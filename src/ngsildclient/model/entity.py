@@ -465,16 +465,17 @@ class Entity:
         nested: bool = False,
         datasetid: str = None,
         observedat: Union[str, datetime] = None,
+        precision: int = 6,
     ) -> Entity:
-        property = NgsiDict.mkgprop(value, datasetid=datasetid, observedat=observedat)
+        property = NgsiDict.mkgprop(value, datasetid=datasetid, observedat=observedat, precision=precision)
         self._update_entity(name, property, nested)
         return self
 
-    def loc(self, *coord, **kwargs) -> Entity:
+    def loc(self, *coord, precision: int = 6, **kwargs) -> Entity:
         if len(coord) == 1 and isinstance(coord, Tuple):
             coord = coord[0]
         if len(coord) == 2:
-            return self.gprop("location", coord, **kwargs)
+            return self.gprop("location", coord, precision=precision, **kwargs)
         raise ValueError("lat,lon tuple expected")
 
     """ A helper method to set the frequently used "location" geoproperty.
