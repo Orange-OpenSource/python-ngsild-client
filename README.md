@@ -26,7 +26,7 @@
 
 ngsildclient aims at :
 
-- programatically generate NGSI-LD entities
+- programmatically generate NGSI-LD entities
 - load entities from JSON-LD payloads
 
 Four primitives are provided `prop()`, `gprop()`, `tprop()`, `rel()` to build respectively a Property, GeoProperty, TemporalProperty and Relationship.
@@ -264,7 +264,7 @@ client.close()
     - Create a subscription to be informed when parking occupation exceeds 90%
     - The software that listens to these highly-occupied parking entities can also be a NGSI-LD Agent
 
-    <br>Example : programatically subscribe to events
+    <br>Example : programmatically subscribe to events
 
     ```python
     from ngsildclient import SubscriptionBuilder
