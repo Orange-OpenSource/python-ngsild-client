@@ -1,3 +1,8 @@
+# ngsildclient 0.5.2
+## December 1, 2022
+
+- Allow to create tenant (auto-create is default for the sync Client)
+
 # ngsildclient 0.5.1
 ## November 24, 2022
 

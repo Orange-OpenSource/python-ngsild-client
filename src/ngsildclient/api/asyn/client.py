@@ -37,6 +37,7 @@ from .types import Types
 from .contexts import Contexts
 from .subscriptions import Subscriptions
 from .temporal import Temporal
+from ..exceptions import NgsiClientTooManyResultsError
 
 if TYPE_CHECKING:
     from ngsildclient.model.constants import EntityOrId
@@ -628,6 +629,18 @@ class AsyncClient:
         """
         await self.purge(type)
         await self.contexts.cleanup()
+
+    async def create_tenant(self, tenant: str) -> httpx.Response:
+        payload = {
+            "id": f"urn:ngsi-ld:__NGSILD-Tenant__:{tenant}",
+            "type": "__NGSILD-Tenant__",
+            "@context": ["https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"],
+        }
+        return await self.client.post(
+            f"{self.url}/{ENDPOINT_BATCH}/upsert/",
+            json=[payload],
+            headers={"Content-Type": "application/ld+json", "NGSILD-Tenant": tenant},
+        )
 
     # below the context manager methods
 

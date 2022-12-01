@@ -95,6 +95,7 @@ class Client:
         secure: bool = False,
         useragent: str = UA,
         tenant: str = None,
+        tenant_autocreate: bool = True,
         overwrite: bool = False,
         ignore_errors: bool = False,
         proxy: str = None,
@@ -121,6 +122,8 @@ class Client:
             the User Agent string sent in the HTTP headers, by default UA
         tenant : str, optional
             the tenant string in case you make use of multi-tenancy, by default None
+        tenant_autocreate : boolean, optional
+            creates the tenant if not exists, default is True
         overwrite : bool, optional
             if set create() will behave like upsert(), by default False
         ignore_errors : bool, optional
@@ -144,6 +147,7 @@ class Client:
         self.basepath = f"{self.url}/{NGSILD_PATH}"
         self.useragent = useragent
         self.tenant = tenant
+        self.tenant_autocreate = tenant_autocreate
         self.overwrite = overwrite
         self.ignore_errors = ignore_errors
         self.proxy = proxy
@@ -233,7 +237,12 @@ class Client:
                 },  # overrides session headers
                 params=params,
             )
+
+            if not r.ok and self.tenant and self.tenant_autocreate:
+                r = self.create_tenant(self.tenant)
+
             r.raise_for_status()
+
         except Exception as e:
             if is_interactive():
                 self.console.print(str(e))
@@ -708,6 +717,16 @@ class Client:
         self.purge(type)
         self.contexts.cleanup()
 
+    def create_tenant(self, tenant: str) -> Response:
+        payload = {
+            "id": f"urn:ngsi-ld:__NGSILD-Tenant__:{tenant}",
+            "type": "__NGSILD-Tenant__",
+            "@context": ["https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"],
+        }
+        return self.session.post(
+            f"{self.url}/{ENDPOINT_BATCH}/upsert/", json=[payload], headers={"NGSILD-Tenant": tenant}
+        )
+
     def guess_vendor(self) -> tuple[Vendor, Version]:
         """Try to guess the Context Broker vendor.
 
@@ -790,10 +809,12 @@ class Client:
             return None
 
     def _welcome_message(self) -> str:
-        return f"[green]Connected[/] to Context Broker at [blue3]{self.hostname}:{self.port}[/] | vendor=[blue3]{self.broker.vendor.value}[/] | version=[blue3]{self.broker.version}[/]"
+        tenant = self.tenant if self.tenant else "N/A"
+        return f"[green]Connected[/] to Context Broker at [blue3]{self.hostname}:{self.port}[/] | tenant=[blue3]{tenant}[/] | vendor=[blue3]{self.broker.vendor.value}[/] | version=[blue3]{self.broker.version}[/]"
 
     def _fail_message(self) -> str:
-        return f"[red3]Failed[/] to connect to Context Broker at [blue3]{self.hostname}:{self.port}[/]"
+        tenant = self.tenant if self.tenant else "N/A"
+        return f"[red3]Failed[/] to connect to Context Broker at [blue3]{self.hostname}:{self.port}[/] | tenant=[blue3]{tenant}[/]"
 
     def _warn_spring_message(self) -> str:
         return "Java-Spring based Context Broker detected. [orange3]Info endpoint disabled."

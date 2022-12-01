@@ -13,7 +13,7 @@ import http.client
 import logging
 import sys
 
-__version__ = "0.5.1"
+__version__ = "0.5.2"
 
 from ngsildclient.settings import globalsettings as settings
 from .utils import iso8601, is_interactive
